@@ -1,0 +1,15 @@
+{
+  "_type": "NANSEN Project Specification",
+  "_description": "Contains properties and preferences for a NANSEN project",
+  "_version": "1.0.0",
+  "Properties": {
+    "Name": "pulakat",
+    "ShortName": "pulakat",
+    "Description": "Project for the Pulakat Lab"
+  },
+  "Preferences": {
+    "DataModule": [
+      "nansen.module.general.core"
+    ]
+  }
+}
