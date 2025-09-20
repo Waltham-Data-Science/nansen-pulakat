@@ -8,33 +8,6 @@
     "IsEditable": false,
     "ColumnOrder": 1
   },
-    {
-    "VariableName": "SessionName",
-    "ColumnLabel": "SessionName",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 100,
-    "IsEditable": false,
-    "ColumnOrder": 2
-  },
-    {
-    "VariableName": "SubjectDocumentIdentifier",
-    "ColumnLabel": "SubjectDocumentIdentifier",
-    "ShowColumn": false,
-    "SkipColumn": false,
-    "ColumnWidth": 100,
-    "IsEditable": false,
-    "ColumnOrder": 3
-  },
-  {
-    "VariableName": "SubjectLocalIdentifier",
-    "ColumnLabel": "SubjectName",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 100,
-    "IsEditable": false,
-    "ColumnOrder": 4
-  }
   {
     "VariableName": "StrainName",
     "ColumnLabel": "StrainName",
@@ -97,5 +70,32 @@
     "ColumnWidth": 100,
     "IsEditable": false,
     "ColumnOrder": 11
+  },
+  {
+    "VariableName": "SessionName",
+    "ColumnLabel": "SessionName",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 2
+  },
+  {
+    "VariableName": "SubjectDocumentIdentifier",
+    "ColumnLabel": "SubjectDocumentIdentifier",
+    "ShowColumn": false,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 3
+  },
+  {
+    "VariableName": "SubjectLocalIdentifier",
+    "ColumnLabel": "SubjectName",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 212,
+    "IsEditable": false,
+    "ColumnOrder": 4
   }
 ]
