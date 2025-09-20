@@ -1,2 +1,3 @@
-/pulakat/metadata/tables
-.DS_Store
+*master_metatable.mat
+*.DS_Store
+*.asv

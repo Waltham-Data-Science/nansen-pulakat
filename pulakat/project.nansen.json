@@ -8,6 +8,8 @@
     "Description": "Project for the Pulakat Lab"
   },
   "Preferences": {
-    "DataModule": []
+    "DataModule": [
+      "nansen.module.general.core"
+    ]
   }
 }
