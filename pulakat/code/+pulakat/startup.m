@@ -91,7 +91,7 @@ project.addMetaTable(subjectMetaTable);
 %     'MetaTableIdVarname', 'fileName');
 % project.addMetaTable(dataMetaTable);
 
-% Ensure 'pulakat' is the current 
+% Ensure 'pulakat' is the current
 projectManager.changeProject(projectName)
 
 % Launch nansen
