@@ -1,4 +1,4 @@
-function [subjectTable] = importSubjects(sessions,subjectTable)
+function [subjectTable] = subjects(sessions,subjectTable)
 %IMPORTSUBJECTS Summary of this function goes here
 %   Detailed explanation goes here
 

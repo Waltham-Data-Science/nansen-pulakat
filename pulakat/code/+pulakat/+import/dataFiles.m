@@ -1,4 +1,4 @@
-function [dataTable] = importDataFiles(dataFiles)
+function [dataTable] = dataFiles(dataFiles)
 %IMPORTDATAFILES Processes data files to extract subject identifiers and metadata.
 %
 %   dataTable = IMPORTDATAFILES() opens a user interface dialog to allow

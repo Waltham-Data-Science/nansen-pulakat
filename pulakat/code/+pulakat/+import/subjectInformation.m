@@ -1,4 +1,4 @@
-classdef SubjectInformationCreator < ndi.setup.NDIMaker.SubjectInformationCreator
+classdef subjectInformation < ndi.setup.NDIMaker.SubjectInformationCreator
 % PULAKAT - Creates NDI subject information for the Pulakat Lab.
 %
 % This class implements the 'create' method to generate subject identifiers

@@ -1,4 +1,4 @@
-function [subjectTable] = importSubjectFiles(subjectFiles)
+function [subjectTable] = subjectFiles(subjectFiles)
 %IMPORTSUBJECTFILES Imports and validates subject metadata from CSV or Excel files.
 %
 %   subjectTable = IMPORTSUBJECTFILES() opens a user interface dialog to
