@@ -24,14 +24,16 @@ end
 %% 2. Generate tables from dataset
 
 % Create session table
-sessionTable_cloud = table();
-[sessionTable_cloud.SessionName,sessionTable_cloud.SessionDocumentIdentifier] = dataset.session_list;
+sessionTable = table();
+[sessionTable.SessionName,sessionTable.SessionDocumentIdentifier] = dataset.session_list;
 
 % Create subject table and add session name
 subjectTable_cloud = ndi.fun.docTable.subject(dataset);
-subjectTable_cloud = innerjoin(subjectTable_cloud,sessionTable_cloud);
+subjectTable_cloud = innerjoin(subjectTable_cloud,sessionTable);
 
 % Create data table
+[docTypes,docCounts] = ndi.fun.doc.getDocTypes(dataset);
+documentsNDI = table(docTypes,docCounts);
 % dataTable_cloud = 1;
 
 % Regenerate session table with cumulative metrics from session
