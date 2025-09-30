@@ -2,7 +2,7 @@
   {
     "VariableName": "SessionDocumentIdentifier",
     "ColumnLabel": "SessionDocumentIdentifier",
-    "ShowColumn": true,
+    "ShowColumn": false,
     "SkipColumn": false,
     "ColumnWidth": 289,
     "IsEditable": false,
@@ -139,7 +139,7 @@
     "ColumnLabel": "ElectronicFileName",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 786,
     "IsEditable": false,
     "ColumnOrder": 16
   },
@@ -148,14 +148,14 @@
     "ColumnLabel": "DatasetPath",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 497,
     "IsEditable": false,
     "ColumnOrder": 17
   },
   {
     "VariableName": "DatasetDocumentIdentifier",
     "ColumnLabel": "DatasetDocumentIdentifier",
-    "ShowColumn": true,
+    "ShowColumn": false,
     "SkipColumn": false,
     "ColumnWidth": 100,
     "IsEditable": false,
@@ -166,7 +166,7 @@
     "ColumnLabel": "DatasetName",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 148,
     "IsEditable": false,
     "ColumnOrder": 19
   },
@@ -178,5 +178,32 @@
     "ColumnWidth": 100,
     "IsEditable": false,
     "ColumnOrder": 20
+  },
+  {
+    "VariableName": "FileDocumentIdentifier",
+    "ColumnLabel": "FileDocumentIdentifier",
+    "ShowColumn": false,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 21
+  },
+  {
+    "VariableName": "DataTypeName",
+    "ColumnLabel": "DataTypeName",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 303,
+    "IsEditable": false,
+    "ColumnOrder": 22
+  },
+  {
+    "VariableName": "DataTypeOntology",
+    "ColumnLabel": "DataTypeOntology",
+    "ShowColumn": false,
+    "SkipColumn": false,
+    "ColumnWidth": 319,
+    "IsEditable": false,
+    "ColumnOrder": 23
   }
 ]
