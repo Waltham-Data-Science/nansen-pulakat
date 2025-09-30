@@ -151,5 +151,32 @@
     "ColumnWidth": 100,
     "IsEditable": false,
     "ColumnOrder": 17
+  },
+  {
+    "VariableName": "DatasetDocumentIdentifier",
+    "ColumnLabel": "DatasetDocumentIdentifier",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 18
+  },
+  {
+    "VariableName": "DatasetName",
+    "ColumnLabel": "DatasetName",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 19
+  },
+  {
+    "VariableName": "DatasetUpdated",
+    "ColumnLabel": "DatasetUpdated",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 20
   }
 ]

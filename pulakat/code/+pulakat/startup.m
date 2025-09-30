@@ -21,18 +21,21 @@ else
     dataset = ndi.cloud.downloadDataset(cloudDatasetId,dataPath);
 end
 
-% Save datasetPath as json and add to gitignore
+% Get dataset metadata
+datasetInfo = ndi.cloud.api.datasets.get_dataset('682e7772cdf3f24938176fac');
+% datasetInfo = ndi.cloud.api.datasets.get_dataset(cloudDatasetId);
 
 %% 2. Generate tables from dataset
 
 % Create dataset table
-datasetTable = cell2table({dataset.id,dataset.reference,dataset.path},...
-    'VariableNames',{'DatasetDocumentIdentifier','DatasetName','DatasetPath'});
+lastUpdated = datetime(datasetInfo.updatedAt,'InputFormat','yyyy-MM-dd''T''HH:mm:ss.SSS''Z''','TimeZone','UTC');
+datasetTable_cloud = cell2table({dataset.id,dataset.reference,dataset.path,lastUpdated}, ...
+    'VariableNames',{'DatasetDocumentIdentifier','DatasetName','DatasetPath','DatasetUpdated'});
 
 % Create session table
 sessionTable = table();
 [sessionTable.SessionName,sessionTable.SessionDocumentIdentifier] = dataset.session_list;
-sessionTable{:,'DatasetDocumentIdentifier'} = datasetTable.DatasetDocumentIdentifier;
+sessionTable{:,'DatasetDocumentIdentifier'} = datasetTable_cloud.DatasetDocumentIdentifier;
 
 % Create subject table and add session name
 subjectTable_cloud = pulakat.import.subjects.tableFromSession(dataset);
@@ -40,7 +43,7 @@ subjectTable_cloud = innerjoin(subjectTable_cloud,sessionTable);
 
 % Create data table
 %dataTable_cloud = pulakat.import.data.tableFromSession(dataset);
-dataTable_cloud = table('VariableNames','');
+dataTable_cloud = cell2table({''},'VariableNames',{'ElectronicFileName'});
 
 % Regenerate session table with cumulative metrics from session
 sessionTable_cloud = ndi.fun.table.join( ...
@@ -77,11 +80,11 @@ project = projectManager.getProjectObject(projectName);
 %% 4. Add metatables to project and launch nansen viewer
 
 % Create (or replace) dataset metatable
-% datasetMetaTable = nansen.metadata.MetaTable(datasetTable_cloud, ...
-%     'MetaTableClass', 'Dataset', ...
-%     'ItemClassName', 'table2struct', ...
-%     'MetaTableIdVarname', 'DatasetDocumentIdentifier');
-% project.addMetaTable(datasetMetaTable);
+datasetMetaTable = nansen.metadata.MetaTable(datasetTable_cloud, ...
+    'MetaTableClass', 'Dataset', ...
+    'ItemClassName', 'table2struct', ...
+    'MetaTableIdVarname', 'DatasetDocumentIdentifier');
+project.addMetaTable(datasetMetaTable);
 
 % Create (or replace) session metatable
 sessionMetaTable = nansen.metadata.MetaTable(sessionTable_cloud, ...
@@ -99,7 +102,7 @@ project.addMetaTable(subjectMetaTable);
 
 % Create (or replace) data metatable
 dataMetaTable = nansen.metadata.MetaTable(dataTable_cloud, ...
-    'MetaTableClass', 'Data', ...
+    'MetaTableClass', 'Files', ...
     'ItemClassName', 'table2struct', ...
     'MetaTableIdVarname', 'ElectronicFileName');
 project.addMetaTable(dataMetaTable);

@@ -1,1 +1,0 @@
-A package to hold data specific session methods for a module.
