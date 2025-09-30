@@ -46,26 +46,22 @@ function [subjectTable] = tableFromFiles(subjectFiles)
 
 % Input argument validation
 arguments
-    subjectFiles {mustBeText} = '';
-end
-
-% If no subject files specified, retrieve them
-if isempty(subjectFiles)
-    subjectFiles = pulakat.import.selectFiles('', ...
+    subjectFiles {mustBeText} = pulakat.import.file.select('', ...
         'GetType','file', ...
         'FileName','animal_mapping', ...
         'FileExtensions',{'csv','xls','xlsx'});
 end
 
+% Check that there are subject files selected
 if isempty(subjectFiles)
-    error('importSubjectFiles: No file(s) selected.');
+    warning('import.subject.tableFromFiles: No file(s) selected.');
 end
 
 % Validate files
 requiredVariableNames = {'Animal','Cage','Label','Species','Strain','BiologicalSex','Treatment'};
 for i = 1:numel(subjectFiles)
     subjectFile = subjectFiles{i};
-    valid = pulakat.import.validateTableFile(subjectFile,requiredVariableNames);
+    valid = pulakat.import.file.validateTable(subjectFile,requiredVariableNames);
     if ~valid
         warning('importSubjectFiles: %s is not a valid subject file.',subjectFile); % Change to error
     end
@@ -94,6 +90,6 @@ subjectTable.Cage = cellfun(@(c) replace(c,' ',''),subjectTable.Cage,...
 % Rename relevant variables
 subjectTable = renamevars(subjectTable,{'Animal','Cage','Label','FileName'}, ...
     {'SubjectEnumeratedIdentifier','SubjectCageIdentifier', ...
-    'SubjectTextIdentifier','ElectronicFilename'});
+    'SubjectTextIdentifier','ElectronicFileName'});
 
 end

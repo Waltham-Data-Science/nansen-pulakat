@@ -1,4 +1,4 @@
-function [dataFiles] = selectFiles(dataPath,options)
+function [dataFiles] = select(dataPath,options)
 %SELECTFILES Summary of this function goes here
 %   Detailed explanation goes here
 

@@ -1,4 +1,4 @@
-function varargout = data(sessionObj, varargin)
+function varargout = data(subjectObject, varargin)
 %DATA Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -9,7 +9,7 @@ function varargout = data(sessionObj, varargin)
 %      defined in the local function getDefaultParameters at the bottom of
 %      this script.
 %   2) Scroll down to the custom code block below and write code to do
-%   operations on the sessionObjects and it's data.
+%   operations on the subjectObjects and it's data.
 %   3) Add documentation (summary and explanation) for the session method
 %      above. PS: Don't change the function definition (inputs/outputs)
 %
@@ -44,14 +44,9 @@ function varargout = data(sessionObj, varargin)
     
 % % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
 % Implementation of the method : Add your code here:
-
-    % Add data to session
-    dataset = ndi.dataset.dir(sessionObj.DatasetPath);
-    session = dataset.open_session(sessionObj.SessionDocumentIdentifier);
-    pulakat.import.data(session);
-
+    
     % Return session object (please do not remove):
-    % if nargout; varargout = {sessionObject}; end
+    % if nargout; varargout = {subjectObject}; end
 end
 
 function params = getDefaultParameters()

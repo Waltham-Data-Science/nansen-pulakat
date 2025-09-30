@@ -1,4 +1,4 @@
-function [indSubjects,numSubjects,missingSubjects] = matchData2Subjects(dataTable,subjectTable,identifyingVariableNames)
+function [indSubjects,numSubjects] = matchData2Subjects(subjectDataTable,subjectTable)
 %MATCHDATA2SUBJECTS Matches rows from a data table to a subject metadata table.
 %
 %   [indSubjects, numSubjects] = MATCHDATA2SUBJECTS(dataTable, subjectTable)
@@ -58,16 +58,22 @@ function [indSubjects,numSubjects,missingSubjects] = matchData2Subjects(dataTabl
 
 % Input argument validation
 arguments
-    dataTable {mustBeA(dataTable,'table')}
+    subjectDataTable {mustBeA(subjectDataTable,'table')}
     subjectTable {mustBeA(subjectTable,'table')}
-    identifyingVariableNames {mustBeText} = {'Animal','Cage','Label'};
+end
+
+if isempty(subjectTable)
+    indSubjects = cell(height(subjectDataTable),1);
+    numSubjects = zeros(height(subjectDataTable),1);
+    return
 end
 
 % Ensure requiredVariableNames is a cell array
-identifyingVariableNames = cellstr(identifyingVariableNames);
+identifyingVariableNames = {'SubjectEnumeratedIdentifier','SubjectCageIdentifier', ...
+    'SubjectTextIdentifier'};
 
 % Check that both tables have the necessary variables
-missingVariableNames = setdiff(identifyingVariableNames,dataTable.Properties.VariableNames);
+missingVariableNames = setdiff(identifyingVariableNames,subjectDataTable.Properties.VariableNames);
 if ~isempty(missingVariableNames)
     error('matchData2Subjects:missingVariables', ...
         'The data table is missing the required columns: %s', ...
@@ -81,9 +87,9 @@ if ~isempty(missingVariableNames)
 end
 
 % Get the indices of each variable name
-indSubjects = zeros(height(dataTable),numel(identifyingVariableNames));
+indSubjects = zeros(height(subjectDataTable),numel(identifyingVariableNames));
 for i = 1:numel(identifyingVariableNames)
-    [~,indData,indSubject] = intersect(dataTable(:,identifyingVariableNames{i}), ...
+    [~,indData,indSubject] = intersect(subjectDataTable(:,identifyingVariableNames{i}), ...
         subjectTable(:,identifyingVariableNames{i}));
     indSubjects(indData,i) = indSubject;
 end
@@ -94,10 +100,6 @@ indSubjects = cellfun(@(x) unique(x(x > 0)),indSubjects,'UniformOutput',false);
 
 % Get count of unique subjects per dataTable row
 numSubjects = cellfun(@numel,indSubjects);
-
-% Get subjects missing from subjectTable but present in dataTable
-missingSubjects = dataTable(numSubjects == 0,identifyingVariableNames);
-missingSubjects = unique(missingSubjects,'stable');
 
 % need to add documentation for missing subjects and figure out how to
 % combine empty values

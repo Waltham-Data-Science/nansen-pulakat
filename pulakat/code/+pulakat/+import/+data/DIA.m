@@ -1,26 +1,44 @@
-function [dataTable] = DIA(session,fileNames)
+function [dataTable,indDIA] = DIA(dataFiles)
 %DIA Summary of this function goes here
 %   Detailed explanation goes here
 
-% Get unique files to import
-[fileNames,~,indFiles] = unique(fileNames);
+% Input argument validation
+arguments
+    dataFiles {mustBeText} = '';
+end
+
+% Identify DIA files
+indDIA = contains(dataFiles,'DIA');
+diaFiles = dataFiles(indDIA);
+
+
+
+% Validate files
+% requiredVariableNames = {'Animal','Cage','Label','Species','Strain','BiologicalSex','Treatment'};
+% for i = 1:numel(dataFiles)
+%     subjectFile = dataFiles{i};
+%     valid = pulakat.import.file.validateTable(subjectFile,requiredVariableNames);
+%     if ~valid
+%         warning('importdataFiles: %s is not a valid subject file.',subjectFile); % Change to error
+%     end
+% end
 
 
 dataTable = table();
-for i = 1:numel(fileNames)
+for i = 1:numel(diaFiles)
 
     % Read DIA report
-    fileName = fileNames{i};
-    diaSheetNames = sheetnames(fileName);
-    allDataSheetInd = contains(diaSheetNames,'All data');
-    diaAllData = readtable(fileName,'Sheet',diaSheetNames{allDataSheetInd});
+    fileName = diaFiles{i};
+    sheetNames = sheetnames(fileName);
+    allDataSheetInd = contains(sheetNames,'All data');
+    allData = readtable(fileName,'Sheet',sheetNames{allDataSheetInd});
 
     % Get subject IDs from last sheet
-    diaVars = diaAllData.Properties.VariableNames;
-    diaSubjectVars = diaVars(startsWith(diaVars,'x'))';
+    variableNames = allData.Properties.VariableNames;
+    subjectVariables = variableNames(startsWith(variableNames,'x'))';
     diaTable = table();
-    for j = 1:numel(diaSubjectVars)
-        idInfo = strsplit(diaSubjectVars{j},'_');
+    for j = 1:numel(subjectVariables)
+        idInfo = strsplit(subjectVariables{j},'_');
         diaTable{j,'DataLabelRaw'} = {[num2str(str2double(idInfo{5}),'%.4i'),...
             '-',num2str(str2double(idInfo{3}),'%.2i'),'-',num2str(str2double(idInfo{4}),'%.2i')]};
     end
@@ -39,8 +57,7 @@ for i = 1:numel(fileNames)
     % session.database_add(subject_group_doc);
 
     % Add DIA file to database
-    generic_file = struct('fileName',fileName,...
-        'fileFormatOntology','format:3620');
+    generic_file = struct('fileName',fileName,fileFormatOntology','format:3620');
     generic_file_doc = ndi.document('generic_file','generic_file',generic_file) + ...
         session.newdocument();
     generic_file_doc = generic_file_doc.add_file('generic_file.ext', ...

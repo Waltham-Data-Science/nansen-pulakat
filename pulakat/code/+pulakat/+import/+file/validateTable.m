@@ -1,4 +1,4 @@
-function valid = validateTableFile(fileName,requiredVariableNames)
+function valid = validateTable(fileName,requiredVariableNames)
 %VALIDATETABLEFILE Validates the format and integrity of a tabular data file.
 %
 %   valid = VALIDATETABLEFILE(fileName, requiredVariableNames) performs a

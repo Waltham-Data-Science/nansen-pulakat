@@ -2,9 +2,9 @@
   {
     "VariableName": "SessionDocumentIdentifier",
     "ColumnLabel": "SessionDocumentIdentifier",
-    "ShowColumn": false,
+    "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 289,
     "IsEditable": false,
     "ColumnOrder": 1
   },
@@ -97,5 +97,59 @@
     "ColumnWidth": 212,
     "IsEditable": false,
     "ColumnOrder": 4
+  },
+  {
+    "VariableName": "SubjectEnumeratedIdentifier",
+    "ColumnLabel": "SubjectEnumeratedIdentifier",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 12
+  },
+  {
+    "VariableName": "SubjectCageIdentifier",
+    "ColumnLabel": "SubjectCageIdentifier",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 13
+  },
+  {
+    "VariableName": "SubjectTextIdentifier",
+    "ColumnLabel": "SubjectTextIdentifier",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 14
+  },
+  {
+    "VariableName": "Treatment",
+    "ColumnLabel": "Treatment",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 15
+  },
+  {
+    "VariableName": "ElectronicFileName",
+    "ColumnLabel": "ElectronicFileName",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 16
+  },
+  {
+    "VariableName": "DatasetPath",
+    "ColumnLabel": "DatasetPath",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 17
   }
 ]

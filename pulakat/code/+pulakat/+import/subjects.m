@@ -9,7 +9,7 @@ arguments
 end
 
 % Retrieve subject files
-subjectFiles = pulakat.import.selectFiles(dataPath, ...
+subjectFiles = pulakat.import.file.select(dataPath, ...
     'FileName','animal_mapping', ...
     'FileExtensions',{'csv','xls','xlsx'});
 
@@ -52,7 +52,7 @@ tableDocMaker = ndi.setup.NDIMaker.tableDocMaker(session,'pulakat');
 
 % Create ontologyTableRow documents (and add to session)
 tableRowVariables = ['SubjectLocalIdentifier','SubjectDocumentIdentifier',...
-    subjectIdentifiers,'Treatment','ElectronicFilename'];
+    subjectIdentifiers,'Treatment','ElectronicFileName'];
 tableDocMaker.table2ontologyTableRowDocs(subjectTable_new(:,tableRowVariables), ...
         {'SubjectDocumentIdentifier'});
 

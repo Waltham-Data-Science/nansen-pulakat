@@ -1,4 +1,4 @@
-function [dataTable] = data(session,dataPath,options)
+function [dataTable] = data(session,dataPath)
 %DATA Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -6,33 +6,47 @@ function [dataTable] = data(session,dataPath,options)
 arguments
     session {mustBeA(session,{'ndi.session.dir'})}
     dataPath {mustBeText} = '';
-    options.DirOrFiles {mustBeMember(options.DirOrFiles,{'files','dir'})} = 'files';
 end
 
-% Retrieve cell array of files
-dataFiles = pulakat.import.selectFiles(dataPath,'DirOrFiles',options.DirOrFiles);
+% Retrieve data files
+dataFiles = pulakat.import.file.select(dataPath);
 
-% Check that there are still files to import
+% Get current data table from files
+dataTable_files = pulakat.import.data.tableFromFiles(session,dataFiles);
 
+% Get existing data table from session
+dataTable_session = table();
+% dataTable_session = pulakat.import.data.tableFromSession(session);
 
-% Identify which data files are new
-dataTable_currentPath = pulakat.import.dataFiles(dataFiles);
-% dataTable_ingested = ;% get current table from session
-dataTable_newOnly = dataTable_currentPath;% compare files found in current path with existing files
+% Identify new and unique files
+fileIdentifiers = {'ElectronicFileName'};
+if isempty(dataTable_session)
+    dataTable_new = dataTable_files;
+else
+    [~,indNew] = setdiff(dataTable_files(:,fileIdentifiers), ...
+        dataTable_session(:,fileIdentifiers));
+    dataTable_new = dataTable_files(indNew,:);
+end
+[~,~,indUnique] = unique(dataTable_new(:,fileIdentifiers),'stable');
+dataTable_new = dataTable_new(indUnique,:);
 
-% Get subjects in session
-subjectTable = ndi.fun.docTable.subject(session);
-
-% Match data files to subjects
-[indSubjects,numSubjects] = ndi.setup.conv.pulakat.matchData2Subjects(diaTable,subjectTable);
-dataTable_matching = dataTable_newOnly(numSubjects == 1,:);
-dataTable_matching.indSubject = [indSubjects{numSubjects == 1}]';
+% Check whether there are new files to add
+if isempty(dataTable_new)
+    warning('No new files found in: %s.',strjoin(dataFiles,';'))
+    dataTable = dataTable_files;
+    return
+end
 
 % Create data documents (and add to session)
+for i = 1:height(dataTable_new)
 indDIA = ndi.fun.table.identifyMatchingRows(dataTable_newOnly,'fileType','DIA');
 pulakat.import.DIA(session,dataTable_newOnly.fileName(indDIA));
 
+% Return updated data table
+dataTable = pulakat.import.data.tableFromSession(session);
 
+% Upload files to cloud
+%ndi.cloud.sync.uploadNew(dataset)
 
 end
 
