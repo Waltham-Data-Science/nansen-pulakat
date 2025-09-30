@@ -89,9 +89,10 @@ end
 % Get the indices of each variable name
 indSubjects = zeros(height(subjectDataTable),numel(identifyingVariableNames));
 for i = 1:numel(identifyingVariableNames)
-    [~,indData,indSubject] = intersect(subjectDataTable(:,identifyingVariableNames{i}), ...
+    [~,indSubject] = ismember(subjectDataTable(:,identifyingVariableNames{i}),...
         subjectTable(:,identifyingVariableNames{i}));
-    indSubjects(indData,i) = indSubject;
+    indData = indSubject > 0;
+    indSubjects(indData,i) = indSubject(indData);
 end
 
 % Get unique subject indices per dataTable row
@@ -100,8 +101,5 @@ indSubjects = cellfun(@(x) unique(x(x > 0)),indSubjects,'UniformOutput',false);
 
 % Get count of unique subjects per dataTable row
 numSubjects = cellfun(@numel,indSubjects);
-
-% need to add documentation for missing subjects and figure out how to
-% combine empty values
 
 end

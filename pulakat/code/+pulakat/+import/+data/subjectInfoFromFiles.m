@@ -29,7 +29,7 @@ if ~isempty(scheduleFiles)
         scheduleSubjects{i} = table([group1;group2;group3],'VariableNames', ...
             {'SubjectCageIdentifier'});
         scheduleSubjects{i}{:,'ElectronicFileName'} = scheduleFiles(i);
-        scheduleSubjects{i}{:,'DataType'} = {'schedule'};
+        scheduleSubjects{i}{:,'DataType'} = {'experiment metadata file'};
 
         % Remove spaces from cage names (if applicable)
         scheduleSubjects{i}.SubjectCageIdentifier = cellfun(@(c) replace(c,' ',''), ...
@@ -68,7 +68,7 @@ if ~isempty(diaFiles)
         end
         diaSubjects{i} = unique(diaSubjects{i},'stable');
         diaSubjects{i}{:,'ElectronicFileName'} = diaFiles(i);
-        diaSubjects{i}{:,'DataType'} = {'DIA'};
+        diaSubjects{i}{:,'DataType'} = {'data-independent acquisition (DIA)'};
     end
     diaTable = ndi.fun.table.vstack(diaSubjects);
     diaTable = unique(diaTable,'stable');
@@ -93,7 +93,7 @@ if ~isempty(svsFiles)
         end
         svsSubjects{i} = table(cageIdentifiers',svsIdentifiers',...
             'VariableNames',{'SubjectCageIdentifier','ElectronicFileName'});
-        svsSubjects{i}{:,'DataType'} = {'svs'};
+        svsSubjects{i}{:,'DataType'} = {'slide scanner image acquisition'};
     end
     svsTable = ndi.fun.table.vstack(svsSubjects);
     svsTable = unique(svsTable,'stable');
@@ -107,7 +107,7 @@ if ~isempty(echoFolders)
     cageIdentifiers = regexp(echoFolders, pattern, 'match');
     echoSubjects = table([cageIdentifiers{:}]',echoFolders,...
         'VariableNames',{'SubjectCageIdentifier','ElectronicFileName'});
-    echoSubjects{:,'DataType'} = {'echo'};
+    echoSubjects{:,'DataType'} = {'echocardiogram acquisition'};
     echoTable = unique(echoSubjects,'stable');
 else
     echoTable = table();

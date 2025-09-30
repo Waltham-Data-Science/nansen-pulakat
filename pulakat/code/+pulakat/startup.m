@@ -42,8 +42,7 @@ subjectTable_cloud = pulakat.import.subjects.tableFromSession(dataset);
 subjectTable_cloud = innerjoin(subjectTable_cloud,sessionTable);
 
 % Create data table
-%dataTable_cloud = pulakat.import.data.tableFromSession(dataset);
-dataTable_cloud = cell2table({''},'VariableNames',{'ElectronicFileName'});
+dataTable_cloud = pulakat.import.data.tableFromSession(dataset);
 
 % Regenerate session table with cumulative metrics from session
 sessionTable_cloud = ndi.fun.table.join( ...
