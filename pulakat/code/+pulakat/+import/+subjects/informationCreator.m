@@ -1,4 +1,4 @@
-classdef subjectInformation < ndi.setup.NDIMaker.SubjectInformationCreator
+classdef informationCreator < ndi.setup.NDIMaker.SubjectInformationCreator
 % PULAKAT - Creates NDI subject information for the Pulakat Lab.
 %
 % This class implements the 'create' method to generate subject identifiers
@@ -18,7 +18,7 @@ methods
         %   Inputs:
         %       obj (ndi.setup.NDIMaker.SubjectInformationCreator.pulakat) - The instance of this creator class.
         %       tableRow (table) - A single row from a MATLAB table. It must contain the columns
-        %                          'Strain', 'Cage', and 'DataLabelRaw'.
+        %                          'Strain', 'SubjectCageIdentifier', and 'SubjectTextIdentifier'.
         %
         %   Outputs:
         %       subjectIdentifier (char) - The unique local identifier string for the subject.
@@ -34,7 +34,7 @@ methods
         %
 
         % --- Validate required columns ---
-        requiredCols = {'Strain', 'Cage', 'DataLabelRaw'};
+        requiredCols = {'Strain', 'SubjectCageIdentifier', 'SubjectTextIdentifier'};
         if ~all(ismember(requiredCols, tableRow.Properties.VariableNames))
             error('ndi:validators:MissingRequiredColumns',...
                 'The tableRow is missing one or more required columns for the Pulakat subject creator.');
@@ -118,7 +118,7 @@ methods (Access = private, Static)
         subjectIdentifier = NaN;
         try
             % Join the components with underscores
-            subjectParts = {tableRow.Cage{1}, tableRow.DataLabelRaw{1}};
+            subjectParts = {tableRow.SubjectCageIdentifier{1}, tableRow.SubjectTextIdentifier{1}};
             baseString = strjoin(subjectParts, '_');
             
             % Append the lab-specific suffix

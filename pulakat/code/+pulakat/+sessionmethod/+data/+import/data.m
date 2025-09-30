@@ -1,4 +1,4 @@
-function varargout = data(session, varargin)
+function varargout = data(sessionObj, varargin)
 %DATA Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -45,21 +45,9 @@ function varargout = data(session, varargin)
 % % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
 % Implementation of the method : Add your code here:
 
-    % Query user for directory
-    dataPath = uigetdir([],'Select directory of files to import.');
-
-    % Get list of files corresponding to one session
-    [fileList,indDir] = vlt.file.manifest(dataPath,'ReturnFullPath',1);
-    
-    % Narrow file list to possible subject and data files
-    indHiddenFiles = contains(fileList,'/.');
-    indSubjectFiles = contains(fileList,'animal_mapping');
-    subjectFiles = fileList(~indHiddenFiles & indSubjectFiles);
-    dataFiles = fileList(~indHiddenFiles & ~indDir & ~indSubjectFiles);
-
-    % Retrieve new data files
-    dataTable = pulakat.import.dataFiles(dataFiles);
-    subjectTable = ndi.fun.docTable.subject(session);
+    % Add data to session
+    session = dataset.open_session(sessionObj.sessionDocumentIdentifier);
+    pulakat.import.data(session,dataFiles);
 
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionObject}; end

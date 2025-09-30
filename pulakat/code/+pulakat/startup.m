@@ -28,7 +28,7 @@ sessionTable = table();
 [sessionTable.SessionName,sessionTable.SessionDocumentIdentifier] = dataset.session_list;
 
 % Create subject table and add session name
-subjectTable_cloud = ndi.fun.docTable.subject(dataset);
+subjectTable_cloud = pulakat.import.subjects.tableFromSession(dataset);
 subjectTable_cloud = innerjoin(subjectTable_cloud,sessionTable);
 
 % Create data table

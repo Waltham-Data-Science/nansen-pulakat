@@ -76,7 +76,7 @@
     "ColumnLabel": "SessionName",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 147,
     "IsEditable": false,
     "ColumnOrder": 2
   },

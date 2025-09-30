@@ -1,4 +1,4 @@
-function [dataTable] = dataFiles(dataFiles)
+function [dataTable] = dataFiles(fileNames)
 %IMPORTDATAFILES Processes data files to extract subject identifiers and metadata.
 %
 %   dataTable = IMPORTDATAFILES() opens a user interface dialog to allow
@@ -6,8 +6,8 @@ function [dataTable] = dataFiles(dataFiles)
 %   to extract subject, cage, and animal identifiers based on file type
 %   and naming conventions.
 %
-%   dataTable = IMPORTDATAFILES(dataFiles) processes the specified list
-%   of files provided in the 'dataFiles' argument.
+%   dataTable = IMPORTDATAFILES(fileNames) processes the specified list
+%   of files provided in the 'fileNames' argument.
 %
 %   Description:
 %   This function serves as a centralized validator and information
@@ -18,7 +18,7 @@ function [dataTable] = dataFiles(dataFiles)
 %   single, tidy output table.
 %
 %   Input Arguments:
-%   dataFiles   - (Optional) A string array or cell array of character
+%   fileNames   - (Optional) A string array or cell array of character
 %                 vectors, where each element is a full path to a data file.
 %                 If this argument is empty or not provided, a file selection
 %                 dialog will be displayed.
@@ -62,32 +62,32 @@ function [dataTable] = dataFiles(dataFiles)
 
 % Input argument validation
 arguments
-    dataFiles = '';
+    fileNames = '';
 end
 
 % If no data files specified, retrieve them
-if isempty(dataFiles)
+if isempty(fileNames)
     [names,paths] = uigetfile('*.*',...
         'Select data files','',...
         'MultiSelect','on');
     if eq(names,0)
         error('importDataFiles: No file(s) selected.');
     end
-    dataFiles = fullfile(paths,names);
+    fileNames = fullfile(paths,names);
 end
 
 % Suppress table variable naming warning
 warning('off', 'MATLAB:table:ModifiedAndSavedVarnames');
 
 % Get known file types
-scheduleFiles =  dataFiles(contains(dataFiles,'schedule','IgnoreCase',true));
-diaFiles = dataFiles(contains(dataFiles,'DIA'));
-svsFiles = dataFiles(endsWith(dataFiles,'.svs'));
-echoFiles = dataFiles(contains(dataFiles,'.bimg') | contains(dataFiles,'.pimg') | ...
-    contains(dataFiles,'.mxml') | contains(dataFiles,'.vxml'));
+scheduleFiles =  fileNames(contains(fileNames,'schedule','IgnoreCase',true));
+diaFiles = fileNames(contains(fileNames,'DIA'));
+svsFiles = fileNames(endsWith(fileNames,'.svs'));
+echoFiles = fileNames(contains(fileNames,'.bimg') | contains(fileNames,'.pimg') | ...
+    contains(fileNames,'.mxml') | contains(fileNames,'.vxml'));
 echoFolders = unique(fileparts(echoFiles));
-indKnownFiles = contains(dataFiles,[scheduleFiles;diaFiles;svsFiles;echoFolders]);
-miscFiles = dataFiles(~indKnownFiles); % how to handle these?
+indKnownFiles = contains(fileNames,[scheduleFiles;diaFiles;svsFiles;echoFolders]);
+miscFiles = fileNames(~indKnownFiles); % how to handle these?
 
 % Process experiment schedule files
 if ~isempty(scheduleFiles)

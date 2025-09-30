@@ -1,4 +1,4 @@
-function [subjectTable] = subjectFiles(subjectFiles)
+function [subjectTable] = tableFromFiles(subjectFiles)
 %IMPORTSUBJECTFILES Imports and validates subject metadata from CSV or Excel files.
 %
 %   subjectTable = IMPORTSUBJECTFILES() opens a user interface dialog to
@@ -46,28 +46,26 @@ function [subjectTable] = subjectFiles(subjectFiles)
 
 % Input argument validation
 arguments
-    subjectFiles = '';
+    subjectFiles {mustBeText} = '';
 end
 
 % If no subject files specified, retrieve them
 if isempty(subjectFiles)
-    [names,paths] = uigetfile({'*.csv;*.xls;*.xlsx'},...
-        'Select subject mapping files','animal_mapping.csv',...
-        'MultiSelect','on');
-    if eq(names,0)
-        error('importSubjectFiles: No file(s) selected.');
-    end
-    subjectFiles = fullfile(paths,names);
+    subjectFiles = pulakat.import.selectFiles('', ...
+        'GetType','file', ...
+        'FileName','animal_mapping', ...
+        'FileExtensions',{'csv','xls','xlsx'});
 end
 
-% Convert to cellstr for consistent processing
-subjectFiles = cellstr(subjectFiles);
+if isempty(subjectFiles)
+    error('importSubjectFiles: No file(s) selected.');
+end
 
 % Validate files
 requiredVariableNames = {'Animal','Cage','Label','Species','Strain','BiologicalSex','Treatment'};
 for i = 1:numel(subjectFiles)
     subjectFile = subjectFiles{i};
-    valid = ndi.setup.conv.pulakat.validateTableFile(subjectFile,requiredVariableNames);
+    valid = pulakat.import.validateTableFile(subjectFile,requiredVariableNames);
     if ~valid
         warning('importSubjectFiles: %s is not a valid subject file.',subjectFile); % Change to error
     end
@@ -83,7 +81,7 @@ for i = 1:numel(subjectFiles)
     importOptions = setvartype(importOptions,requiredVariableNames,'char');
     importOptions.SelectedVariableNames = requiredVariableNames;
     subjectTables{i} = readtable(subjectFile,importOptions);
-    subjectTables{i}{:,'subjectFile'} = subjectFile;
+    subjectTables{i}{:,'FileName'} = subjectFile;
 end
 
 % Stack subject tables
@@ -92,5 +90,10 @@ subjectTable = ndi.fun.table.vstack(subjectTables);
 % Remove spaces from cage names (if applicable)
 subjectTable.Cage = cellfun(@(c) replace(c,' ',''),subjectTable.Cage,...
     'UniformOutput',false);
+
+% Rename relevant variables
+subjectTable = renamevars(subjectTable,{'Animal','Cage','Label','FileName'}, ...
+    {'SubjectEnumeratedIdentifier','SubjectCageIdentifier', ...
+    'SubjectTextIdentifier','ElectronicFilename'});
 
 end
