@@ -21,6 +21,8 @@ else
     dataset = ndi.cloud.downloadDataset(cloudDatasetId,dataPath);
 end
 
+addpath(genpath(datasetPath));
+
 %% 2. Generate tables from dataset
 
 % Get dataset metadata
