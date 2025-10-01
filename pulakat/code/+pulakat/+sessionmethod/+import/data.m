@@ -46,9 +46,15 @@ function varargout = data(sessionObj, varargin)
 % Implementation of the method : Add your code here:
 
     % Add data to session
-    dataset = ndi.dataset.dir(sessionObj.DatasetPath);
-    session = dataset.open_session(sessionObj.SessionDocumentIdentifier);
-    pulakat.import.data(session);
+    session = ndi.session.dir(sessionObj.SessionPath);
+    dataTable = pulakat.import.data(session);
+    
+    % Update nansen viewer
+    pulakat.sync.metatable(dataTable,'File');
+
+    % Sync to cloud
+    dataset = ndi.dataset.dir(sessionObject.DatasetDocumentIdentifier)
+    % ndi.cloud.sync.uploadNew(dataset)
 
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionObject}; end

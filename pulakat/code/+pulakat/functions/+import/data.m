@@ -118,8 +118,4 @@ session.database_add(ontologyLabel_docs);
 % Return updated data table
 dataTable = pulakat.import.data.tableFromSession(session);
 
-% Upload files to cloud
-%ndi.cloud.sync.uploadNew(dataset)
-
 end
-

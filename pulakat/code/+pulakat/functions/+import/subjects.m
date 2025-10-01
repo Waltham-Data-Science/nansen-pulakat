@@ -72,7 +72,4 @@ tableDocMaker.table2ontologyTableRowDocs(subjectTable_new(:,tableRowVariables), 
 % Return updated subject table
 subjectTable = pulakat.import.subjects.tableFromSession(session);
 
-% Upload subjects to cloud
-%ndi.cloud.sync.uploadNew(dataset)
-
 end
