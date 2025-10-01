@@ -1,48 +1,24 @@
 function [dataTable] = tableFromFiles(session,dataFiles)
-%IMPORTdataFiles Imports and validates subject metadata from CSV or Excel files.
+%TABLEFROMFILES Creates a table linking data files to subjects in an NDI session.
+%   This function processes a list of data files, identifies the subjects
+%   associated with each file, and matches them against subjects already present
+%   in the NDI session. If any files are associated with subjects not found in
+%   the session, it interactively prompts the user to import them.
 %
-%   dataTable = IMPORTdataFiles() opens a user interface dialog to
-%   allow the selection of one or more subject metadata files. It then
-%   imports, validates, and combines them into a single table.
+%   Inputs:
+%   session (ndi.session.dir): The NDI session object to work with.
+%   dataFiles (cell array of strings): Optional. A cell array of paths to the data files.
+%       If not provided, the function will prompt the user to select a directory.
 %
-%   dataTable = IMPORTdataFiles(dataFiles) processes the specified
-%   list of files provided in the 'dataFiles' argument.
+%   Outputs:
+%   dataTable (table): A table that maps data files to subjects. It includes
+%       columns for 'ElectronicFileName', 'DataTypeName', and 'SubjectDocumentIdentifier'.
 %
-%   Description:
-%   This function is designed to read subject information from structured
-%   files (e.g., .csv, .xls, .xlsx). It performs two main tasks:
-%   1.  Validation: It checks each file to ensure it contains a set of
-%       required column headers.
-%   2.  Importation: It reads the data from all valid files and
-%       consolidates it into a single, tidy MATLAB table.
-%   An additional column, 'subjectFile', is added to the output table to
-%   trace each record back to its source file.
-%
-%   Input Arguments:
-%   dataFiles - (Optional) A string array, character vector, or cell
-%                  array of character vectors where each element is a full
-%                  path to a subject data file. If empty or not provided, a
-%                  file selection dialog opens, filtering for '*.csv',
-%                  '*.xls', and '*.xlsx' files.
-%
-%   Output Arguments:
-%   dataTable - A MATLAB table containing the vertically stacked data
-%                  from all imported files. The table will have the
-%                  following columns plus 'subjectFile':
-%                  'SubjectEnumeratedIdentifier', 'SubjectCageIdentifier', 'SubjectTextIdentifier', 'Species', 'Strain',
-%                  'BiologicalSex', 'Treatment'.
-%
-%   Validation Details:
-%   The function validates each file by checking for the presence of the
-%   required variable names listed above. If a file is missing one or more
-%   of these columns, a warning is issued to the command window.
-%
-%   Example 1: Select files using the dialog window
-%       subjectData = importdataFiles();
-%
-%   Example 2: Provide a list of files to process
-%       myFiles = ["C:\data\cohort1_subjects.csv"; "C:\data\cohort2_subjects.xlsx"];
-%       subjectData = importdataFiles(myFiles);
+%   Example:
+%       % Assuming 'mySession' is a valid NDI session object
+%       % and data files are in the 'data' subdirectory.
+%       dataFiles = pulakat.import.file.select('data');
+%       dataTable = pulakat.import.data.tableFromFiles(mySession, dataFiles);
 
 % Input argument validation
 arguments

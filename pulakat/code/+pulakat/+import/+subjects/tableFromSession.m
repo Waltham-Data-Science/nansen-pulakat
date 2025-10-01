@@ -1,6 +1,18 @@
 function [subjectTable] = tableFromSession(session)
-%COMPILESUBJECTTABLE Summary of this function goes here
-%   Detailed explanation goes here
+%TABLEFROMSESSION Compiles a subject information table from an NDI session or dataset.
+%   This function retrieves all subject documents from the specified NDI
+%   session or dataset and enriches this information with data from any
+%   associated 'ontologyTableRow' documents.
+%
+%   Inputs:
+%   session (ndi.session.dir or ndi.dataset.dir): The NDI session or dataset
+%       object to query. If a dataset is provided, it will compile subject
+%       information from all sessions within that dataset.
+%
+%   Outputs:
+%   subjectTable (table): A table containing comprehensive information about
+%       the subjects found in the session/dataset. If no subjects are found,
+%       an empty table is returned.
 
 % Input argument validation
 arguments
