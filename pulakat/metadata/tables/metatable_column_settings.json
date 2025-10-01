@@ -10,12 +10,12 @@
   },
   {
     "VariableName": "StrainName",
-    "ColumnLabel": "StrainName",
+    "ColumnLabel": "Strain",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 69,
     "IsEditable": false,
-    "ColumnOrder": 5
+    "ColumnOrder": 7
   },
   {
     "VariableName": "StrainOntology",
@@ -28,21 +28,21 @@
   },
   {
     "VariableName": "GeneticStrainTypeName",
-    "ColumnLabel": "GeneticStrainTypeName",
+    "ColumnLabel": "StrainType",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 102,
     "IsEditable": false,
-    "ColumnOrder": 7
+    "ColumnOrder": 8
   },
   {
     "VariableName": "SpeciesName",
-    "ColumnLabel": "SpeciesName",
+    "ColumnLabel": "Species",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 159,
     "IsEditable": false,
-    "ColumnOrder": 8
+    "ColumnOrder": 10
   },
   {
     "VariableName": "SpeciesOntology",
@@ -55,12 +55,12 @@
   },
   {
     "VariableName": "BiologicalSexName",
-    "ColumnLabel": "BiologicalSexName",
+    "ColumnLabel": "BioSex",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 73,
     "IsEditable": false,
-    "ColumnOrder": 10
+    "ColumnOrder": 12
   },
   {
     "VariableName": "BiologicalSexOntology",
@@ -76,7 +76,7 @@
     "ColumnLabel": "SessionName",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 147,
+    "ColumnWidth": 153,
     "IsEditable": false,
     "ColumnOrder": 2
   },
@@ -94,49 +94,49 @@
     "ColumnLabel": "SubjectName",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 212,
+    "ColumnWidth": 331,
     "IsEditable": false,
     "ColumnOrder": 4
   },
   {
     "VariableName": "SubjectEnumeratedIdentifier",
-    "ColumnLabel": "SubjectEnumeratedIdentifier",
+    "ColumnLabel": "SubjectNumber",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 100,
-    "IsEditable": false,
-    "ColumnOrder": 12
-  },
-  {
-    "VariableName": "SubjectCageIdentifier",
-    "ColumnLabel": "SubjectCageIdentifier",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 150,
     "IsEditable": false,
     "ColumnOrder": 13
   },
   {
-    "VariableName": "SubjectTextIdentifier",
-    "ColumnLabel": "SubjectTextIdentifier",
+    "VariableName": "SubjectCageIdentifier",
+    "ColumnLabel": "SubjectCage",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 139,
     "IsEditable": false,
     "ColumnOrder": 14
+  },
+  {
+    "VariableName": "SubjectTextIdentifier",
+    "ColumnLabel": "SubjectLabel",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 136,
+    "IsEditable": false,
+    "ColumnOrder": 15
   },
   {
     "VariableName": "Treatment",
     "ColumnLabel": "Treatment",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 114,
     "IsEditable": false,
-    "ColumnOrder": 15
+    "ColumnOrder": 5
   },
   {
     "VariableName": "ElectronicFileName",
-    "ColumnLabel": "ElectronicFileName",
+    "ColumnLabel": "FileName",
     "ShowColumn": true,
     "SkipColumn": false,
     "ColumnWidth": 786,
@@ -190,7 +190,7 @@
   },
   {
     "VariableName": "DataTypeName",
-    "ColumnLabel": "DataTypeName",
+    "ColumnLabel": "DataType",
     "ShowColumn": true,
     "SkipColumn": false,
     "ColumnWidth": 303,
