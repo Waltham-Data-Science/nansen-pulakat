@@ -1,0 +1,9 @@
+{
+  "hiddenMenus": [
+    "core.apps.fovmanager",
+    "core.apps.imviewer",
+    "core.apps.roimanager"
+  ],
+  "description": "NANSEN menu visibility settings for this project",
+  "lastModified": "01-Oct-2025 13:51:29"
+}
