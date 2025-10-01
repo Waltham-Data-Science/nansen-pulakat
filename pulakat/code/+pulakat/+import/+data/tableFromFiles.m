@@ -6,19 +6,15 @@ function [dataTable] = tableFromFiles(session,dataFiles)
 %   the session, it interactively prompts the user to import them.
 %
 %   Inputs:
-%   session (ndi.session.dir): The NDI session object to work with.
-%   dataFiles (cell array of strings): Optional. A cell array of paths to the data files.
-%       If not provided, the function will prompt the user to select a directory.
+%       session (ndi.session.dir): The NDI session object to work with.
+%       dataFiles (cell array of strings): Optional. A cell array of paths 
+%           to the data files. If not provided, the function will prompt 
+%           the user to select a directory.
 %
 %   Outputs:
-%   dataTable (table): A table that maps data files to subjects. It includes
-%       columns for 'ElectronicFileName', 'DataTypeName', and 'SubjectDocumentIdentifier'.
-%
-%   Example:
-%       % Assuming 'mySession' is a valid NDI session object
-%       % and data files are in the 'data' subdirectory.
-%       dataFiles = pulakat.import.file.select('data');
-%       dataTable = pulakat.import.data.tableFromFiles(mySession, dataFiles);
+%       dataTable (table): A table that maps data files to subjects. It 
+%           includes columns for 'ElectronicFileName', 'DataTypeName', and 
+%           'SubjectDocumentIdentifier'.
 
 % Input argument validation
 arguments

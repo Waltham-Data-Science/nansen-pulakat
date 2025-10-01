@@ -1,44 +1,22 @@
 function [subjectTable] = tableFromFiles(subjectFiles)
 %TABLEFROMFILES Imports and validates subject metadata from CSV or Excel files.
-%
-%   subjectTable = TABLEFROMFILES() opens a user interface dialog to
-%   allow the selection of one or more subject metadata files. It then
-%   imports, validates, and combines them into a single table.
-%
-%   subjectTable = TABLEFROMFILES(subjectFiles) processes the specified
-%   list of files provided in the 'subjectFiles' argument.
-%
-%   Description:
 %   This function is designed to read subject information from structured
 %   files (e.g., .csv, .xls, .xlsx). It validates that the files contain
 %   required columns, reads the data, consolidates it into a single
 %   MATLAB table, and renames columns to match the NDI schema.
 %
 %   Inputs:
-%   subjectFiles - (Optional) A string array, character vector, or cell
-%                  array of character vectors where each element is a full
-%                  path to a subject data file. If empty or not provided, a
-%                  file selection dialog opens.
+%       subjectFiles (Optional): A string array, character vector, or cell
+%           array of character vectors where each element is a full path to 
+%           a subject data file. If empty or not provided, a file selection
+%           dialog opens.
 %
 %   Outputs:
-%   subjectTable - A MATLAB table containing the vertically stacked data
-%                  from all imported files. The table includes columns such as:
-%                  'SubjectEnumeratedIdentifier', 'SubjectCageIdentifier',
-%                  'SubjectTextIdentifier', 'Species', 'Strain', 'BiologicalSex',
-%                  'Treatment', and 'ElectronicFileName'.
-%
-%   Validation Details:
-%   The function validates each file by checking for the presence of the
-%   required variable names: 'Animal', 'Cage', 'Label', 'Species', 'Strain',
-%   'BiologicalSex', 'Treatment'. If a file is missing one or more of these
-%   columns, a warning is issued.
-%
-%   Example 1: Select files using the dialog window
-%       subjectData = pulakat.import.subjects.tableFromFiles();
-%
-%   Example 2: Provide a list of files to process
-%       myFiles = ["C:\data\cohort1_subjects.csv"; "C:\data\cohort2_subjects.xlsx"];
-%       subjectData = pulakat.import.subjects.tableFromFiles(myFiles);
+%       subjectTable (table): A MATLAB table containing the vertically 
+%           stacked data from all imported files. The table includes 
+%           columns such as: 'SubjectEnumeratedIdentifier', 
+%           'SubjectCageIdentifier', 'SubjectTextIdentifier', 'Species', 
+%           'Strain', 'BiologicalSex', 'Treatment', and 'ElectronicFileName'.
 
 % Input argument validation
 arguments

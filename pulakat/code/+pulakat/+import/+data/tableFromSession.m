@@ -6,14 +6,14 @@ function [dataTable] = tableFromSession(session)
 %   each row in the output table corresponds to a single subject.
 %
 %   Inputs:
-%   session (ndi.session.dir or ndi.dataset.dir): The NDI session or dataset
-%       object to query. If a dataset is provided, it will compile data
-%       from all sessions within that dataset.
+%       session (ndi.session.dir or ndi.dataset.dir): The NDI session or 
+%           dataset object to query. If a dataset is provided, it will 
+%           compile data from all sessions within that dataset.
 %
 %   Outputs:
-%   dataTable (table): A table summarizing the data in the session.
-%       The table includes columns for file and subject document identifiers,
-%       electronic file names, and data type information.
+%       dataTable (table): A table summarizing the data in the session. The
+%           table includes columns for file and subject document 
+%           identifiers, electronic file names, and data type information.
 
 % Input argument validation
 arguments

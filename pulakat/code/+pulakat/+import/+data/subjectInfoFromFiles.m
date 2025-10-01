@@ -5,13 +5,14 @@ function subjectFileTable = subjectInfoFromFiles(dataFiles)
 %   and related metadata. It then compiles this information into a single table.
 %
 %   Inputs:
-%   dataFiles (cell array of strings): A cell array of file paths to be processed.
-%       If not provided, the user will be prompted to select a directory.
+%       dataFiles (cell array of strings): A cell array of file paths to be 
+%           processed. If not provided, the user will be prompted to select
+%           a directory.
 %
 %   Outputs:
-%   subjectFileTable (table): A table containing the extracted subject information.
-%       The table includes columns for different types of subject identifiers,
-%       the electronic file name, and the data type.
+%       subjectFileTable (table): A table containing the extracted subject
+%           information. The table includes columns for different types of 
+%           subject identifiers, the electronic file name, and the data type.
 
 % Input argument validation
 arguments

@@ -5,13 +5,15 @@ function [subjectTable] = subjects(session,dataPath)
 %   NDI session's database.
 %
 %   Inputs:
-%   session (ndi.session.dir): The NDI session object where the subjects will be imported.
-%   dataPath (char or string): Optional. The path to the directory containing the subject files.
-%       If not provided, the function will look for files in the current directory.
+%       session (ndi.session.dir): The NDI session object where the 
+%           subjects will be imported.
+%       dataPath (char or string): Optional. The path to the directory 
+%           containing the subject files. If not provided, the function 
+%           will look for files in the current directory.
 %
 %   Outputs:
-%   subjectTable (table): An updated table containing information about all subjects
-%       in the session, including the newly imported subjects.
+%       subjectTable (table): An updated table containing information about
+%           all subjects in the session, including the newly imported subjects.
 
 % Input argument validation
 arguments
