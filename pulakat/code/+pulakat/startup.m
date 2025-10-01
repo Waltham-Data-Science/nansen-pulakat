@@ -21,11 +21,11 @@ else
     dataset = ndi.cloud.downloadDataset(cloudDatasetId,dataPath);
 end
 
+%% 2. Generate tables from dataset
+
 % Get dataset metadata
 datasetInfo = ndi.cloud.api.datasets.get_dataset('682e7772cdf3f24938176fac');
 % datasetInfo = ndi.cloud.api.datasets.get_dataset(cloudDatasetId);
-
-%% 2. Generate tables from dataset
 
 % Create dataset table
 lastUpdated = datetime(datasetInfo.updatedAt,'InputFormat','yyyy-MM-dd''T''HH:mm:ss.SSS''Z''','TimeZone','UTC');
@@ -35,7 +35,10 @@ datasetTable_cloud = cell2table({dataset.id,dataset.reference,dataset.path,lastU
 % Create session table
 sessionTable = table();
 [sessionTable.SessionName,sessionTable.SessionDocumentIdentifier] = dataset.session_list;
-sessionTable{:,'DatasetDocumentIdentifier'} = datasetTable_cloud.DatasetDocumentIdentifier;
+for i = 1:height(sessionTable)
+    session = dataset.open_session(sessionTable.SessionDocumentIdentifier(i));
+    sessionTable.SessionPath(i) = {session.path};
+end
 
 % Create subject table and add session name
 subjectTable_cloud = pulakat.import.subjects.tableFromSession(dataset);
@@ -43,11 +46,18 @@ subjectTable_cloud = innerjoin(subjectTable_cloud,sessionTable);
 
 % Create data table
 dataTable_cloud = pulakat.import.data.tableFromSession(dataset);
+dataTable_cloud = ndi.fun.table.join({dataTable_cloud, ...
+    subjectTable_cloud(:,{'SubjectDocumentIdentifier', ...
+    'SubjectLocalIdentifier','SessionName'})});
 
 % Regenerate session table with cumulative metrics from session
 sessionTable_cloud = ndi.fun.table.join( ...
-    {removevars(subjectTable_cloud,{'SubjectDocumentIdentifier','SubjectLocalIdentifier'})}, ...
+    {removevars(subjectTable_cloud,{'SubjectDocumentIdentifier',...
+    'SubjectLocalIdentifier','ElectronicFileName'})}, ...
     'uniqueVariables','SessionDocumentIdentifier');
+
+% Clean up tables
+subjectTable_cloud = removevars(subjectTable_cloud,{'SessionPath'});
 
 %% 3. Update or download nansen project from GitHub
 
@@ -103,7 +113,7 @@ project.addMetaTable(subjectMetaTable);
 dataMetaTable = nansen.metadata.MetaTable(dataTable_cloud, ...
     'MetaTableClass', 'Files', ...
     'ItemClassName', 'table2struct', ...
-    'MetaTableIdVarname', 'ElectronicFileName');
+    'MetaTableIdVarname', 'FileDocumentIdentifier');
 project.addMetaTable(dataMetaTable);
 
 % Ensure 'pulakat' is the current

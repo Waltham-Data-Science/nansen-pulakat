@@ -1,5 +1,5 @@
-classdef ElectronicFileName < nansen.metadata.abstract.TableVariable
-%ELECTRONICFILENAME Definition for table variable
+classdef SessionPath < nansen.metadata.abstract.TableVariable
+%SESSIONPATH Definition for table variable
 %   Detailed explanation goes here
 %
 %   See also nansen.metadata.abstract.TableVariable
@@ -10,7 +10,7 @@ classdef ElectronicFileName < nansen.metadata.abstract.TableVariable
     end
     
     methods
-        function obj = ElectronicFileName(varargin)
+        function obj = SessionPath(varargin)
             obj@nansen.metadata.abstract.TableVariable(varargin{:});
         end
     end

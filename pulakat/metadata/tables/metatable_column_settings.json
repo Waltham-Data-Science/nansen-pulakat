@@ -148,9 +148,9 @@
     "ColumnLabel": "DatasetPath",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 497,
+    "ColumnWidth": 567,
     "IsEditable": false,
-    "ColumnOrder": 17
+    "ColumnOrder": 20
   },
   {
     "VariableName": "DatasetDocumentIdentifier",
@@ -166,18 +166,18 @@
     "ColumnLabel": "DatasetName",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 148,
+    "ColumnWidth": 125,
     "IsEditable": false,
-    "ColumnOrder": 19
+    "ColumnOrder": 17
   },
   {
     "VariableName": "DatasetUpdated",
     "ColumnLabel": "DatasetUpdated",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 148,
     "IsEditable": false,
-    "ColumnOrder": 20
+    "ColumnOrder": 19
   },
   {
     "VariableName": "FileDocumentIdentifier",
@@ -205,5 +205,14 @@
     "ColumnWidth": 319,
     "IsEditable": false,
     "ColumnOrder": 23
+  },
+  {
+    "VariableName": "SessionPath",
+    "ColumnLabel": "SessionPath",
+    "ShowColumn": false,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 24
   }
 ]

@@ -1,5 +1,5 @@
-classdef DatasetPath < nansen.metadata.abstract.TableVariable
-%DATASETPATH Definition for table variable
+classdef SessionName < nansen.metadata.abstract.TableVariable
+%SESSIONNAME Definition for table variable
 %   Detailed explanation goes here
 %
 %   See also nansen.metadata.abstract.TableVariable
@@ -10,7 +10,7 @@ classdef DatasetPath < nansen.metadata.abstract.TableVariable
     end
     
     methods
-        function obj = DatasetPath(varargin)
+        function obj = SessionName(varargin)
             obj@nansen.metadata.abstract.TableVariable(varargin{:});
         end
     end
