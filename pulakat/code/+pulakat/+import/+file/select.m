@@ -1,6 +1,23 @@
 function [dataFiles] = select(dataPath,options)
-%SELECTFILES Summary of this function goes here
-%   Detailed explanation goes here
+%SELECT Selects files based on specified criteria.
+%   This function finds and returns a list of file paths based on the
+%   provided path, file name, and extensions. It can operate in interactive
+%   mode (opening a file/directory selection dialog) or non-interactively
+%   by searching a specified path.
+%
+%   Inputs:
+%   dataPath (char or string): Optional. The path to the directory to search for files.
+%       If empty, a user interface dialog will open to select files or a directory.
+%   options.FileName (char or string): Optional. A string to filter files by name.
+%       Only files containing this string (case-insensitive) will be returned.
+%   options.FileExtensions (char, string, or cell array): Optional. File extensions to filter by.
+%       Use '*' for all extensions. Defaults to '*'.
+%   options.GetType ('file' or 'dir'): Optional. Specifies whether the user dialog should
+%       select files or a directory. Defaults to 'file'.
+%
+%   Outputs:
+%   dataFiles (cell array of strings): A cell array containing the full paths
+%       of the selected files that match the filter criteria.
 
 % Input argument validation
 arguments

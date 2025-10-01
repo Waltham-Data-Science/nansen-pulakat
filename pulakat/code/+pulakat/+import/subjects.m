@@ -1,6 +1,17 @@
 function [subjectTable] = subjects(session,dataPath)
-%IMPORTSUBJECTS Summary of this function goes here
-%   Detailed explanation goes here
+%SUBJECTS Imports subjects into an NDI session from a specified data path.
+%   This function identifies new subjects from 'animal_mapping' files,
+%   creates corresponding subject documents, and adds them to the
+%   NDI session's database.
+%
+%   Inputs:
+%   session (ndi.session.dir): The NDI session object where the subjects will be imported.
+%   dataPath (char or string): Optional. The path to the directory containing the subject files.
+%       If not provided, the function will look for files in the current directory.
+%
+%   Outputs:
+%   subjectTable (table): An updated table containing information about all subjects
+%       in the session, including the newly imported subjects.
 
 % Input argument validation
 arguments

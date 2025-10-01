@@ -19,7 +19,7 @@ function [indSubjects,numSubjects] = matchData2Subjects(subjectDataTable,subject
 %   `subjectTable` row indices that were matched, along with a count of
 %   those unique matches.
 %
-%   Input Arguments:
+%   Inputs:
 %   dataTable               - A MATLAB table where each row represents a data
 %                             point (e.g., from a file) to be linked to a
 %                             subject. It must contain the columns specified
@@ -32,7 +32,7 @@ function [indSubjects,numSubjects] = matchData2Subjects(subjectDataTable,subject
 %                             to use for matching. If not provided, this
 %                             defaults to {'Animal', 'Cage', 'Label'}.
 %
-%   Output Arguments:
+%   Outputs:
 %   indSubjects             - A cell array with the same number of rows as
 %                             `dataTable`. Each cell `indSubjects{i}` contains a
 %                             numeric vector of unique row indices from

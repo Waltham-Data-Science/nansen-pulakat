@@ -1,7 +1,7 @@
 function valid = validateTable(fileName,requiredVariableNames)
-%VALIDATETABLEFILE Validates the format and integrity of a tabular data file.
+%VALIDATETABLE Validates the format and integrity of a tabular data file.
 %
-%   valid = VALIDATETABLEFILE(fileName, requiredVariableNames) performs a
+%   valid = VALIDATETABLE(fileName, requiredVariableNames) performs a
 %   series of checks on the specified file to ensure it is well-formed and
 %   contains the necessary data.
 %
@@ -17,7 +17,7 @@ function valid = validateTable(fileName,requiredVariableNames)
 %   all checks. Warnings are issued to the command window detailing any
 %   failures.
 %
-%   Input Arguments:
+%   Inputs:
 %   fileName              - A character vector or string scalar specifying the
 %                           full path to the file to be validated. The file
 %                           must exist.
@@ -26,7 +26,7 @@ function valid = validateTable(fileName,requiredVariableNames)
 %                           headers that must be present in the file. If
 %                           left empty, this check is skipped.
 %
-%   Output Arguments:
+%   Outputs:
 %   valid                 - A logical scalar. Returns 'true' if the file
 %                           passes all validation checks, and 'false' if any
 %                           check fails.
@@ -34,7 +34,7 @@ function valid = validateTable(fileName,requiredVariableNames)
 %   Example:
 %       % Assume 'subject_data.csv' is missing a 'Cage' column.
 %       requiredCols = {'Animal', 'Cage', 'Label'};
-%       isValid = validateTableFile('subject_data.csv', requiredCols);
+%       isValid = pulakat.import.file.validateTable('subject_data.csv', requiredCols);
 %
 %       % This would display a warning about the missing 'Cage' column
 %       % and the value of 'isValid' would be false.
@@ -55,7 +55,7 @@ if ~isempty(requiredVariableNames)
     requiredVariableNames = cellstr(requiredVariableNames);
     missingVariableNames = setdiff(requiredVariableNames,importOptions.VariableNames);
     if ~isempty(missingVariableNames)
-        warning('validateTableFile:missingVariables','%s is missing the required columns: %s.',...
+        warning('validateTable:missingVariables','%s is missing the required columns: %s.',...
             fileName,strjoin(missingVariableNames,', '));
         valid = false;
     end
@@ -70,7 +70,7 @@ try
 catch ME
     missingCell = regexp(ME.message,'\d+','match');
     missingVariableName = requiredVariableNames{str2double(missingCell{1})};
-    warning('validateTableFile:missingData','%s contains invalid or missing data in column %s (%s): row %s',...
+    warning('validateTable:missingData','%s contains invalid or missing data in column %s (%s): row %s',...
         fileName,missingCell{1},missingVariableName,missingCell{2});
     valid = false;
 end
