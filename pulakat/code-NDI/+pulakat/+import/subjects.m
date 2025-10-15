@@ -70,6 +70,6 @@ tableDocMaker.table2ontologyTableRowDocs(subjectTable_new(:,tableRowVariables), 
         {'SubjectDocumentIdentifier'});
 
 % Return updated subject table
-subjectTable = pulakat.import.subjects.tableFromSession(session);
+subjectTable = pulakat.metatable.subjects(session);
 
 end

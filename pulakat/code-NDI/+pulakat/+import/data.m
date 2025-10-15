@@ -116,6 +116,6 @@ session.database_add(generic_file_docs);
 session.database_add(ontologyLabel_docs);
 
 % Return updated data table
-dataTable = pulakat.import.data.tableFromSession(session);
+dataTable = pulakat.metatable.files(session);
 
 end
