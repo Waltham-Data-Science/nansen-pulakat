@@ -76,7 +76,7 @@
     "ColumnLabel": "SessionName",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 153,
+    "ColumnWidth": 129,
     "IsEditable": false,
     "ColumnOrder": 2
   },
@@ -148,7 +148,7 @@
     "ColumnLabel": "DatasetPath",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 567,
+    "ColumnWidth": 516,
     "IsEditable": false,
     "ColumnOrder": 20
   },
@@ -166,7 +166,7 @@
     "ColumnLabel": "DatasetName",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 125,
+    "ColumnWidth": 128,
     "IsEditable": false,
     "ColumnOrder": 17
   },
@@ -175,7 +175,7 @@
     "ColumnLabel": "DatasetUpdated",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 148,
+    "ColumnWidth": 149,
     "IsEditable": false,
     "ColumnOrder": 19
   },

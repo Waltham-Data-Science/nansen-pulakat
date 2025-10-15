@@ -1,4 +1,4 @@
-function [dataTable] = tableFromSession(session)
+function [dataTable] = files(session)
 %TABLEFROMSESSION Compiles a table of data information from an NDI session.
 %   This function queries the NDI database for 'generic_file' and
 %   'ontologyLabel' documents to build a comprehensive table of data

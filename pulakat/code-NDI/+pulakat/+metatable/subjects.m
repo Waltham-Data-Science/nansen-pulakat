@@ -1,4 +1,4 @@
-function [subjectTable] = tableFromSession(session)
+function [subjectTable] = subjects(session)
 %TABLEFROMSESSION Compiles a subject information table from an NDI session or dataset.
 %   This function retrieves all subject documents from the specified NDI
 %   session or dataset and enriches this information with data from any
@@ -47,5 +47,9 @@ if ~isempty(docs)
     subjectTable = ndi.fun.table.join({subjectTable,ontologyTable{1}});
 end
 
-end
+% Add session name to subject table
+sessionTable = pulakat.metatable.session(session,false);
+subjectTable = innerjoin(subjectTable,...
+    sessionTable(:,{'SessionDocumentIdentifier','SessionPath'}));
 
+end

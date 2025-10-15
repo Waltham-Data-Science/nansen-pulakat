@@ -21,30 +21,19 @@ else
     dataset = ndi.cloud.downloadDataset(cloudDatasetId,dataPath);
 end
 
+% Add to path
 addpath(genpath(datasetPath));
 
 %% 2. Generate tables from dataset
 
-% Get dataset metadata
-datasetInfo = ndi.cloud.api.datasets.get_dataset('682e7772cdf3f24938176fac');
-% datasetInfo = ndi.cloud.api.datasets.get_dataset(cloudDatasetId);
-
 % Create dataset table
-lastUpdated = datetime(datasetInfo.updatedAt,'InputFormat','yyyy-MM-dd''T''HH:mm:ss.SSS''Z''','TimeZone','UTC');
-datasetTable_cloud = cell2table({dataset.id,dataset.reference,dataset.path,lastUpdated}, ...
-    'VariableNames',{'DatasetDocumentIdentifier','DatasetName','DatasetPath','DatasetUpdated'});
+datasetTable_cloud = pulakat.metatable.dataset(dataset);
 
 % Create session table
-sessionTable = table();
-[sessionTable.SessionName,sessionTable.SessionDocumentIdentifier] = dataset.session_list;
-for i = 1:height(sessionTable)
-    session = dataset.open_session(sessionTable.SessionDocumentIdentifier(i));
-    sessionTable.SessionPath(i) = {session.path};
-end
+sessionTable_cloud = pulakat.metatable.session(dataset);
 
 % Create subject table and add session name
-subjectTable_cloud = pulakat.import.subjects.tableFromSession(dataset);
-subjectTable_cloud = innerjoin(subjectTable_cloud,sessionTable);
+subjectTable_cloud = pulakat.metatable.subjects(dataset);
 
 % Create data table
 dataTable_cloud = pulakat.import.data.tableFromSession(dataset);
@@ -53,14 +42,7 @@ dataTable_cloud = ndi.fun.table.join({dataTable_cloud, ...
     'SubjectLocalIdentifier','SessionName'})});
 
 % Regenerate session table with cumulative metrics from session
-sessionTable_cloud = ndi.fun.table.join( ...
-    {removevars(subjectTable_cloud,{'SubjectDocumentIdentifier',...
-    'SubjectLocalIdentifier','ElectronicFileName'})}, ...
-    'uniqueVariables','SessionDocumentIdentifier');
 sessionTable_cloud(:,{'DatasetDocumentIdentifier'}) = {dataset.id};
-
-% Clean up tables
-subjectTable_cloud = removevars(subjectTable_cloud,{'SessionPath'});
 
 %% 3. Update or download nansen project from GitHub
 
@@ -93,28 +75,28 @@ project = projectManager.getProjectObject(projectName);
 
 % Create (or replace) dataset metatable
 datasetMetaTable = nansen.metadata.MetaTable(datasetTable_cloud, ...
-    'MetaTableClass', 'Dataset', ...
+    'MetaTableClass', 'Datasets', ...
     'ItemClassName', 'table2struct', ...
     'MetaTableIdVarname', 'DatasetDocumentIdentifier');
 project.addMetaTable(datasetMetaTable);
 
 % Create (or replace) session metatable
 sessionMetaTable = nansen.metadata.MetaTable(sessionTable_cloud, ...
-    'MetaTableClass', 'Session', ...
+    'MetaTableClass', 'Sessions', ...
     'ItemClassName', 'table2struct', ...
     'MetaTableIdVarname', 'SessionDocumentIdentifier');
 project.addMetaTable(sessionMetaTable);
 
 % Create (or replace) subject metatable
 subjectMetaTable = nansen.metadata.MetaTable(subjectTable_cloud, ...
-    'MetaTableClass', 'Subject', ...
+    'MetaTableClass', 'Subjects', ...
     'ItemClassName', 'table2struct', ...
     'MetaTableIdVarname', 'SubjectDocumentIdentifier');
 project.addMetaTable(subjectMetaTable);
 
 % Create (or replace) data metatable
 dataMetaTable = nansen.metadata.MetaTable(dataTable_cloud, ...
-    'MetaTableClass', 'File', ...
+    'MetaTableClass', 'Files', ...
     'ItemClassName', 'table2struct', ...
     'MetaTableIdVarname', 'FileDocumentIdentifier');
 project.addMetaTable(dataMetaTable);
