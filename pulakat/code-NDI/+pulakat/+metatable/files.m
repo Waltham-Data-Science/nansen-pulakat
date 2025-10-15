@@ -1,4 +1,4 @@
-function [dataTable] = files(session)
+function [dataTable] = files(dataset)
 %TABLEFROMSESSION Compiles a table of data information from an NDI session.
 %   This function queries the NDI database for 'generic_file' and
 %   'ontologyLabel' documents to build a comprehensive table of data
@@ -17,23 +17,17 @@ function [dataTable] = files(session)
 
 % Input argument validation
 arguments
-    session {mustBeA(session,{'ndi.session.dir','ndi.dataset.dir'})}
+    dataset {mustBeA(dataset,{'ndi.dataset.dir'})}
 end
 
-if isa(session,'ndi.dataset.dir')
-    [~,session_list] = session.session_list();
-    sessions = cell(size(session_list));
-    for i = 1:numel(session_list)
-        sessions{i} = session.open_session(session_list{i});
-    end
-else
-    sessions = {session};
-end
+% Get basic session table from dataset
+subjectTable = pulakat.metatable.subjects(dataset);
+session_ids = unique(subjectTable.SessionDocumentIdentifier);
 
-dataTables = cell(size(sessions));
-for i = 1:numel(sessions)
+dataTables = cell(numel(session_ids),1);
+for i = 1:height(session_ids)
 
-    session = sessions{i};
+    session = dataset.open_session(session_ids{i});
 
     % Get files
     query = ndi.query('','isa','generic_file');
@@ -85,6 +79,11 @@ end
 
 % Stack tables
 dataTable = ndi.fun.table.vstack(dataTables);
+
+% Add subject, session, and dataset info to data table
+dataTable = ndi.fun.table.join({dataTable, ...
+    subjectTable(:,{'SubjectDocumentIdentifier','SubjectLocalIdentifier', ...
+    'SessionName','SessionDocumentIdentifier','SessionPath','DatasetDocumentIdentifier'})});
 
 end
 

@@ -45,7 +45,29 @@ function varargout = remove(filesObject, varargin)
 % % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
 % Implementation of the method : Add your code here:
 
+    % Convert file object to table
+    filesTable = struct2table(filesObject);
+
+    % Get unique session paths
+    [sessionPaths,~,indPath] = unique(filesTable.SessionPath);
+    for i = 1:numel(sessionPaths)
+
+        % Get session object
+        session = ndi.session.dir(sessionPaths{i});
+
+        % Permanently remove documents from database
+        session.database_rm(filesTable.FileDocumentIdentifier(indPath == i));
+    end
+
+    % Get updated metatable
+    dataset = ndi.dataset.dir(filesTable.DatasetDocumentIdentifier{1});
+    dataTable = pulakat.metatable.files(dataset);
     
+    % Update nansen viewer
+    pulakat.sync.metatable(dataTable,'Files');
+
+    % Sync dataset to cloud
+    % ndi.cloud.sync(dataset)
     
     % Return session object (please do not remove):
     % if nargout; varargout = {filesObject}; end

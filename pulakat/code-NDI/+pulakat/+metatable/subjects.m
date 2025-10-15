@@ -1,4 +1,4 @@
-function [subjectTable] = subjects(session)
+function [subjectTable] = subjects(dataset)
 %TABLEFROMSESSION Compiles a subject information table from an NDI session or dataset.
 %   This function retrieves all subject documents from the specified NDI
 %   session or dataset and enriches this information with data from any
@@ -16,30 +16,28 @@ function [subjectTable] = subjects(session)
 
 % Input argument validation
 arguments
-    session {mustBeA(session,{'ndi.session.dir','ndi.dataset.dir'})}
+    dataset {mustBeA(dataset,{'ndi.dataset.dir'})}
 end
 
-% Get basic subject table from session
-subjectTable = ndi.fun.docTable.subject(session);
+% Get basic subject table from dataset
+subjectTable = ndi.fun.docTable.subject(dataset);
 
+% Return if empty
 if isempty(subjectTable)
     return
 end
 
+% Get basic session table from dataset
+sessionTable = pulakat.metatable.session(dataset,false);
+
 % Get ontologyTableRow documents
 query = ndi.query('','isa','ontologyTableRow');
-if isa(session,'ndi.dataset.dir')
-    dataset = session;
-    [~,session_list] = dataset.session_list();
-    docs = cell(size(session_list));
-    for i = 1:numel(session_list)
-        session = dataset.open_session(session_list{i});
-        docs{i} = session.database_search(query);
-    end
-    docs = cat(2,docs{:});
-else
-    docs = session.database_search(query);
+docs = cell(height(sessionTable),1);
+for i = 1:height(sessionTable)
+    session = dataset.open_session(sessionTable.SessionDocumentIdentifier{i});
+    docs{i} = session.database_search(query);
 end
+docs = cat(2,docs{:});
 
 % Add ontologyTableRow data to subjectTable
 if ~isempty(docs)
@@ -47,9 +45,7 @@ if ~isempty(docs)
     subjectTable = ndi.fun.table.join({subjectTable,ontologyTable{1}});
 end
 
-% Add session name to subject table
-sessionTable = pulakat.metatable.session(session,false);
-subjectTable = innerjoin(subjectTable,...
-    sessionTable(:,{'SessionDocumentIdentifier','SessionPath'}));
+% Add session info to subject table
+subjectTable = innerjoin(subjectTable,sessionTable);
 
 end

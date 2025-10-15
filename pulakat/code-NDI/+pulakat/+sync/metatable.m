@@ -1,4 +1,4 @@
-function [] = metatable(project,dataTable,dataType)
+function [metaTable] = metatable(project,dataTable,dataType)
 %METATABLE Summary of this function goes here
 %   Detailed explanation goes here
 

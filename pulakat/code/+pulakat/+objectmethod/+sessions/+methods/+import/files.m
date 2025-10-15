@@ -1,4 +1,4 @@
-function varargout = data(sessionObject, varargin)
+function varargout = files(sessionObject, varargin)
 %DATA Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -52,7 +52,7 @@ function varargout = data(sessionObject, varargin)
     dataTable = pulakat.import.data(session);
     
     % Update nansen viewer
-    pulakat.sync.metatable(dataTable,'File');
+    pulakat.sync.metatable(dataTable,'Files');
 
     % Sync dataset to cloud
     dataset = ndi.dataset.dir(sessionObject.DatasetDocumentIdentifier);

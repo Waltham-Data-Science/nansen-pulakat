@@ -26,23 +26,10 @@ addpath(genpath(datasetPath));
 
 %% 2. Generate tables from dataset
 
-% Create dataset table
 datasetTable_cloud = pulakat.metatable.dataset(dataset);
-
-% Create session table
 sessionTable_cloud = pulakat.metatable.session(dataset);
-
-% Create subject table and add session name
 subjectTable_cloud = pulakat.metatable.subjects(dataset);
-
-% Create data table
-dataTable_cloud = pulakat.import.data.tableFromSession(dataset);
-dataTable_cloud = ndi.fun.table.join({dataTable_cloud, ...
-    subjectTable_cloud(:,{'SubjectDocumentIdentifier', ...
-    'SubjectLocalIdentifier','SessionName'})});
-
-% Regenerate session table with cumulative metrics from session
-sessionTable_cloud(:,{'DatasetDocumentIdentifier'}) = {dataset.id};
+dataTable_cloud = pulakat.metatable.files(dataset);
 
 %% 3. Update or download nansen project from GitHub
 
@@ -73,33 +60,11 @@ project = projectManager.getProjectObject(projectName);
 
 %% 4. Add metatables to project and launch nansen viewer
 
-% Create (or replace) dataset metatable
-datasetMetaTable = nansen.metadata.MetaTable(datasetTable_cloud, ...
-    'MetaTableClass', 'Datasets', ...
-    'ItemClassName', 'table2struct', ...
-    'MetaTableIdVarname', 'DatasetDocumentIdentifier');
-project.addMetaTable(datasetMetaTable);
-
-% Create (or replace) session metatable
-sessionMetaTable = nansen.metadata.MetaTable(sessionTable_cloud, ...
-    'MetaTableClass', 'Sessions', ...
-    'ItemClassName', 'table2struct', ...
-    'MetaTableIdVarname', 'SessionDocumentIdentifier');
-project.addMetaTable(sessionMetaTable);
-
-% Create (or replace) subject metatable
-subjectMetaTable = nansen.metadata.MetaTable(subjectTable_cloud, ...
-    'MetaTableClass', 'Subjects', ...
-    'ItemClassName', 'table2struct', ...
-    'MetaTableIdVarname', 'SubjectDocumentIdentifier');
-project.addMetaTable(subjectMetaTable);
-
-% Create (or replace) data metatable
-dataMetaTable = nansen.metadata.MetaTable(dataTable_cloud, ...
-    'MetaTableClass', 'Files', ...
-    'ItemClassName', 'table2struct', ...
-    'MetaTableIdVarname', 'FileDocumentIdentifier');
-project.addMetaTable(dataMetaTable);
+% Create (or replace) metatables
+datasetMetaTable = metatable(project,datasetTable_cloud,'Datasets');
+sessionMetaTable = metatable(project,sessionTable_cloud,'Sessions');
+subjectMetaTable = metatable(project,subjectTable_cloud,'Subjects');
+dataMetaTable = metatable(project,dataTable_cloud,'Files');
 
 % Ensure 'pulakat' is the current
 projectManager.changeProject(projectName)
