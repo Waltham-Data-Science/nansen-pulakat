@@ -1,5 +1,5 @@
-function varargout = remove(filesObject, varargin)
-%REMOVE Summary of this function goes here
+function varargout = sync(datasetObject, varargin)
+%SYNC Summary of this function goes here
 %   Detailed explanation goes here
 
 % % % % % % % % % % % % % % % INSTRUCTIONS % % % % % % % % % % % % % % %
@@ -9,7 +9,7 @@ function varargout = remove(filesObject, varargin)
 %      defined in the local function getDefaultParameters at the bottom of
 %      this script.
 %   2) Scroll down to the custom code block below and write code to do
-%   operations on the filesObjects and it's data.
+%   operations on the datasetsObjects and it's data.
 %   3) Add documentation (summary and explanation) for the session method
 %      above. PS: Don't change the function definition (inputs/outputs)
 %
@@ -26,7 +26,7 @@ function varargout = remove(filesObject, varargin)
     params = getDefaultParameters();
     
     % Create a cell array with attribute keywords
-    ATTRIBUTES = {'batch', 'queueable'};
+    ATTRIBUTES = {'serial', 'queueable'};
     
 % % % % % % % % % % % % % DEFAULT CODE BLOCK % % % % % % % % % % % % % %
 % - - - - - - - - - - Please do not edit this part - - - - - - - - - - -
@@ -45,32 +45,13 @@ function varargout = remove(filesObject, varargin)
 % % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
 % Implementation of the method : Add your code here:
 
-    % Convert file object to table
-    filesTable = struct2table(filesObject);
-
-    % Get unique session paths
-    [sessionPaths,~,indPath] = unique(filesTable.SessionPath);
-    for i = 1:numel(sessionPaths)
-
-        % Get session object
-        session = ndi.session.dir(sessionPaths{i});
-
-        % Permanently remove documents from database
-        session.database_rm(filesTable.FileDocumentIdentifier(indPath == i));
-    end
-
-    % Get updated metatable
-    dataset = pulakat.datasetID2Object(filesTable.DatasetDocumentIdentifier{1});
-    dataTable = pulakat.metatable.files(dataset);
-    
-    % Update nansen viewer
-    pulakat.sync.metatable(dataTable,'Files');
+    dataset = ndi.dataset.dir(datasetObject.DatasetPath);
 
     % Sync dataset to cloud
     % ndi.cloud.sync(dataset)
     
     % Return session object (please do not remove):
-    % if nargout; varargout = {filesObject}; end
+    % if nargout; varargout = {datasetsObject}; end
 end
 
 function params = getDefaultParameters()

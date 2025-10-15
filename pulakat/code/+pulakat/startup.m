@@ -1,4 +1,6 @@
-%% 1. Download or sync local dataset with NDI Cloud
+function [ ] = startup()
+
+% 1. Download or sync local dataset with NDI Cloud
 
 % Define the directory where the dataset is (or will be) stored
 % (i.e. /Users/myusername/Documents/MATLAB/Datasets)
@@ -24,14 +26,14 @@ end
 % Add to path
 addpath(genpath(datasetPath));
 
-%% 2. Generate tables from dataset
+% 2. Generate tables from dataset
 
 datasetTable_cloud = pulakat.metatable.dataset(dataset);
-sessionTable_cloud = pulakat.metatable.session(dataset);
+sessionTable_cloud = pulakat.metatable.sessions(dataset);
 subjectTable_cloud = pulakat.metatable.subjects(dataset);
 dataTable_cloud = pulakat.metatable.files(dataset);
 
-%% 3. Update or download nansen project from GitHub
+% 3. Update or download nansen project from GitHub
 
 % Clone or pull changes from github repo
 nansenRepoPath = fullfile(datasetPath,'nansen-pulakat');
@@ -58,16 +60,18 @@ end
 % Open project
 project = projectManager.getProjectObject(projectName);
 
-%% 4. Add metatables to project and launch nansen viewer
+% 4. Add metatables to project and launch nansen viewer
 
 % Create (or replace) metatables
-datasetMetaTable = metatable(project,datasetTable_cloud,'Datasets');
-sessionMetaTable = metatable(project,sessionTable_cloud,'Sessions');
-subjectMetaTable = metatable(project,subjectTable_cloud,'Subjects');
-dataMetaTable = metatable(project,dataTable_cloud,'Files');
+datasetMetaTable = pulakat.sync.metatable(project,datasetTable_cloud,'Dataset');
+sessionMetaTable = pulakat.sync.metatable(project,sessionTable_cloud,'Sessions','Session');
+subjectMetaTable = pulakat.sync.metatable(project,subjectTable_cloud,'Subjects','Subject');
+dataMetaTable = pulakat.sync.metatable(project,dataTable_cloud,'Files','File');
 
 % Ensure 'pulakat' is the current
 projectManager.changeProject(projectName)
 
 % Launch nansen
 nansen
+
+end

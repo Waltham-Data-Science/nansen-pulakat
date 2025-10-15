@@ -55,7 +55,7 @@ function varargout = subjects(sessionObject, varargin)
     pulakat.sync.metatable(subjectTable,'Subjects');
 
     % Sync dataset to cloud
-    dataset = ndi.dataset.dir(sessionObject.DatasetDocumentIdentifier);
+    dataset = pulakat.datasetID2Object(sessionObject.DatasetDocumentIdentifier);
     % ndi.cloud.sync(dataset)
     
     % Return session object (please do not remove):

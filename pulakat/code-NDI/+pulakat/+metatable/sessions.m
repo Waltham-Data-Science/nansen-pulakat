@@ -16,10 +16,8 @@ for i = 1:numel(session_list)
     sessionTable.SessionName{i} = session.reference;
     sessionTable.SessionDocumentIdentifier{i} = session.identifier;
     sessionTable.SessionPath{i} = session.path;
+    sessionTable.DatasetDocumentIdentifier{i} = dataset.id;
 end
-
-% Add dataset id
-sessionTable.DatasetDocumentIdentifier = dataset.id;
 
 % If wanting the full meta table, add summary of subject table
 if fullMetaTable
