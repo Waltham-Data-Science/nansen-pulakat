@@ -30,7 +30,7 @@ subjectFiles = pulakat.import.file.select(dataPath, ...
 subjectTable_files = pulakat.import.subjects.tableFromFiles(subjectFiles);
 
 % Get existing subject table from session
-subjectTable_session = pulakat.import.subjects.tableFromSession(session);
+subjectTable_session = pulakat.metatable.subjects(session);
 
 % Identify new and unique subjects
 subjectIdentifiers = {'SubjectEnumeratedIdentifier','SubjectCageIdentifier','SubjectTextIdentifier'};
