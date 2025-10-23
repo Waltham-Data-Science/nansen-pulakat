@@ -59,12 +59,8 @@ function varargout = session(datasetObject, varargin)
     dataTable = pulakat.import.data(session,session.path);
     pulakat.sync.metatable(dataTable,'Files');
 
-    % Add ingested session to dataset
-    session.ingest;
-    dataset.add_ingested_session(session);
-
-    % Sync dataset to cloud
-    % ndi.cloud.sync(dataset)
+    % Link session to dataset
+    dataset.add_linked_session(session);
 
     % Return session object (please do not remove):
     % if nargout; varargout = {datasetObject}; end

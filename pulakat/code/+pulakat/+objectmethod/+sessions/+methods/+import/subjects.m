@@ -53,10 +53,6 @@ function varargout = subjects(sessionObject, varargin)
     
     % Update nansen viewer
     pulakat.sync.metatable(subjectTable,'Subjects');
-
-    % Sync dataset to cloud
-    dataset = pulakat.datasetID2Object(sessionObject.DatasetDocumentIdentifier);
-    % ndi.cloud.sync(dataset)
     
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionObject}; end

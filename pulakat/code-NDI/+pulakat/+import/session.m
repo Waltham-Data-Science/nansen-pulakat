@@ -38,7 +38,5 @@ session = session{1};
 % Add session to dataset
 dataset.add_linked_session(session);
 
-% Sync with cloud
-
 end
 

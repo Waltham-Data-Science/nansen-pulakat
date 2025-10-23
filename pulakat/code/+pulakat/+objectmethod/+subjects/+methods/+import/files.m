@@ -44,6 +44,8 @@ function varargout = files(subjectsObject, varargin)
     
 % % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
 % Implementation of the method : Add your code here:
+
+    
     
     % Return session object (please do not remove):
     % if nargout; varargout = {subjectsObject}; end
