@@ -7,14 +7,9 @@ arguments
     project
     dataTable table
     dataName {mustBeText}
-    dataType {mustBeText} = dataName;
+    dataType {mustBeText} = dataName; % Todo: remove
 end
 
-% Add updated metatable to project (replaces old)
-metaTable = nansen.metadata.MetaTable(dataTable, ...
-    'MetaTableClass', dataName, ...
-    'ItemClassName', 'table2struct', ...
-    'MetaTableIdVarname', [dataType,'DocumentIdentifier']);
-project.addMetaTable(metaTable);
-
+metaTable = project.MetaTableCatalog.getMetaTable(dataName);
+metaTable.addTable(dataTable);
 end
