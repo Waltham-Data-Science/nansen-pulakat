@@ -1,4 +1,4 @@
-function [metaTable] = metatable(project,dataTable,dataName,dataType)
+function [metaTable] = metatable(project,dataTable,dataName)
 %METATABLE Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -7,9 +7,12 @@ arguments
     project
     dataTable table
     dataName {mustBeText}
-    dataType {mustBeText} = dataName; % Todo: remove
 end
 
+% Retrieve current metatable
 metaTable = project.MetaTableCatalog.getMetaTable(dataName);
+
+% Update metatable
 metaTable.addTable(dataTable);
+
 end
