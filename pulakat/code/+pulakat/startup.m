@@ -29,9 +29,13 @@ addpath(genpath(datasetPath));
 % 2. Generate tables from dataset
 
 datasetTable_cloud = pulakat.metatable.dataset(dataset);
+datasetTable_cloud{:,'Cloud'} = true;
 sessionTable_cloud = pulakat.metatable.sessions(dataset);
+sessionTable_cloud{:,'Cloud'} = true;
 subjectTable_cloud = pulakat.metatable.subjects(dataset);
+subjectTable_cloud{:,'Cloud'} = true;
 dataTable_cloud = pulakat.metatable.files(dataset);
+dataTable_cloud{:,'Cloud'} = true;
 
 % 3. Update or download nansen project from GitHub
 
@@ -64,9 +68,9 @@ project = projectManager.getProjectObject(projectName);
 
 % Create (or replace) metatables
 datasetMetaTable = pulakat.sync.metatable(project,datasetTable_cloud,'Dataset');
-sessionMetaTable = pulakat.sync.metatable(project,sessionTable_cloud,'Sessions','Session');
-subjectMetaTable = pulakat.sync.metatable(project,subjectTable_cloud,'Subjects','Subject');
-dataMetaTable = pulakat.sync.metatable(project,dataTable_cloud,'Files','File');
+sessionMetaTable = pulakat.sync.metatable(project,sessionTable_cloud,'Sessions');
+subjectMetaTable = pulakat.sync.metatable(project,subjectTable_cloud,'Subjects');
+dataMetaTable = pulakat.sync.metatable(project,dataTable_cloud,'Files');
 
 % Ensure 'pulakat' is the current
 projectManager.changeProject(projectName)
