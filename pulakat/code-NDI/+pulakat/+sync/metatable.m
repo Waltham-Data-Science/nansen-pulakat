@@ -34,6 +34,5 @@ else
     metaTable = project.MetaTableCatalog.getMetaTable(dataName);
     metaTable.addTable(dataTable);
 end
-    
 
 end

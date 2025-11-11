@@ -52,6 +52,7 @@ function varargout = files(sessionObject, varargin)
     dataTable = pulakat.import.data(session);
     
     % Update nansen viewer
+    projectManager = nansen.ProjectManager(); 
     project = projectManager.getProjectObject('pulakat');
     pulakat.sync.metatable(project,dataTable,'Files');
 
