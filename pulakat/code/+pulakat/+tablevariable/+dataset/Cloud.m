@@ -1,16 +1,16 @@
-classdef DatasetUpdated < nansen.metadata.abstract.TableVariable
-%DATASETUPDATED Definition for table variable
+classdef Cloud < nansen.metadata.abstract.TableVariable
+%CLOUD Definition for table variable
 %   Detailed explanation goes here
 %
 %   See also nansen.metadata.abstract.TableVariable
     
     properties (Constant)
         IS_EDITABLE = false
-        DEFAULT_VALUE = {'N/A'}
+        DEFAULT_VALUE = false
     end
     
     methods
-        function obj = DatasetUpdated(varargin)
+        function obj = Cloud(varargin)
             obj@nansen.metadata.abstract.TableVariable(varargin{:});
         end
     end

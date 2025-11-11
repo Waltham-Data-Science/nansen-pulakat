@@ -45,14 +45,15 @@ function varargout = subjects(sessionObject, varargin)
 % % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
 % Implementation of the method : Add your code here:
 
-    % Get session object
-    session = ndi.session.dir(sessionObject.SessionPath);
+    % Get dataset
+    dataset = pulakat.datasetID2Object(sessionObject.DatasetDocumentIdentifier);
 
     % Add subjects to session
-    subjectTable = pulakat.import.subjects(session);
+    subjectTable = pulakat.import.subjects(dataset);
     
     % Update nansen viewer
-    pulakat.sync.metatable(subjectTable,'Subjects');
+    project = projectManager.getProjectObject('pulakat');
+    pulakat.sync.metatable(project,subjectTable,'Subjects');
     
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionObject}; end
