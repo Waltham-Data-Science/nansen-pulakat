@@ -10,7 +10,7 @@ if ~isfolder(dataPath)
 end
 
 % Define the dataset id and its local path
-cloudDatasetId = 'pulakat_2025'; % TODO: update once cloud tools work and dataset is online
+cloudDatasetId = '693ae9f740ff346c0b0a6125';
 datasetPath = fullfile(dataPath,cloudDatasetId);
 
 % Load/download dataset
