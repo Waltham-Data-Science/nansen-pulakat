@@ -31,7 +31,7 @@ end
 
 % If wanting the full meta table, add summary of subject table
 if fullMetaTable
-    if exist(dataset,'var')
+    if exist('dataset','var')
         subjectTable = pulakat.metatable.subjects(dataset);
     else
         subjectTable = pulakat.metatable.subjects(session);
