@@ -10,14 +10,14 @@ if ~isfolder(dataPath)
 end
 
 % Define the dataset id and its local path
-cloudDatasetId = '693ae9f740ff346c0b0a6125';
+cloudDatasetId = '6941d6a4f9e6a08354febc98';
 datasetPath = fullfile(dataPath,cloudDatasetId);
 
 % Load/download dataset
 if isfolder(datasetPath)
     % Load if already downloaded and sync with cloud
     dataset = ndi.dataset.dir(datasetPath);
-    % dataset = ndi.cloud.sync.downloadNew(dataset);
+    dataset = ndi.cloud.sync.downloadNew(dataset);
 else
     % Download from cloud
     dataset = ndi.cloud.downloadDataset(cloudDatasetId,dataPath);
