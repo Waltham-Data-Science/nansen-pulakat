@@ -139,7 +139,7 @@
     "ColumnLabel": "FileName",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 453,
+    "ColumnWidth": 603,
     "IsEditable": false,
     "ColumnOrder": 16
   },
@@ -211,7 +211,7 @@
     "ColumnLabel": "SessionPath",
     "ShowColumn": false,
     "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 473,
     "IsEditable": false,
     "ColumnOrder": 24
   },
@@ -220,7 +220,7 @@
     "ColumnLabel": "Cloud",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 38,
+    "ColumnWidth": 64,
     "IsEditable": false,
     "ColumnOrder": 25
   }

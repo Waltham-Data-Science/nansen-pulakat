@@ -30,7 +30,7 @@ for i = 1:numel(sessions)
 end
 
 % If wanting the full meta table, add summary of subject table
-if fullMetaTable
+if fullMetaTable & ~isempty(sessionTable)
     if exist('dataset','var')
         subjectTable = pulakat.metatable.subjects(dataset);
     else

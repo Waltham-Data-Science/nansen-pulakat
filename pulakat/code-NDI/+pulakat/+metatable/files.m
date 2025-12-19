@@ -22,6 +22,10 @@ end
 
 % Get basic session table from dataset
 subjectTable = pulakat.metatable.subjects(dataset);
+if isempty(subjectTable)
+    dataTable = table();
+    return;
+end
 sessionPaths = unique(subjectTable.SessionPath);
 
 dataTables = cell(numel(sessionPaths),1);
@@ -74,7 +78,6 @@ for i = 1:numel(sessionPaths)
     end
 
     dataTables{i} = dataTable;
-
 end
 
 % Stack tables

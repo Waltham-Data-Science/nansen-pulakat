@@ -1,4 +1,4 @@
-function [metaTable] = metatable(project,dataTable,dataName)
+function [metaTable] = metatable(project,dataTable,dataName,overwrite)
 %METATABLE Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -7,12 +7,13 @@ arguments
     project
     dataTable table
     dataName {mustBeText}
+    overwrite (1,1) logical
 end
 
 % Get meta table catalog
 metaTableCatalog = project.MetaTableCatalog;
 
-if isempty(metaTableCatalog.getEntry(dataName))
+if isempty(metaTableCatalog.getEntry(dataName)) | overwrite
     dataType = dataName;
     switch dataName
         case 'Sessions'
