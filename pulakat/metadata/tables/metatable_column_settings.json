@@ -148,7 +148,7 @@
     "ColumnLabel": "DatasetPath",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 326,
+    "ColumnWidth": 625,
     "IsEditable": false,
     "ColumnOrder": 20
   },
@@ -175,7 +175,7 @@
     "ColumnLabel": "DatasetUpdated",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 84,
+    "ColumnWidth": 181,
     "IsEditable": false,
     "ColumnOrder": 19
   },

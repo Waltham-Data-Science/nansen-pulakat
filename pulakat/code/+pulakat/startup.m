@@ -11,7 +11,8 @@ end
 
 % Define the dataset id and its local path
 cloudDatasetId = '6941d6a4f9e6a08354febc98';
-datasetPath = fullfile(dataPath,cloudDatasetId);
+% datasetPath = fullfile(dataPath,cloudDatasetId);
+datasetPath = fullfile(dataPath,'pulakat_2025');
 
 % Load/download dataset
 if isfolder(datasetPath)
@@ -56,6 +57,7 @@ else
     repo = gitrepo(nansenRepoPath);
     pull(repo);
 end
+switchBranch(repo,'update-metatable');
 
 % Load pulakat project from nansen project manager
 projectName = 'pulakat';
