@@ -31,11 +31,17 @@ addpath(genpath(datasetPath));
 datasetTable_cloud = pulakat.metatable.dataset(dataset);
 datasetTable_cloud{:,'Cloud'} = true;
 sessionTable_cloud = pulakat.metatable.sessions(dataset);
-sessionTable_cloud{:,'Cloud'} = true;
+if ~isempty(sessionTable_cloud)
+    sessionTable_cloud{:,'Cloud'} = true;
+end
 subjectTable_cloud = pulakat.metatable.subjects(dataset);
-subjectTable_cloud{:,'Cloud'} = true;
+if ~isempty(subjectTable_cloud)
+    subjectTable_cloud{:,'Cloud'} = true;
+end
 dataTable_cloud = pulakat.metatable.files(dataset);
-dataTable_cloud{:,'Cloud'} = true;
+if ~isempty(dataTable_cloud)
+    dataTable_cloud{:,'Cloud'} = true;
+end
 
 % 3. Update or download nansen project from GitHub
 
