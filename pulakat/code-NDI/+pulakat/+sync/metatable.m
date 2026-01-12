@@ -7,13 +7,14 @@ arguments
     project
     dataTable table
     dataName {mustBeText}
-    overwrite (1,1) logical
+    overwrite (1,1) logical = false
 end
 
 % Get meta table catalog
 metaTableCatalog = project.MetaTableCatalog;
 
-if isempty(metaTableCatalog.getEntry(dataName)) | overwrite
+if isempty(metaTableCatalog.Table) | overwrite | ...
+        isempty(metaTableCatalog.getEntry(dataName))
     dataType = dataName;
     switch dataName
         case 'Sessions'
