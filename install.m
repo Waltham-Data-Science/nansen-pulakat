@@ -19,7 +19,7 @@ end
 
 % 3. Clone or pull (if existing) repository
 if exist(repoPath,'dir')
-    fprintf('Repository already installed. Checking for updates.')
+    fprintf('Repository already installed. Checking for updates.\n')
     pullCmd = sprintf('git -C "%s" pull', repoPath);
     [pullStatus, cmdOut] = system(pullCmd);
     if pullStatus == 0
@@ -32,7 +32,7 @@ if exist(repoPath,'dir')
         warning('Failed to pull updates. Git message:\n%s', cmdOut);
     end
 else
-    fprintf('Cloning nansen-pulakat repository from GitHub...\n');
+    fprintf('Cloning nansen-pulakat repository from GitHub.\n');
     cloneCmd = sprintf('git clone %s %s', repoURL, repoPath);
     [cloneStatus, cmdOut] = system(cloneCmd);
     if cloneStatus ~= 0
@@ -44,7 +44,7 @@ else
 end
 
 % 4. Set up MATLAB Paths
-addpath(repoPath);
+addpath(genpath(repoPath));
 savepath; % Saves the path for future sessions
 
 % 5. Run startup
