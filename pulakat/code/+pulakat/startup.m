@@ -1,15 +1,13 @@
-function [ ] = startup(options)
+function [ ] = startup(dataPath)
 
 % Input argument validation
 arguments
-    options.dataPath {mustBeFolder} = fullfile(userpath,'ndi');
-    options.codePath {mustBeFolder} = fullfile(userpath,'ndi');
+    dataPath {mustBeFolder} = fullfile(userpath,'ndi');
 end
 
 % 1. Download or sync local dataset with NDI Cloud
 
 % Define the directory where the dataset is (or will be) stored
-dataPath = options.dataPath;
 if ~isfolder(dataPath)
     mkdir(dataPath);
 end
@@ -48,10 +46,10 @@ if ~isempty(dataTable_cloud)
     dataTable_cloud{:,'Cloud'} = true;
 end
 
-% 3. Update or download nansen project from GitHub
+% 3. Update nansen project from GitHub
 
 % Clone or pull changes from github repo
-codePath = options.codePath;
+startupPath = mfilename('fullpath');
 nansenRepoPath = fullfile(codePath,'nansen-pulakat');
 if ~isfolder(nansenRepoPath)
     % Clone project repo from github
