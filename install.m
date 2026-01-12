@@ -1,4 +1,4 @@
-function install_project(codePath)
+function install(codePath)
 
 % Input argument validation
 arguments
