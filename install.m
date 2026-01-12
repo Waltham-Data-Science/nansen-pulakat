@@ -18,13 +18,13 @@ if status ~= 0
 end
 
 % 3. Clone the repository
-fprintf('Cloning nansen-pulakat repository from GitHub...\n');
-cloneCmd = sprintf('git clone %s %s', repoURL, repoPath);
+fprintf('Cloning nansen-pulakat repository from GitHub.\n');
+cloneCmd = sprintf('git -C /tmp clone "%s" "%s"', repoURL, repoPath);
 [cloneStatus, cmdOut] = system(cloneCmd);
 if cloneStatus ~= 0
-    error('Failed to clone repository: %s', cmdOut);
+    error('Failed to clone repository: %s.', cmdOut);
 else
-    fprintf('Successfully cloned reposity.')
+    fprintf('Successfully cloned reposity.\n')
 end
 
 % 4. Set up MATLAB Paths
