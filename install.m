@@ -17,21 +17,35 @@ if status ~= 0
     error('Git is not installed or not in your system path. Please install Git first.');
 end
 
-% 3. Clone the repository
-fprintf('Cloning nansen-pulakat repository from GitHub...\n');
-cloneCmd = sprintf('git clone %s %s', repoURL, repoPath);
-[cloneStatus, cmdOut] = system(cloneCmd);
-if cloneStatus ~= 0
-    error('Failed to clone repository: %s', cmdOut);
+% 3. Clone or pull (if existing) repository
+if exist(repoPath,'dir')
+    fprintf('Repository already installed. Checking for updates.')
+    pullCmd = sprintf('git -C "%s" pull', repoPath);
+    [pullStatus, cmdOut] = system(pullCmd);
+    if pullStatus == 0
+        if contains(cmdOut, 'Already up to date')
+            fprintf('nansen-pulakat repository is already up to date.\n');
+        else
+            fprintf('Updates applied successfully:\n%s\n', cmdOut);
+        end
+    else
+        warning('Failed to pull updates. Git message:\n%s', cmdOut);
+    end
 else
-    fprintf('Successfully cloned reposity.')
+    fprintf('Cloning nansen-pulakat repository from GitHub...\n');
+    cloneCmd = sprintf('git clone %s %s', repoURL, repoPath);
+    [cloneStatus, cmdOut] = system(cloneCmd);
+    if cloneStatus ~= 0
+        error('Failed to clone repository: %s', cmdOut);
+    else
+        fprintf('Successfully cloned reposity.')
+    end
+    fprintf('--- Installation Successful! ---\n');
 end
 
 % 4. Set up MATLAB Paths
 addpath(repoPath);
 savepath; % Saves the path for future sessions
-
-fprintf('--- Installation Successful! ---\n');
 
 % 5. Run startup
 pulakat.startup;
