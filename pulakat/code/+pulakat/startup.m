@@ -11,14 +11,13 @@ end
 
 % Define the dataset id and its local path
 cloudDatasetId = '6941d6a4f9e6a08354febc98';
-% datasetPath = fullfile(dataPath,cloudDatasetId);
-datasetPath = fullfile(dataPath,'pulakat_2025');
+datasetPath = fullfile(dataPath,cloudDatasetId);
 
 % Load/download dataset
 if isfolder(datasetPath)
     % Load if already downloaded and sync with cloud
     dataset = ndi.dataset.dir(datasetPath);
-    dataset = ndi.cloud.sync.downloadNew(dataset);
+    ndi.cloud.sync.downloadNew(dataset);
 else
     % Download from cloud
     dataset = ndi.cloud.downloadDataset(cloudDatasetId,dataPath);
@@ -57,7 +56,9 @@ else
     repo = gitrepo(nansenRepoPath);
     pull(repo);
 end
-switchBranch(repo,'update-metatable');
+if strcmp(repo.CurrentBranch.Name,'main') % REMOVE LATER!!!!
+    switchBranch(repo,'update-metatable');
+end
 
 % Load pulakat project from nansen project manager
 projectName = 'pulakat';
@@ -67,6 +68,7 @@ projectManager = nansen.ProjectManager();
 % Import the project from the repo if that hasn't already been done
 if ~projectManager.containsProject(projectName)
     projectManager.importProject(projectPath);
+    projectManager.updateProjectDirectory(projectName, projectPath);
 end
 
 % Open project
