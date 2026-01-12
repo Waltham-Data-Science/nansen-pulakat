@@ -20,7 +20,7 @@ function [subjectTable] = tableFromFiles(subjectFiles)
 
 % Input argument validation
 arguments
-    subjectFiles {mustBeText} = pulakat.import.file.select('', ...
+    subjectFiles {mustBeText} = ndi.nansen.import.file.select('', ...
         'GetType','file', ...
         'FileName','animal_mapping', ...
         'FileExtensions',{'csv','xls','xlsx'});
@@ -35,7 +35,7 @@ end
 requiredVariableNames = {'Animal','Cage','Label','Species','Strain','BiologicalSex','Treatment'};
 for i = 1:numel(subjectFiles)
     subjectFile = subjectFiles{i};
-    valid = pulakat.import.file.validateTable(subjectFile,requiredVariableNames);
+    valid = ndi.nansen.import.file.validateTable(subjectFile,requiredVariableNames);
     if ~valid
         warning('importSubjectFiles: %s is not a valid subject file.',subjectFile); % Change to error
     end

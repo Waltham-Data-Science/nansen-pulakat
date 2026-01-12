@@ -28,7 +28,7 @@ if isempty(subjectTable)
 end
 
 % Get basic session table from dataset
-sessionTable = pulakat.metatable.sessions(dataset,false);
+sessionTable = ndi.nansen.metatable.sessions(dataset,false);
 
 % Get ontologyTableRow documents
 query = ndi.query('','isa','ontologyTableRow');

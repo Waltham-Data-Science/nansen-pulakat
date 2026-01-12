@@ -22,15 +22,15 @@ arguments
 end
 
 % Retrieve subject files
-subjectFiles = pulakat.import.file.select(dataPath, ...
+subjectFiles = ndi.nansen.import.file.select(dataPath, ...
     'FileName','animal_mapping', ...
     'FileExtensions',{'csv','xls','xlsx'});
 
 % Get current subject table from files
-subjectTable_files = pulakat.import.subjects.tableFromFiles(subjectFiles);
+subjectTable_files = ndi.nansen.import.subjects.tableFromFiles(subjectFiles);
 
 % Get existing subject table from session
-subjectTable_session = pulakat.metatable.subjects(session);
+subjectTable_session = ndi.nansen.metatable.subjects(session);
 
 % Identify new and unique subjects
 subjectIdentifiers = {'SubjectEnumeratedIdentifier','SubjectCageIdentifier','SubjectTextIdentifier'};
@@ -56,7 +56,7 @@ subjectTable_new{:,'SessionID'} = session.id;
 
 % Create subjectMaker and tableDocMaker
 subjectMaker = ndi.setup.NDIMaker.subjectMaker();
-subjectCreator = pulakat.import.subjects.informationCreator();
+subjectCreator = ndi.nansen.import.subjects.informationCreator();
 tableDocMaker = ndi.setup.NDIMaker.tableDocMaker(session,'pulakat');
 
 % Create subject documents (and add to session)
@@ -70,6 +70,6 @@ tableDocMaker.table2ontologyTableRowDocs(subjectTable_new(:,tableRowVariables), 
         {'SubjectDocumentIdentifier'});
 
 % Return updated subject table
-subjectTable = pulakat.metatable.subjects(session);
+subjectTable = ndi.nansen.metatable.subjects(session);
 
 end

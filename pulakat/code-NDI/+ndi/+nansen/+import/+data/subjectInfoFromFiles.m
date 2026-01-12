@@ -16,7 +16,7 @@ function subjectFileTable = subjectInfoFromFiles(dataFiles)
 
 % Input argument validation
 arguments
-    dataFiles {mustBeText} = pulakat.import.file.select('','GetType','dir');
+    dataFiles {mustBeText} = ndi.nansen.import.file.select('','GetType','dir');
 end
 
 % Get known file types

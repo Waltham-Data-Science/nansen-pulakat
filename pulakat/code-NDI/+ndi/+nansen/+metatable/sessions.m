@@ -32,9 +32,9 @@ end
 % If wanting the full meta table, add summary of subject table
 if fullMetaTable & ~isempty(sessionTable)
     if exist('dataset','var')
-        subjectTable = pulakat.metatable.subjects(dataset);
+        subjectTable = ndi.nansen.metatable.subjects(dataset);
     else
-        subjectTable = pulakat.metatable.subjects(session);
+        subjectTable = ndi.nansen.metatable.subjects(session);
     end
     sessionTable =  ndi.fun.table.join({sessionTable, ...
         removevars(subjectTable,{'SubjectDocumentIdentifier',...

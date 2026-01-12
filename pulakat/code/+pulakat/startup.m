@@ -28,17 +28,17 @@ addpath(genpath(datasetPath));
 
 % 2. Generate tables from dataset
 
-datasetTable_cloud = pulakat.metatable.dataset(dataset);
+datasetTable_cloud = ndi.nansen.metatable.dataset(dataset);
 datasetTable_cloud{:,'Cloud'} = true;
-sessionTable_cloud = pulakat.metatable.sessions(dataset);
+sessionTable_cloud = ndi.nansen.metatable.sessions(dataset);
 if ~isempty(sessionTable_cloud)
     sessionTable_cloud{:,'Cloud'} = true;
 end
-subjectTable_cloud = pulakat.metatable.subjects(dataset);
+subjectTable_cloud = ndi.nansen.metatable.subjects(dataset);
 if ~isempty(subjectTable_cloud)
     subjectTable_cloud{:,'Cloud'} = true;
 end
-dataTable_cloud = pulakat.metatable.files(dataset);
+dataTable_cloud = ndi.nansen.metatable.files(dataset);
 if ~isempty(dataTable_cloud)
     dataTable_cloud{:,'Cloud'} = true;
 end
@@ -68,6 +68,10 @@ projectManager = nansen.ProjectManager();
 % Import the project from the repo if that hasn't already been done
 if ~projectManager.containsProject(projectName)
     projectManager.importProject(projectPath);
+end
+
+% Check that project location is updated for the current user
+if ~strcmp(projectPath,projectManager.getProjectPath(projectName))
     projectManager.updateProjectDirectory(projectName, projectPath);
 end
 
@@ -77,10 +81,10 @@ project = projectManager.getProjectObject(projectName);
 % 4. Add metatables to project and launch nansen viewer
 
 % Create (or replace) metatables
-datasetMetaTable = pulakat.sync.metatable(project,datasetTable_cloud,'Dataset');
-sessionMetaTable = pulakat.sync.metatable(project,sessionTable_cloud,'Sessions');
-subjectMetaTable = pulakat.sync.metatable(project,subjectTable_cloud,'Subjects');
-dataMetaTable = pulakat.sync.metatable(project,dataTable_cloud,'Files');
+datasetMetaTable = ndi.nansen.sync.metatable(project,datasetTable_cloud,'Dataset');
+sessionMetaTable = ndi.nansen.sync.metatable(project,sessionTable_cloud,'Sessions');
+subjectMetaTable = ndi.nansen.sync.metatable(project,subjectTable_cloud,'Subjects');
+dataMetaTable = ndi.nansen.sync.metatable(project,dataTable_cloud,'Files');
 
 % Ensure 'pulakat' is the current
 projectManager.changeProject(projectName)

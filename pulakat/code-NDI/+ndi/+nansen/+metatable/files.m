@@ -21,7 +21,7 @@ arguments
 end
 
 % Get basic session table from dataset
-subjectTable = pulakat.metatable.subjects(dataset);
+subjectTable = ndi.nansen.metatable.subjects(dataset);
 if isempty(subjectTable)
     dataTable = table();
     return;

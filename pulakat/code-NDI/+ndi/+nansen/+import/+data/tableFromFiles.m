@@ -19,22 +19,22 @@ function [dataTable] = tableFromFiles(session,dataFiles)
 % Input argument validation
 arguments
     session {mustBeA(session,'ndi.session.dir')}
-    dataFiles {mustBeText} = pulakat.import.file.select('','GetType','dir');
+    dataFiles {mustBeText} = ndi.nansen.import.file.select('','GetType','dir');
 end
 
 % Check that there are data files selected
 if isempty(dataFiles)
-    error('import.data.tableFromFiles: No file(s) selected.');
+    error('ndi.nansen.import.data.tableFromFiles: No file(s) selected.');
 end
 
 % Get identifying info for each data file
-subjectFileTable = pulakat.import.data.subjectInfoFromFiles(dataFiles);
+subjectFileTable = ndi.nansen.import.data.subjectInfoFromFiles(dataFiles);
 
 % Get existing subject table from session
-subjectTable_session = pulakat.import.subjects.tableFromSession(session);
+subjectTable_session = ndi.nansen.import.subjects.tableFromSession(session);
 
 % Match data files to subjects
-[indSubjects,numSubjects] = pulakat.import.data.matchData2Subjects( ...
+[indSubjects,numSubjects] = ndi.nansen.import.data.matchData2Subjects( ...
     subjectFileTable,subjectTable_session);
 
 % Query user to add missing subjects
@@ -55,8 +55,8 @@ if any(numSubjects == 0)
         figure(fig); uiwait(fig);
         switch fig.UserData
             case 'Import'
-                subjectTable_session = pulakat.import.subjects(session);
-                [indSubjects,numSubjects] = pulakat.import.data.matchData2Subjects( ...
+                subjectTable_session = ndi.nansen.import.subjects(session);
+                [indSubjects,numSubjects] = ndi.nansen.import.data.matchData2Subjects( ...
                     subjectFileTable,subjectTable_session);
             case 'Skip'
                 skip = 'yes';

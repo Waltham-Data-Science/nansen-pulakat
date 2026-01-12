@@ -68,7 +68,7 @@ else
         else
             fullFile = which(dataPath{i});
             if isempty(fullFile)
-                warning('pulakat.import.selectFiles: %s is not found on the MATLAB path. Skipping.',dataPath{i});
+                warning('ndi.nansen.import.file.select: %s is not found on the MATLAB path. Skipping.',dataPath{i});
                 validPath(i) = false;
             else
                 fileList{i} = fullFile;
@@ -97,7 +97,7 @@ dataFiles = dataFiles(indNameMatch);
 
 % Check if any files are returned
 if isempty(dataFiles)
-    warning('pulakat.import.selectFiles: No files found for import.');
+    warning('ndi.nansen.import.file.select: No files found for import.');
 end
 
 end
