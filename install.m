@@ -48,6 +48,7 @@ addpath(genpath(repoPath));
 savepath; % Saves the path for future sessions
 
 % 5. Run startup
+fprintf('Running pulakat.startup.\n')
 pulakat.startup;
 
 end
