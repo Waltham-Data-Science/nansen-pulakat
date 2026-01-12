@@ -13,7 +13,7 @@
     "ColumnLabel": "Strain",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 69,
+    "ColumnWidth": 51,
     "IsEditable": false,
     "ColumnOrder": 7
   },
@@ -31,7 +31,7 @@
     "ColumnLabel": "StrainType",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 102,
+    "ColumnWidth": 84,
     "IsEditable": false,
     "ColumnOrder": 8
   },
@@ -40,7 +40,7 @@
     "ColumnLabel": "Species",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 159,
+    "ColumnWidth": 114,
     "IsEditable": false,
     "ColumnOrder": 10
   },
@@ -58,7 +58,7 @@
     "ColumnLabel": "BioSex",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 73,
+    "ColumnWidth": 55,
     "IsEditable": false,
     "ColumnOrder": 12
   },
@@ -76,7 +76,7 @@
     "ColumnLabel": "SessionName",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 129,
+    "ColumnWidth": 82,
     "IsEditable": false,
     "ColumnOrder": 2
   },
@@ -94,7 +94,7 @@
     "ColumnLabel": "SubjectName",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 331,
+    "ColumnWidth": 208,
     "IsEditable": false,
     "ColumnOrder": 4
   },
@@ -103,7 +103,7 @@
     "ColumnLabel": "SubjectNumber",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 150,
+    "ColumnWidth": 90,
     "IsEditable": false,
     "ColumnOrder": 13
   },
@@ -112,7 +112,7 @@
     "ColumnLabel": "SubjectCage",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 139,
+    "ColumnWidth": 74,
     "IsEditable": false,
     "ColumnOrder": 14
   },
@@ -121,7 +121,7 @@
     "ColumnLabel": "SubjectLabel",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 136,
+    "ColumnWidth": 85,
     "IsEditable": false,
     "ColumnOrder": 15
   },
@@ -130,7 +130,7 @@
     "ColumnLabel": "Treatment",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 114,
+    "ColumnWidth": 72,
     "IsEditable": false,
     "ColumnOrder": 5
   },
@@ -139,7 +139,7 @@
     "ColumnLabel": "FileName",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 786,
+    "ColumnWidth": 603,
     "IsEditable": false,
     "ColumnOrder": 16
   },
@@ -148,7 +148,7 @@
     "ColumnLabel": "DatasetPath",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 516,
+    "ColumnWidth": 625,
     "IsEditable": false,
     "ColumnOrder": 20
   },
@@ -175,7 +175,7 @@
     "ColumnLabel": "DatasetUpdated",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 149,
+    "ColumnWidth": 181,
     "IsEditable": false,
     "ColumnOrder": 19
   },
@@ -193,7 +193,7 @@
     "ColumnLabel": "DataType",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 303,
+    "ColumnWidth": 152,
     "IsEditable": false,
     "ColumnOrder": 22
   },
@@ -211,8 +211,17 @@
     "ColumnLabel": "SessionPath",
     "ShowColumn": false,
     "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 473,
     "IsEditable": false,
     "ColumnOrder": 24
+  },
+  {
+    "VariableName": "Cloud",
+    "ColumnLabel": "Cloud",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 64,
+    "IsEditable": false,
+    "ColumnOrder": 25
   }
 ]

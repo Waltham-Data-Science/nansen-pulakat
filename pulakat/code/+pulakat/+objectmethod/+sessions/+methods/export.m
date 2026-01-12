@@ -45,6 +45,7 @@ function varargout = export(sessionsObject, varargin)
 % % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
 % Implementation of the method : Add your code here:
     
+    disp('Awaiting ndi.cloud.api.getDocument')
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionsObject}; end
 end

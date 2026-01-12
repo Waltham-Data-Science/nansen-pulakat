@@ -52,7 +52,9 @@ function varargout = subjects(sessionObject, varargin)
     subjectTable = pulakat.import.subjects(session);
     
     % Update nansen viewer
-    pulakat.sync.metatable(subjectTable,'Subjects');
+    projectManager = nansen.ProjectManager(); 
+    project = projectManager.getProjectObject('pulakat');
+    pulakat.sync.metatable(project,subjectTable,'Subjects');
     
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionObject}; end

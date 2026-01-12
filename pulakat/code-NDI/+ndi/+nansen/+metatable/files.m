@@ -17,17 +17,21 @@ function [dataTable] = files(dataset)
 
 % Input argument validation
 arguments
-    dataset {mustBeA(dataset,{'ndi.dataset.dir'})}
+    dataset {mustBeA(dataset,{'ndi.session.dir','ndi.dataset.dir'})}
 end
 
 % Get basic session table from dataset
-subjectTable = pulakat.metatable.subjects(dataset);
-session_ids = unique(subjectTable.SessionDocumentIdentifier);
+subjectTable = ndi.nansen.metatable.subjects(dataset);
+if isempty(subjectTable)
+    dataTable = table();
+    return;
+end
+sessionPaths = unique(subjectTable.SessionPath);
 
-dataTables = cell(numel(session_ids),1);
-for i = 1:height(session_ids)
+dataTables = cell(numel(sessionPaths),1);
+for i = 1:numel(sessionPaths)
 
-    session = dataset.open_session(session_ids{i});
+    session = ndi.session.dir(sessionPaths{i});
 
     % Get files
     query = ndi.query('','isa','generic_file');
@@ -74,7 +78,6 @@ for i = 1:height(session_ids)
     end
 
     dataTables{i} = dataTable;
-
 end
 
 % Stack tables

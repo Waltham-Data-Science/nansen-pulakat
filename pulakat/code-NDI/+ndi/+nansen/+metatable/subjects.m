@@ -16,7 +16,7 @@ function [subjectTable] = subjects(dataset)
 
 % Input argument validation
 arguments
-    dataset {mustBeA(dataset,{'ndi.dataset.dir'})}
+    dataset {mustBeA(dataset,{'ndi.session.dir','ndi.dataset.dir'})}
 end
 
 % Get basic subject table from dataset
@@ -28,13 +28,13 @@ if isempty(subjectTable)
 end
 
 % Get basic session table from dataset
-sessionTable = pulakat.metatable.sessions(dataset,false);
+sessionTable = ndi.nansen.metatable.sessions(dataset,false);
 
 % Get ontologyTableRow documents
 query = ndi.query('','isa','ontologyTableRow');
 docs = cell(height(sessionTable),1);
 for i = 1:height(sessionTable)
-    session = dataset.open_session(sessionTable.SessionDocumentIdentifier{i});
+    session = ndi.session.dir(sessionTable.SessionPath{i});
     docs{i} = session.database_search(query);
 end
 docs = cat(2,docs{:});
