@@ -1,10 +1,15 @@
-function [ ] = startup()
+function [ ] = startup(options)
+
+% Input argument validation
+arguments
+    options.dataPath {mustBeFolder} = fullfile(userpath,'ndi');
+    options.codePath {mustBeFolder} = fullfile(userpath,'ndi');
+end
 
 % 1. Download or sync local dataset with NDI Cloud
 
 % Define the directory where the dataset is (or will be) stored
-% (i.e. /Users/myusername/Documents/MATLAB/Datasets)
-dataPath = fullfile(userpath,'Datasets');
+dataPath = options.dataPath;
 if ~isfolder(dataPath)
     mkdir(dataPath);
 end
@@ -46,7 +51,8 @@ end
 % 3. Update or download nansen project from GitHub
 
 % Clone or pull changes from github repo
-nansenRepoPath = fullfile(datasetPath,'nansen-pulakat');
+codePath = options.codePath;
+nansenRepoPath = fullfile(codePath,'nansen-pulakat');
 if ~isfolder(nansenRepoPath)
     % Clone project repo from github
     repoURL = 'https://github.com/Waltham-Data-Science/nansen-pulakat';
@@ -81,10 +87,10 @@ project = projectManager.getProjectObject(projectName);
 % 4. Add metatables to project and launch nansen viewer
 
 % Create (or replace) metatables
-datasetMetaTable = ndi.nansen.sync.metatable(project,datasetTable_cloud,'Dataset');
-sessionMetaTable = ndi.nansen.sync.metatable(project,sessionTable_cloud,'Sessions');
-subjectMetaTable = ndi.nansen.sync.metatable(project,subjectTable_cloud,'Subjects');
-dataMetaTable = ndi.nansen.sync.metatable(project,dataTable_cloud,'Files');
+ndi.nansen.sync.metatable(project,datasetTable_cloud,'Dataset');
+ndi.nansen.sync.metatable(project,sessionTable_cloud,'Sessions');
+ndi.nansen.sync.metatable(project,subjectTable_cloud,'Subjects');
+ndi.nansen.sync.metatable(project,dataTable_cloud,'Files');
 
 % Ensure 'pulakat' is the current
 projectManager.changeProject(projectName)
