@@ -2,7 +2,7 @@ function [ ] = startup(dataPath)
 
 % Input argument validation
 arguments
-    dataPath {mustBeFolder} = fullfile(userpath,'ndi');
+    dataPath {mustBeFolder} = fullfile(userpath,'ndi','data');
 end
 
 % 1. Download or sync local dataset with NDI Cloud

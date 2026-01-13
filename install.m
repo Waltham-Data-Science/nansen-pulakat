@@ -2,7 +2,7 @@ function install(codePath)
 
 % Input argument validation
 arguments
-    codePath {mustBeFolder} = fullfile(userpath,'ndi');
+    codePath = fullfile(userpath,'ndi','tools');
 end
 
 % 1. Configuration
@@ -47,12 +47,18 @@ end
 addpath(genpath(repoPath));
 savepath; % Saves the path for future sessions
 
-% 5. Run startup
+% 5. Install NDI-Matlab
+[currentDir, ~, ~] = fileparts(mfilename('fullpath'));
+ndiInstallFile = fullfile(currentDir,'ndi_install.m');
+websave(ndiInstallFile, 'https://raw.githubusercontent.com/VH-Lab/NDI-matlab/main/ndi_install.m'); 
+ndi_install(codePath);
+delete(ndiInstallFile);
+
+% 6. Run nansen startup
 fprintf('Running pulakat.startup.\n')
 pulakat.startup;
 
-% 6. Delete this function (if not part of the repository)
-[currentDir, ~, ~] = fileparts(mfilename('fullpath'));
+% 7. Delete this function (if not part of the repository)
 cmd = sprintf('git -C "%s" rev-parse --show-toplevel', currentDir);
 if system(cmd) ~= 0
     delete([mfilename('fullpath'), '.m']);
