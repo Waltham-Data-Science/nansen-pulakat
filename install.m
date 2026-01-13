@@ -6,6 +6,7 @@ arguments
 end
 
 % 1. Configuration
+[downloadDir, ~, ~] = fileparts(mfilename('fullpath'));
 repoURL = 'https://github.com/Waltham-Data-Science/nansen-pulakat';
 repoPath = fullfile(codePath,'nansen-pulakat');
 
@@ -43,20 +44,15 @@ else
     fprintf('--- Installation Successful! ---\n');
 end
 
-% 4. Set up MATLAB Paths
-addpath(genpath(repoPath));
-savepath; % Saves the path for future sessions
-[currentDir, ~, ~] = fileparts(mfilename('fullpath'));
-
-% 5. Install NDI-Matlab
-ndiInstallFile = fullfile(currentDir,'ndi_install.m');
+% 4. Install NDI-Matlab
+ndiInstallFile = fullfile(downloadDir,'ndi_install.m');
 websave(ndiInstallFile, 'https://raw.githubusercontent.com/VH-Lab/NDI-matlab/main/ndi_install.m'); 
 ndi_install(codePath);
 delete(ndiInstallFile);
 
-% 6. Install Nansen
+% 5. Install Nansen
 nansenURL = 'https://github.com/VervaekeLab/NANSEN.git';
-nansenPath = fullfile(currentDir,'NANSEN');
+nansenPath = fullfile(codePath,'NANSEN');
 cloneCmd = sprintf('git -C /tmp clone "%s" "%s"', nansenURL, nansenPath);
 [cloneStatus, cmdOut] = system(cloneCmd);
 if cloneStatus ~= 0
@@ -66,8 +62,12 @@ else
 end
 nansen_install;
 
+% 6. Set up MATLAB Paths
+addpath(genpath(codePath));
+savepath; % Saves the path for future sessions
+
 % 7. Delete this function (if not part of the repository)
-cmd = sprintf('git -C "%s" rev-parse --show-toplevel', currentDir);
+cmd = sprintf('git -C "%s" rev-parse --show-toplevel', downloadDir);
 if system(cmd) ~= 0
     delete([mfilename('fullpath'), '.m']);
 end

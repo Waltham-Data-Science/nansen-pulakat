@@ -31,4 +31,7 @@ if cloud
     end
 end
 
+% Remove temporary local dataset
+rmdir(datasetDir,'s');
+
 end
