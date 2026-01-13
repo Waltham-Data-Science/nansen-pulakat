@@ -9,7 +9,7 @@ end
 
 % Get dataset metadata
 [~,datasetInfo] =  ndi.cloud.api.datasets.getDataset('682e7772cdf3f24938176fac');
-% [~,datasetInfo] = ndi.cloud.api.datasets.getDataset(dataset.id);
+%[~,datasetInfo] = ndi.cloud.api.datasets.getDataset(dataset.id); % FIX LATER
 
 % Create dataset table
 lastUpdated = datetime(datasetInfo.updatedAt,'InputFormat','yyyy-MM-dd''T''HH:mm:ss.SSS''Z''','TimeZone','UTC');

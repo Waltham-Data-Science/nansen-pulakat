@@ -25,7 +25,7 @@ if cloud
         'skipMetadataEditorMetadata',true, ...
         'remoteDatasetName',datasetName,'Verbose',true);
     if ~success
-        disp(message)
+        warning('Dataset failed to upload: %s:',message);
     else
         sprintf('Dataset %s added to the cloud as %s',datasetName,cloudDatasetID);
     end

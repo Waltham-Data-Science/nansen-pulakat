@@ -12,9 +12,10 @@ end
 
 % Get meta table catalog
 metaTableCatalog = project.MetaTableCatalog;
+metaTableEntry = metaTableCatalog.getEntry(dataName);
 
-if isempty(metaTableCatalog.Table) | overwrite | ...
-        isempty(metaTableCatalog.getEntry(dataName))
+if isempty(metaTableCatalog.Table) | overwrite | isempty(metaTableEntry) | ...
+        ~exist(fullfile(metaTableEntry.SavePath,metaTableEntry.FileName),'file')
     dataType = dataName;
     switch dataName
         case 'Sessions'
