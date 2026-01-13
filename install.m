@@ -42,7 +42,8 @@ fprintf('--- Installation Successful! ---\n');
 
 % 7. Delete this function (if not part of the repository)
 cmd = sprintf('git -C "%s" rev-parse --show-toplevel', downloadDir);
-if system(cmd) ~= 0
+[status,~] = system(cmd);
+if status ~= 0
     delete([mfilename('fullpath'), '.m']);
 end
 
