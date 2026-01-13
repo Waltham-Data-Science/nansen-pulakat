@@ -51,4 +51,11 @@ savepath; % Saves the path for future sessions
 fprintf('Running pulakat.startup.\n')
 pulakat.startup;
 
+% 6. Delete this function (if not part of the repository)
+[currentDir, ~, ~] = fileparts(mfilename('fullpath'));
+cmd = sprintf('git -C "%s" rev-parse --show-toplevel', currentDir);
+if system(cmd) ~= 0
+    delete([mfilename('fullpath'), '.m']);
+end
+
 end
