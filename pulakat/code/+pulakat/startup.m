@@ -2,7 +2,7 @@ function [ ] = startup(dataPath)
 
 % Input argument validation
 arguments
-    dataPath = fullfile(userpath,'ndi','data');
+    dataPath {mustBeFolder} = fullfile(userpath,'ndi','data');
 end
 
 % 1. Download or sync local dataset with NDI Cloud
@@ -13,7 +13,7 @@ if ~isfolder(dataPath)
 end
 
 % Define the dataset id and its local path
-cloudDatasetId = '6941d6a4f9e6a08354febc98';
+cloudDatasetId = '696666ac75e80f2574e08653';
 datasetPath = fullfile(dataPath,cloudDatasetId);
 
 % Load/download dataset
@@ -72,11 +72,6 @@ if status == 0
 else
     % Common errors: No internet, merge conflicts, or uncommitted changes
     warning('Failed to pull updates. Git message:\n%s', cmdOut);
-end
-
-% Switch branch
-if strcmp(repo.CurrentBranch.Name,'main') % REMOVE LATER!!!!
-    switchBranch(repo,'update-metatable');
 end
 
 % Load pulakat project from nansen project manager

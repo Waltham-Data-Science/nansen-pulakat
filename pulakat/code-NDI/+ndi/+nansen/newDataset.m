@@ -4,7 +4,7 @@ function [dataset,cloudDatasetID] = newDataset(datasetName,dataPath,cloud)
 % Input argument validation
 arguments
     datasetName {mustBeText}
-    dataPath {mustBeFolder} = fullfile(userpath,'Datasets');
+    dataPath {mustBeFolder} = fullfile(userpath,'ndi','data');
     cloud (1,1) logical = true; % automatically add dataset to cloud
 end
 
