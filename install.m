@@ -28,7 +28,7 @@ nansen_install;
 
 % 5. Install NDI-Matlab
 fprintf('Cloning or updating %s repository and its dependencies from GitHub.\n','NDI-matlab');
-ndiInstallFile = fullfile(downloadDir,'ndi_install.m');
+ndiInstallFile = fullfile(codePath,'ndi_install.m');
 websave(ndiInstallFile, 'https://raw.githubusercontent.com/VH-Lab/NDI-matlab/main/ndi_install.m'); 
 ndi_install(codePath);
 fprintf('Successfully cloned/updated %s.\n','NDI-matlab')
