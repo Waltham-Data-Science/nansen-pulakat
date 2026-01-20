@@ -49,15 +49,15 @@ function varargout = session(datasetObject, varargin)
     dataset = ndi.dataset.dir(datasetObject.DatasetPath);
 
     % Create new session object
-    session = pulakat.import.session(dataset);
+    session = ndi.nansen.import.session(dataset);
 
     % Add subjects to session
-    subjectTable = pulakat.import.subjects(session,session.path);
-    pulakat.sync.metatable(subjectTable,'Subjects');
+    subjectTable = ndi.nansen.import.subjects(session,session.path);
+    ndi.nansen.sync.metatable(subjectTable,'Subjects');
 
     % Add data to session
-    dataTable = pulakat.import.data(session,session.path);
-    pulakat.sync.metatable(dataTable,'Files');
+    dataTable = ndi.nansen.import.data(session,session.path);
+    ndi.nansen.sync.metatable(dataTable,'Files');
 
     % Return session object (please do not remove):
     % if nargout; varargout = {datasetObject}; end
