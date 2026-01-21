@@ -45,21 +45,21 @@ function varargout = session(datasetObject, varargin)
 % % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
 % Implementation of the method : Add your code here:
     
-    % Get dataset
+    % Get dataset and project
     dataset = ndi.dataset.dir(datasetObject.DatasetPath);
 
     % Create new session object
     session = ndi.nansen.import.session(dataset);
     sessionTable = ndi.nansen.metatable.sessions(dataset);
-    ndi.nansen.sync.metatable(sessionTable,'Sessions');
+    ndi.nansen.metatable.add(sessionTable,'Sessions');
 
     % Add subjects to session
     subjectTable = ndi.nansen.import.subjects(session,session.path);
-    ndi.nansen.sync.metatable(subjectTable,'Subjects');
+    ndi.nansen.metatable.add(subjectTable,'Subjects');
 
     % Add data to session
     dataTable = ndi.nansen.import.data(session,session.path);
-    ndi.nansen.sync.metatable(dataTable,'Files');
+    ndi.nansen.metatable.add(dataTable,'Files');
 
     % Return session object (please do not remove):
     % if nargout; varargout = {datasetObject}; end

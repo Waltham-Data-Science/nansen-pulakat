@@ -104,16 +104,16 @@ end
 % Open project
 project = projectManager.getProjectObject(projectName);
 
+% Ensure 'pulakat' is the current
+projectManager.changeProject(projectName)
+
 % 4. Add metatables to project and launch nansen viewer
 
 % Create (or replace) metatables
-ndi.nansen.sync.metatable(project,datasetTable,'Dataset');
-ndi.nansen.sync.metatable(project,sessionTable,'Sessions');
-ndi.nansen.sync.metatable(project,subjectTable,'Subjects');
-ndi.nansen.sync.metatable(project,dataTable,'Files');
-
-% Ensure 'pulakat' is the current
-projectManager.changeProject(projectName)
+ndi.nansen.metatable.add(datasetTable,'Dataset');
+ndi.nansen.metatable.add(sessionTable,'Sessions');
+ndi.nansen.metatable.add(subjectTable,'Subjects');
+ndi.nansen.metatable.add(dataTable,'Files');
 
 % Launch nansen
 nansen

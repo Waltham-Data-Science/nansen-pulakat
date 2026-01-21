@@ -44,7 +44,24 @@ function varargout = remove(sessionsObject, varargin)
     
 % % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
 % Implementation of the method : Add your code here:
-    
+
+    % Check that session status
+    if sessionsObject.Cloud
+        error('Sessions that are already synced to the cloud cannot be deleted.')
+    end
+
+    % Get dataset and session objects
+    dataset = ndi.nansen.datasetID2Object(sessionsObject.DatasetDocumentIdentifier);
+    session = ndi.session.dir(sessionsObject.SessionPath);
+
+    % Delete session from local disk
+    dataset.removeSessionInfoFromDataset(dataset,sessionsObject.SessionDocumentIdentifier);
+    session.database_clear('yes');
+    % FIX LATER (needs to completely delete the session)
+
+    % Remove session from metatable
+    ndi.nansen.metatable.remove(struct2table(sessionsObject),'Sessions');
+
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionsObject}; end
 end
