@@ -36,6 +36,7 @@ else
     % Update meta table
     metaTable = project.MetaTableCatalog.getMetaTable(dataName);
     metaTable.addTable(dataTable);
+    metaTable.save;
 end
 
 end

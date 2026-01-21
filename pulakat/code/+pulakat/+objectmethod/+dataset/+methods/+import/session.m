@@ -50,6 +50,8 @@ function varargout = session(datasetObject, varargin)
 
     % Create new session object
     session = ndi.nansen.import.session(dataset);
+    sessionTable = ndi.nansen.metatable.sessions(dataset);
+    ndi.nansen.sync.metatable(sessionTable,'Sessions');
 
     % Add subjects to session
     subjectTable = ndi.nansen.import.subjects(session,session.path);

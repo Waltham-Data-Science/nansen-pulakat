@@ -30,20 +30,32 @@ end
 addpath(genpath(datasetPath));
 
 % 2. Generate tables from dataset
+datasetTable = ndi.nansen.metatable.dataset(dataset);
+sessionTable = ndi.nansen.metatable.sessions(dataset);
+subjectTable = ndi.nansen.metatable.subjects(dataset);
+dataTable = ndi.nansen.metatable.files(dataset);
 
-datasetTable_cloud = ndi.nansen.metatable.dataset(dataset);
-datasetTable_cloud{:,'Cloud'} = true;
-sessionTable_cloud = ndi.nansen.metatable.sessions(dataset);
-if ~isempty(sessionTable_cloud)
-    sessionTable_cloud{:,'Cloud'} = true;
+% Add cloud sync status to tables (FIX LATER)
+statusTable = ndi.nansen.sync.status(dataset);
+if ~isempty(datasetTable)
+    % datasetTable = join(datasetTable,statusTable,'LeftKeys',...
+    %     'DatasetDocumentIdentifier','RightKeys','DocumentIdentifier');
+    datasetTable{:,'Cloud'} = true;
 end
-subjectTable_cloud = ndi.nansen.metatable.subjects(dataset);
-if ~isempty(subjectTable_cloud)
-    subjectTable_cloud{:,'Cloud'} = true;
+if ~isempty(sessionTable)
+    % sessionTable = join(sessionTable,statusTable,'LeftKeys',...
+    %     'SessionDocumentIdentifier','RightKeys','DocumentIdentifier');
+    sessionTable{:,'Cloud'} = false;
 end
-dataTable_cloud = ndi.nansen.metatable.files(dataset);
-if ~isempty(dataTable_cloud)
-    dataTable_cloud{:,'Cloud'} = true;
+if ~isempty(subjectTable)
+    % subjectTable = join(subjectTable,statusTable,'LeftKeys',...
+    %     'SubjectDocumentIdentifier','RightKeys','DocumentIdentifier');
+    subjectTable{:,'Cloud'} = false;
+end
+if ~isempty(dataTable)
+    % dataTable = join(dataTable,statusTable,'LeftKeys',...
+    %     'FileDocumentIdentifier','RightKeys','DocumentIdentifier');
+    dataTable{:,'Cloud'} = false;
 end
 
 % 3. Update nansen project from GitHub
@@ -95,10 +107,10 @@ project = projectManager.getProjectObject(projectName);
 % 4. Add metatables to project and launch nansen viewer
 
 % Create (or replace) metatables
-ndi.nansen.sync.metatable(project,datasetTable_cloud,'Dataset');
-ndi.nansen.sync.metatable(project,sessionTable_cloud,'Sessions');
-ndi.nansen.sync.metatable(project,subjectTable_cloud,'Subjects');
-ndi.nansen.sync.metatable(project,dataTable_cloud,'Files');
+ndi.nansen.sync.metatable(project,datasetTable,'Dataset');
+ndi.nansen.sync.metatable(project,sessionTable,'Sessions');
+ndi.nansen.sync.metatable(project,subjectTable,'Subjects');
+ndi.nansen.sync.metatable(project,dataTable,'Files');
 
 % Ensure 'pulakat' is the current
 projectManager.changeProject(projectName)
