@@ -29,10 +29,10 @@ dataFiles = ndi.nansen.import.file.select(dataPath);
 dataTable_files = ndi.nansen.import.data.tableFromFiles(session,dataFiles);
 
 % Get existing data table from session
-dataTable_session = ndi.nansen.import.data.tableFromSession(session);
+dataTable_session = ndi.nansen.metatable.files(session);
 
 % Identify new and unique files
-fileIdentifiers = {'ElectronicFileName'};
+fileIdentifiers = {'ElectronicFileName','DataTypeName'};
 if isempty(dataTable_session)
     dataTable_new = dataTable_files;
 else
@@ -71,7 +71,7 @@ for i = 1:height(dataFiles_new)
     % Define file format and label
     fileName = dataFiles_new.ElectronicFileName{i};
     filePath = fileName;
-    switch dataFiles_new.DataType{i}
+    switch dataFiles_new.DataTypeName{i}
         case 'experiment metadata file'
             fileFormat = 'format:3620';
             fileDelete = 0;
@@ -92,8 +92,14 @@ for i = 1:height(dataFiles_new)
             end
     end
 
+    % Get file metadata
+    checksum = ndi.fun.file.MD5(filePath);
+    dateCreated = convertTo(ndi.fun.file.dateCreated(filePath),'datenum');
+    dateUpdated = convertTo(ndi.fun.file.dateUpdated(filePath),'datenum');
+
     % Create generic_file document
-    generic_file = struct('filename',fileName,'formatOntology',fileFormat);
+    generic_file = struct('filename',fileName,'formatOntology',fileFormat, ...
+        'checksum',checksum,'dateCreated',dateCreated,'dateUpdated',dateUpdated);
     generic_file_doc = ndi.document('generic_file','generic_file',generic_file) + ...
         session.newdocument();
     generic_file_doc = generic_file_doc.add_file('generic_file.ext',filePath,...
@@ -102,7 +108,7 @@ for i = 1:height(dataFiles_new)
     generic_file_docs{i} = generic_file_doc;
 
     % Create ontologyLabel document
-    ontologyID = ndi.ontology.lookup(['EMPTY:',dataFiles_new.DataType{i}]);
+    ontologyID = ndi.ontology.lookup(['EMPTY:',dataFiles_new.DataTypeName{i}]);
     ontologyLabel = struct('ontologyNode',ontologyID);
     ontologyLabel_doc = ndi.document('ontologyLabel', ...
         'ontologyLabel',ontologyLabel) + session.newdocument;

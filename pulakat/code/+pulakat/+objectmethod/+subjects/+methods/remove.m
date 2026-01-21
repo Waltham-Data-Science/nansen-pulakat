@@ -44,7 +44,32 @@ function varargout = remove(subjectsObject, varargin)
     
 % % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
 % Implementation of the method : Add your code here:
+
+    % Convert subject object to table
+    subjectTable = struct2table(subjectsObject);
     
+    % Check the subject status
+    if all(subjectTable.Cloud)
+        error('Subjects that are already synced to the cloud cannot be deleted.')
+    elseif any(subjectTable.Cloud)
+        warning('Only subjects that not already synced to the cloud were deleted.')
+        subjectTable(subjectTable.Cloud,:) = []; % remove cloud subjects from table
+    end
+
+    % Get unique sessions
+    [sessionPaths,~,ind] = unique(subjectTable.SessionPath,'stable');
+    for i = 1:numel(sessionPaths)
+
+        % Get session object
+        session = ndi.session.dir(sessionPaths{i});
+
+        % Delete subject(s) from session
+        session.database_rm(subjectTable.SubjectDocumentIdentifier(ind == i));
+    end
+
+    % Remove subject(s) from metatable
+    ndi.nansen.metatable.remove(subjectTable,'Subjects');
+
     % Return session object (please do not remove):
     % if nargout; varargout = {subjectsObject}; end
 end

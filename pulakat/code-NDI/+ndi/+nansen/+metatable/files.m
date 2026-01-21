@@ -84,9 +84,11 @@ end
 dataTable = ndi.fun.table.vstack(dataTables);
 
 % Add subject, session, and dataset info to data table
-dataTable = ndi.fun.table.join({dataTable, ...
-    subjectTable(:,{'SubjectDocumentIdentifier','SubjectLocalIdentifier', ...
-    'SessionName','SessionDocumentIdentifier','SessionPath','DatasetDocumentIdentifier'})});
+if ~isempty(dataTable)
+    dataTable = ndi.fun.table.join({dataTable, ...
+        subjectTable(:,{'SubjectDocumentIdentifier','SubjectLocalIdentifier', ...
+        'SessionName','SessionDocumentIdentifier','SessionPath','DatasetDocumentIdentifier'})});
+end
 
 end
 

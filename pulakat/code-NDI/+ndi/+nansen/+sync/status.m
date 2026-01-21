@@ -32,7 +32,7 @@ if options.Verbose
 end
 
 % 4. Create status table
-DocumentIdentifier = [cellstr(localIdsLastSync);cellstr(ndiIdsToUpload)];
+DocumentIdentifier = [cellstr(localIdsLastSync);cellstr(ndiIdsToUpload)'];
 Cloud = false(size(DocumentIdentifier));
 Cloud(1:numel(localIdsLastSync)) = true;
 statusTable = table(DocumentIdentifier,Cloud);

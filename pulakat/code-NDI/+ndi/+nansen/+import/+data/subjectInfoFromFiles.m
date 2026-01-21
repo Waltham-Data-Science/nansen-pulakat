@@ -43,7 +43,7 @@ if ~isempty(scheduleFiles)
         scheduleSubjects{i} = table([group1;group2;group3],'VariableNames', ...
             {'SubjectCageIdentifier'});
         scheduleSubjects{i}{:,'ElectronicFileName'} = scheduleFiles(i);
-        scheduleSubjects{i}{:,'DataType'} = {'experiment metadata file'};
+        scheduleSubjects{i}{:,'DataTypeName'} = {'experiment metadata file'};
 
         % Remove spaces from cage names (if applicable)
         scheduleSubjects{i}.SubjectCageIdentifier = cellfun(@(c) replace(c,' ',''), ...
@@ -82,7 +82,7 @@ if ~isempty(diaFiles)
         end
         diaSubjects{i} = unique(diaSubjects{i},'stable');
         diaSubjects{i}{:,'ElectronicFileName'} = diaFiles(i);
-        diaSubjects{i}{:,'DataType'} = {'data-independent acquisition (DIA)'};
+        diaSubjects{i}{:,'DataTypeName'} = {'data-independent acquisition (DIA)'};
     end
     diaTable = ndi.fun.table.vstack(diaSubjects);
     diaTable = unique(diaTable,'stable');
@@ -107,7 +107,7 @@ if ~isempty(svsFiles)
         end
         svsSubjects{i} = table(cageIdentifiers',svsIdentifiers',...
             'VariableNames',{'SubjectCageIdentifier','ElectronicFileName'});
-        svsSubjects{i}{:,'DataType'} = {'slide scanner image acquisition'};
+        svsSubjects{i}{:,'DataTypeName'} = {'slide scanner image acquisition'};
     end
     svsTable = ndi.fun.table.vstack(svsSubjects);
     svsTable = unique(svsTable,'stable');
@@ -121,7 +121,7 @@ if ~isempty(echoFolders)
     cageIdentifiers = regexp(echoFolders, pattern, 'match');
     echoSubjects = table([cageIdentifiers{:}]',echoFolders,...
         'VariableNames',{'SubjectCageIdentifier','ElectronicFileName'});
-    echoSubjects{:,'DataType'} = {'echocardiogram acquisition'};
+    echoSubjects{:,'DataTypeName'} = {'echocardiogram acquisition'};
     echoTable = unique(echoSubjects,'stable');
 else
     echoTable = table();
@@ -145,7 +145,7 @@ if ~isempty(miscFiles)
         miscSubjects{i} = table(cageIdentifiers',animalIdentifiers',miscIdentifiers',...
             'VariableNames',{'SubjectCageIdentifier','SubjectEnumeratedIdentifier', ...
             'ElectronicFileName'});
-        miscSubjects{i}{:,'DataType'} = {'unknown'};
+        miscSubjects{i}{:,'DataTypeName'} = {'unknown electronic file type'};
     end
     miscTable = ndi.fun.table.vstack(miscSubjects);
     miscTable = unique(miscTable,'stable');

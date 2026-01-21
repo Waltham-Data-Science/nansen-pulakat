@@ -49,12 +49,17 @@ function varargout = subjects(sessionObject, varargin)
     session = ndi.session.dir(sessionObject.SessionPath);
 
     % Add subjects to session
-    subjectTable = pulakat.import.subjects(session);
-    
-    % Update nansen viewer
-    projectManager = nansen.ProjectManager(); 
-    project = projectManager.getProjectObject('pulakat');
-    pulakat.sync.metatable(project,subjectTable,'Subjects');
+    ndi.nansen.import.subjects(session);
+    subjectTable = ndi.nansen.metatable.subjects(session);
+
+    % Add cloud status to subject table
+    dataset = ndi.nansen.datasetID2Object(sessionObject.DatasetDocumentIdentifier);
+    statusTable = ndi.nansen.sync.status(dataset);
+    subjectTable = join(subjectTable,statusTable,'LeftKeys',...
+        'SubjectDocumentIdentifier','RightKeys','DocumentIdentifier');
+
+    % Add subjects to metatable
+    ndi.nansen.metatable.add(subjectTable,'Subjects');
     
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionObject}; end

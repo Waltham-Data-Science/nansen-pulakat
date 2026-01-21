@@ -53,13 +53,17 @@ function varargout = session(datasetObject, varargin)
     sessionTable = ndi.nansen.metatable.sessions(dataset);
     ndi.nansen.metatable.add(sessionTable,'Sessions');
 
-    % Add subjects to session
-    subjectTable = ndi.nansen.import.subjects(session,session.path);
-    ndi.nansen.metatable.add(subjectTable,'Subjects');
+    autoImport = questdlg('Would you like to automatically import subjects and files from the session directory?', ...
+        'Import Subjects and Files','Yes', 'No', 'Yes');
+    if strcmp(autoImport,'yes')
+        % Add subjects to session
+        subjectTable = ndi.nansen.import.subjects(session,session.path);
+        ndi.nansen.metatable.add(subjectTable,'Subjects');
 
-    % Add data to session
-    dataTable = ndi.nansen.import.data(session,session.path);
-    ndi.nansen.metatable.add(dataTable,'Files');
+        % Add data to session
+        dataTable = ndi.nansen.import.data(session,session.path);
+        ndi.nansen.metatable.add(dataTable,'Files');
+    end
 
     % Return session object (please do not remove):
     % if nargout; varargout = {datasetObject}; end

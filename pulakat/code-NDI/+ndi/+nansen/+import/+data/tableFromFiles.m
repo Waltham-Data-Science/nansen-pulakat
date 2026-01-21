@@ -31,7 +31,7 @@ end
 subjectFileTable = ndi.nansen.import.data.subjectInfoFromFiles(dataFiles);
 
 % Get existing subject table from session
-subjectTable_session = ndi.nansen.import.subjects.tableFromSession(session);
+subjectTable_session = ndi.nansen.metatable.subjects(session);
 
 % Match data files to subjects
 [indSubjects,numSubjects] = ndi.nansen.import.data.matchData2Subjects( ...
