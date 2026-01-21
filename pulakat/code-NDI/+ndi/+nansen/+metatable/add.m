@@ -1,20 +1,21 @@
-function [metaTable] = metatable(project,dataTable,dataName,overwrite)
+function [metaTable] = add(dataTable,dataName,options)
 %METATABLE Summary of this function goes here
 %   Detailed explanation goes here
 
 % Input argument validation
 arguments
-    project
     dataTable table
     dataName {mustBeText}
-    overwrite (1,1) logical = false
+    options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject
+    options.Overwrite (1,1) logical = false
 end
 
 % Get meta table catalog
+project = options.Project;
 metaTableCatalog = project.MetaTableCatalog;
 metaTableEntry = metaTableCatalog.getEntry(dataName);
 
-if isempty(metaTableCatalog.Table) | overwrite | isempty(metaTableEntry) | ...
+if isempty(metaTableCatalog.Table) | options.Overwrite | isempty(metaTableEntry) | ...
         ~exist(fullfile(metaTableEntry.SavePath,metaTableEntry.FileName),'file')
     dataType = dataName;
     switch dataName
