@@ -34,5 +34,15 @@
      "speciesOntology": "NCBITaxon:10116",
      "strainOntology": "RRID:RGD_70459",
      "geneticStrainType": "wildtype"}
-    ]
+    ],
+   "dataFileTypes": [
+       {"DataTypeName": "experiment metadata file",
+        "contains": ["schedule"]},
+       {"DataTypeName": "data-independent acquisition (DIA)",
+        "contains": ["DIA"]},
+       {"DataTypeName": "slide scanner image acquisition",
+        "contains": [".svs"]},
+       {"DataTypeName": "echocardiogram acquisition",
+        "contains": [".bimg",".pimg",".mxml",".vxml"]}
+       ]
 }
