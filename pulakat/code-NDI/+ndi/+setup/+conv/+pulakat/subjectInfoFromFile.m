@@ -157,14 +157,4 @@ end
 subjectFileTable = ndi.fun.table.vstack({scheduleTable,diaTable, ...
     svsTable,echoTable,miscTable});
 
-% Check required variables
-requiredVariableNames = {'SubjectEnumeratedIdentifier','SubjectCageIdentifier', ...
-    'SubjectTextIdentifier'};
-for i = 1:numel(requiredVariableNames)
-    if ~ismember(requiredVariableNames{i},subjectFileTable.Properties.VariableNames)
-        subjectFileTable{:,requiredVariableNames{i}} = {''};
-    end
-end
-subjectFileTable = ndi.fun.table.moveColumnsLeft(subjectFileTable,requiredVariableNames);
-
 end

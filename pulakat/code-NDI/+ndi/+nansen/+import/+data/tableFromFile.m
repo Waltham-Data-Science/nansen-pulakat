@@ -28,7 +28,17 @@ if isempty(dataFiles)
 end
 
 % Get identifying info for each data file
-subjectFileTable = ndi.nansen.import.data.subjectInfoFromFile(dataFiles);
+subjectFileTable = ndi.setup.conv.(['+',labName]).subjectInfoFromFile(dataFiles);
+
+% Check required variables
+requiredVariableNames = {'SubjectEnumeratedIdentifier','SubjectCageIdentifier', ...
+    'SubjectTextIdentifier'};
+for i = 1:numel(requiredVariableNames)
+    if ~ismember(requiredVariableNames{i},subjectFileTable.Properties.VariableNames)
+        subjectFileTable{:,requiredVariableNames{i}} = {''};
+    end
+end
+subjectFileTable = ndi.fun.table.moveColumnsLeft(subjectFileTable,requiredVariableNames);
 
 % Get existing subject table from session
 subjectTable_session = ndi.nansen.metatable.subject(session);
