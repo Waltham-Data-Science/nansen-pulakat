@@ -1,4 +1,4 @@
-function [subjectTable] = subject(session,dataPath)
+function [subjectTable] = subject(session,dataPath,labName)
 %SUBJECTS Imports subjects into an NDI session from a specified data path.
 %   This function identifies new subjects from 'animal_mapping' files,
 %   creates corresponding subject documents, and adds them to the
@@ -19,21 +19,36 @@ function [subjectTable] = subject(session,dataPath)
 arguments
     session {mustBeA(session,{'ndi.session.dir'})}
     dataPath {mustBeText} = '';
+    labName {mustBeText} = nansen.getCurrentProject().Name;
 end
+
+% Convert inputs to char arrays for internal processing
+dataPath = char(dataPath);
+labName = char(labName);
+
+% Get project info
+projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
+projectInfo = jsondecode(fileread(projectFile));
 
 % Retrieve subject files
 subjectFiles = ndi.nansen.import.file.select(dataPath, ...
-    'FileName','animal_mapping', ...
+    'FileName',projectInfo.subjectFileName, ...
     'FileExtensions',{'csv','xls','xlsx'});
 
 % Get current subject table from files
-subjectTable_files = ndi.nansen.import.subject.tableFromFile(subjectFiles);
+subjectTable_files = ndi.nansen.import.subject.tableFromFile(subjectFiles,labName);
 
 % Get existing subject table from session
 subjectTable_session = ndi.nansen.metatable.subject(session);
 
+% Remove spaces from subject identifiers (if applicable)
+subjectIdentifiers = projectInfo.subjectIdentifierFields;
+for i = 1:numel(subjectIdentifiers)
+    subjectTable_files.(subjectIdentifiers{i}) = cellfun(@(c) replace(c,' ',''),...
+        subjectTable_files.(subjectIdentifiers{i}),'UniformOutput',false);
+end
+
 % Identify new and unique subjects
-subjectIdentifiers = {'SubjectEnumeratedIdentifier','SubjectCageIdentifier','SubjectTextIdentifier'};
 if isempty(subjectTable_session)
     subjectTable_new = subjectTable_files;
 else
@@ -41,31 +56,33 @@ else
         subjectTable_session(:,subjectIdentifiers));
     subjectTable_new = subjectTable_files(indNew,:);
 end
-[~,indUnique] = unique(subjectTable_new(:,[subjectIdentifiers,'Treatment']),'stable');
+[~,indUnique] = unique(subjectTable_new(:,subjectIdentifiers),'stable');
 subjectTable_new = subjectTable_new(indUnique,:);
 
 % Check whether there are new subjects to add
 if isempty(subjectTable_new)
     warning('No new subjects found in: %s.',strjoin(subjectFiles,';'))
-    subjectTable = subjectTable_files;
+    subjectTable = subjectTable_session;
     return
 end
 
 % Add session id to subject table
 subjectTable_new{:,'SessionID'} = session.id;
+subjectTable_new{:,'LabName'} = labName;
 
 % Create subjectMaker and tableDocMaker
-subjectMaker = ndi.setup.NDIMaker.subjectMaker();
-subjectCreator = run(ndi.setup.conv.(options.Project.Name).informationCreator);
-tableDocMaker = ndi.setup.NDIMaker.tableDocMaker(session,options.Project.Name);
+subjectMaker = ndi.setup.NDIMaker.subjectMaker;
+subjectCreator = ndi.nansen.import.subject.informationCreator;
+tableDocMaker = ndi.setup.NDIMaker.tableDocMaker(session,labName);
 
 % Create subject documents (and add to session)
 [~,subjectTable_new.SubjectLocalIdentifier,subjectTable_new.SubjectDocumentIdentifier] = ...
     subjectMaker.addSubjectsFromTable(session,subjectTable_new,subjectCreator);
 
 % Create ontologyTableRow documents (and add to session)
+ind = strcmp({projectInfo.subjectFileColumns.document},'ontologyTableRow');
 tableRowVariables = ['SubjectLocalIdentifier','SubjectDocumentIdentifier',...
-    subjectIdentifiers,'Treatment','ElectronicFileName'];
+    {projectInfo.subjectFileColumns(ind).name},'ElectronicFileName'];
 tableDocMaker.table2ontologyTableRowDocs(subjectTable_new(:,tableRowVariables), ...
         {'SubjectDocumentIdentifier'});
 

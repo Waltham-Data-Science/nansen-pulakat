@@ -1,5 +1,38 @@
 {
   "name": "pulakat",
   "cloudDatasetID": "6970e560e9276081687400b6",
-  "URL": "https://github.com/Waltham-Data-Science/nansen-pulakat"
+  "URL": "https://github.com/Waltham-Data-Science/nansen-pulakat",
+  "subjectFileName": "animal_mapping",
+  "subjectFileColumns": [
+    {"value": "Strain",
+     "name": "Strain",
+     "document": "openMINDs"},
+    {"value": "BiologicalSex",
+     "name": "BiologicalSex",
+     "document": "openMINDs"},
+    {"value": "Animal",
+     "name": "SubjectEnumeratedIdentifier",
+     "document": "ontologyTableRow"},
+    {"value": "Cage",
+     "name": "SubjectCageIdentifier",
+     "document": "ontologyTableRow"},
+    {"value": "Label",
+     "name": "SubjectTextIdentifier",
+     "document": "ontologyTableRow"},
+    {"value": "Treatment",
+     "name": "Treatment",
+     "document": "ontologyTableRow"}
+    ],
+  "subjectSuffix": "@pulakat-lab.tufts.edu",
+  "subjectIdentifierFields": ["SubjectCageIdentifier","SubjectTextIdentifier"],
+  "strains": [
+    {"value": "Wistar",
+     "speciesOntology": "NCBITaxon:10116",
+     "strainOntology": "RRID:RGD_13508588",
+     "geneticStrainType": "wildtype"},
+    {"value": "ZDF",
+     "speciesOntology": "NCBITaxon:10116",
+     "strainOntology": "RRID:RGD_70459",
+     "geneticStrainType": "wildtype"}
+    ]
 }

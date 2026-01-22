@@ -1,4 +1,4 @@
-function [subjectTable] = tableFromFile(subjectFiles)
+function [subjectTable] = tableFromFile(subjectFiles,labName)
 %TABLEFROMFILES Imports and validates subject metadata from CSV or Excel files.
 %   This function is designed to read subject information from structured
 %   files (e.g., .csv, .xls, .xlsx). It validates that the files contain
@@ -20,50 +20,54 @@ function [subjectTable] = tableFromFile(subjectFiles)
 
 % Input argument validation
 arguments
-    subjectFiles {mustBeText} = ndi.nansen.import.file.select('', ...
+    subjectFiles {mustBeText} = ''
+    labName {mustBeText} = nansen.getCurrentProject().Name;
+end
+
+% Convert inputs to char arrays for internal processing
+labName = char(labName);
+
+% Get project info
+projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
+projectInfo = jsondecode(fileread(projectFile));
+
+% If not specified, select file
+if isempty(subjectFiles)
+    subjectFiles = ndi.nansen.import.file.select('', ...
         'GetType','file', ...
-        'FileName','animal_mapping', ...
+        'FileName',projectInfo.subjectFileName, ...
         'FileExtensions',{'csv','xls','xlsx'});
 end
 
 % Check that there are subject files selected
 if isempty(subjectFiles)
-    warning('import.subject.tableFromFiles: No file(s) selected.');
+    error('import.subject.tableFromFiles: No file(s) selected.');
 end
 
-% Validate files
-requiredVariableNames = {'Animal','Cage','Label','Species','Strain','BiologicalSex','Treatment'};
+subjectTables = cell(size(subjectFiles));
+requiredVariableNames = {projectInfo.subjectFileColumns.value};
 for i = 1:numel(subjectFiles)
     subjectFile = subjectFiles{i};
+
+    % Validate that subject files contain necessary variables
     valid = ndi.nansen.import.file.validateTable(subjectFile,requiredVariableNames);
     if ~valid
-        warning('importSubjectFiles: %s is not a valid subject file.',subjectFile); % Change to error
+        warning('importSubjectFiles: %s is not a valid subject file. Skipping.',subjectFile);
     end
-end
 
-% Import data from files
-subjectTables = cell(size(subjectFiles));
-for i = 1:numel(subjectFiles)
-    subjectFile = subjectFiles{i};
-
-    % Import current subject table
+    % Import subject table from file
     importOptions = detectImportOptions(subjectFile);
     importOptions = setvartype(importOptions,requiredVariableNames,'char');
     importOptions.SelectedVariableNames = requiredVariableNames;
     subjectTables{i} = readtable(subjectFile,importOptions);
-    subjectTables{i}{:,'FileName'} = subjectFile;
+    subjectTables{i}{:,'ElectronicFileName'} = subjectFile;
 end
 
 % Stack subject tables
 subjectTable = ndi.fun.table.vstack(subjectTables);
 
-% Remove spaces from cage names (if applicable)
-subjectTable.Cage = cellfun(@(c) replace(c,' ',''),subjectTable.Cage,...
-    'UniformOutput',false);
-
 % Rename relevant variables
-subjectTable = renamevars(subjectTable,{'Animal','Cage','Label','FileName'}, ...
-    {'SubjectEnumeratedIdentifier','SubjectCageIdentifier', ...
-    'SubjectTextIdentifier','ElectronicFileName'});
+subjectTable = renamevars(subjectTable,requiredVariableNames, ...
+    {projectInfo.subjectFileColumns.name});
 
 end
