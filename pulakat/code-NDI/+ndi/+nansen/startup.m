@@ -23,7 +23,7 @@ ndi.nansen.sync.repo('https://github.com/VH-Lab/NDI-matlab');
 setenv('CLOUD_API_ENVIRONMENT','prod');
 ndi.cloud.uilogin(true);
 
-% 1. Download or sync local dataset with NDI Cloud
+% 4. Download or sync local dataset with NDI Cloud
 
 % Define the directory where the dataset is (or will be) stored
 if ~isfolder(dataPath)
@@ -47,7 +47,7 @@ end
 % Add to path
 addpath(genpath(datasetPath));
 
-% 2. Generate tables from dataset
+% 5. Generate tables from dataset
 datasetTable = ndi.nansen.metatable.dataset(dataset);
 sessionTable = ndi.nansen.metatable.session(dataset);
 subjectTable = ndi.nansen.metatable.subject(dataset);
@@ -74,7 +74,7 @@ if ~isempty(dataTable)
         'FileDocumentIdentifier','RightKeys','DocumentIdentifier');
 end
 
-% Load project from nansen project manager
+% 6. Load project from nansen project manager
 projectName = projectInfo.name;
 projectPath = fullfile(repoPath,projectName);
 projectManager = nansen.ProjectManager(); 
@@ -92,7 +92,7 @@ end
 % Ensure the current project is set correctly
 projectManager.changeProject(projectName)
 
-% 4. Add metatables to project and launch nansen viewer
+% 7. Add metatables to project and launch nansen viewer
 
 % Create (or replace) metatables
 ndi.nansen.metatable.add(datasetTable,'Dataset');
