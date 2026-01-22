@@ -1,9 +1,24 @@
-function [ ] = startup(dataPath)
+function [ ] = startup(labName,dataPath)
 
 % Input argument validation
 arguments
+    labName {mustBeText}
     dataPath {mustBeFolder} = fullfile(userpath,'ndi','data');
 end
+
+% 1. Update nansen project from GitHub
+
+% Ask Git for the root of this repository
+[currentDir, ~, ~] = fileparts(mfilename('fullpath'));
+cmd = sprintf('git -C "%s" rev-parse --show-toplevel', currentDir);
+
+ndi.nansen.sync.repo(repoPath);
+
+fullPath = which('ndi.session');
+repoRoot = fileparts(fullPath); 
+disp(repoRoot);
+
+
 
 % 1. Download or sync local dataset with NDI Cloud
 
@@ -15,6 +30,11 @@ ndi.cloud.uilogin(true);
 if ~isfolder(dataPath)
     mkdir(dataPath);
 end
+
+% Get project info
+settingsFileName = fullfile(options.Project.FolderPath,'metadata','tables','metatable_column_settings.json');
+columnSettings = jsondecode(fileread(settingsFileName));
+
 
 % Define the dataset id and its local path
 cloudDatasetID = '6970e560e9276081687400b6';
@@ -58,34 +78,6 @@ end
 if ~isempty(dataTable)
     dataTable = join(dataTable,statusTable,'LeftKeys',...
         'FileDocumentIdentifier','RightKeys','DocumentIdentifier');
-end
-
-% 3. Update nansen project from GitHub
-
-% Ask Git for the root of the repository
-[currentDir, ~, ~] = fileparts(mfilename('fullpath'));
-cmd = sprintf('git -C "%s" rev-parse --show-toplevel', currentDir);
-[status, cmdOut] = system(cmd);
-if status == 0
-    repoPath = strtrim(cmdOut); % strtrim removes the newline character
-else
-    % If not a git repo, fall back to the current folder or throw error
-    error('The current function is not inside a Git repository.');
-end
-
-% Pull changes from github repo
-fprintf('Checking for updates in: %s\n', repoPath);
-pullCmd = sprintf('git -C "%s" pull', repoPath);
-[status, cmdOut] = system(pullCmd);
-if status == 0
-    if contains(cmdOut, 'Already up to date')
-        fprintf('Your repository is already up to date.\n');
-    else
-        fprintf('Updates applied successfully:\n%s\n', cmdOut);
-    end
-else
-    % Common errors: No internet, merge conflicts, or uncommitted changes
-    warning('Failed to pull updates. Git message:\n%s', cmdOut);
 end
 
 % Load pulakat project from nansen project manager
