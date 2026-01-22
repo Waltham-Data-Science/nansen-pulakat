@@ -1,4 +1,4 @@
-function subjectFileTable = subjectInfoFromFiles(dataFiles)
+function subjectFileTable = subjectInfoFromFile(dataFiles)
 %SUBJECTINFOFROMFILES Extracts subject information from a list of data files.
 %   This function processes a variety of file types (e.g., experiment schedules,
 %   DIA reports, SVS images, echocardiogram files) to extract subject identifiers

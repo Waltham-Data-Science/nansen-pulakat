@@ -1,4 +1,4 @@
-function [indSubjects,numSubjects] = matchData2Subjects(subjectDataTable,subjectTable)
+function [indSubjects,numSubjects] = matchData2Subject(subjectDataTable,subjectTable)
 %MATCHDATA2SUBJECTS Matches rows from a data table to a subject metadata table.
 %   This function identifies which subject(s) in a subject metadata table
 %   (`subjectTable`) correspond to each data entry in a data table

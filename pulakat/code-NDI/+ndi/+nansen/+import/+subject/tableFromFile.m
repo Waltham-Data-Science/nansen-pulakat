@@ -1,4 +1,4 @@
-function [subjectTable] = tableFromFiles(subjectFiles)
+function [subjectTable] = tableFromFile(subjectFiles)
 %TABLEFROMFILES Imports and validates subject metadata from CSV or Excel files.
 %   This function is designed to read subject information from structured
 %   files (e.g., .csv, .xls, .xlsx). It validates that the files contain

@@ -1,5 +1,5 @@
-function varargout = files(sessionObject, varargin)
-%DATA Summary of this function goes here
+function varargout = edit(subjectObject, varargin)
+%EDIT Summary of this function goes here
 %   Detailed explanation goes here
 
 % % % % % % % % % % % % % % % INSTRUCTIONS % % % % % % % % % % % % % % %
@@ -9,7 +9,7 @@ function varargout = files(sessionObject, varargin)
 %      defined in the local function getDefaultParameters at the bottom of
 %      this script.
 %   2) Scroll down to the custom code block below and write code to do
-%   operations on the sessionObjects and it's data.
+%   operations on the subjectObjects and it's data.
 %   3) Add documentation (summary and explanation) for the session method
 %      above. PS: Don't change the function definition (inputs/outputs)
 %
@@ -26,7 +26,7 @@ function varargout = files(sessionObject, varargin)
     params = getDefaultParameters();
     
     % Create a cell array with attribute keywords
-    ATTRIBUTES = {'serial', 'queueable'};
+    ATTRIBUTES = {'batch', 'queueable'};
     
 % % % % % % % % % % % % % DEFAULT CODE BLOCK % % % % % % % % % % % % % %
 % - - - - - - - - - - Please do not edit this part - - - - - - - - - - -
@@ -45,24 +45,10 @@ function varargout = files(sessionObject, varargin)
 % % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
 % Implementation of the method : Add your code here:
 
-    % Get session object
-    session = ndi.session.dir(sessionObject.SessionPath);
-
-    % Add files to session
-    ndi.nansen.import.data(session);
-    dataTable = ndi.nansen.metatable.files(session);
-
-    % Add cloud status to subject table
-    dataset = ndi.nansen.datasetID2Object(sessionObject.DatasetDocumentIdentifier);
-    statusTable = ndi.nansen.sync.status(dataset);
-    dataTable = join(dataTable,statusTable,'LeftKeys',...
-        'FileDocumentIdentifier','RightKeys','DocumentIdentifier');
-
-    % Add subjects to metatable
-    ndi.nansen.metatable.add(dataTable,'Files');
-
+    
+    
     % Return session object (please do not remove):
-    % if nargout; varargout = {sessionObject}; end
+    % if nargout; varargout = {subjectObject}; end
 end
 
 function params = getDefaultParameters()

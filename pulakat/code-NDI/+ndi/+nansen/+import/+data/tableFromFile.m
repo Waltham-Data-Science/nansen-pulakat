@@ -1,4 +1,4 @@
-function [dataTable] = tableFromFiles(session,dataFiles)
+function [dataTable] = tableFromFile(session,dataFiles)
 %TABLEFROMFILES Creates a table linking data files to subjects in an NDI session.
 %   This function processes a list of data files, identifies the subjects
 %   associated with each file, and matches them against subjects already present
@@ -28,10 +28,10 @@ if isempty(dataFiles)
 end
 
 % Get identifying info for each data file
-subjectFileTable = ndi.nansen.import.data.subjectInfoFromFiles(dataFiles);
+subjectFileTable = ndi.nansen.import.data.subjectInfoFromFile(dataFiles);
 
 % Get existing subject table from session
-subjectTable_session = ndi.nansen.metatable.subjects(session);
+subjectTable_session = ndi.nansen.metatable.subject(session);
 
 % Match data files to subjects
 [indSubjects,numSubjects] = ndi.nansen.import.data.matchData2Subjects( ...

@@ -1,4 +1,4 @@
-function [sessionTable] = sessions(session,fullMetaTable)
+function [sessionTable] = session(session,fullMetaTable)
 %SESSION Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -32,9 +32,9 @@ end
 % If wanting the full meta table, add summary of subject table
 if fullMetaTable & ~isempty(sessionTable)
     if exist('dataset','var')
-        subjectTable = ndi.nansen.metatable.subjects(dataset);
+        subjectTable = ndi.nansen.metatable.subject(dataset);
     else
-        subjectTable = ndi.nansen.metatable.subjects(session);
+        subjectTable = ndi.nansen.metatable.subject(session);
     end
     if ~isempty(subjectTable)
         sessionTable =  ndi.fun.table.join({sessionTable, ...

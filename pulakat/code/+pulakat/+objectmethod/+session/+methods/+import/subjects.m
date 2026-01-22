@@ -49,8 +49,8 @@ function varargout = subjects(sessionObject, varargin)
     session = ndi.session.dir(sessionObject.SessionPath);
 
     % Add subjects to session
-    ndi.nansen.import.subjects(session);
-    subjectTable = ndi.nansen.metatable.subjects(session);
+    ndi.nansen.import.subject(session);
+    subjectTable = ndi.nansen.metatable.subject(session);
 
     % Add cloud status to subject table
     dataset = ndi.nansen.datasetID2Object(sessionObject.DatasetDocumentIdentifier);
@@ -59,7 +59,11 @@ function varargout = subjects(sessionObject, varargin)
         'SubjectDocumentIdentifier','RightKeys','DocumentIdentifier');
 
     % Add subjects to metatable
-    ndi.nansen.metatable.add(subjectTable,'Subjects');
+    ndi.nansen.metatable.add(subjectTable,'Subject');
+
+    % Update session metatable with subject summary metadata
+    sessionTable = ndi.nansen.metatable.session(session); % this session only
+    % FIX LATER
     
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionObject}; end

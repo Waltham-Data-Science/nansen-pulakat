@@ -1,5 +1,5 @@
-function varargout = session(datasetObject, varargin)
-%SESSION Summary of this function goes here
+function varargout = files(sessionObject, varargin)
+%DATA Summary of this function goes here
 %   Detailed explanation goes here
 
 % % % % % % % % % % % % % % % INSTRUCTIONS % % % % % % % % % % % % % % %
@@ -9,7 +9,7 @@ function varargout = session(datasetObject, varargin)
 %      defined in the local function getDefaultParameters at the bottom of
 %      this script.
 %   2) Scroll down to the custom code block below and write code to do
-%   operations on the datasetObjects and it's data.
+%   operations on the sessionObjects and it's data.
 %   3) Add documentation (summary and explanation) for the session method
 %      above. PS: Don't change the function definition (inputs/outputs)
 %
@@ -44,29 +44,25 @@ function varargout = session(datasetObject, varargin)
     
 % % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
 % Implementation of the method : Add your code here:
-    
-    % Get dataset and project
-    dataset = ndi.dataset.dir(datasetObject.DatasetPath);
 
-    % Create new session object
-    session = ndi.nansen.import.session(dataset);
-    sessionTable = ndi.nansen.metatable.session(dataset);
-    ndi.nansen.metatable.add(sessionTable,'Session');
+    % Get session object
+    session = ndi.session.dir(sessionObject.SessionPath);
 
-    autoImport = questdlg('Would you like to automatically import subjects and files from the session directory?', ...
-        'Import Subjects and Files','Yes', 'No', 'Yes');
-    if strcmp(autoImport,'yes')
-        % Add subjects to session
-        subjectTable = ndi.nansen.import.subject(session,session.path);
-        ndi.nansen.metatable.add(subjectTable,'Subject');
+    % Add files to session
+    ndi.nansen.import.data(session);
+    dataTable = ndi.nansen.metatable.files(session);
 
-        % Add data to session
-        dataTable = ndi.nansen.import.data(session,session.path);
-        ndi.nansen.metatable.add(dataTable,'File');
-    end
+    % Add cloud status to subject table
+    dataset = ndi.nansen.datasetID2Object(sessionObject.DatasetDocumentIdentifier);
+    statusTable = ndi.nansen.sync.status(dataset);
+    dataTable = join(dataTable,statusTable,'LeftKeys',...
+        'FileDocumentIdentifier','RightKeys','DocumentIdentifier');
+
+    % Add subjects to metatable
+    ndi.nansen.metatable.add(dataTable,'File');
 
     % Return session object (please do not remove):
-    % if nargout; varargout = {datasetObject}; end
+    % if nargout; varargout = {sessionObject}; end
 end
 
 function params = getDefaultParameters()

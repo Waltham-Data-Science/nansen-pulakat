@@ -26,10 +26,10 @@ end
 dataFiles = ndi.nansen.import.file.select(dataPath);
 
 % Get current data table from files
-dataTable_files = ndi.nansen.import.data.tableFromFiles(session,dataFiles);
+dataTable_files = ndi.nansen.import.data.tableFromFile(session,dataFiles);
 
 % Get existing data table from session
-dataTable_session = ndi.nansen.metatable.files(session);
+dataTable_session = ndi.nansen.metatable.file(session);
 
 % Identify new and unique files
 fileIdentifiers = {'ElectronicFileName','DataTypeName'};
@@ -122,6 +122,6 @@ session.database_add(generic_file_docs);
 session.database_add(ontologyLabel_docs);
 
 % Return updated data table
-dataTable = ndi.nansen.metatable.files(session);
+dataTable = ndi.nansen.metatable.file(session);
 
 end

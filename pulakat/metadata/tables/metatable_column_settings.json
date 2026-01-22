@@ -76,7 +76,7 @@
     "ColumnLabel": "SessionName",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 82,
+    "ColumnWidth": 106,
     "IsEditable": false,
     "ColumnOrder": 2
   },
@@ -139,7 +139,7 @@
     "ColumnLabel": "FileName",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 603,
+    "ColumnWidth": 382,
     "IsEditable": false,
     "ColumnOrder": 16
   },
@@ -155,9 +155,9 @@
   {
     "VariableName": "DatasetDocumentIdentifier",
     "ColumnLabel": "DatasetDocumentIdentifier",
-    "ShowColumn": false,
+    "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 196,
     "IsEditable": false,
     "ColumnOrder": 18
   },
@@ -166,7 +166,7 @@
     "ColumnLabel": "DatasetName",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 128,
+    "ColumnWidth": 74,
     "IsEditable": false,
     "ColumnOrder": 17
   },
@@ -175,7 +175,7 @@
     "ColumnLabel": "DatasetUpdated",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 181,
+    "ColumnWidth": 84,
     "IsEditable": false,
     "ColumnOrder": 19
   },
@@ -193,7 +193,7 @@
     "ColumnLabel": "DataType",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 152,
+    "ColumnWidth": 180,
     "IsEditable": false,
     "ColumnOrder": 22
   },
@@ -220,8 +220,17 @@
     "ColumnLabel": "Cloud",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 64,
+    "ColumnWidth": 44,
     "IsEditable": false,
     "ColumnOrder": 25
+  },
+  {
+    "VariableName": "newType",
+    "ColumnLabel": "newType",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 26
   }
 ]

@@ -36,7 +36,13 @@ session = sessionMaker.sessionIndices;
 session = session{1};
 
 % Add session to dataset
-dataset.add_linked_session(session);
+[sessionNames,sessionIDs] = dataset.session_list;
+ind = strcmp(sessionIDs,session.id);
+if any(ind)
+    warning('There is already a session at this location: %s',sessionNames{ind})
+else
+    dataset.add_linked_session(session);
+end
 
 end
 

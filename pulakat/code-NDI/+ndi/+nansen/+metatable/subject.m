@@ -1,4 +1,4 @@
-function [subjectTable] = subjects(dataset)
+function [subjectTable] = subject(dataset)
 %TABLEFROMSESSION Compiles a subject information table from an NDI session or dataset.
 %   This function retrieves all subject documents from the specified NDI
 %   session or dataset and enriches this information with data from any
@@ -28,7 +28,7 @@ if isempty(subjectTable)
 end
 
 % Get basic session table from dataset
-sessionTable = ndi.nansen.metatable.sessions(dataset,false);
+sessionTable = ndi.nansen.metatable.session(dataset,false);
 
 % Get ontologyTableRow documents
 query = ndi.query('','isa','ontologyTableRow');

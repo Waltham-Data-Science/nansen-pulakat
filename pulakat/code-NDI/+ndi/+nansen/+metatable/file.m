@@ -1,4 +1,4 @@
-function [dataTable] = files(dataset)
+function [dataTable] = file(dataset)
 %TABLEFROMSESSION Compiles a table of data information from an NDI session.
 %   This function queries the NDI database for 'generic_file' and
 %   'ontologyLabel' documents to build a comprehensive table of data
@@ -21,7 +21,7 @@ arguments
 end
 
 % Get basic session table from dataset
-subjectTable = ndi.nansen.metatable.subjects(dataset);
+subjectTable = ndi.nansen.metatable.subject(dataset);
 if isempty(subjectTable)
     dataTable = table();
     return;

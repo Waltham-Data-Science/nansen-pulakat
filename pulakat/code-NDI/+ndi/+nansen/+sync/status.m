@@ -20,11 +20,14 @@ if options.Verbose
 end
 
 % 2. Get current local state
-[~, localDocumentIds] = ndi.cloud.sync.internal.listLocalDocuments(dataset);
+[localDocuments, localDocumentIds] = ndi.cloud.sync.internal.listLocalDocuments(dataset);
 if options.Verbose
     fprintf('Found %d documents locally.\n', numel(localDocumentIds));
 end
 
+% cloudDatasetID = ndi.cloud.internal.getCloudDatasetIdForLocalDataset(dataset);
+% [a,b,c,d] = ndi.cloud.api.documents.listDatasetDocumentsAll(cloudDatasetID)
+% 
 % 3. Calculate differences: documents added locally since last sync
 [ndiIdsToUpload, ~] = setdiff(localDocumentIds, localIdsLastSync, 'stable');
 if options.Verbose

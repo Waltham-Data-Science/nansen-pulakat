@@ -1,4 +1,4 @@
-function [subjectTable] = subjects(session,dataPath)
+function [subjectTable] = subject(session,dataPath)
 %SUBJECTS Imports subjects into an NDI session from a specified data path.
 %   This function identifies new subjects from 'animal_mapping' files,
 %   creates corresponding subject documents, and adds them to the
@@ -27,10 +27,10 @@ subjectFiles = ndi.nansen.import.file.select(dataPath, ...
     'FileExtensions',{'csv','xls','xlsx'});
 
 % Get current subject table from files
-subjectTable_files = ndi.nansen.import.subjects.tableFromFiles(subjectFiles);
+subjectTable_files = ndi.nansen.import.subject.tableFromFile(subjectFiles);
 
 % Get existing subject table from session
-subjectTable_session = ndi.nansen.metatable.subjects(session);
+subjectTable_session = ndi.nansen.metatable.subject(session);
 
 % Identify new and unique subjects
 subjectIdentifiers = {'SubjectEnumeratedIdentifier','SubjectCageIdentifier','SubjectTextIdentifier'};
@@ -56,7 +56,7 @@ subjectTable_new{:,'SessionID'} = session.id;
 
 % Create subjectMaker and tableDocMaker
 subjectMaker = ndi.setup.NDIMaker.subjectMaker();
-subjectCreator = ndi.nansen.import.subjects.informationCreator();
+subjectCreator = ndi.nansen.import.subject.informationCreator();
 tableDocMaker = ndi.setup.NDIMaker.tableDocMaker(session,'pulakat');
 
 % Create subject documents (and add to session)
@@ -70,6 +70,6 @@ tableDocMaker.table2ontologyTableRowDocs(subjectTable_new(:,tableRowVariables), 
         {'SubjectDocumentIdentifier'});
 
 % Return updated subject table
-subjectTable = ndi.nansen.metatable.subjects(session);
+subjectTable = ndi.nansen.metatable.subject(session);
 
 end

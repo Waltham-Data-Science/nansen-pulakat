@@ -1,4 +1,4 @@
-function [dataset,cloudDatasetID] = newDataset(datasetName,dataPath,cloud)
+function [dataset,cloudDatasetID] = dataset(datasetName,dataPath,cloud)
 %SETUP Summary of this function goes here
 
 % Input argument validation
