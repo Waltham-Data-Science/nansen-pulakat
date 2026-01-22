@@ -56,8 +56,8 @@ subjectTable_new{:,'SessionID'} = session.id;
 
 % Create subjectMaker and tableDocMaker
 subjectMaker = ndi.setup.NDIMaker.subjectMaker();
-subjectCreator = ndi.nansen.import.subject.informationCreator();
-tableDocMaker = ndi.setup.NDIMaker.tableDocMaker(session,'pulakat');
+subjectCreator = run(ndi.setup.conv.(options.Project.Name).informationCreator);
+tableDocMaker = ndi.setup.NDIMaker.tableDocMaker(session,options.Project.Name);
 
 % Create subject documents (and add to session)
 [~,subjectTable_new.SubjectLocalIdentifier,subjectTable_new.SubjectDocumentIdentifier] = ...
