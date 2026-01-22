@@ -2,42 +2,36 @@ function [ ] = startup(labName,dataPath)
 
 % Input argument validation
 arguments
-    labName {mustBeText}
+    labName {mustBeText} = nansen.getCurrentProject().Name;
     dataPath {mustBeFolder} = fullfile(userpath,'ndi','data');
 end
 
-% 1. Update nansen project from GitHub
+% Convert inputs to char arrays for internal processing
+labName = char(labName);
 
-% Ask Git for the root of this repository
-[currentDir, ~, ~] = fileparts(mfilename('fullpath'));
-cmd = sprintf('git -C "%s" rev-parse --show-toplevel', currentDir);
+% 1. Get project info
+projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
+projectInfo = jsondecode(fileread(projectFile));
 
-ndi.nansen.sync.repo(repoPath);
+% 2. Update required repos
+ndi.nansen.sync.repo(projectInfo.URL);
+ndi.nansen.sync.repo('https://github.com/VervaekeLab/NANSEN','Branch','dev');
+ndi.nansen.sync.repo('https://github.com/openMetadataInitiative/openMINDS_MATLAB');
+ndi.nansen.sync.repo('https://github.com/VH-Lab/NDI-matlab');
 
-fullPath = which('ndi.session');
-repoRoot = fileparts(fullPath); 
-disp(repoRoot);
-
-
-
-% 1. Download or sync local dataset with NDI Cloud
-
-% Login
+% 3. Update login token
 setenv('CLOUD_API_ENVIRONMENT','prod');
 ndi.cloud.uilogin(true);
+
+% 1. Download or sync local dataset with NDI Cloud
 
 % Define the directory where the dataset is (or will be) stored
 if ~isfolder(dataPath)
     mkdir(dataPath);
 end
 
-% Get project info
-settingsFileName = fullfile(options.Project.FolderPath,'metadata','tables','metatable_column_settings.json');
-columnSettings = jsondecode(fileread(settingsFileName));
-
-
 % Define the dataset id and its local path
-cloudDatasetID = '6970e560e9276081687400b6';
+cloudDatasetID = projectInfo.cloudDatasetID;
 datasetPath = fullfile(dataPath,cloudDatasetID);
 
 % Load/download dataset
@@ -80,8 +74,8 @@ if ~isempty(dataTable)
         'FileDocumentIdentifier','RightKeys','DocumentIdentifier');
 end
 
-% Load pulakat project from nansen project manager
-projectName = 'pulakat';
+% Load project from nansen project manager
+projectName = projectInfo.name;
 projectPath = fullfile(repoPath,projectName);
 projectManager = nansen.ProjectManager(); 
 
@@ -95,7 +89,7 @@ if ~strcmp(projectPath,projectManager.getProjectPath(projectName))
     projectManager.updateProjectDirectory(projectName, projectPath);
 end
 
-% Ensure 'pulakat' is the current project
+% Ensure the current project is set correctly
 projectManager.changeProject(projectName)
 
 % 4. Add metatables to project and launch nansen viewer

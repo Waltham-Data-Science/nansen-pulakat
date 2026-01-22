@@ -1,115 +1,178 @@
-function [status] = repo(repoReference,options)
-%REPO Summary of this function goes here
-%   Detailed explanation goes here
+function [status] = repo(repoReference, options)
+%REPO Synchronize, update, and add repository to MATLAB path.
+%
+%   STATUS = ndi.nansen.sync.repo(REPOREFERENCE) resolves a repository from 
+%   a folder, function name, or URL, pulls updates, and updates the MATLAB path.
+%
+%   INPUT ARGUMENTS:
+%       repoReference : char array or string
+%           The reference used to find the repository. Can be:
+%           - A local directory path: '/Users/Name/Documents/MATLAB/ndi/tools/NDI-matlab'
+%           - A function/class name: 'ndi.session'
+%           - A Git URL: 'https://github.com/VH-Lab/NDI-matlab'
+%
+%   NAME-VALUE PAIRS:
+%       'Branch'      : char array or string (Default: '')
+%           The name of the Git branch to switch to (e.g., 'development'). 
+%           If empty, it stays on the current branch.
+%       'ClonePath'   : char array or string (Default: [userpath]/ndi/tools)
+%           The parent directory where a URL reference should be cloned if 
+%           no local match is found on the disk.
+%
+%   EXAMPLES:
+%       % 1. Update Nansen using a function name as a char array:
+%       ndi.nansen.sync.repo()
+%
+%       % 2. Update via URL (string) and switch to a branch (char):
+%       url = 'https://github.com/VH-Lab/NDI-matlab';
+%       ndi.nansen.sync.repo(url, 'Branch', 'development')
+%
+%       % 3. Update a specific local path:
+%       ndi.nansen.sync.repo('/Users/Name/Documents/MATLAB/ndi/tools/NDI-matlab')
 
-% Input argument validation
 arguments
-    repoReference {mustBeText} % function name, path, or url
-    options.Branch {mustBeText} = '' % if empty, use current branch
-    options.ClonePath {mustBeText} = fullfile(userpath,'ndi','tools'); % if repo is not local, clone into this directory
+    repoReference {mustBeText}
+    options.Branch {mustBeText} = ''
+    options.ClonePath {mustBeText} = fullfile(userpath, 'ndi', 'tools')
 end
 
-% 1. Get local repo directory from the reference function name, url, or path
+% Convert inputs to char arrays for internal processing
+repoReference = char(repoReference);
+options.Branch = char(options.Branch);
+options.ClonePath = char(options.ClonePath);
+
+% Set the specific function identifier for messaging and error IDs
+funcId = 'NDI:Nansen:Sync:Repo';
 
 repoPath = '';
-if isfolder(repoReference)
-    % If reference is a directory, get top-level repo directory
-    cmd = sprintf('git -C "%s" rev-parse --show-toplevel', repoReference);
+cmd = '';
 
-elseif isurl(repoReference)
-    % If reference is a URL, identify the matching local repo directory
-    gitPaths = dir(fullfile(userpath, '**', '.git'));
-    gitPaths = unique({gitPaths(:).folder});
+% --- 1. Identify Repository Location ---
+
+if isfolder(repoReference)
+    % Find top-level root if input is a subfolder
+    cmd = sprintf('git -C "%s" rev-parse --show-toplevel', repoReference);
+        
+elseif contains(repoReference, 'http') || endsWith(repoReference, '.git')
+    % Search local userpath for matching remote URL
+    fprintf('[%s] Scanning local paths for: %s...\n', funcId, repoReference);
+    gitDirs = dir(fullfile(userpath, '**', '.git'));
+    gitPaths = unique({gitDirs.folder});
+    
     for i = 1:numel(gitPaths)
-        cmd = sprintf('git -C "%s" remote get-url origin', gitPaths{i});
-        [status, cmdOut] = system(cmd);
-        if status == 0
-            thisRemoteUrl = strtrim(cmdOut);
-            if strcmpi(thisRemoteUrl, repoReference) || ...
-                    strcmpi(thisRemoteUrl, [repoReference, '.git']) || ...
-                    strcmpi([thisRemoteUrl, '.git'], repoReference)
-                cmd = sprintf('git -C "%s" rev-parse --show-toplevel', ...
-                    replace(gitPaths{i},'.git',''));
-                return;
+        p = fileparts(gitPaths{i}); 
+        [s, out] = system(sprintf('git -C "%s" remote get-url origin', p));
+        if s == 0
+            thisUrl = strtrim(out);
+            if strcmpi(thisUrl, repoReference) || ...
+               strcmpi(thisUrl, [repoReference, '.git']) || ...
+               strcmpi([thisUrl, '.git'], repoReference)
+                repoPath = p;
+                break;
             end
         end
     end
+    
+    % If URL not found locally, clone it
+    if isempty(repoPath) && ~isempty(options.ClonePath)
+        [~, repoName] = fileparts(repoReference);
+        [~, pathFolder] = fileparts(options.ClonePath);
 
-elseif exist(repoReference,'file') == 2 || exist(repoReference,'class')
-    % If reference is a function, get directory containing the function
+        % Default to the provided path
+        repoPath = options.ClonePath;
+        
+        % If the provided path doesn't end with the repo name, append it
+        if ~strcmp(pathFolder, repoName)
+            repoPath = fullfile(options.ClonePath, repoName);
+        end
+        
+        % Ensure the PARENT directory exists so git can create the repo folder
+        parentDir = fileparts(repoPath);
+        if ~exist(parentDir, 'dir'); mkdir(parentDir); end
+
+        % Add .git if not in url
+        repoURL = repoReference;
+        if endsWith(repoURL,'.git')
+            repoURL = [repoURL,'.git'];
+        end
+        
+        fprintf('[%s] Cloning %s into %s...\n', funcId, repoName, repoPath);
+        [status, cmdOut] = system(sprintf('git clone %s "%s"', repoURL, repoPath));
+        if status ~= 0
+            warning([funcId, ':CloneFailed'], '[%s] Clone failed: %s', funcId, cmdOut);
+            return;
+        end
+    end
+    
+elseif exist(repoReference, 'file') == 2 || exist(repoReference, 'class')
+    % Resolve path from function or class name
     functionPath = which(repoReference);
-    functionDir = fileparts(functionPath);
+    [functionDir, ~, ~] = fileparts(functionPath);
     cmd = sprintf('git -C "%s" rev-parse --show-toplevel', functionDir);
 
-elseif ~isempty(options.ClonePath) && isurl(repoReference)
-    % If no matching repository found, but reference is a url and ClonePath
-    % is given, clone
-    [~,repoName] = fileparts(repoReference);
-    repoPath = fullfile(options.ClonePath,repoName);
-    cmd = sprintf('git clone %s "%s"', repoReference,repoPath);
-    [status, cmdOut] = system(cmd);
-    if status == 0
-        fprintf('Successfully cloned %s to %s.\n',repoName,repoPath)
-    else
-        warning('Failed to clone repository %s: %s. Skipping.',repoName,cmdOut);
-        return
-    end
-
-else
-    % If no matching repository found, warn and return
-    warning('No repository found with a function, url, or path matching %s. Skipping.',repoReference);
-    return
 end
 
-% Get local repo directory (if not cloning)
-if isempty(repoPath)
+% --- 2. Resolve Path and Validate ---
+
+if isempty(repoPath) && ~isempty(cmd)
     [status, cmdOut] = system(cmd);
     if status == 0
-        % If git repo, get local directory
-        repoPath = strtrim(cmdOut); % strtrim removes the newline character
+        repoPath = strtrim(cmdOut);
     else
-        % If not a git repo, throw error
-        warning('Could not identify %s inside a Git repository.',repoReference);
-        return
+        warning([funcId, ':NotFound'], '[%s] Could not find a Git repo for: %s', funcId, repoReference);
+        return;
     end
 end
 
-% 2. Stash changes
+[~, repoName] = fileparts(repoPath);
 
-system(sprintf('git -C "%s" stash', repoPath));
+% --- 3. Sync Logic (Stash -> Switch -> Pull) ---
 
-% 3. Checkout specified branch
+% Protect local work
+[~, ~] = system(sprintf('git -C "%s" stash', repoPath));
 
-% Get the current branch name
+% Check and switch branch
 [status, cmdOut] = system(sprintf('git -C "%s" branch --show-current', repoPath));
 if status == 0
-    currentBranch = strtrim(cmdOut); % Remove whitespace/newlines
-else
-    error('Could not determine branch. Is %s a Git repository?',repoPath);
-end
-
-% Switch branch
-if ~isempty(options.Branch) & ~strcmp(currentBranch,options.Branch)
-    system(sprintf('git -C "%s" switch %s', repoPath, options.Branch));
-end
-
-% 3. Pull changes to current branch
-[~,repoName] = fileparts(repoPath);
-pullCmd = sprintf('git -C "%s" pull', repoPath);
-[status, cmdOut] = system(pullCmd);
-system(sprintf('git -C "%s" stash pop', repoPath));
-if status == 0
-    if contains(cmdOut, 'Already up to date')
-        fprintf('%s repository is up to date.\n',repoName);
-    else
-        fprintf('%s repository has been updated successfully:\n%s\n',repoName,cmdOut);
+    currentBranch = strtrim(cmdOut);
+    if ~isempty(options.Branch) && ~strcmpi(currentBranch, options.Branch)
+        fprintf('[%s] Switching %s to branch: %s...\n', funcId, repoName, options.Branch);
+        system(sprintf('git -C "%s" switch %s', repoPath, options.Branch));
     end
 else
-    % Common errors: No internet, merge conflicts, or uncommitted changes
-    warning('%s repository failed to update:\n%s',repoName,cmdOut);
+    error([funcId, ':GitError'], '[%s] Could not determine branch for %s.', funcId, repoName);
 end
 
-% 4. Bring back stashed changes (if applicable)
-system(sprintf('git -C "%s" stash pop', repoPath));
+% Pull updates
+fprintf('[%s] Updating %s...\n', funcId, repoName);
+[status, pullOut] = system(sprintf('git -C "%s" pull', repoPath));
+
+% --- 4. Restore Stashed Changes ---
+
+[sStash, stashOut] = system(sprintf('git -C "%s" stash pop', repoPath));
+if sStash ~= 0 && ~contains(stashOut, 'No stash entries found')
+    warning([funcId, ':StashConflict'], '[%s] Merge conflict in %s while restoring stashed changes.', funcId, repoName);
+end
+
+% --- 5. Path Management & Reporting ---
+
+if status == 0
+    % Ensure the updated code is on the MATLAB path
+    fprintf('[%s] Updating MATLAB path for %s...\n', funcId, repoName);
+    addpath(genpath(repoPath));
+    
+    saveStatus = savepath;
+    if saveStatus ~= 0
+        warning([funcId, ':SavePathFailed'], '[%s] Could not save MATLAB path.', funcId);
+    end
+
+    if contains(pullOut, 'Already up to date')
+        fprintf('[%s] %s is current.\n', funcId, repoName);
+    else
+        fprintf('[%s] %s updated successfully.\n', funcId, repoName);
+    end
+else
+    warning([funcId, ':PullFailed'], '[%s] Update failed for %s:\n%s', funcId, repoName, pullOut);
+end
 
 end

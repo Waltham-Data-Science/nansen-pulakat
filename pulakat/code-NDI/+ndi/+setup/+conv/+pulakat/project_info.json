@@ -1,9 +1,5 @@
 {
-  "ProjectName": "pulakat",
-  "CloudDatasetID": "6970e560e9276081687400b6",
-  "SubjectEnumeratedIdentifier": "EMPTY:subject enumerated identifier",
-  "SubjectCageIdentifier": "EMPTY:subject cage identifier",
-  "SubjectTextIdentifier": "EMPTY:subject text identifier",
-  "Treatment": "EMPTY:treatment",
-  "ElectronicFileName": "NCIT:C171191"
+  "name": "pulakat",
+  "cloudDatasetID": "6970e560e9276081687400b6",
+  "URL": "https://github.com/Waltham-Data-Science/nansen-pulakat"
 }
