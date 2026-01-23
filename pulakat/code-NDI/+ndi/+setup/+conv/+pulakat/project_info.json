@@ -24,7 +24,10 @@
      "document": "ontologyTableRow"}
     ],
   "subjectSuffix": "@pulakat-lab.tufts.edu",
-  "subjectIdentifierFields": ["SubjectCageIdentifier","SubjectTextIdentifier"],
+  "subjectIdentifierFields": [
+      "SubjectEnumeratedIdentifier",
+      "SubjectCageIdentifier",
+      "SubjectTextIdentifier"],
   "strains": [
     {"value": "Wistar",
      "speciesOntology": "NCBITaxon:10116",
@@ -37,12 +40,24 @@
     ],
    "dataFileTypes": [
        {"DataTypeName": "experiment metadata file",
-        "contains": ["schedule"]},
+        "contains": ["schedule"],
+        "format": "format:3620",
+        "delete": false,
+        "zip": false},
        {"DataTypeName": "data-independent acquisition (DIA)",
-        "contains": ["DIA"]},
+        "contains": ["DIA"],
+        "format": "format:3620",
+        "delete": false,
+        "zip": false},
        {"DataTypeName": "slide scanner image acquisition",
-        "contains": [".svs"]},
+        "contains": [".svs"],
+        "format": "NCIT:C172214",
+        "delete": false,
+        "zip": false},
        {"DataTypeName": "echocardiogram acquisition",
-        "contains": [".bimg",".pimg",".mxml",".vxml"]}
+        "contains": [".bimg",".pimg",".mxml",".vxml"],
+        "format": "format:3987",
+        "delete": true,
+        "zip": true}
        ]
 }

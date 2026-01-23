@@ -1,4 +1,4 @@
-function [dataTable] = tableFromFile(session,dataFiles)
+function [dataTable] = tableFromFile(session,dataFiles,labName)
 %TABLEFROMFILES Creates a table linking data files to subjects in an NDI session.
 %   This function processes a list of data files, identifies the subjects
 %   associated with each file, and matches them against subjects already present
@@ -20,6 +20,7 @@ function [dataTable] = tableFromFile(session,dataFiles)
 arguments
     session {mustBeA(session,'ndi.session.dir')}
     dataFiles {mustBeText} = ndi.nansen.import.file.select('','GetType','dir');
+    labName {mustBeText} = nansen.getCurrentProject().Name;
 end
 
 % Check that there are data files selected
@@ -27,25 +28,31 @@ if isempty(dataFiles)
     error('ndi.nansen.import.data.tableFromFiles: No file(s) selected.');
 end
 
+% Convert inputs to char arrays for internal processing
+labName = char(labName);
+
+% Get project info
+projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
+projectInfo = jsondecode(fileread(projectFile));
+
 % Get identifying info for each data file
-subjectFileTable = ndi.setup.conv.(['+',labName]).subjectInfoFromFile(dataFiles);
+subjectTable_files = ndi.setup.conv.(labName).subjectInfoFromFile(dataFiles);
 
 % Check required variables
-requiredVariableNames = {'SubjectEnumeratedIdentifier','SubjectCageIdentifier', ...
-    'SubjectTextIdentifier'};
+requiredVariableNames = projectInfo.subjectIdentifierFields;
 for i = 1:numel(requiredVariableNames)
-    if ~ismember(requiredVariableNames{i},subjectFileTable.Properties.VariableNames)
-        subjectFileTable{:,requiredVariableNames{i}} = {''};
+    if ~ismember(requiredVariableNames{i},subjectTable_files.Properties.VariableNames)
+        subjectTable_files{:,requiredVariableNames{i}} = {''};
     end
 end
-subjectFileTable = ndi.fun.table.moveColumnsLeft(subjectFileTable,requiredVariableNames);
+subjectTable_files = ndi.fun.table.moveColumnsLeft(subjectTable_files,requiredVariableNames);
 
 % Get existing subject table from session
 subjectTable_session = ndi.nansen.metatable.subject(session);
 
 % Match data files to subjects
-[indSubjects,numSubjects] = ndi.nansen.import.data.matchData2Subjects( ...
-    subjectFileTable,subjectTable_session);
+[indSubjects,numSubjects] = ndi.nansen.fun.matchTables( ...
+    subjectTable_files,subjectTable_session,'ElectronicFileName');
 
 % Query user to add missing subjects
 if any(numSubjects == 0)
@@ -61,13 +68,13 @@ if any(numSubjects == 0)
     uit = uitable(fig,'Position',[10 10 680 400]);
     skip = 'no';
     while any(numSubjects == 0) & strcmp(skip,'no')
-        uit.Data = unique(subjectFileTable(numSubjects == 0,:),'stable');
+        uit.Data = unique(subjectTable_files(numSubjects == 0,:),'stable');
         figure(fig); uiwait(fig);
         switch fig.UserData
             case 'Import'
                 subjectTable_session = ndi.nansen.import.subjects(session);
                 [indSubjects,numSubjects] = ndi.nansen.import.data.matchData2Subjects( ...
-                    subjectFileTable,subjectTable_session);
+                    subjectTable_files,subjectTable_session);
             case 'Skip'
                 skip = 'yes';
         end
@@ -82,7 +89,7 @@ function buttonCallback(~, fig, choice)
 end
 
 % Return data table with matching subjects
-dataTable = [subjectFileTable(numSubjects == 1,{'ElectronicFileName','DataTypeName'}),...
+dataTable = [subjectTable_files(numSubjects == 1,{'ElectronicFileName','DataTypeName'}),...
     subjectTable_session([indSubjects{numSubjects == 1}],'SubjectDocumentIdentifier')];
 %dataTable_multiple = subjectFileTable(numSubjects > 1,:);
 

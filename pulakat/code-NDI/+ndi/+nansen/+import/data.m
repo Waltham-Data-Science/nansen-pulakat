@@ -1,4 +1,4 @@
-function [dataTable] = data(session,dataPath)
+function [dataTable] = data(session,dataPath,labName)
 %DATA Imports data into an NDI session from a specified data path.
 %   This function identifies new data files in the given path, creates
 %   corresponding data and ontologyLabel documents, and adds them to the
@@ -20,7 +20,17 @@ function [dataTable] = data(session,dataPath)
 arguments
     session {mustBeA(session,{'ndi.session.dir'})}
     dataPath {mustBeText} = '';
+    labName {mustBeText} = nansen.getCurrentProject().Name;
 end
+
+% Convert inputs to char arrays for internal processing
+dataPath = char(dataPath);
+labName = char(labName);
+
+% Get project info
+projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
+projectInfo = jsondecode(fileread(projectFile));
+fileTypes = {projectInfo.dataFileTypes.DataTypeName};
 
 % Retrieve data files
 dataFiles = ndi.nansen.import.file.select(dataPath);
@@ -69,33 +79,23 @@ for i = 1:height(dataFiles_new)
     end
 
     % Define file format and label
+    indFileType = strcmp(fileTypes,dataFiles_new.DataTypeName{i});
     fileName = dataFiles_new.ElectronicFileName{i};
-    filePath = fileName;
-    switch dataFiles_new.DataTypeName{i}
-        case 'experiment metadata file'
-            fileFormat = 'format:3620';
-            fileDelete = 0;
-        case 'data-independent acquisition (DIA)'
-            fileFormat = 'format:3620';
-            fileDelete = 0;
-        case 'slide scanner image acquisition'
-            fileFormat = 'NCIT:C172214';
-            fileDelete = 0;
-        case 'echocardiogram acquisition'
-            fileFormat = 'format:3987';
-            fileDelete = 1;
-            filePath = [fileName,'.zip'];
-            
-            % Zip files in the echo session
-            if ~exist(filePath,'file')
-                zip(filePath, fileName);
-            end
+    fileFormat = projectInfo.dataFileTypes(indFileType).format;
+    fileDelete = projectInfo.dataFileTypes(indFileType).delete;
+    if projectInfo.dataFileTypes(indFileType).zip
+        filePath = [fileName,'.zip'];
+        if ~exist(filePath,'file')
+            zip(filePath, fileName);
+        end
+    else
+        filePath = fileName;
     end
 
     % Get file metadata
     checksum = ndi.fun.file.MD5(filePath);
-    dateCreated = convertTo(ndi.fun.file.dateCreated(filePath),'datenum');
-    dateUpdated = convertTo(ndi.fun.file.dateUpdated(filePath),'datenum');
+    dateCreated = convertTo(ndi.fun.file.dateCreated(fileName),'datenum');
+    dateUpdated = convertTo(ndi.fun.file.dateUpdated(fileName),'datenum');
 
     % Create generic_file document
     generic_file = struct('filename',fileName,'formatOntology',fileFormat, ...

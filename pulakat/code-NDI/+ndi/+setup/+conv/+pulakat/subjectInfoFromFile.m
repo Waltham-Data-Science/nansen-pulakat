@@ -19,6 +19,9 @@ arguments
     dataFiles {mustBeText} = ndi.nansen.import.file.select('','GetType','dir');
 end
 
+% Suppress warning
+warning('off', 'MATLAB:table:ModifiedAndSavedVarnames');
+
 % Get known file types
 scheduleFiles =  dataFiles(contains(dataFiles,'schedule','IgnoreCase',true));
 diaFiles = dataFiles(contains(dataFiles,'DIA'));

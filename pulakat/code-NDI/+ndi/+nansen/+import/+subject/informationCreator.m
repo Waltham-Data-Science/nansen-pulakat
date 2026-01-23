@@ -66,12 +66,12 @@ methods (Access = private, Static)
             indStrain = strcmp(strains,tableRow.Strain);
 
             % Look up ontology information
-            [ontologyName,name,ontologyID,definition,synonyms] = ...
+            [ontologyID,name,~,definition,synonyms] = ...
                 ndi.ontology.lookup(projectInfo.strains(indStrain).speciesOntology);
 
             % Add species information
             species.name = name;
-            species.preferredOntologyIdentifier = [ontologyName,':',ontologyID];
+            species.preferredOntologyIdentifier = ontologyID;
             species.description = definition;
             species.synonym = string(synonyms);
         catch ME
@@ -89,12 +89,12 @@ methods (Access = private, Static)
             indStrain = strcmp(strains,tableRow.Strain);
 
             % Look up ontology information
-            [ontologyName,name,ontologyID,definition,synonyms] = ...
+            [ontologyID,name,~,definition,synonyms] = ...
                 ndi.ontology.lookup(projectInfo.strains(indStrain).strainOntology);
 
             % Add strain information
             strain.name = name;
-            strain.ontologyIdentifier = [ontologyName,':',ontologyID];
+            strain.ontologyIdentifier = ontologyID;
             strain.description = definition;
             strain.synonym = string(synonyms);
             strain.geneticStrainType = projectInfo.strains(indStrain).geneticStrainType;
@@ -110,11 +110,11 @@ methods (Access = private, Static)
         biologicalSex = openminds.controlledterms.BiologicalSex;
         try
             % Look up ontology information
-            [ontologyName,name,ontologyID,definition,synonyms] = ...
+            [ontologyID,name,~,definition,synonyms] = ...
                 ndi.ontology.lookup(['PATO:',lower(tableRow.BiologicalSex{1})]);
             
             biologicalSex.name = name;
-            biologicalSex.preferredOntologyIdentifier = [ontologyName,':',ontologyID];
+            biologicalSex.preferredOntologyIdentifier = ontologyID;
             biologicalSex.description = definition;
             biologicalSex.synonym = string(synonyms);
         catch ME
