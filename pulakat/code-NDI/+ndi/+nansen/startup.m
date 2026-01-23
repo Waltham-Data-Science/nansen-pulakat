@@ -14,7 +14,7 @@ projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json'
 projectInfo = jsondecode(fileread(projectFile));
 
 % 2. Update required repos
-ndi.nansen.sync.repo(projectInfo.URL);
+[~,repoPath] = ndi.nansen.sync.repo(projectInfo.URL);
 ndi.nansen.sync.repo('https://github.com/VervaekeLab/NANSEN','Branch','dev');
 ndi.nansen.sync.repo('https://github.com/openMetadataInitiative/openMINDS_MATLAB');
 ndi.nansen.sync.repo('https://github.com/VH-Lab/NDI-matlab');

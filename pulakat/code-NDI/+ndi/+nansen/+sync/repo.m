@@ -1,4 +1,4 @@
-function [status] = repo(repoReference, options)
+function [status,repoPath] = repo(repoReference, options)
 %REPO Synchronize, update, and add repository to MATLAB path.
 %
 %   STATUS = ndi.nansen.sync.repo(REPOREFERENCE) resolves a repository from 
