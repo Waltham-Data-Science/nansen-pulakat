@@ -85,10 +85,20 @@ dataTable = ndi.fun.table.vstack(dataTables);
 
 % Add subject, session, and dataset info to data table
 if ~isempty(dataTable)
+    subjectVariables = intersect(subjectTable.Properties.VariableNames,...
+        {'SubjectDocumentIdentifier','SubjectLocalIdentifier', ...
+        'SessionName','SessionIdentifier','SessionDocumentIdentifier', ...
+        'SessionPath','DatasetDocumentIdentifier','DatasetIdentifier'});
     dataTable = ndi.fun.table.join({dataTable, ...
-        subjectTable(:,{'SubjectDocumentIdentifier','SubjectLocalIdentifier', ...
-        'SessionName','SessionDocumentIdentifier','SessionPath','DatasetDocumentIdentifier'})});
+        subjectTable(:,subjectVariables)});
+
+    if isa(dataset,'ndi.dataset.dir')
+        statusTable = ndi.nansen.sync.status(dataset);
+        dataTable = join(dataTable,statusTable,'LeftKeys',...
+            'FileDocumentIdentifier','RightKeys','DocumentIdentifier');
+    end
 end
+
 
 end
 

@@ -53,27 +53,6 @@ sessionTable = ndi.nansen.metatable.session(dataset);
 subjectTable = ndi.nansen.metatable.subject(dataset);
 dataTable = ndi.nansen.metatable.file(dataset);
 
-% Add cloud sync status to tables
-statusTable = ndi.nansen.sync.status(dataset);
-if ~isempty(datasetTable)
-    % datasetTable = join(datasetTable,statusTable,'LeftKeys',...
-    %     'DatasetDocumentIdentifier','RightKeys','DocumentIdentifier');
-    datasetTable{:,'Cloud'} = true;
-end
-if ~isempty(sessionTable)
-    % sessionTable = join(sessionTable,statusTable,'LeftKeys',...
-    %     'SessionDocumentIdentifier','RightKeys','DocumentIdentifier');
-    sessionTable{:,'Cloud'} = false;
-end
-if ~isempty(subjectTable)
-    subjectTable = join(subjectTable,statusTable,'LeftKeys',...
-        'SubjectDocumentIdentifier','RightKeys','DocumentIdentifier');
-end
-if ~isempty(dataTable)
-    dataTable = join(dataTable,statusTable,'LeftKeys',...
-        'FileDocumentIdentifier','RightKeys','DocumentIdentifier');
-end
-
 % 6. Load project from nansen project manager
 projectName = projectInfo.name;
 projectPath = fullfile(repoPath,projectName);

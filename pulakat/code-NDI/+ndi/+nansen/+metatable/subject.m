@@ -48,4 +48,10 @@ end
 % Add session info to subject table
 subjectTable = innerjoin(subjectTable,sessionTable);
 
+if isa(dataset,'ndi.dataset.dir')
+    statusTable = ndi.nansen.sync.status(dataset);
+    subjectTable = join(subjectTable,statusTable,'LeftKeys',...
+        'SubjectDocumentIdentifier','RightKeys','DocumentIdentifier');
+end
+
 end

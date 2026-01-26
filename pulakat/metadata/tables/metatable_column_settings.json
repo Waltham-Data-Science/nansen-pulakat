@@ -155,7 +155,7 @@
   {
     "VariableName": "DatasetDocumentIdentifier",
     "ColumnLabel": "DatasetDocumentIdentifier",
-    "ShowColumn": true,
+    "ShowColumn": false,
     "SkipColumn": false,
     "ColumnWidth": 196,
     "IsEditable": false,
