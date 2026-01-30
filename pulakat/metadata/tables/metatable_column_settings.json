@@ -236,7 +236,7 @@
   {
     "VariableName": "DatasetIdentifier",
     "ColumnLabel": "Dataset Identifier",
-    "ShowColumn": true,
+    "ShowColumn": false,
     "SkipColumn": false,
     "ColumnWidth": 100,
     "IsEditable": false,

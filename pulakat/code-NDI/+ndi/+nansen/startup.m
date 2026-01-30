@@ -19,11 +19,7 @@ ndi.nansen.sync.repo('https://github.com/VervaekeLab/NANSEN','Branch','dev');
 ndi.nansen.sync.repo('https://github.com/openMetadataInitiative/openMINDS_MATLAB');
 ndi.nansen.sync.repo('https://github.com/VH-Lab/NDI-matlab');
 
-% 3. Update login token
-setenv('CLOUD_API_ENVIRONMENT','prod');
-ndi.cloud.uilogin(true);
-
-% 4. Download or sync local dataset with NDI Cloud
+% 3. Download or sync local dataset with NDI Cloud
 
 % Define the directory where the dataset is (or will be) stored
 if ~isfolder(dataPath)
@@ -38,22 +34,36 @@ datasetPath = fullfile(dataPath,cloudDatasetID);
 if isfolder(datasetPath)
     % Load if already downloaded and sync with cloud
     dataset = ndi.dataset.dir(datasetPath);
-    ndi.cloud.sync.downloadNew(dataset);
+    try
+        ndi.cloud.sync.downloadNew(dataset);
+    catch
+        % Update login token
+        setenv('CLOUD_API_ENVIRONMENT','prod');
+        ndi.cloud.uilogin(true);
+        ndi.cloud.sync.downloadNew(dataset);
+    end
 else
     % Download from cloud
-    dataset = ndi.cloud.downloadDataset(cloudDatasetID,dataPath);
+    try
+        dataset = ndi.cloud.downloadDataset(cloudDatasetID,dataPath);
+    catch
+        % Update login token
+        setenv('CLOUD_API_ENVIRONMENT','prod');
+        ndi.cloud.uilogin(true);
+        dataset = ndi.cloud.downloadDataset(cloudDatasetID,dataPath);
+    end
 end
 
 % Add to path
 addpath(genpath(datasetPath));
 
-% 5. Generate tables from dataset
+% 4. Generate tables from dataset
 datasetTable = ndi.nansen.metatable.dataset(dataset);
 sessionTable = ndi.nansen.metatable.session(dataset);
 subjectTable = ndi.nansen.metatable.subject(dataset);
 dataTable = ndi.nansen.metatable.file(dataset);
 
-% 6. Load project from nansen project manager
+% 5. Load project from nansen project manager
 projectName = projectInfo.name;
 projectPath = fullfile(repoPath,projectName);
 projectManager = nansen.ProjectManager(); 
@@ -71,7 +81,7 @@ end
 % Ensure the current project is set correctly
 projectManager.changeProject(projectName)
 
-% 7. Add metatables to project and launch nansen viewer
+% 6. Add metatables to project and launch nansen viewer
 
 % Create (or replace) metatables
 ndi.nansen.metatable.add(datasetTable,'Dataset');
