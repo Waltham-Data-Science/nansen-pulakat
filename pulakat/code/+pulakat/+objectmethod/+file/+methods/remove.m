@@ -57,8 +57,8 @@ function varargout = remove(filesObject, varargin)
     end
 
     % Get updated metatable
-    dataset = pulakat.datasetID2Object(filesObject(1).DatasetDocumentIdentifier);
-    dataTable = pulakat.metatable.files(dataset);
+    dataset = ndi.nansen.fun.datasetID2Object(filesObject(1).DatasetIdentifier);
+    dataTable = ndi.nansen.metatable.files(dataset);
     
     % Update nansen viewer
     pulakat.sync.metatable(dataTable,'Files');

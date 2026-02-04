@@ -10,13 +10,13 @@ end
 
 % 1. Read sync index
 syncIndex = ndi.cloud.sync.internal.index.readSyncIndex(dataset);
-if isempty(syncIndex) || isempty(syncIndex.localDocumentIdsLastSync)
-    localIdsLastSync = strings(0,1); % Ensure it's an empty string array for setdiff
+if isempty(syncIndex) || isempty(syncIndex.remoteDocumentIdsLastSync)
+    remoteIdsLastSync = strings(0,1); % Ensure it's an empty string array for setdiff
 else
-    localIdsLastSync = string(syncIndex.localDocumentIdsLastSync); % Ensure string array
+    remoteIdsLastSync = string(syncIndex.remoteDocumentIdsLastSync); % Ensure string array
 end
 if options.Verbose
-    fprintf('Read sync index. Last sync recorded %d local documents.\n', numel(localIdsLastSync));
+    fprintf('Read sync index. Last sync recorded %d remote documents.\n', numel(remoteIdsLastSync));
 end
 
 % 2. Get current local state
@@ -26,15 +26,15 @@ if options.Verbose
 end
 
 % 3. Calculate differences: documents added locally since last sync
-[ndiIdsToUpload, ~] = setdiff(localDocumentIds, localIdsLastSync, 'stable');
+[ndiIdsToUpload, ~] = setdiff(localDocumentIds, remoteIdsLastSync, 'stable');
 if options.Verbose
     fprintf('Found %d documents added locally since last sync.\n', numel(ndiIdsToUpload));
 end
 
 % 4. Create status table
-DocumentIdentifier = [cellstr(localIdsLastSync);cellstr(ndiIdsToUpload)'];
+DocumentIdentifier = [cellstr(remoteIdsLastSync);cellstr(ndiIdsToUpload)'];
 Cloud = false(size(DocumentIdentifier));
-Cloud(1:numel(localIdsLastSync)) = true;
+Cloud(1:numel(remoteIdsLastSync)) = true;
 statusTable = table(DocumentIdentifier,Cloud);
 
 end

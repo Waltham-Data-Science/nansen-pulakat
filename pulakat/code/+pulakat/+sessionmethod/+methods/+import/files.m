@@ -53,7 +53,7 @@ function varargout = files(sessionObject, varargin)
     dataTable = ndi.nansen.metatable.files(session);
 
     % Add cloud status to subject table
-    dataset = ndi.nansen.datasetID2Object(sessionObject.DatasetDocumentIdentifier);
+    dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
     statusTable = ndi.nansen.sync.status(dataset);
     dataTable = join(dataTable,statusTable,'LeftKeys',...
         'FileDocumentIdentifier','RightKeys','DocumentIdentifier');
