@@ -15,39 +15,61 @@ if status ~= 0
     error('Git is not installed or not in your system path. Please install Git first.');
 end
 
-% 3. Install nansen-pulakat
-pulakatURL = 'https://github.com/Waltham-Data-Science/nansen-pulakat';
-ndi.nansen.sync.repo(pulakatURL,'ClonePath',codePath,'Branch','main');
+% 3. Check for repo sync function
+if ~isempty(which('ndi.nansen.sync.repo'))
+    repoSync = @ndi.nansen.sync.repo;
+    fprintf('Using existing synchronization tools...\n');
+else
+    fprintf('Sync tools not found. Downloading bootstrap helper...\n');
+    
+    syncUrl = 'https://raw.githubusercontent.com/Waltham-Data-Science/nansen-pulakat/main/pulakat/code-NDI/%2Bndi/%2Bnansen/%2Bsync/repo.m';
+    tempSyncFolder = fullfile(tempdir, 'ndi_sync_bootstrap');
+    if ~exist(tempSyncFolder, 'dir'); mkdir(tempSyncFolder); end
+    
+    bootstrapFile = fullfile(tempSyncFolder, 'repo.m');
+    websave(bootstrapFile, syncUrl);
+    
+    addpath(tempSyncFolder);
+    repoSync = @repo;
+end
 
-% 4. Install NANSEN
+% 4. Install nansen-pulakat
+pulakatURL = 'https://github.com/Waltham-Data-Science/nansen-pulakat';
+repoSync(pulakatURL,'ClonePath',codePath,'Branch','main');
+
+% 5. Install NANSEN
 nansenURL = 'https://github.com/VervaekeLab/NANSEN';
-ndi.nansen.sync.repo(nansenURL,'ClonePath',codePath,'Branch','dev');
+repoSync(nansenURL,'ClonePath',codePath,'Branch','dev');
 nansen_install;
 
-% 5. Install openMINDS
+% 6. Install openMINDS
 openMindsURL = 'https://github.com/openMetadataInitiative/openMINDS_MATLAB';
-ndi.nansen.sync.repo(openMindsURL,'ClonePath',codePath);
-run(fullfile('openMINDS_MATLAB', 'code', 'setup.m'));
+[~,openMindsRepoPath] = repoSync(openMindsURL,'ClonePath',codePath);
+run(fullfile(openMindsRepoPath, 'code', 'setup.m'));
 
-% 6. Install NDI-Matlab
-fprintf('Cloning or updating %s repository and its dependencies from GitHub.\n','NDI-matlab');
-ndiInstallFile = fullfile(codePath,'ndi_install.m');
-websave(ndiInstallFile, 'https://raw.githubusercontent.com/VH-Lab/NDI-matlab/main/ndi_install.m'); 
-ndi_install(codePath);
-fprintf('Successfully cloned/updated %s.\n','NDI-matlab')
-delete(ndiInstallFile);
+% 7. Install NDI-Matlab
+ndiURL = 'https://github.com/VH-Lab/NDI-matlab';
+[~,ndiRepoPath] = repoSync(ndiURL,'ClonePath',codePath);
+ndi_install(fileparts(ndiRepoPath));
 
-% 7. Set up MATLAB Paths
+% 8. Set up MATLAB Paths
 addpath(genpath(codePath));
 savepath; % Saves the path for future sessions
 
 fprintf('--- Installation Successful! ---\n');
 
-% 8. Delete this function (if not part of the repository)
+% 9. Delete this function (if not part of the repository)
 cmd = sprintf('git -C "%s" rev-parse --show-toplevel', downloadDir);
 [status,~] = system(cmd);
 if status ~= 0
     delete([mfilename('fullpath'), '.m']);
+end
+
+% 10. Delete temporary folder (if applicable)
+if exist('tempSyncFolder', 'var') && isfolder(tempSyncFolder)
+    clear repoSync;
+    rmpath(tempSyncFolder);
+    rmdir(tempSyncFolder,'s');
 end
 
 end
