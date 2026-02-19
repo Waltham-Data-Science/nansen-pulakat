@@ -50,7 +50,7 @@ function varargout = files(sessionObject, varargin)
 
     % Add files to session
     ndi.nansen.import.data(session);
-    dataTable = ndi.nansen.metatable.files(session);
+    dataTable = ndi.nansen.metatable.file(session);
 
     % Add cloud status to subject table
     dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);

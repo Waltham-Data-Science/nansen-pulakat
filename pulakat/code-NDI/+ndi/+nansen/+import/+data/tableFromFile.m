@@ -72,8 +72,8 @@ if any(numSubjects == 0)
         figure(fig); uiwait(fig);
         switch fig.UserData
             case 'Import'
-                subjectTable_session = ndi.nansen.import.subjects(session);
-                [indSubjects,numSubjects] = ndi.nansen.import.data.matchData2Subjects( ...
+                subjectTable_session = ndi.nansen.import.subject(session);
+                [indSubjects,numSubjects] = ndi.nansen.fun.matchTables( ...
                     subjectTable_files,subjectTable_session);
             case 'Skip'
                 skip = 'yes';

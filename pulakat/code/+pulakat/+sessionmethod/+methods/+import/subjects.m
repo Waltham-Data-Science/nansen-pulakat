@@ -62,8 +62,8 @@ function varargout = subjects(sessionObject, varargin)
     ndi.nansen.metatable.add(subjectTable,'Subject');
 
     % Update session metatable with subject summary metadata
-    sessionTable = ndi.nansen.metatable.session(session); % this session only
-    % FIX LATER
+    sessionTable = ndi.nansen.metatable.session(dataset);
+    ndi.nansen.metatable.add(sessionTable,'Session');
     
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionObject}; end

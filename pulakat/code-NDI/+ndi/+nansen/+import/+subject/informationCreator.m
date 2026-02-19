@@ -42,7 +42,7 @@ methods
         projectInfo = jsondecode(fileread(projectFile));
 
         % --- Validate required columns ---
-        requiredVariableNames = struct2cell(projectInfo.subjectFileColumns);
+        requiredVariableNames = {projectInfo.subjectFileColumns.name};
         if ~all(ismember(requiredVariableNames, tableRow.Properties.VariableNames))
             error('ndi:validators:MissingRequiredColumns',...
                 'The tableRow is missing one or more required columns for the Pulakat subject creator.');

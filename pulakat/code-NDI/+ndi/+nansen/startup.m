@@ -66,7 +66,7 @@ dataTable = ndi.nansen.metatable.file(dataset);
 % 5. Load project from nansen project manager
 projectName = projectInfo.name;
 projectPath = fullfile(repoPath,projectName);
-projectManager = nansen.ProjectManager(); 
+projectManager = nansen.ProjectManager; 
 
 % Import the project from the repo if that hasn't already been done
 if ~projectManager.containsProject(projectName)
@@ -79,7 +79,10 @@ if ~strcmp(projectPath,projectManager.getProjectPath(projectName))
 end
 
 % Ensure the current project is set correctly
-projectManager.changeProject(projectName)
+project = projectManager.getCurrentProject;
+if ~strcmp(project.Name,projectName)
+    projectManager.changeProject(projectName)
+end
 
 % 6. Add metatables to project and launch nansen viewer
 
