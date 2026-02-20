@@ -1,5 +1,5 @@
-function varargout = export(sessionsObject, varargin)
-%EXPORT Summary of this function goes here
+function varargout = subjects(subjectObject, varargin)
+%SUBJECTS Summary of this function goes here
 %   Detailed explanation goes here
 
 % % % % % % % % % % % % % % % INSTRUCTIONS % % % % % % % % % % % % % % %
@@ -9,7 +9,7 @@ function varargout = export(sessionsObject, varargin)
 %      defined in the local function getDefaultParameters at the bottom of
 %      this script.
 %   2) Scroll down to the custom code block below and write code to do
-%   operations on the sessionsObjects and it's data.
+%   operations on the subjectObjects and it's data.
 %   3) Add documentation (summary and explanation) for the session method
 %      above. PS: Don't change the function definition (inputs/outputs)
 %
@@ -45,9 +45,8 @@ function varargout = export(sessionsObject, varargin)
 % % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
 % Implementation of the method : Add your code here:
     
-    disp('Awaiting ndi.cloud.api.getDocument')
     % Return session object (please do not remove):
-    % if nargout; varargout = {sessionsObject}; end
+    % if nargout; varargout = {subjectObject}; end
 end
 
 function params = getDefaultParameters()

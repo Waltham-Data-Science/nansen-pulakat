@@ -1,5 +1,5 @@
-function varargout = sync(datasetObject, varargin)
-%SYNC Summary of this function goes here
+function varargout = files(sessionObject, varargin)
+%FILES Summary of this function goes here
 %   Detailed explanation goes here
 
 % % % % % % % % % % % % % % % INSTRUCTIONS % % % % % % % % % % % % % % %
@@ -9,7 +9,7 @@ function varargout = sync(datasetObject, varargin)
 %      defined in the local function getDefaultParameters at the bottom of
 %      this script.
 %   2) Scroll down to the custom code block below and write code to do
-%   operations on the datasetsObjects and it's data.
+%   operations on the sessionObjects and it's data.
 %   3) Add documentation (summary and explanation) for the session method
 %      above. PS: Don't change the function definition (inputs/outputs)
 %
@@ -45,27 +45,31 @@ function varargout = sync(datasetObject, varargin)
 % % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
 % Implementation of the method : Add your code here:
 
-    % Get dataset object
-    dataset = ndi.dataset.dir(datasetObject.DatasetPath);
+    % Get dataset and session objects
+    dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
+    session = ndi.session.dir(sessionObject.SessionPath);
 
-    % Sync dataset to cloud
-    success = ndi.cloud.sync.twoWaySync(dataset);
-    if ~success
-        warning('Error encountered syncing dataset to cloud. Try logging in again.')
-        ndi.cloud.uilogin(true);
-        [success,errorMessage] = ndi.cloud.sync.twoWaySync(dataset);
-        if ~success
-            error('Could not sync dataset to cloud: %s',errorMessage);
-        end
+    % Choose folder for download
+    userDir = getenv('USERPROFILE'); % Windows
+    if isempty(userDir)
+        userDir = getenv('HOME'); % Mac/Linux
     end
+    downloadsDir = fullfile(userDir, 'Downloads');
+    downloadFolder = uigetdir(downloadsDir,'Select directory for download.');
+    dateString = string(datetime('now','Format','yyyyMMdd_HHmmss'));
+    exportFolder = fullfile(downloadFolder,['export_',dateString]);
 
-    % Update metatable
-    datasetTable = ndi.nansen.metatable.dataset(dataset);
-    ndi.nansen.metatable.remove(datasetTable,'Dataset');
-    ndi.nansen.metatable.add(datasetTable,'Dataset');
+    % Get generic file document ids in this session
+    query = ndi.query('','isa','generic_file');
+    documents = session.database_search(query);
+    documentIDs = ndi.docs.docfun(@id,documents);
+    
+    % Download files
+    ndi.cloud.download.downloadGenericFiles(dataset,...
+        documentIDs,exportFolder);
     
     % Return session object (please do not remove):
-    % if nargout; varargout = {datasetsObject}; end
+    % if nargout; varargout = {sessionObject}; end
 end
 
 function params = getDefaultParameters()

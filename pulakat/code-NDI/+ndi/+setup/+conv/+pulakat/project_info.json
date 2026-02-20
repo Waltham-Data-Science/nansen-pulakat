@@ -41,12 +41,12 @@
    "dataFileTypes": [
        {"DataTypeName": "experiment metadata file",
         "contains": ["schedule"],
-        "format": "format:3620",
+        "format": "EDAM:3620",
         "delete": false,
         "zip": false},
        {"DataTypeName": "data-independent acquisition (DIA)",
         "contains": ["DIA"],
-        "format": "format:3620",
+        "format": "EDAM:3620",
         "delete": false,
         "zip": false},
        {"DataTypeName": "slide scanner image acquisition",
@@ -56,7 +56,7 @@
         "zip": false},
        {"DataTypeName": "echocardiogram acquisition",
         "contains": [".bimg",".pimg",".mxml",".vxml"],
-        "format": "format:3987",
+        "format": "EDAM:3987",
         "delete": true,
         "zip": true}
        ]
