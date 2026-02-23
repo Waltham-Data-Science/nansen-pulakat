@@ -49,7 +49,7 @@ function varargout = sync(datasetObject, varargin)
     dataset = ndi.dataset.dir(datasetObject.DatasetPath);
 
     % Sync dataset to cloud
-    success = ndi.cloud.sync.twoWaySync(dataset);
+    success = ndi.cloud.sync.uploadNew(dataset);
     if ~success
         warning('Error encountered syncing dataset to cloud. Try logging in again.')
         ndi.cloud.uilogin(true);
