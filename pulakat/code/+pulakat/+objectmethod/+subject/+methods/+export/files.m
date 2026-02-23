@@ -70,8 +70,8 @@ function varargout = files(subjectObject, varargin)
 
     % Download files
     documentIDs = unique(exportTable.FileDocumentIdentifier);
-    ndi.cloud.download.downloadGenericFiles(dataset,...
-        documentIDs,exportFolder);
+    ndi.cloud.download.downloadGenericFiles(dataset,documentIDs,...
+        exportFolder,'NamingStrategy','id');
     
     % Open export folder on computer
     if ispc
