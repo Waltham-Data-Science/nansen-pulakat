@@ -1,5 +1,5 @@
-function varargout = subjects(subjectObject, varargin)
-%SUBJECTS Summary of this function goes here
+function varargout = metadata(sessionObject, varargin)
+%METADATA Summary of this function goes here
 %   Detailed explanation goes here
 
 % % % % % % % % % % % % % % % INSTRUCTIONS % % % % % % % % % % % % % % %
@@ -9,7 +9,7 @@ function varargout = subjects(subjectObject, varargin)
 %      defined in the local function getDefaultParameters at the bottom of
 %      this script.
 %   2) Scroll down to the custom code block below and write code to do
-%   operations on the subjectObjects and it's data.
+%   operations on the sessionObjects and it's data.
 %   3) Add documentation (summary and explanation) for the session method
 %      above. PS: Don't change the function definition (inputs/outputs)
 %
@@ -26,7 +26,7 @@ function varargout = subjects(subjectObject, varargin)
     params = getDefaultParameters();
     
     % Create a cell array with attribute keywords
-    ATTRIBUTES = {'batch', 'queueable'};
+    ATTRIBUTES = {'serial', 'queueable'};
     
 % % % % % % % % % % % % % DEFAULT CODE BLOCK % % % % % % % % % % % % % %
 % - - - - - - - - - - Please do not edit this part - - - - - - - - - - -
@@ -44,9 +44,33 @@ function varargout = subjects(subjectObject, varargin)
     
 % % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
 % Implementation of the method : Add your code here:
+
+    % Choose download folder
+    downloadsDir = fullfile(userDir, 'Downloads');
+    downloadFolder = uigetdir(downloadsDir,'Select directory for download.');
+    dateString = char(datetime('now','Format','yyyyMMdd_HHmmss'));
+    exportFolder = fullfile(downloadFolder,['export_',dateString]);
+    mkdir(exportFolder);
+
+    % Download metadata table
+    project = nansen.getCurrentProject;
+    fileTable = project.MetaTableCatalog.getMetaTable('File');
+    subjectTable = project.MetaTableCatalog.getMetaTable('Subject');
+    fileTable = fileTable.entries;
+    subjectTable = subjectTable.entries;
+    indFiles = ndi.fun.table.identifyMatchingRows(fileTable, ...
+        'SessionIdentifier',sessionObject.SessionIdentifier);
+    indSubjects = ndi.fun.table.identifyMatchingRows(subjectTable, ...
+        'SessionIdentifier',sessionObject.SessionIdentifier);
+    exportTable = join(fileTable(indFiles,:),subjectTable(indSubjects,:),...
+        'Keys',{'SubjectDocumentIdentifier'},...
+        'KeepOneCopy',{'ElectronicFileName','SessionDocumentIdentifier',...
+        'SessionIdentifier','SessionName','DatasetDocumentIdentifier',...
+        'DatasetIdentifier','SessionPath','SubjectLocalIdentifier','Cloud'});
+    writetable(exportTable,fullfile(exportFolder,'metadata.csv'));
     
     % Return session object (please do not remove):
-    % if nargout; varargout = {subjectObject}; end
+    % if nargout; varargout = {sessionObject}; end
 end
 
 function params = getDefaultParameters()

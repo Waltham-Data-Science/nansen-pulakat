@@ -1,5 +1,5 @@
-function varargout = files(subjectObject, varargin)
-%FILES Summary of this function goes here
+function varargout = metadata(subjectObject, varargin)
+%METADATA Summary of this function goes here
 %   Detailed explanation goes here
 
 % % % % % % % % % % % % % % % INSTRUCTIONS % % % % % % % % % % % % % % %
@@ -26,7 +26,7 @@ function varargout = files(subjectObject, varargin)
     params = getDefaultParameters();
     
     % Create a cell array with attribute keywords
-    ATTRIBUTES = {'batch', 'queueable'};
+    ATTRIBUTES = {'batch', 'unqueueable'};
     
 % % % % % % % % % % % % % DEFAULT CODE BLOCK % % % % % % % % % % % % % %
 % - - - - - - - - - - Please do not edit this part - - - - - - - - - - -
@@ -61,25 +61,16 @@ function varargout = files(subjectObject, varargin)
 
     % Download metadata table
     exportTable = ndi.nansen.export.metadata('SubjectDocumentIdentifier',...
-        {subjectObject.SubjectDocumentIdentifier});
+        {subjectObject.SubjectDocumentIdentifier},'SubjectOnly',true);
     writetable(exportTable,fullfile(exportFolder,'metadata.csv'));
-    
-    % Get dataset and session objects
-    datasetID = unique({subjectObject.DatasetIdentifier});
-    dataset = ndi.nansen.fun.datasetID2Object(datasetID{1});
 
-    % Download files
-    documentIDs = unique(exportTable.FileDocumentIdentifier);
-    ndi.cloud.download.downloadGenericFiles(dataset,...
-        documentIDs,exportFolder);
-    
     % Open export folder on computer
     if ispc
         winopen(exportFolder);
     else
         system(['open "' exportFolder '"']);
     end
-
+    
     % Return session object (please do not remove):
     % if nargout; varargout = {subjectObject}; end
 end

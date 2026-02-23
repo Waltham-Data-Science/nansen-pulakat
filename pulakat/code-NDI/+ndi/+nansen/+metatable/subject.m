@@ -51,7 +51,8 @@ subjectTable = innerjoin(subjectTable,sessionTable);
 if isa(dataset,'ndi.dataset.dir')
     statusTable = ndi.nansen.sync.status(dataset);
     subjectTable = join(subjectTable,statusTable,'LeftKeys',...
-        'SubjectDocumentIdentifier','RightKeys','DocumentIdentifier');
+        'SubjectDocumentIdentifier','RightKeys','DocumentIdentifier',...
+        'KeepOneCopy','Cloud');
 end
 
 end

@@ -91,6 +91,9 @@ if ~isempty(dataTable)
         'SessionPath','DatasetDocumentIdentifier','DatasetIdentifier'});
     dataTable = ndi.fun.table.join({dataTable, ...
         subjectTable(:,subjectVariables)});
+    dataTable.FileIdentifier = cellfun(@(f,s) [f,'_',s],...
+        dataTable.FileDocumentIdentifier,dataTable.SubjectDocumentIdentifier,...
+        'UniformOutput',false);
 
     if isa(dataset,'ndi.dataset.dir')
         statusTable = ndi.nansen.sync.status(dataset);

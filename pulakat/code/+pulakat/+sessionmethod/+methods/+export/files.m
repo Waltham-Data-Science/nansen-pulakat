@@ -49,24 +49,43 @@ function varargout = files(sessionObject, varargin)
     dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
     session = ndi.session.dir(sessionObject.SessionPath);
 
-    % Choose folder for download
-    userDir = getenv('USERPROFILE'); % Windows
-    if isempty(userDir)
-        userDir = getenv('HOME'); % Mac/Linux
-    end
-    downloadsDir = fullfile(userDir, 'Downloads');
-    downloadFolder = uigetdir(downloadsDir,'Select directory for download.');
-    dateString = string(datetime('now','Format','yyyyMMdd_HHmmss'));
-    exportFolder = fullfile(downloadFolder,['export_',dateString]);
-
     % Get generic file document ids in this session
     query = ndi.query('','isa','generic_file');
     documents = session.database_search(query);
     documentIDs = ndi.docs.docfun(@id,documents);
+
+    % Choose folder for download
+    if ispc
+        userDir = getenv('USERPROFILE'); % Windows
+    else
+        userDir = getenv('HOME'); % Mac/Linux
+    end
+    downloadsDir = fullfile(userDir, 'Downloads');
+    downloadFolder = uigetdir(downloadsDir,'Select directory for download.');
+    dateString = char(datetime('now','Format','yyyyMMdd_HHmmss'));
+    exportFolder = fullfile(downloadFolder,['export_',dateString]);
+    mkdir(exportFolder);
     
     % Download files
     ndi.cloud.download.downloadGenericFiles(dataset,...
         documentIDs,exportFolder);
+
+    % Download metadata table
+    project = nansen.getCurrentProject;
+    fileTable = project.MetaTableCatalog.getMetaTable('File');
+    subjectTable = project.MetaTableCatalog.getMetaTable('Subject');
+    fileTable = fileTable.entries;
+    subjectTable = subjectTable.entries;
+    indFiles = ndi.fun.table.identifyMatchingRows(fileTable, ...
+        'SessionIdentifier',sessionObject.SessionIdentifier);
+    indSubjects = ndi.fun.table.identifyMatchingRows(subjectTable, ...
+        'SessionIdentifier',sessionObject.SessionIdentifier);
+    exportTable = join(fileTable(indFiles,:),subjectTable(indSubjects,:),...
+        'Keys',{'SubjectDocumentIdentifier'},...
+        'KeepOneCopy',{'ElectronicFileName','SessionDocumentIdentifier',...
+        'SessionIdentifier','SessionName','DatasetDocumentIdentifier',...
+        'DatasetIdentifier','SessionPath','SubjectLocalIdentifier','Cloud'});
+    writetable(exportTable,fullfile(exportFolder,'metadata.csv'));
     
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionObject}; end
