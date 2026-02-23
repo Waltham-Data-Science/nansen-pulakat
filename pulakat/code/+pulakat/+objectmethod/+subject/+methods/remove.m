@@ -1,35 +1,23 @@
 function varargout = remove(subjectsObject, varargin)
-%REMOVE Summary of this function goes here
-%   Detailed explanation goes here
-
-% % % % % % % % % % % % % % % INSTRUCTIONS % % % % % % % % % % % % % % %
-% - - - - - - - - - - You can remove this part - - - - - - - - - - -
-% Instructions on how to use this template:
-%   1) If the session method should have parameters, these should be
-%      defined in the local function getDefaultParameters at the bottom of
-%      this script.
-%   2) Scroll down to the custom code block below and write code to do
-%   operations on the subjectsObjects and it's data.
-%   3) Add documentation (summary and explanation) for the session method
-%      above. PS: Don't change the function definition (inputs/outputs)
+%REMOVE Deletes local subjects and removes them from the metatable.
 %
-%   For examples: Press e on the keyboard while browsing the session
-%   methods. (e) should appear after the name in the menu, and when you
-%   select a session method, the m-file will open.
+%   This object method checks if subjects are synchronized to the cloud.
+%   If they are not, it deletes them from their respective NDI sessions
+%   and removes their entries from the subject metatable.
+%
+%   Inputs:
+%       subjectsObject (struct): A structure or array of structures
+%           representing subjects.
+%       varargin: Optional name-value pairs for parameters.
+%
+%   Outputs:
+%       varargout: If called without inputs, returns the method's attributes.
 
-% % % % % % % % % % % % CONFIGURATION CODE BLOCK % % % % % % % % % % % %
-% Create a struct of default parameters (if applicable) and specify one or
-% more attributes (see nansen.session.SessionMethod.setAttributes) for
-% details.
-    
     % Get struct of parameters from local function
     params = getDefaultParameters();
     
     % Create a cell array with attribute keywords
     ATTRIBUTES = {'batch', 'queueable'};
-    
-% % % % % % % % % % % % % DEFAULT CODE BLOCK % % % % % % % % % % % % % %
-% - - - - - - - - - - Please do not edit this part - - - - - - - - - - -
     
     % Create a struct with "attributes" using a predefined pattern
     import nansen.session.SessionMethod
@@ -42,8 +30,7 @@ function varargout = remove(subjectsObject, varargin)
     % Parse name-value pairs from function input and update parameters
     params = utility.parsenvpairs(params, [], varargin);
     
-% % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
-% Implementation of the method : Add your code here:
+    % --- Implementation of the method ---
 
     % Convert subject object to table
     subjectTable = struct2table(subjectsObject);
@@ -68,7 +55,7 @@ function varargout = remove(subjectsObject, varargin)
     end
 
     % Remove subject(s) from metatable
-    ndi.nansen.metatable.remove(subjectTable,'Subjects');
+    ndi.nansen.metatable.remove(subjectTable,'Subject');
 
     % Return session object (please do not remove):
     % if nargout; varargout = {subjectsObject}; end

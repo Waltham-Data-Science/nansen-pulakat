@@ -1,35 +1,23 @@
 function varargout = remove(filesObject, varargin)
-%REMOVE Summary of this function goes here
-%   Detailed explanation goes here
-
-% % % % % % % % % % % % % % % INSTRUCTIONS % % % % % % % % % % % % % % %
-% - - - - - - - - - - You can remove this part - - - - - - - - - - -
-% Instructions on how to use this template:
-%   1) If the session method should have parameters, these should be
-%      defined in the local function getDefaultParameters at the bottom of
-%      this script.
-%   2) Scroll down to the custom code block below and write code to do
-%   operations on the filesObjects and it's data.
-%   3) Add documentation (summary and explanation) for the session method
-%      above. PS: Don't change the function definition (inputs/outputs)
+%REMOVE Deletes local files and removes them from the metatable.
 %
-%   For examples: Press e on the keyboard while browsing the session
-%   methods. (e) should appear after the name in the menu, and when you
-%   select a session method, the m-file will open.
+%   This object method checks if files are synchronized to the cloud.
+%   If they are not, it deletes them from their respective NDI sessions
+%   and removes their entries from the file metatable.
+%
+%   Inputs:
+%       filesObject (struct): A structure or array of structures
+%           representing files.
+%       varargin: Optional name-value pairs for parameters.
+%
+%   Outputs:
+%       varargout: If called without inputs, returns the method's attributes.
 
-% % % % % % % % % % % % CONFIGURATION CODE BLOCK % % % % % % % % % % % %
-% Create a struct of default parameters (if applicable) and specify one or
-% more attributes (see nansen.session.SessionMethod.setAttributes) for
-% details.
-    
     % Get struct of parameters from local function
     params = getDefaultParameters();
     
     % Create a cell array with attribute keywords
     ATTRIBUTES = {'batch', 'queueable'};
-    
-% % % % % % % % % % % % % DEFAULT CODE BLOCK % % % % % % % % % % % % % %
-% - - - - - - - - - - Please do not edit this part - - - - - - - - - - -
     
     % Create a struct with "attributes" using a predefined pattern
     import nansen.session.SessionMethod
@@ -42,30 +30,49 @@ function varargout = remove(filesObject, varargin)
     % Parse name-value pairs from function input and update parameters
     params = utility.parsenvpairs(params, [], varargin);
     
-% % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
-% Implementation of the method : Add your code here:
+    % --- Implementation of the method ---
 
-    % Get unique session paths
-    [sessionPaths,~,indPath] = unique({filesObject.SessionPath});
+    % Convert files object to table
+    fileTable = struct2table(filesObject);
+
+    % Check the file status
+    if all(fileTable.Cloud)
+        error('Files that are already synced to the cloud cannot be deleted.')
+    elseif any(fileTable.Cloud)
+        warning('Only files that not already synced to the cloud were deleted.')
+        fileTable(fileTable.Cloud,:) = []; % remove cloud files from table
+    end
+
+    % Get unique sessions
+    [sessionPaths,~,ind] = unique(fileTable.SessionPath,'stable');
     for i = 1:numel(sessionPaths)
 
         % Get session object
         session = ndi.session.dir(sessionPaths{i});
 
-        % Permanently remove documents from database
-        session.database_rm(filesObject(indPath == i).FileDocumentIdentifier);
+        % Delete file document(s) from session
+        % Also delete the file on disk if it exists
+        fileIDs = fileTable.FileDocumentIdentifier(ind == i);
+        for j = 1:numel(fileIDs)
+            doc = session.database_search(ndi.query('','isa','generic_file') & ...
+                ndi.query('base.id','exact_string',fileIDs{j}));
+            if ~isempty(doc)
+                % Delete associated ontologyLabel as well
+                labelDoc = session.database_search(ndi.query('','isa','ontologyLabel') & ...
+                    ndi.query('depends_on.value','exact_string',fileIDs{j}));
+                if ~isempty(labelDoc)
+                    session.database_rm(labelDoc{1}.id);
+                end
+
+                % Delete generic_file doc and file on disk
+                session.database_rm(doc{1}.id);
+            end
+        end
     end
 
-    % Get updated metatable
-    dataset = ndi.nansen.fun.datasetID2Object(filesObject(1).DatasetIdentifier);
-    dataTable = ndi.nansen.metatable.files(dataset);
-    
-    % Update nansen viewer
-    pulakat.sync.metatable(dataTable,'Files');
+    % Remove file(s) from metatable
+    ndi.nansen.metatable.remove(fileTable,'File');
 
-    % Sync dataset to cloud
-    % ndi.cloud.sync(dataset)
-    
     % Return session object (please do not remove):
     % if nargout; varargout = {filesObject}; end
 end

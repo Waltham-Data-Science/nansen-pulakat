@@ -1,6 +1,18 @@
-function [statusTable] = status(dataset,options)
-%STATUS Summary of this function goes here
-%   Detailed explanation goes here
+function [statusTable] = status(dataset, options)
+%STATUS Compiles a table of document cloud synchronization status.
+%
+%   This function compares the local documents in an NDI dataset with its
+%   sync index to determine which documents have been uploaded to the
+%   cloud and which are pending.
+%
+%   Inputs:
+%       dataset (ndi.dataset.dir): The NDI dataset object.
+%       options.Verbose (logical): Optional. Whether to print status
+%           messages. Defaults to false.
+%
+%   Outputs:
+%       statusTable (table): A table containing document identifiers and
+%           their cloud status (true if on cloud, false otherwise).
 
 % Input argument validation
 arguments

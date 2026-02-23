@@ -1,19 +1,20 @@
-function [subjectTable] = subject(session,subjectTable,options)
-%SUBJECTS Imports subjects into an NDI session from a specified data path.
-%   This function identifies new subjects from 'animal_mapping' files,
-%   creates corresponding subject documents, and adds them to the
-%   NDI session's database.
+function [subjectTable] = subject(session, subjectTable, options)
+%SUBJECT Edits subject metadata in an NDI session.
+%
+%   This function allows the user to interactively edit metadata for a
+%   subject in an NDI session and updates the corresponding NDI documents
+%   and Nansen metatables.
 %
 %   Inputs:
-%       session (ndi.session.dir): The NDI session object where the 
-%           subjects will be imported.
-%       dataPath (char or string): Optional. The path to the directory 
-%           containing the subject files. If not provided, the function 
-%           will look for files in the current directory.
+%       session (ndi.session.dir): The NDI session object.
+%       subjectTable (table): A table containing the subject's metadata.
+%       options.EditableVariables (cell array): Optional. A list of
+%           variables that can be edited.
+%       options.Project (nansen.config.project.Project): Optional. The
+%           Nansen project object.
 %
 %   Outputs:
-%       subjectTable (table): An updated table containing information about
-%           all subjects in the session, including the newly imported subjects.
+%       subjectTable (table): The updated subject metadata table.
 
 % Input argument validation
 arguments
@@ -44,19 +45,28 @@ editableNames = cellfun(@(x) columnMap(x),editableVariables,'UniformOutput',fals
 answer = inputdlg(editableNames,'Subject Metadata',repmat([1 45],numel(editableNames),1),...
     subjectTable{1,editableVariables});
 
+if isempty(answer); return; end
+subjectTable{1,editableVariables} = answer';
+
+% Get project info
+labName = options.Project.Name;
+projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
+projectInfo = jsondecode(fileread(projectFile));
+
 % Create subjectMaker and tableDocMaker
 subjectMaker = ndi.setup.NDIMaker.subjectMaker();
-subjectCreator = run(ndi.setup.conv.(options.Project.Name).informationCreator);
-tableDocMaker = ndi.setup.NDIMaker.tableDocMaker(session,options.Project.Name);
+subjectCreator = ndi.nansen.import.subject.informationCreator();
+tableDocMaker = ndi.setup.NDIMaker.tableDocMaker(session,labName);
 
 % Create subject documents (and add to session)
 [~,subjectTable.SubjectLocalIdentifier,subjectTable.SubjectDocumentIdentifier] = ...
     subjectMaker.addSubjectsFromTable(session,subjectTable,subjectCreator);
 
 % Create ontologyTableRow documents (and add to session)
+ind = strcmp({projectInfo.subjectFileColumns.document},'ontologyTableRow');
 tableRowVariables = ['SubjectLocalIdentifier','SubjectDocumentIdentifier',...
-    subjectIdentifiers,'Treatment','ElectronicFileName'];
-tableDocMaker.table2ontologyTableRowDocs(subjectTable_new(:,tableRowVariables), ...
+    {projectInfo.subjectFileColumns(ind).name},'ElectronicFileName'];
+tableDocMaker.table2ontologyTableRowDocs(subjectTable(:,tableRowVariables), ...
         {'SubjectDocumentIdentifier'});
 
 % Return updated subject table

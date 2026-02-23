@@ -1,5 +1,6 @@
-function [dataTable] = data(session,dataPath,labName)
+function [dataTable] = data(session, dataPath, labName)
 %DATA Imports data into an NDI session from a specified data path.
+%
 %   This function identifies new data files in the given path, creates
 %   corresponding data and ontologyLabel documents, and adds them to the
 %   NDI session's database. It handles different data types and associates
@@ -9,8 +10,9 @@ function [dataTable] = data(session,dataPath,labName)
 %       session (ndi.session.dir): The NDI session object where the data 
 %           will be imported.
 %       dataPath (char or string): Optional. The path to the directory 
-%           containing the data files. If not provided, the function will 
-%           look for files in the current directory.
+%           containing the data files. Defaults to the current directory.
+%       labName (char or string): Optional. The name of the lab. Defaults
+%           to the current project name.
 %
 %   Outputs:
 %       dataTable (table): An updated table containing information about 

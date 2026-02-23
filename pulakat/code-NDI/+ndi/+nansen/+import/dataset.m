@@ -1,5 +1,19 @@
-function [dataset,cloudDatasetID] = dataset(datasetName,dataPath,cloud)
-%SETUP Summary of this function goes here
+function [dataset, cloudDatasetID] = dataset(datasetName, dataPath, cloud)
+%DATASET Creates a new NDI dataset and optionally uploads it to the cloud.
+%
+%   This function creates a new NDI dataset in the specified directory
+%   and can automatically upload it to the NDI cloud.
+%
+%   Inputs:
+%       datasetName (char or string): The name of the new dataset.
+%       dataPath (char or string): Optional. The local path where the
+%           dataset directory will be created. Defaults to '~/ndi/data'.
+%       cloud (logical): Optional. Whether to automatically upload the
+%           dataset to the cloud. Defaults to true.
+%
+%   Outputs:
+%       dataset (ndi.dataset.dir): The newly created NDI dataset object.
+%       cloudDatasetID (char): The unique cloud identifier for the dataset.
 
 % Input argument validation
 arguments

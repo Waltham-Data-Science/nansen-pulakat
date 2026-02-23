@@ -1,6 +1,18 @@
-function [sessionTable] = session(session,fullMetaTable)
-%SESSION Summary of this function goes here
-%   Detailed explanation goes here
+function [sessionTable] = session(session, fullMetaTable)
+%SESSION Compiles a metadata table for NDI sessions.
+%
+%   This function retrieves information about one or more NDI sessions
+%   within a session directory or dataset and compiles it into a MATLAB
+%   table. It can optionally include a summary of subject metadata.
+%
+%   Inputs:
+%       session (ndi.session.dir or ndi.dataset.dir): The NDI session or
+%           dataset object.
+%       fullMetaTable (logical): Optional. If true, adds subject summary
+%           metadata to the table. Defaults to true.
+%
+%   Outputs:
+%       sessionTable (table): A table containing session metadata.
 
 % Input argument validation
 arguments

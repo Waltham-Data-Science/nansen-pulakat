@@ -1,35 +1,22 @@
 function varargout = sync(datasetObject, varargin)
-%SYNC Summary of this function goes here
-%   Detailed explanation goes here
-
-% % % % % % % % % % % % % % % INSTRUCTIONS % % % % % % % % % % % % % % %
-% - - - - - - - - - - You can remove this part - - - - - - - - - - -
-% Instructions on how to use this template:
-%   1) If the session method should have parameters, these should be
-%      defined in the local function getDefaultParameters at the bottom of
-%      this script.
-%   2) Scroll down to the custom code block below and write code to do
-%   operations on the datasetsObjects and it's data.
-%   3) Add documentation (summary and explanation) for the session method
-%      above. PS: Don't change the function definition (inputs/outputs)
+%SYNC Synchronizes the local dataset with the NDI cloud.
 %
-%   For examples: Press e on the keyboard while browsing the session
-%   methods. (e) should appear after the name in the menu, and when you
-%   select a session method, the m-file will open.
+%   This object method attempts to upload new local documents to the cloud
+%   and performs a two-way sync if necessary. It also updates the local
+%   dataset metatable.
+%
+%   Inputs:
+%       datasetObject (struct): A structure representing the dataset.
+%       varargin: Optional name-value pairs for parameters.
+%
+%   Outputs:
+%       varargout: If called without inputs, returns the method's attributes.
 
-% % % % % % % % % % % % CONFIGURATION CODE BLOCK % % % % % % % % % % % %
-% Create a struct of default parameters (if applicable) and specify one or
-% more attributes (see nansen.session.SessionMethod.setAttributes) for
-% details.
-    
     % Get struct of parameters from local function
     params = getDefaultParameters();
     
     % Create a cell array with attribute keywords
     ATTRIBUTES = {'serial', 'queueable'};
-    
-% % % % % % % % % % % % % DEFAULT CODE BLOCK % % % % % % % % % % % % % %
-% - - - - - - - - - - Please do not edit this part - - - - - - - - - - -
     
     % Create a struct with "attributes" using a predefined pattern
     import nansen.session.SessionMethod
@@ -42,8 +29,7 @@ function varargout = sync(datasetObject, varargin)
     % Parse name-value pairs from function input and update parameters
     params = utility.parsenvpairs(params, [], varargin);
     
-% % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
-% Implementation of the method : Add your code here:
+    % --- Implementation of the method ---
 
     % Get dataset object
     dataset = ndi.dataset.dir(datasetObject.DatasetPath);
@@ -65,7 +51,7 @@ function varargout = sync(datasetObject, varargin)
     ndi.nansen.metatable.add(datasetTable,'Dataset');
     
     % Return session object (please do not remove):
-    % if nargout; varargout = {datasetsObject}; end
+    % if nargout; varargout = {datasetObject}; end
 end
 
 function params = getDefaultParameters()

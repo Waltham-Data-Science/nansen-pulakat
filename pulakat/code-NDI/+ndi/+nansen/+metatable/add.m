@@ -1,6 +1,22 @@
-function [metaTable] = add(dataTable,dataName,options)
-%METATABLE Summary of this function goes here
-%   Detailed explanation goes here
+function [metaTable] = add(dataTable, dataName, options)
+%ADD Adds or updates a Nansen metatable with new data.
+%
+%   This function either creates a new Nansen metatable or updates an
+%   existing one using the provided data table. It handles 'Dataset',
+%   'Session', 'Subject', and 'File' metatables.
+%
+%   Inputs:
+%       dataTable (table): The table containing the metadata entries.
+%       dataName (char): The name of the metatable class ('Dataset',
+%           'Session', 'Subject', or 'File').
+%       options.Project (nansen.config.project.Project): Optional. The
+%           Nansen project object. Defaults to the current project.
+%       options.Overwrite (logical): Optional. Whether to overwrite an
+%           existing metatable. Defaults to false.
+%
+%   Outputs:
+%       metaTable (nansen.metadata.MetaTable): The created or updated
+%           metatable object.
 
 % Input argument validation
 arguments

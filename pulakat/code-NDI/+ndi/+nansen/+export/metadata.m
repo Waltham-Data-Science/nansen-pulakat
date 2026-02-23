@@ -1,6 +1,18 @@
 function [metadataTable] = metadata(options)
-%METADATA Summary of this function goes here
-%   Detailed explanation goes here
+%METADATA Generates a consolidated metadata table for export.
+%
+%   This function joins file and subject metadata tables from a Nansen
+%   project and allows filtering by session, subject, or file identifiers.
+%
+%   Inputs (Name-Value Pairs):
+%       Project (nansen.config.project.Project): The Nansen project object.
+%       SessionIdentifier (char or cell array): Session(s) to include.
+%       SubjectDocumentIdentifier (char or cell array): Subject(s) to include.
+%       FileDocumentIdentifier (char or cell array): File(s) to include.
+%       SubjectOnly (logical): If true, returns only subject metadata.
+%
+%   Outputs:
+%       metadataTable (table): The filtered and joined metadata table.
 
 arguments
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject

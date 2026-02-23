@@ -1,6 +1,16 @@
-function [metaTable] = remove(dataTableRows,dataName,options)
-%METATABLE Summary of this function goes here
-%   Detailed explanation goes here
+function [metaTable] = remove(dataTableRows, dataName, options)
+%REMOVE Removes entries from a Nansen metatable.
+%
+%   This function identifies entries in a specified Nansen metatable that
+%   match the provided table rows and removes them.
+%
+%   Inputs:
+%       dataTableRows (table): A table containing the rows (or at least
+%           the ID column) of the entries to be removed.
+%       dataName (char or string): The name of the metatable class
+%           (e.g., 'Dataset', 'Session', 'Subject', 'File').
+%       options.Project (nansen.config.project.Project): Optional. The
+%           Nansen project object. Defaults to the current project.
 
 % Input argument validation
 arguments

@@ -1,4 +1,15 @@
-function [ ] = startup(labName,dataPath)
+function [ ] = startup(labName, dataPath)
+%STARTUP Initializes the NDI-Nansen environment for a specific lab.
+%
+%   This function sets up the project by updating necessary repositories,
+%   synchronizing the dataset with the NDI cloud, generating metatables,
+%   and launching the Nansen GUI.
+%
+%   Inputs:
+%       labName (char or string): Optional. The name of the lab/project to
+%           start. Defaults to the current Nansen project name.
+%       dataPath (char or string): Optional. The local directory path where
+%           NDI datasets are stored. Defaults to '~/ndi/data'.
 
 % Input argument validation
 arguments
