@@ -1,10 +1,12 @@
-function varargout = export(filesObject, varargin)
+function varargout = export(fileObject, varargin)
 %EXPORT Exports selected data files and their metadata.
 %
-%   This object method is a wrapper for the files export method.
+%   This object method allows the user to select a download directory,
+%   exports the metadata for the selected files to a CSV, and
+%   downloads the actual data files from the NDI cloud.
 %
 %   Inputs:
-%       filesObject (struct): A structure or array of structures
+%       fileObject (struct): A structure or array of structures
 %           representing files.
 %       varargin: Optional name-value pairs for parameters.
 %
@@ -30,8 +32,41 @@ function varargout = export(filesObject, varargin)
     
     % --- Implementation of the method ---
     
-    % Call the specific files export method
-    pulakat.objectmethod.file.methods.export.files(filesObject, varargin{:});
+    % Choose directory for download
+    if ispc
+        userDir = getenv('USERPROFILE'); % Windows
+    else
+        userDir = getenv('HOME'); % Mac/Linux
+    end
+    downloadsDir = fullfile(userDir, 'Downloads');
+    downloadFolder = uigetdir(downloadsDir,'Select directory for download.');
+    if downloadFolder == 0; return; end
+
+    % Create export folder
+    dateString = char(datetime('now','Format','yyyyMMdd_HHmmss'));
+    exportFolder = fullfile(downloadFolder,['export_',dateString]);
+    mkdir(exportFolder);
+
+    % Download metadata table
+    exportTable = ndi.nansen.export.metadata('FileDocumentIdentifier',...
+        {fileObject.FileDocumentIdentifier});
+    writetable(exportTable,fullfile(exportFolder,'metadata.csv'));
+
+    % Get dataset object
+    datasetID = unique({fileObject.DatasetIdentifier});
+    dataset = ndi.nansen.fun.datasetID2Object(datasetID{1});
+
+    % Download files
+    documentIDs = unique(exportTable.FileDocumentIdentifier);
+    ndi.cloud.download.downloadGenericFiles(dataset,documentIDs,...
+        exportFolder,'NamingStrategy','id');
+
+    % Open export folder on computer
+    if ispc
+        winopen(exportFolder);
+    else
+        system(['open "' exportFolder '"']);
+    end
 
     % Return files object (please do not remove):
     % if nargout; varargout = {filesObject}; end

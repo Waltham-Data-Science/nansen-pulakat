@@ -8,4 +8,4 @@ First time:
 
 Subsequent uses:
 
-Run `pulakat.setup` to open the GUI.
+Run `pulakat.startup` to open the GUI.
