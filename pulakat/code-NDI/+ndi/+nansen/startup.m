@@ -95,9 +95,9 @@ if ~strcmp(project.Name,projectName)
     projectManager.changeProject(projectName)
 end
 
-% 6. Add metatables to project and launch nansen viewer
+% 6. Merge NDI metadata into project metatables and launch nansen viewer
 
-% Create (or replace) metatables
+% Update metatables with information from NDI (this will merge with any local pending entries)
 ndi.nansen.metatable.add(datasetTable,'Dataset');
 ndi.nansen.metatable.add(sessionTable,'Session');
 ndi.nansen.metatable.add(subjectTable,'Subject');

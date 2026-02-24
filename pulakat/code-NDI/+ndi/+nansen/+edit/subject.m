@@ -26,10 +26,10 @@ arguments
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
 end
 
-% Check is subject is already in the cloud
-if subjectTable.Cloud
-    warning('Cannot update subject %s because it is already in the cloud.', ...
-        subjectTable.SubjectLocalIdentifier)
+% Check if subject already has an NDI document
+if ~isempty(subjectTable.SubjectDocumentIdentifier{1})
+    warning('Cannot update subject %s because it already has an NDI document.', ...
+        subjectTable.SubjectLocalIdentifier{1})
     return
 end
 
@@ -48,28 +48,10 @@ answer = inputdlg(editableNames,'Subject Metadata',repmat([1 45],numel(editableN
 if isempty(answer); return; end
 subjectTable{1,editableVariables} = answer';
 
-% Get project info
-labName = options.Project.Name;
-projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
-projectInfo = jsondecode(fileread(projectFile));
-
-% Create subjectMaker and tableDocMaker
-subjectMaker = ndi.setup.NDIMaker.subjectMaker();
-subjectCreator = ndi.nansen.import.subject.informationCreator();
-tableDocMaker = ndi.setup.NDIMaker.tableDocMaker(session,labName);
-
-% Create subject documents (and add to session)
-[~,subjectTable.SubjectLocalIdentifier,subjectTable.SubjectDocumentIdentifier] = ...
-    subjectMaker.addSubjectsFromTable(session,subjectTable,subjectCreator);
-
-% Create ontologyTableRow documents (and add to session)
-ind = strcmp({projectInfo.subjectFileColumns.document},'ontologyTableRow');
-tableRowVariables = ['SubjectLocalIdentifier','SubjectDocumentIdentifier',...
-    {projectInfo.subjectFileColumns(ind).name},'ElectronicFileName'];
-tableDocMaker.table2ontologyTableRowDocs(subjectTable(:,tableRowVariables), ...
-        {'SubjectDocumentIdentifier'});
+% Update Nansen metatable
+ndi.nansen.metatable.add(subjectTable,'Subject');
 
 % Return updated subject table
-subjectTable = ndi.nansen.metatable.subject(session);
+% subjectTable = subjectTable;
 
 end

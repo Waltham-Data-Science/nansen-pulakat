@@ -40,8 +40,17 @@ subjectFiles = ndi.nansen.import.file.select(dataPath, ...
 % Get current subject table from files
 subjectTable_files = ndi.nansen.import.subject.tableFromFile(subjectFiles,labName);
 
-% Get existing subject table from session
-subjectTable_session = ndi.nansen.metatable.subject(session);
+% Get existing subject table from project
+project = nansen.getCurrentProject;
+subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
+subjectTable_project = subjectMetaTable.entries;
+if ~isempty(subjectTable_project)
+    % Only include subjects for current session
+    indSession = strcmp(subjectTable_project.SessionIdentifier, session.id);
+    subjectTable_session = subjectTable_project(indSession, :);
+else
+    subjectTable_session = table();
+end
 
 % Remove spaces from subject identifiers (if applicable)
 subjectIdentifiers = projectInfo.subjectIdentifierFields;
@@ -81,24 +90,23 @@ end
 % Add session id to subject table
 subjectTable_new{:,'SessionID'} = session.id;
 subjectTable_new{:,'LabName'} = labName;
+subjectTable_new{:,'SessionIdentifier'} = session.id;
+subjectTable_new{:,'SessionName'} = session.reference;
+subjectTable_new{:,'SessionPath'} = session.path;
+subjectTable_new{:,'SubjectDocumentIdentifier'} = repmat({''}, height(subjectTable_new), 1);
+subjectTable_new{:,'Cloud'} = false(height(subjectTable_new), 1);
 
-% Create subjectMaker and tableDocMaker
-subjectMaker = ndi.setup.NDIMaker.subjectMaker;
-subjectCreator = ndi.nansen.import.subject.informationCreator();
-tableDocMaker = ndi.setup.NDIMaker.tableDocMaker(session,labName);
+% Create subjectCreator to get SubjectLocalIdentifier if missing
+if ~ismember('SubjectLocalIdentifier', subjectTable_new.Properties.VariableNames)
+    subjectCreator = ndi.nansen.import.subject.informationCreator();
+    SubjectLocalIdentifier = cell(height(subjectTable_new),1);
+    for i = 1:height(subjectTable_new)
+        SubjectLocalIdentifier{i} = subjectCreator.create(subjectTable_new(i,:));
+    end
+    subjectTable_new.SubjectLocalIdentifier = SubjectLocalIdentifier;
+end
 
-% Create subject documents (and add to session)
-[~,subjectTable_new.SubjectLocalIdentifier,subjectTable_new.SubjectDocumentIdentifier] = ...
-    subjectMaker.addSubjectsFromTable(session,subjectTable_new,subjectCreator);
-
-% Create ontologyTableRow documents (and add to session)
-ind = strcmp({projectInfo.subjectFileColumns.document},'ontologyTableRow');
-tableRowVariables = ['SubjectLocalIdentifier','SubjectDocumentIdentifier',...
-    {projectInfo.subjectFileColumns(ind).name},'ElectronicFileName'];
-tableDocMaker.table2ontologyTableRowDocs(subjectTable_new(:,tableRowVariables), ...
-        {'SubjectDocumentIdentifier'});
-
-% Return updated subject table
-subjectTable = ndi.nansen.metatable.subject(session);
+% Return new subject table
+subjectTable = subjectTable_new;
 
 end

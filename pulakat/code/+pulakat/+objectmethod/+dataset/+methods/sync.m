@@ -34,6 +34,94 @@ function varargout = sync(datasetObject, varargin)
     % Get dataset object
     dataset = ndi.dataset.dir(datasetObject.DatasetPath);
 
+    % Get Nansen project
+    project = nansen.getCurrentProject;
+    labName = project.Name;
+
+    % 1. Create NDI Session documents if missing
+    sessionMetaTable = project.MetaTableCatalog.getMetaTable('Session');
+    sessionTable = sessionMetaTable.entries;
+
+    for i = 1:height(sessionTable)
+        if isempty(sessionTable.SessionDocumentIdentifier{i})
+            sessionPath = sessionTable.SessionPath{i};
+            sessionName = sessionTable.SessionName{i};
+            [dataParentDir,sessionFolderName] = fileparts(sessionPath);
+
+            SessionRef = {sessionName};
+            SessionPath = {sessionFolderName};
+            sessionMaker = ndi.setup.NDIMaker.sessionMaker(dataParentDir,...
+                table(SessionRef,SessionPath));
+            session = sessionMaker.sessionIndices{1};
+
+            % Add to dataset
+            [~,sessionIDs] = dataset.session_list;
+            if ~any(strcmp(sessionIDs,session.id))
+                dataset.add_linked_session(session);
+            end
+
+            % Get session document id
+            query = ndi.query('base.session_id','exact_string',session.id);
+            doc = session.database_search(query);
+            sessionTable.SessionDocumentIdentifier{i} = doc{1}.document_properties.base.id;
+            sessionTable.SessionIdentifier{i} = session.id;
+        end
+    end
+    ndi.nansen.metatable.add(sessionTable, 'Session');
+
+    % 2. Create NDI Subject documents if missing
+    subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
+    subjectTable = subjectMetaTable.entries;
+    indPending = cellfun(@isempty, subjectTable.SubjectDocumentIdentifier);
+
+    if any(indPending)
+        pendingSubjects = subjectTable(indPending, :);
+        uniqueSessions = unique(pendingSubjects.SessionIdentifier);
+        for i = 1:numel(uniqueSessions)
+            session = dataset.open_session(uniqueSessions{i});
+            indSess = strcmp(pendingSubjects.SessionIdentifier, uniqueSessions{i});
+            createdSubjects = ndi.nansen.import.subject.createDocuments(session, pendingSubjects(indSess, :), labName);
+
+            % Update main table
+            for j = 1:height(createdSubjects)
+                ind = strcmp(subjectTable.SessionIdentifier, uniqueSessions{i}) & ...
+                      strcmp(subjectTable.SubjectLocalIdentifier, createdSubjects.SubjectLocalIdentifier{j});
+                subjectTable.SubjectDocumentIdentifier(ind) = createdSubjects.SubjectDocumentIdentifier(j);
+            end
+        end
+        ndi.nansen.metatable.add(subjectTable, 'Subject');
+    end
+
+    % 3. Create NDI File documents if missing
+    fileMetaTable = project.MetaTableCatalog.getMetaTable('File');
+    fileTable = fileMetaTable.entries;
+
+    % Update SubjectDocumentIdentifier in fileTable from subjectTable
+    [~, indS] = ismember(fileTable(:, {'SessionIdentifier', 'SubjectLocalIdentifier'}), ...
+        subjectTable(:, {'SessionIdentifier', 'SubjectLocalIdentifier'}));
+    fileTable.SubjectDocumentIdentifier = subjectTable.SubjectDocumentIdentifier(indS);
+
+    indPending = cellfun(@isempty, fileTable.FileDocumentIdentifier);
+    if any(indPending)
+        pendingFiles = fileTable(indPending, :);
+        uniqueSessions = unique(pendingFiles.SessionIdentifier);
+        for i = 1:numel(uniqueSessions)
+            session = dataset.open_session(uniqueSessions{i});
+            indSess = strcmp(pendingFiles.SessionIdentifier, uniqueSessions{i});
+            createdFiles = ndi.nansen.import.file.createDocuments(session, pendingFiles(indSess, :), labName);
+
+            % Update main table
+            for j = 1:height(createdFiles)
+                ind = strcmp(fileTable.SessionIdentifier, uniqueSessions{i}) & ...
+                      strcmp(fileTable.SubjectLocalIdentifier, createdFiles.SubjectLocalIdentifier{j}) & ...
+                      strcmp(fileTable.ElectronicFileName, createdFiles.ElectronicFileName{j}) & ...
+                      strcmp(fileTable.DataTypeName, createdFiles.DataTypeName{j});
+                fileTable.FileDocumentIdentifier(ind) = createdFiles.FileDocumentIdentifier(j);
+            end
+        end
+        ndi.nansen.metatable.add(fileTable, 'File');
+    end
+
     % Sync dataset to cloud
     success = ndi.cloud.sync.uploadNew(dataset);
     if ~success
