@@ -63,8 +63,12 @@ function varargout = sync(datasetObject, varargin)
             % Get session document id
             query = ndi.query('base.session_id','exact_string',session.id);
             doc = session.database_search(query);
-            sessionTable.SessionDocumentIdentifier{i} = doc{1}.document_properties.base.id;
-            sessionTable.SessionIdentifier{i} = session.id;
+            if ~isempty(doc)
+                sessionTable.SessionDocumentIdentifier{i} = doc{1}.document_properties.base.id;
+                sessionTable.SessionIdentifier{i} = session.id;
+            else
+                warning('Could not find NDI document for session: %s', sessionName);
+            end
         end
     end
     ndi.nansen.metatable.add(sessionTable, 'Session');
@@ -72,12 +76,17 @@ function varargout = sync(datasetObject, varargin)
     % 2. Create NDI Subject documents if missing
     subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
     subjectTable = subjectMetaTable.entries;
-    indPending = cellfun(@isempty, subjectTable.SubjectDocumentIdentifier);
+    if ~isempty(subjectTable)
+        indPending = cellfun(@isempty, subjectTable.SubjectDocumentIdentifier);
+    else
+        indPending = false(0,1);
+    end
 
     if any(indPending)
         pendingSubjects = subjectTable(indPending, :);
         uniqueSessions = unique(pendingSubjects.SessionIdentifier);
         for i = 1:numel(uniqueSessions)
+            if isempty(uniqueSessions{i}); continue; end
             session = dataset.open_session(uniqueSessions{i});
             indSess = strcmp(pendingSubjects.SessionIdentifier, uniqueSessions{i});
             createdSubjects = ndi.nansen.import.subject.createDocuments(session, pendingSubjects(indSess, :), labName);
@@ -96,12 +105,16 @@ function varargout = sync(datasetObject, varargin)
     fileMetaTable = project.MetaTableCatalog.getMetaTable('File');
     fileTable = fileMetaTable.entries;
 
-    % Update SubjectDocumentIdentifier in fileTable from subjectTable
-    [~, indS] = ismember(fileTable(:, {'SessionIdentifier', 'SubjectLocalIdentifier'}), ...
-        subjectTable(:, {'SessionIdentifier', 'SubjectLocalIdentifier'}));
-    fileTable.SubjectDocumentIdentifier = subjectTable.SubjectDocumentIdentifier(indS);
+    if ~isempty(fileTable)
+        % Update SubjectDocumentIdentifier in fileTable from subjectTable
+        [Lia, indS] = ismember(fileTable(:, {'SessionIdentifier', 'SubjectLocalIdentifier'}), ...
+            subjectTable(:, {'SessionIdentifier', 'SubjectLocalIdentifier'}));
+        fileTable.SubjectDocumentIdentifier(Lia) = subjectTable.SubjectDocumentIdentifier(indS(Lia));
 
-    indPending = cellfun(@isempty, fileTable.FileDocumentIdentifier);
+        indPending = cellfun(@isempty, fileTable.FileDocumentIdentifier);
+    else
+        indPending = false(0,1);
+    end
     if any(indPending)
         pendingFiles = fileTable(indPending, :);
         uniqueSessions = unique(pendingFiles.SessionIdentifier);

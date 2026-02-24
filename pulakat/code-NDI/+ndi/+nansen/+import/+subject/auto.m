@@ -96,12 +96,11 @@ subjectTable_new{:,'SessionPath'} = session.path;
 subjectTable_new{:,'SubjectDocumentIdentifier'} = repmat({''}, height(subjectTable_new), 1);
 subjectTable_new{:,'Cloud'} = false(height(subjectTable_new), 1);
 
-% Create subjectCreator to get SubjectLocalIdentifier if missing
+% Create SubjectLocalIdentifier if missing
 if ~ismember('SubjectLocalIdentifier', subjectTable_new.Properties.VariableNames)
-    subjectCreator = ndi.nansen.import.subject.informationCreator();
     SubjectLocalIdentifier = cell(height(subjectTable_new),1);
     for i = 1:height(subjectTable_new)
-        SubjectLocalIdentifier{i} = subjectCreator.create(subjectTable_new(i,:));
+        SubjectLocalIdentifier{i} = ndi.nansen.fun.getSubjectLocalIdentifier(subjectTable_new(i,:), labName);
     end
     subjectTable_new.SubjectLocalIdentifier = SubjectLocalIdentifier;
 end

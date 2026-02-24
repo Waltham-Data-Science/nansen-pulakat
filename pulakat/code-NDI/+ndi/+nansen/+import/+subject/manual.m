@@ -79,11 +79,10 @@ subjectTable_new{:,'SessionPath'} = session.path;
 subjectTable_new{:,'SubjectDocumentIdentifier'} = {''};
 subjectTable_new{:,'Cloud'} = false;
 
-% Create subjectCreator to get SubjectLocalIdentifier if missing
+% Create SubjectLocalIdentifier if missing
 if ~ismember('SubjectLocalIdentifier', subjectTable_new.Properties.VariableNames) || ...
         isempty(subjectTable_new.SubjectLocalIdentifier{1})
-    subjectCreator = ndi.nansen.import.subject.informationCreator();
-    [subjectIdentifier, ~, ~, ~] = subjectCreator.create(subjectTable_new(1,:));
+    subjectIdentifier = ndi.nansen.fun.getSubjectLocalIdentifier(subjectTable_new(1,:), labName);
     subjectTable_new.SubjectLocalIdentifier = {subjectIdentifier};
 end
 

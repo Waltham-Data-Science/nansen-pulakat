@@ -53,7 +53,7 @@ else
 end
 
 % Identify new and unique files
-fileIdentifiers = {'ElectronicFileName','DataTypeName'};
+fileIdentifiers = {'ElectronicFileName','DataTypeName','SubjectLocalIdentifier'};
 if isempty(dataTable_session)
     dataTable_new = dataTable_files;
 else
