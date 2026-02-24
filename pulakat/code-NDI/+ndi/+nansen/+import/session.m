@@ -34,6 +34,7 @@ sessionTable.SessionPath = {sessionPath};
 sessionTable.SessionIdentifier = {''};
 sessionTable.SessionDocumentIdentifier = {''};
 sessionTable.DatasetIdentifier = {dataset.id};
+sessionTable.DateAdded = datetime('now');
 sessionTable.Cloud = false;
 
 session = sessionTable;

@@ -121,6 +121,7 @@ dataTable_new.SessionIdentifier = repmat({session.id}, height(dataTable_new), 1)
 dataTable_new.SessionName = repmat({session.reference}, height(dataTable_new), 1);
 dataTable_new.SessionPath = repmat({session.path}, height(dataTable_new), 1);
 dataTable_new.FileDocumentIdentifier = repmat({''}, height(dataTable_new), 1);
+dataTable_new.DateAdded = repmat(datetime('now'), height(dataTable_new), 1);
 dataTable_new.Cloud = false(height(dataTable_new), 1);
 
 % Return new data table
