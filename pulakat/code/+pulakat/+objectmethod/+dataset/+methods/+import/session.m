@@ -57,11 +57,11 @@ function varargout = session(datasetObject, varargin)
         'Import Subjects and Files','Yes', 'No', 'Yes');
     if strcmp(autoImport,'yes')
         % Add subjects to session
-        subjectTable = ndi.nansen.import.subject(session,session.path);
+        subjectTable = ndi.nansen.import.subject.auto(session,session.path);
         ndi.nansen.metatable.add(subjectTable,'Subject');
 
         % Add data to session
-        dataTable = ndi.nansen.import.data(session,session.path);
+        dataTable = ndi.nansen.import.file.auto(session,session.path);
         ndi.nansen.metatable.add(dataTable,'File');
     end
 

@@ -1,9 +1,8 @@
-function varargout = files(subjectsObject, varargin)
-%FILES Imports data files for the selected subjects.
+function varargout = manual(subjectsObject, varargin)
+%MANUAL Manually adds data files for the selected subjects.
 %
-%   This object method identifies the sessions associated with the
-%   selected subjects and imports any new data files found in those
-%   session directories into NDI.
+%   This object method allows the user to manually select files and
+%   specify metadata for the selected subjects.
 %
 %   Inputs:
 %       subjectsObject (struct): A structure or array of structures
@@ -15,39 +14,43 @@ function varargout = files(subjectsObject, varargin)
 
     % Get struct of parameters from local function
     params = getDefaultParameters();
-    
+
     % Create a cell array with attribute keywords
     ATTRIBUTES = {'serial', 'queueable'};
-    
+
     % Create a struct with "attributes" using a predefined pattern
     import nansen.session.SessionMethod
     fcnAttributes = SessionMethod.setAttributes(params, ATTRIBUTES{:});
-    
+
     if ~nargin && nargout > 0
         varargout = {fcnAttributes};   return
     end
-    
+
     % Parse name-value pairs from function input and update parameters
     params = utility.parsenvpairs(params, [], varargin);
-    
+
     % --- Implementation of the method ---
 
     % Convert subjects object to table
     subjectTable = struct2table(subjectsObject);
-    
+
     % Get unique sessions
-    [sessionPaths, ~, ~] = unique(subjectTable.SessionPath, 'stable');
-    
-    for i = 1:numel(sessionPaths)
+    sessionPaths = cellstr(subjectTable.SessionPath);
+    [sessionPaths_unique, ~, ~] = unique(sessionPaths, 'stable');
+
+    for i = 1:numel(sessionPaths_unique)
         % Get session object
-        session = ndi.session.dir(sessionPaths{i});
+        session = ndi.session.dir(sessionPaths_unique{i});
 
         % Add files to session
-        ndi.nansen.import.data(session);
+        ndi.nansen.import.file.manual(session);
         dataTable = ndi.nansen.metatable.file(session);
 
+        if isempty(dataTable); continue; end
+
         % Add cloud status to data table
-        dataset = ndi.nansen.fun.datasetID2Object(subjectTable.DatasetIdentifier{1});
+        datasetIDs = cellstr(subjectTable.DatasetIdentifier);
+        dataset = ndi.nansen.fun.datasetID2Object(datasetIDs{1});
         statusTable = ndi.nansen.sync.status(dataset);
         dataTable = join(dataTable, statusTable, 'LeftKeys', ...
             'FileDocumentIdentifier', 'RightKeys', 'DocumentIdentifier');
