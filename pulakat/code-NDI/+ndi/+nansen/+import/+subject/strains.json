@@ -1,0 +1,16 @@
+[
+  {
+    "value": "Wistar",
+    "aliases": ["WI"],
+    "speciesOntology": "NCBITaxon:10116",
+    "strainOntology": "RRID:RGD_13508588",
+    "geneticStrainType": "wildtype"
+  },
+  {
+    "value": "ZDF",
+    "aliases": [],
+    "speciesOntology": "NCBITaxon:10116",
+    "strainOntology": "RRID:RGD_70459",
+    "geneticStrainType": "wildtype"
+  }
+]
