@@ -45,7 +45,18 @@ end
 if isempty(subjectTable)
     error('No subjects found in session. Please add a subject first.');
 end
+
+% Prepare subject names for display (handle pending subjects)
 subjectNames = subjectTable.SubjectLocalIdentifier;
+subjectIdentifiers = projectInfo.subjectIdentifierFields;
+isPending = cellfun(@isempty, subjectNames);
+if any(isPending)
+    for i = find(isPending)'
+        subjectParts = cellfun(@(f) char(subjectTable.(f){i}), ...
+            subjectIdentifiers, 'UniformOutput', false);
+        subjectNames{i} = [strjoin(subjectParts, '_'), ' (pending)'];
+    end
+end
 
 dataTable_new = table();
 
@@ -68,7 +79,11 @@ for i = 1:numel(files)
         newRow = table();
         newRow.ElectronicFileName = {filePath};
         newRow.DataTypeName = {dataType};
-        newRow.SubjectLocalIdentifier = subjectTable.SubjectLocalIdentifier(indSubj(j));
+        % Add subject identifying fields
+        for f = 1:numel(subjectIdentifiers)
+            fieldName = subjectIdentifiers{f};
+            newRow.(fieldName) = subjectTable.(fieldName)(indSubj(j));
+        end
         newRow.SubjectDocumentIdentifier = subjectTable.SubjectDocumentIdentifier(indSubj(j));
         dataTable_new = [dataTable_new; newRow];
     end
@@ -88,7 +103,7 @@ else
 end
 
 % Identify new and unique files (prevent duplicates)
-fileIdentifiers = {'ElectronicFileName','DataTypeName','SubjectLocalIdentifier'};
+fileIdentifiers = [{'ElectronicFileName','DataTypeName'}, subjectIdentifiers'];
 if ~isempty(dataTable_session)
     [~,indNew] = setdiff(dataTable_new(:,fileIdentifiers), ...
         dataTable_session(:,fileIdentifiers));

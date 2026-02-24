@@ -51,7 +51,4 @@ subjectTable{1,editableVariables} = answer';
 % Update Nansen metatable
 ndi.nansen.metatable.add(subjectTable,'Subject');
 
-% Return updated subject table
-% subjectTable = subjectTable;
-
 end

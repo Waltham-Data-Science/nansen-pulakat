@@ -33,12 +33,19 @@ subjectTable = subjectTable.entries;
 if ~options.SubjectOnly
     fileTable = project.MetaTableCatalog.getMetaTable('File');
     fileTable = fileTable.entries;
-    % Use SubjectLocalIdentifier and SessionIdentifier as join keys to support pending entries
+
+    % Get project info
+    labName = project.Name;
+    projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
+    projectInfo = jsondecode(fileread(projectFile));
+    subjectIdentifiers = projectInfo.subjectIdentifierFields;
+
+    % Use identifying fields and SessionIdentifier as join keys to support pending entries
     metadataTable = join(fileTable,subjectTable,...
-        'Keys',{'SessionIdentifier','SubjectLocalIdentifier'},...
+        'Keys',[{'SessionIdentifier'}, subjectIdentifiers'],...
         'KeepOneCopy',{'ElectronicFileName','SubjectDocumentIdentifier',...
         'SessionName','SessionDocumentIdentifier','DatasetDocumentIdentifier',...
-        'DatasetIdentifier','SessionPath','Cloud'});
+        'DatasetIdentifier','SessionPath','SubjectLocalIdentifier','Cloud'});
 else
     metadataTable = subjectTable;
 end

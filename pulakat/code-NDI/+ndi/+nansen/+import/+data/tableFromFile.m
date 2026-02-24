@@ -98,8 +98,9 @@ function buttonCallback(~, fig, choice)
 end
 
 % Return data table with matching subjects
-dataTable = [subjectTable_files(numSubjects == 1,{'ElectronicFileName','DataTypeName'}),...
-    subjectTable_session([indSubjects{numSubjects == 1}],{'SubjectDocumentIdentifier','SubjectLocalIdentifier'})];
+subjectIdentifiers = projectInfo.subjectIdentifierFields;
+dataTable = [subjectTable_files(numSubjects == 1, [{'ElectronicFileName','DataTypeName'}, subjectIdentifiers']),...
+    subjectTable_session([indSubjects{numSubjects == 1}],'SubjectDocumentIdentifier')];
 %dataTable_multiple = subjectFileTable(numSubjects > 1,:);
 
 end

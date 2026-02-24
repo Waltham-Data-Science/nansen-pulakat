@@ -38,6 +38,11 @@ function varargout = sync(datasetObject, varargin)
     project = nansen.getCurrentProject;
     labName = project.Name;
 
+    % Get project info
+    projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
+    projectInfo = jsondecode(fileread(projectFile));
+    subjectIdentifiers = projectInfo.subjectIdentifierFields;
+
     % 1. Create NDI Session documents if missing
     sessionMetaTable = project.MetaTableCatalog.getMetaTable('Session');
     sessionTable = sessionMetaTable.entries;
@@ -93,9 +98,13 @@ function varargout = sync(datasetObject, varargin)
 
             % Update main table
             for j = 1:height(createdSubjects)
-                ind = strcmp(subjectTable.SessionIdentifier, uniqueSessions{i}) & ...
-                      strcmp(subjectTable.SubjectLocalIdentifier, createdSubjects.SubjectLocalIdentifier{j});
+                indSubjMatch = true(height(subjectTable),1);
+                for f = 1:numel(subjectIdentifiers)
+                    indSubjMatch = indSubjMatch & strcmp(subjectTable.(subjectIdentifiers{f}), createdSubjects.(subjectIdentifiers{f}){j});
+                end
+                ind = strcmp(subjectTable.SessionIdentifier, uniqueSessions{i}) & indSubjMatch;
                 subjectTable.SubjectDocumentIdentifier(ind) = createdSubjects.SubjectDocumentIdentifier(j);
+                subjectTable.SubjectLocalIdentifier(ind) = createdSubjects.SubjectLocalIdentifier(j);
             end
         end
         ndi.nansen.metatable.add(subjectTable, 'Subject');
@@ -106,10 +115,12 @@ function varargout = sync(datasetObject, varargin)
     fileTable = fileMetaTable.entries;
 
     if ~isempty(fileTable)
-        % Update SubjectDocumentIdentifier in fileTable from subjectTable
-        [Lia, indS] = ismember(fileTable(:, {'SessionIdentifier', 'SubjectLocalIdentifier'}), ...
-            subjectTable(:, {'SessionIdentifier', 'SubjectLocalIdentifier'}));
+        % Update SubjectDocumentIdentifier and SubjectLocalIdentifier in fileTable from subjectTable
+        [Lia, indS] = ismember(fileTable(:, [{'SessionIdentifier'}, subjectIdentifiers']), ...
+            subjectTable(:, [{'SessionIdentifier'}, subjectIdentifiers']));
+
         fileTable.SubjectDocumentIdentifier(Lia) = subjectTable.SubjectDocumentIdentifier(indS(Lia));
+        fileTable.SubjectLocalIdentifier(Lia) = subjectTable.SubjectLocalIdentifier(indS(Lia));
 
         indPending = cellfun(@isempty, fileTable.FileDocumentIdentifier);
     else
@@ -125,8 +136,14 @@ function varargout = sync(datasetObject, varargin)
 
             % Update main table
             for j = 1:height(createdFiles)
+                % Match using identifying fields since SubjectLocalIdentifier might have just been created
+                indSubjMatch = true(height(fileTable),1);
+                for f = 1:numel(subjectIdentifiers)
+                    indSubjMatch = indSubjMatch & strcmp(fileTable.(subjectIdentifiers{f}), createdFiles.(subjectIdentifiers{f}){j});
+                end
+
                 ind = strcmp(fileTable.SessionIdentifier, uniqueSessions{i}) & ...
-                      strcmp(fileTable.SubjectLocalIdentifier, createdFiles.SubjectLocalIdentifier{j}) & ...
+                      indSubjMatch & ...
                       strcmp(fileTable.ElectronicFileName, createdFiles.ElectronicFileName{j}) & ...
                       strcmp(fileTable.DataTypeName, createdFiles.DataTypeName{j});
                 fileTable.FileDocumentIdentifier(ind) = createdFiles.FileDocumentIdentifier(j);

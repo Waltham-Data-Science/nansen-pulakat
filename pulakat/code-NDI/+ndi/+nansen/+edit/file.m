@@ -49,7 +49,4 @@ dataTable{1,editableVariables} = answer';
 % Update Nansen metatable
 ndi.nansen.metatable.add(dataTable,'File');
 
-% Return updated data table
-% dataTable = dataTable;
-
 end

@@ -52,8 +52,11 @@ else
     dataTable_session = table();
 end
 
+% Get subject identifying fields
+subjectIdentifiers = projectInfo.subjectIdentifierFields;
+
 % Identify new and unique files
-fileIdentifiers = {'ElectronicFileName','DataTypeName','SubjectLocalIdentifier'};
+fileIdentifiers = [{'ElectronicFileName','DataTypeName'}, subjectIdentifiers'];
 if isempty(dataTable_session)
     dataTable_new = dataTable_files;
 else
