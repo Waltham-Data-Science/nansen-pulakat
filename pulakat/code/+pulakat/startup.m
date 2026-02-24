@@ -1,6 +1,8 @@
 function [] = startup()
-%STARTUP Summary of this function goes here
-%   Detailed explanation goes here
+%STARTUP Initializes the Pulakat lab environment.
+%
+%   This function calls the general NDI-Nansen startup with the
+%   'pulakat' lab name.
 
 ndi.nansen.startup('pulakat');
 

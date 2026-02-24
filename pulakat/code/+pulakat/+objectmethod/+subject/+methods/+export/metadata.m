@@ -1,35 +1,22 @@
 function varargout = metadata(subjectObject, varargin)
-%METADATA Summary of this function goes here
-%   Detailed explanation goes here
-
-% % % % % % % % % % % % % % % INSTRUCTIONS % % % % % % % % % % % % % % %
-% - - - - - - - - - - You can remove this part - - - - - - - - - - -
-% Instructions on how to use this template:
-%   1) If the session method should have parameters, these should be
-%      defined in the local function getDefaultParameters at the bottom of
-%      this script.
-%   2) Scroll down to the custom code block below and write code to do
-%   operations on the subjectObjects and it's data.
-%   3) Add documentation (summary and explanation) for the session method
-%      above. PS: Don't change the function definition (inputs/outputs)
+%METADATA Exports metadata for the selected subjects.
 %
-%   For examples: Press e on the keyboard while browsing the session
-%   methods. (e) should appear after the name in the menu, and when you
-%   select a session method, the m-file will open.
+%   This object method allows the user to select a download directory
+%   and exports the metadata for the selected subjects to a CSV file.
+%
+%   Inputs:
+%       subjectObject (struct): A structure or array of structures
+%           representing subjects.
+%       varargin: Optional name-value pairs for parameters.
+%
+%   Outputs:
+%       varargout: If called without inputs, returns the method's attributes.
 
-% % % % % % % % % % % % CONFIGURATION CODE BLOCK % % % % % % % % % % % %
-% Create a struct of default parameters (if applicable) and specify one or
-% more attributes (see nansen.session.SessionMethod.setAttributes) for
-% details.
-    
     % Get struct of parameters from local function
     params = getDefaultParameters();
     
     % Create a cell array with attribute keywords
     ATTRIBUTES = {'batch', 'unqueueable'};
-    
-% % % % % % % % % % % % % DEFAULT CODE BLOCK % % % % % % % % % % % % % %
-% - - - - - - - - - - Please do not edit this part - - - - - - - - - - -
     
     % Create a struct with "attributes" using a predefined pattern
     import nansen.session.SessionMethod
@@ -42,8 +29,7 @@ function varargout = metadata(subjectObject, varargin)
     % Parse name-value pairs from function input and update parameters
     params = utility.parsenvpairs(params, [], varargin);
     
-% % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
-% Implementation of the method : Add your code here:
+    % --- Implementation of the method ---
 
     % Choose directory for download
     if ispc
@@ -53,6 +39,7 @@ function varargout = metadata(subjectObject, varargin)
     end
     downloadsDir = fullfile(userDir, 'Downloads');
     downloadFolder = uigetdir(downloadsDir,'Select directory for download.');
+    if downloadFolder == 0; return; end
 
     % Create export folder
     dateString = char(datetime('now','Format','yyyyMMdd_HHmmss'));
@@ -71,7 +58,7 @@ function varargout = metadata(subjectObject, varargin)
         system(['open "' exportFolder '"']);
     end
     
-    % Return session object (please do not remove):
+    % Return subjects object (please do not remove):
     % if nargout; varargout = {subjectObject}; end
 end
 

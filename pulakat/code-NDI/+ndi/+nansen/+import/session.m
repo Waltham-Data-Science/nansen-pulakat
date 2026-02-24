@@ -1,5 +1,6 @@
-function [session] = session(dataset,sessionPath,sessionName)
+function [session] = session(dataset, sessionPath, sessionName)
 %SESSION Creates a new NDI session and adds it to a dataset.
+%
 %   This function prompts the user to select a directory for the session data,
 %   asks for a session name, creates the NDI session, and then links it to the
 %   specified NDI dataset.

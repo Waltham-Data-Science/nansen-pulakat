@@ -1,15 +1,17 @@
-function [subjectTable] = subject(session,dataPath,labName)
-%SUBJECTS Imports subjects into an NDI session from a specified data path.
-%   This function identifies new subjects from 'animal_mapping' files,
-%   creates corresponding subject documents, and adds them to the
-%   NDI session's database.
+function [subjectTable] = subject(session, dataPath, labName)
+%SUBJECT Imports subjects into an NDI session from a specified data path.
+%
+%   This function identifies new subjects from metadata files, creates
+%   corresponding subject documents, and adds them to the NDI session's
+%   database.
 %
 %   Inputs:
 %       session (ndi.session.dir): The NDI session object where the 
 %           subjects will be imported.
 %       dataPath (char or string): Optional. The path to the directory 
-%           containing the subject files. If not provided, the function 
-%           will look for files in the current directory.
+%           containing the subject files. Defaults to the current directory.
+%       labName (char or string): Optional. The name of the lab. Defaults
+%           to the current project name.
 %
 %   Outputs:
 %       subjectTable (table): An updated table containing information about
@@ -72,7 +74,7 @@ subjectTable_new{:,'LabName'} = labName;
 
 % Create subjectMaker and tableDocMaker
 subjectMaker = ndi.setup.NDIMaker.subjectMaker;
-subjectCreator = ndi.nansen.import.subject.informationCreator;
+subjectCreator = ndi.nansen.import.subject.informationCreator();
 tableDocMaker = ndi.setup.NDIMaker.tableDocMaker(session,labName);
 
 % Create subject documents (and add to session)

@@ -1,35 +1,23 @@
 function varargout = files(subjectsObject, varargin)
-%FILES Summary of this function goes here
-%   Detailed explanation goes here
-
-% % % % % % % % % % % % % % % INSTRUCTIONS % % % % % % % % % % % % % % %
-% - - - - - - - - - - You can remove this part - - - - - - - - - - -
-% Instructions on how to use this template:
-%   1) If the session method should have parameters, these should be
-%      defined in the local function getDefaultParameters at the bottom of
-%      this script.
-%   2) Scroll down to the custom code block below and write code to do
-%   operations on the subjectsObjects and it's data.
-%   3) Add documentation (summary and explanation) for the session method
-%      above. PS: Don't change the function definition (inputs/outputs)
+%FILES Imports data files for the selected subjects.
 %
-%   For examples: Press e on the keyboard while browsing the session
-%   methods. (e) should appear after the name in the menu, and when you
-%   select a session method, the m-file will open.
+%   This object method identifies the sessions associated with the
+%   selected subjects and imports any new data files found in those
+%   session directories into NDI.
+%
+%   Inputs:
+%       subjectsObject (struct): A structure or array of structures
+%           representing subjects.
+%       varargin: Optional name-value pairs for parameters.
+%
+%   Outputs:
+%       varargout: If called without inputs, returns the method's attributes.
 
-% % % % % % % % % % % % CONFIGURATION CODE BLOCK % % % % % % % % % % % %
-% Create a struct of default parameters (if applicable) and specify one or
-% more attributes (see nansen.session.SessionMethod.setAttributes) for
-% details.
-    
     % Get struct of parameters from local function
     params = getDefaultParameters();
     
     % Create a cell array with attribute keywords
     ATTRIBUTES = {'serial', 'queueable'};
-    
-% % % % % % % % % % % % % DEFAULT CODE BLOCK % % % % % % % % % % % % % %
-% - - - - - - - - - - Please do not edit this part - - - - - - - - - - -
     
     % Create a struct with "attributes" using a predefined pattern
     import nansen.session.SessionMethod
@@ -42,12 +30,33 @@ function varargout = files(subjectsObject, varargin)
     % Parse name-value pairs from function input and update parameters
     params = utility.parsenvpairs(params, [], varargin);
     
-% % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
-% Implementation of the method : Add your code here:
+    % --- Implementation of the method ---
 
+    % Convert subjects object to table
+    subjectTable = struct2table(subjectsObject);
     
+    % Get unique sessions
+    [sessionPaths, ~, ~] = unique(subjectTable.SessionPath, 'stable');
     
-    % Return session object (please do not remove):
+    for i = 1:numel(sessionPaths)
+        % Get session object
+        session = ndi.session.dir(sessionPaths{i});
+
+        % Add files to session
+        ndi.nansen.import.data(session);
+        dataTable = ndi.nansen.metatable.file(session);
+
+        % Add cloud status to data table
+        dataset = ndi.nansen.fun.datasetID2Object(subjectTable.DatasetIdentifier{1});
+        statusTable = ndi.nansen.sync.status(dataset);
+        dataTable = join(dataTable, statusTable, 'LeftKeys', ...
+            'FileDocumentIdentifier', 'RightKeys', 'DocumentIdentifier');
+
+        % Add files to metatable
+        ndi.nansen.metatable.add(dataTable, 'File');
+    end
+
+    % Return subjects object (please do not remove):
     % if nargout; varargout = {subjectsObject}; end
 end
 

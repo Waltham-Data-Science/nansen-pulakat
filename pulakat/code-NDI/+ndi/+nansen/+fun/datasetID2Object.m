@@ -1,6 +1,14 @@
 function [dataset] = datasetID2Object(datasetID)
-%GETDATASETOBJECT Summary of this function goes here
-%   Detailed explanation goes here
+%DATASETID2OBJECT Retrieves an NDI dataset object from its identifier.
+%
+%   This function looks up the dataset identifier in the master metatable
+%   to find its local path and returns the corresponding NDI dataset object.
+%
+%   Inputs:
+%       datasetID (char or string): The unique identifier of the dataset.
+%
+%   Outputs:
+%       dataset (ndi.dataset.dir): The NDI dataset object.
 
 datasetStruct = load('dataset_master_metatable.mat','MetaTableEntries');
 datasetTable = datasetStruct.MetaTableEntries;
