@@ -1,5 +1,5 @@
-function [dataTable] = data(session, dataPath, labName)
-%DATA Imports data into an NDI session from a specified data path.
+function [dataTable] = auto(session, dataPath, labName)
+%AUTO Imports data into an NDI session from a specified data path.
 %
 %   This function identifies new data files in the given path, creates
 %   corresponding data and ontologyLabel documents, and adds them to the

@@ -1,5 +1,5 @@
-function [subjectTable] = subject(session, dataPath, labName)
-%SUBJECT Imports subjects into an NDI session from a specified data path.
+function [subjectTable] = auto(session, dataPath, labName)
+%AUTO Imports subjects into an NDI session from a specified data path.
 %
 %   This function identifies new subjects from metadata files, creates
 %   corresponding subject documents, and adds them to the NDI session's
@@ -58,6 +58,16 @@ else
         subjectTable_session(:,subjectIdentifiers));
     subjectTable_new = subjectTable_files(indNew,:);
 end
+
+% Validate required columns for new subjects
+for i = 1:numel(subjectIdentifiers)
+    isEmpty = cellfun(@isempty, subjectTable_new.(subjectIdentifiers{i}));
+    if any(isEmpty)
+        warning('Some subjects are missing required column: %s. These subjects will not be added.', subjectIdentifiers{i})
+        subjectTable_new(isEmpty,:) = [];
+    end
+end
+
 [~,indUnique] = unique(subjectTable_new(:,subjectIdentifiers),'stable');
 subjectTable_new = subjectTable_new(indUnique,:);
 

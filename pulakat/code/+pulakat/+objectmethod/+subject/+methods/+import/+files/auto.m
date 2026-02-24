@@ -1,9 +1,9 @@
-function varargout = remove(subjectsObject, varargin)
-%REMOVE Deletes local subjects and removes them from the metatable.
+function varargout = auto(subjectsObject, varargin)
+%AUTO Imports data files for the selected subjects.
 %
-%   This object method checks if subjects are synchronized to the cloud.
-%   If they are not, it deletes them from their respective NDI sessions
-%   and removes their entries from the subject metatable.
+%   This object method identifies the sessions associated with the
+%   selected subjects and imports any new data files found in those
+%   session directories into NDI.
 %
 %   Inputs:
 %       subjectsObject (struct): A structure or array of structures
@@ -17,7 +17,7 @@ function varargout = remove(subjectsObject, varargin)
     params = getDefaultParameters();
     
     % Create a cell array with attribute keywords
-    ATTRIBUTES = {'batch', 'queueable'};
+    ATTRIBUTES = {'serial', 'queueable'};
     
     % Create a struct with "attributes" using a predefined pattern
     import nansen.session.SessionMethod
@@ -32,34 +32,33 @@ function varargout = remove(subjectsObject, varargin)
     
     % --- Implementation of the method ---
 
-    % Convert subject object to table
+    % Convert subjects object to table
     subjectTable = struct2table(subjectsObject);
     
-    % Check the subject status
-    if all(subjectTable.Cloud)
-        error('Subjects that are already synced to the cloud cannot be deleted.')
-    elseif any(subjectTable.Cloud)
-        warning('Only subjects that not already synced to the cloud were deleted.')
-        subjectTable(subjectTable.Cloud,:) = []; % remove cloud subjects from table
-    end
-
     % Get unique sessions
     sessionPaths = cellstr(subjectTable.SessionPath);
-    [sessionPaths_unique,~,ind] = unique(sessionPaths,'stable');
+    [sessionPaths_unique, ~, ~] = unique(sessionPaths, 'stable');
+    
     for i = 1:numel(sessionPaths_unique)
-
         % Get session object
         session = ndi.session.dir(sessionPaths_unique{i});
 
-        % Delete subject(s) from session
-        subjectIDs = cellstr(subjectTable.SubjectDocumentIdentifier);
-        session.database_rm(subjectIDs(ind == i));
+        % Add files to session
+        ndi.nansen.import.file.auto(session);
+        dataTable = ndi.nansen.metatable.file(session);
+
+        % Add cloud status to data table
+        datasetIDs = cellstr(subjectTable.DatasetIdentifier);
+        dataset = ndi.nansen.fun.datasetID2Object(datasetIDs{1});
+        statusTable = ndi.nansen.sync.status(dataset);
+        dataTable = join(dataTable, statusTable, 'LeftKeys', ...
+            'FileDocumentIdentifier', 'RightKeys', 'DocumentIdentifier');
+
+        % Add files to metatable
+        ndi.nansen.metatable.add(dataTable, 'File');
     end
 
-    % Remove subject(s) from metatable
-    ndi.nansen.metatable.remove(subjectTable,'Subject');
-
-    % Return session object (please do not remove):
+    % Return subjects object (please do not remove):
     % if nargout; varargout = {subjectsObject}; end
 end
 

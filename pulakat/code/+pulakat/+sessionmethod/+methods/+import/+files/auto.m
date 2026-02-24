@@ -1,5 +1,5 @@
-function varargout = files(sessionObject, varargin)
-%FILES Imports data files for a session into NDI and updates the metatable.
+function varargout = auto(sessionObject, varargin)
+%AUTO Imports data files for a session into NDI and updates the metatable.
 %
 %   This session method identifies data files associated with the session,
 %   imports them into the NDI database, checks their cloud synchronization
@@ -35,7 +35,7 @@ function varargout = files(sessionObject, varargin)
     session = ndi.session.dir(sessionObject.SessionPath);
 
     % Add files to session
-    ndi.nansen.import.data(session);
+    ndi.nansen.import.file.auto(session);
     dataTable = ndi.nansen.metatable.file(session);
 
     % Add cloud status to subject table

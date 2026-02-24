@@ -44,15 +44,17 @@ function varargout = remove(filesObject, varargin)
     end
 
     % Get unique sessions
-    [sessionPaths,~,ind] = unique(fileTable.SessionPath,'stable');
-    for i = 1:numel(sessionPaths)
+    sessionPaths = cellstr(fileTable.SessionPath);
+    [sessionPaths_unique,~,ind] = unique(sessionPaths,'stable');
+    for i = 1:numel(sessionPaths_unique)
 
         % Get session object
-        session = ndi.session.dir(sessionPaths{i});
+        session = ndi.session.dir(sessionPaths_unique{i});
 
         % Delete file document(s) from session
         % Also delete the file on disk if it exists
-        fileIDs = fileTable.FileDocumentIdentifier(ind == i);
+        fileIDs = cellstr(fileTable.FileDocumentIdentifier);
+        fileIDs = fileIDs(ind == i);
         for j = 1:numel(fileIDs)
             doc = session.database_search(ndi.query('','isa','generic_file') & ...
                 ndi.query('base.id','exact_string',fileIDs{j}));

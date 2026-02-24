@@ -1,5 +1,5 @@
-function varargout = subjects(sessionObject, varargin)
-%SUBJECTS Imports subjects for a session into NDI and updates the metatable.
+function varargout = auto(sessionObject, varargin)
+%AUTO Imports subjects for a session into NDI and updates the metatable.
 %
 %   This session method identifies subjects associated with the session,
 %   imports them into the NDI database, checks their cloud synchronization
@@ -35,7 +35,7 @@ function varargout = subjects(sessionObject, varargin)
     session = ndi.session.dir(sessionObject.SessionPath);
 
     % Add subjects to session
-    ndi.nansen.import.subject(session);
+    ndi.nansen.import.subject.auto(session);
     subjectTable = ndi.nansen.metatable.subject(session);
 
     % Add cloud status to subject table
