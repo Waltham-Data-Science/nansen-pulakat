@@ -52,11 +52,12 @@ for i = 1:height(subjectTable)
         subjectTable.DateAdded(i) = datetime(datestamp,'InputFormat', ...
             'yyyy-MM-dd''T''HH:mm:ss.SSS''Z''','TimeZone','UTC');
     else
-        subjectTable.DateAdded(i) = NaT;
+        subjectTable.DateAdded(i) = NaT('TimeZone', 'UTC');
     end
 end
 
 % Add session info to subject table
+sessionTable.DateAdded = [];
 subjectTable = innerjoin(subjectTable,sessionTable);
 
 if isa(dataset,'ndi.dataset.dir')

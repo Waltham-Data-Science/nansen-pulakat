@@ -46,7 +46,7 @@ for i = 1:numel(sessions)
     sessionTable.SessionIdentifier{i} = sessions{i}.identifier;
     sessionTable.SessionDocumentIdentifier{i} = sessionDocIDs{i};
     sessionTable.SessionPath{i} = sessions{i}.path;
-    sessionTable.DateAdded(i) = NaT;
+    sessionTable.DateAdded(i) = NaT('TimeZone', 'UTC');
     
     if exist('dataset','var')
         sessionTable.DatasetIdentifier{i} = dataset.id;
