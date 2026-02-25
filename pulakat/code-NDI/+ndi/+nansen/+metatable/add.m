@@ -108,12 +108,26 @@ else
     end
     keys = intersect(keys, dataTable.Properties.VariableNames, 'stable');
 
+    % Ensure variable types match for identifying keys before matching
+    existingTable = metaTable.entries;
+    commonVars = intersect(existingTable.Properties.VariableNames, dataTable.Properties.VariableNames);
+    for i = 1:numel(commonVars)
+        varName = commonVars{i};
+        if iscell(existingTable.(varName)) && ~iscell(dataTable.(varName))
+            if isnumeric(dataTable.(varName)) && (isempty(dataTable.(varName)) || all(isnan(dataTable.(varName)) | dataTable.(varName) == 0))
+                dataTable.(varName) = repmat({''}, height(dataTable), 1);
+            else
+                dataTable.(varName) = cellstr(string(dataTable.(varName)));
+            end
+        end
+    end
+
     % Find matching rows in existing metatable
     if ~isempty(keys)
         excludeVars = setdiff(dataTable.Properties.VariableNames, keys, 'stable');
-        [indMatch, numMatch] = ndi.nansen.fun.matchTables(dataTable, metaTable.entries, excludeVars);
+        [indMatch, numMatch] = ndi.nansen.fun.matchTables(dataTable, existingTable, excludeVars);
     else
-        [indMatch, numMatch] = ndi.nansen.fun.matchTables(dataTable, metaTable.entries);
+        [indMatch, numMatch] = ndi.nansen.fun.matchTables(dataTable, existingTable);
     end
 
     for i = 1:height(dataTable)

@@ -41,7 +41,7 @@ function varargout = edit(fileObject, varargin)
         session = ndi.session.dir(fileTable.SessionPath{i});
 
         % Call edit function
-        ndi.nansen.edit.file(session, fileTable(i, :));
+        ndi.nansen.metatable.edit(session, fileTable(i, :), 'file');
     end
 end
 

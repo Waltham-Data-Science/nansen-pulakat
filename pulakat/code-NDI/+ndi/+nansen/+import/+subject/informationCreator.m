@@ -49,7 +49,8 @@ methods
         end
 
         % --- Load strains info ---
-        strainsFile = fullfile('+ndi','+nansen','+import','+subject','strains.json');
+        [thisPath, ~, ~] = fileparts(mfilename('fullpath'));
+        strainsFile = fullfile(thisPath, 'strains.json');
         strainsInfo = jsondecode(fileread(strainsFile));
 
         % --- Find correct strain from name or alias ---

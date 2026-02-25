@@ -1,9 +1,8 @@
-function varargout = edit(subjectObject, varargin)
-%EDIT Edits metadata for selected subjects.
+function varargout = check(subjectObject, varargin)
+%CHECK Validates metadata for selected subjects.
 %
-%   This object method allows the user to interactively edit metadata for
-%   one or more subjects. It opens a dialog for each subject and updates
-%   the metatable with the new values.
+%   This object method checks if the metadata for the selected subjects
+%   is valid for creating NDI documents and syncing to the cloud.
 %
 %   Inputs:
 %       subjectObject (struct): A structure or array of structures
@@ -35,13 +34,18 @@ function varargout = edit(subjectObject, varargin)
     % Convert subject object to table
     subjectTable = struct2table(subjectObject, 'AsArray', true);
 
-    % Loop over subjects and open edit dialog
-    for i = 1:height(subjectTable)
-        % Get session object
-        session = ndi.session.dir(subjectTable.SessionPath{i});
+    % Call validation function
+    [isValid, errorReport] = ndi.nansen.import.subject.validate(subjectTable);
 
-        % Call edit function
-        ndi.nansen.metatable.edit(session, subjectTable(i, :), 'subject');
+    if isValid
+        msgbox('All selected subjects are valid.', 'Validation Success');
+    else
+        if numel(errorReport) > 5
+             listdlg('PromptString', 'Validation Errors:', 'ListString', errorReport, ...
+                 'SelectionMode', 'none', 'ListSize', [600 300], 'Name', 'Validation Fail');
+        else
+             msgbox(errorReport, 'Validation Fail', 'warn');
+        end
     end
 end
 

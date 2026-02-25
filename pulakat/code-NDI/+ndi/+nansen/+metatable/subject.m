@@ -68,19 +68,29 @@ try
         for i = 1:height(subjectTable)
             ind = strcmp(fileTable.SubjectDocumentIdentifier, subjectTable.SubjectDocumentIdentifier{i});
             subjectTable.NumFiles(i) = sum(ind);
+
+            % Add DataTypes column
+            if any(ind)
+                uniqueDataTypes = unique(fileTable.DataTypeName(ind));
+                subjectTable.DataTypes{i} = strjoin(uniqueDataTypes, ', ');
+            else
+                subjectTable.DataTypes{i} = '';
+            end
         end
     else
         subjectTable.NumFiles(:) = 0;
+        subjectTable.DataTypes(:) = {''};
     end
 catch
     subjectTable.NumFiles(:) = 0;
+    subjectTable.DataTypes(:) = {''};
 end
 
 if isa(dataset,'ndi.dataset.dir')
     statusTable = ndi.nansen.sync.status(dataset);
-    subjectTable = join(subjectTable,statusTable,'LeftKeys',...
-        'SubjectDocumentIdentifier','RightKeys','DocumentIdentifier',...
-        'KeepOneCopy','Cloud');
+    [Lia, Locb] = ismember(subjectTable.SubjectDocumentIdentifier, statusTable.DocumentIdentifier);
+    subjectTable.Cloud = false(height(subjectTable), 1);
+    subjectTable.Cloud(Lia) = statusTable.Cloud(Locb(Lia));
 end
 
 end
