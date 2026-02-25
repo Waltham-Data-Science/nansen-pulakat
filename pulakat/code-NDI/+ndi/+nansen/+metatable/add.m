@@ -54,7 +54,7 @@ else
     % (Workaround for Nansen bug where table concatenation fails if columns don't match)
     existingTable = metaTable.entries;
 
-    if ~isempty(existingTable)
+    if ~isempty(existingTable.Properties.VariableNames)
         % 1. Add missing columns to dataTable
         missingInNew = setdiff(existingTable.Properties.VariableNames, dataTable.Properties.VariableNames);
         for i = 1:numel(missingInNew)
@@ -113,7 +113,7 @@ function emptyData = getEmptyData(exampleData)
         emptyData = NaT;
     elseif isstring(exampleData)
         emptyData = "";
-    elseif isenum(exampleData)
+    elseif isenumeration(exampleData)
         % This is tricky, but let's try to get the first element or something
         mc = metaclass(exampleData);
         if ~isempty(mc)

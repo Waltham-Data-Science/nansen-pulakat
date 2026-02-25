@@ -100,7 +100,7 @@ end
 % Return data table with matching subjects
 subjectIdentifiers = projectInfo.subjectIdentifierFields;
 dataTable = [subjectTable_files(numSubjects == 1, [{'ElectronicFileName','DataTypeName'}, subjectIdentifiers']),...
-    subjectTable_session([indSubjects{numSubjects == 1}],'SubjectDocumentIdentifier')];
+    subjectTable_session(cell2mat(indSubjects(numSubjects == 1)),'SubjectDocumentIdentifier')];
 %dataTable_multiple = subjectFileTable(numSubjects > 1,:);
 
 end
