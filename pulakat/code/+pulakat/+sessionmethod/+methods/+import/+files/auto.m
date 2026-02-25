@@ -37,13 +37,14 @@ function varargout = auto(sessionObject, varargin)
     % Add files to session
     dataTable = ndi.nansen.import.file.auto(session);
 
-    % Add cloud status to subject table
+    % Add cloud status to data table
     dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
     statusTable = ndi.nansen.sync.status(dataset);
-    dataTable = join(dataTable,statusTable,'LeftKeys',...
-        'FileDocumentIdentifier','RightKeys','DocumentIdentifier');
+    [Lia, Locb] = ismember(dataTable.FileDocumentIdentifier, statusTable.DocumentIdentifier);
+    dataTable.Cloud = false(height(dataTable), 1);
+    dataTable.Cloud(Lia) = statusTable.Cloud(Locb(Lia));
 
-    % Add subjects to metatable
+    % Add files to metatable
     ndi.nansen.metatable.add(dataTable,'File');
 
     % Return session object (please do not remove):

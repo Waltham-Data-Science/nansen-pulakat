@@ -35,14 +35,14 @@ function varargout = auto(sessionObject, varargin)
     session = ndi.session.dir(sessionObject.SessionPath);
 
     % Add subjects to session
-    ndi.nansen.import.subject.auto(session);
-    subjectTable = ndi.nansen.metatable.subject(session);
+    subjectTable = ndi.nansen.import.subject.auto(session);
 
     % Add cloud status to subject table
     dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
     statusTable = ndi.nansen.sync.status(dataset);
-    subjectTable = join(subjectTable,statusTable,'LeftKeys',...
-        'SubjectDocumentIdentifier','RightKeys','DocumentIdentifier');
+    [Lia, Locb] = ismember(subjectTable.SubjectDocumentIdentifier, statusTable.DocumentIdentifier);
+    subjectTable.Cloud = false(height(subjectTable), 1);
+    subjectTable.Cloud(Lia) = statusTable.Cloud(Locb(Lia));
 
     % Add subjects to metatable
     ndi.nansen.metatable.add(subjectTable,'Subject');
