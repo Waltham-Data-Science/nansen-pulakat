@@ -54,7 +54,7 @@ else
     % (Workaround for Nansen bug where table concatenation fails if columns don't match)
     existingTable = metaTable.entries;
 
-    if ~isempty(existingTable)
+    if ~isempty(existingTable.Properties.VariableNames)
         % 1. Add missing columns to dataTable
         missingInNew = setdiff(existingTable.Properties.VariableNames, dataTable.Properties.VariableNames);
         for i = 1:numel(missingInNew)
@@ -96,7 +96,39 @@ else
         end
     end
 
-    metaTable.addTable(dataTable);
+    % Use identifying fields to find unique rows
+    if strcmp(dataName, 'Subject')
+        keys = {'SessionName', 'SubjectEnumeratedIdentifier', 'SubjectCageIdentifier', 'SubjectTextIdentifier'};
+    elseif strcmp(dataName, 'File')
+        keys = {'SessionName', 'ElectronicFileName', 'DataTypeName', 'SubjectEnumeratedIdentifier', 'SubjectCageIdentifier', 'SubjectTextIdentifier'};
+    elseif strcmp(dataName, 'Session')
+        keys = {'SessionName', 'SessionPath'};
+    else
+        keys = {metaTable.MetaTableIdVarname};
+    end
+    keys = intersect(keys, dataTable.Properties.VariableNames, 'stable');
+
+    % Find matching rows in existing metatable
+    if ~isempty(keys)
+        excludeVars = setdiff(dataTable.Properties.VariableNames, keys, 'stable');
+        [indMatch, numMatch] = ndi.nansen.fun.matchTables(dataTable, metaTable.entries, excludeVars);
+    else
+        [indMatch, numMatch] = ndi.nansen.fun.matchTables(dataTable, metaTable.entries);
+    end
+
+    for i = 1:height(dataTable)
+        if numMatch(i) == 1
+            % Update existing entry
+            rowInd = indMatch{i};
+            varNames = dataTable.Properties.VariableNames;
+            for j = 1:numel(varNames)
+                metaTable.editEntries(rowInd, varNames{j}, dataTable{i, varNames{j}});
+            end
+        else
+            % Add new entry
+            metaTable.addTable(dataTable(i, :));
+        end
+    end
     metaTable.save;
 end
 
@@ -113,7 +145,7 @@ function emptyData = getEmptyData(exampleData)
         emptyData = NaT;
     elseif isstring(exampleData)
         emptyData = "";
-    elseif isenum(exampleData)
+    elseif isenumeration(exampleData)
         % This is tricky, but let's try to get the first element or something
         mc = metaclass(exampleData);
         if ~isempty(mc)

@@ -39,7 +39,6 @@ if ~isempty(requiredVariableNames)
     if ~isempty(missingVariableNames)
         warning('validateTable:missingVariables','%s is missing the required columns: %s.',...
             fileName,strjoin(missingVariableNames,', '));
-        valid = false;
     end
 end
 
@@ -54,7 +53,6 @@ catch ME
     missingVariableName = requiredVariableNames{str2double(missingCell{1})};
     warning('validateTable:missingData','%s contains invalid or missing data in column %s (%s): row %s',...
         fileName,missingCell{1},missingVariableName,missingCell{2});
-    valid = false;
 end
 
 end

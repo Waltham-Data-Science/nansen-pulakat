@@ -22,7 +22,7 @@ labName = char(labName);
 
 % 1. Get project info
 projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
-projectInfo = jsondecode(fileread(projectFile));
+projectInfo = jsondecode(fileread(char(projectFile)));
 
 % 2. Update required repos
 [~,repoPath] = ndi.nansen.sync.repo(projectInfo.URL);

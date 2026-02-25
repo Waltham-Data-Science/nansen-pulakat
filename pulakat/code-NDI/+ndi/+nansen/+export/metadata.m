@@ -35,9 +35,9 @@ if ~options.SubjectOnly
     fileTable = fileTable.entries;
 
     % Get project info
-    labName = project.Name;
+    labName = char(project.Name);
     projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
-    projectInfo = jsondecode(fileread(projectFile));
+    projectInfo = jsondecode(fileread(char(projectFile)));
     subjectIdentifiers = projectInfo.subjectIdentifierFields;
 
     % Use identifying fields and SessionIdentifier as join keys to support pending entries

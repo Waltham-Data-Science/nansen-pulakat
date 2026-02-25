@@ -1,5 +1,5 @@
-classdef LabName < nansen.metadata.abstract.TableVariable
-%LABNAME Definition for table variable
+classdef DateAdded < nansen.metadata.abstract.TableVariable
+%DATEADDED Definition for table variable
 %   Detailed explanation goes here
 %
 %   See also nansen.metadata.abstract.TableVariable
@@ -10,7 +10,7 @@ classdef LabName < nansen.metadata.abstract.TableVariable
     end
     
     methods
-        function obj = LabName(varargin)
+        function obj = DateAdded(varargin)
             obj@nansen.metadata.abstract.TableVariable(varargin{:});
         end
     end

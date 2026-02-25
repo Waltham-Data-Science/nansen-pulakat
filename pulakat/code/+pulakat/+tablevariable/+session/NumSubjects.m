@@ -1,16 +1,16 @@
-classdef SessionID < nansen.metadata.abstract.TableVariable
-%SESSIONID Definition for table variable
+classdef NumSubjects < nansen.metadata.abstract.TableVariable
+%NUMSUBJECTS Definition for table variable
 %   Detailed explanation goes here
 %
 %   See also nansen.metadata.abstract.TableVariable
-    
+
     properties (Constant)
         IS_EDITABLE = false
-        DEFAULT_VALUE = {'N/A'}
+        DEFAULT_VALUE = 0
     end
-    
+
     methods
-        function obj = SessionID(varargin)
+        function obj = NumSubjects(varargin)
             obj@nansen.metadata.abstract.TableVariable(varargin{:});
         end
     end
