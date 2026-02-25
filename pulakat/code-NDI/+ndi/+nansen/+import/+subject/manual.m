@@ -77,7 +77,7 @@ subjectTable_new{:,'SessionIdentifier'} = session.id;
 subjectTable_new{:,'SessionName'} = session.reference;
 subjectTable_new{:,'SessionPath'} = session.path;
 subjectTable_new{:,'SubjectDocumentIdentifier'} = {''};
-subjectTable_new{:,'DateAdded'} = datetime('now');
+subjectTable_new{:,'DateAdded'} = datetime('now','TimeZone','UTC');
 subjectTable_new{:,'Cloud'} = false;
 
 
