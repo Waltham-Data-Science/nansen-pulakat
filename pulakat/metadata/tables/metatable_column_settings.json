@@ -315,24 +315,6 @@
     "ColumnOrder": 35
   },
   {
-    "VariableName": "LabName",
-    "ColumnLabel": "LabName",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 100,
-    "IsEditable": false,
-    "ColumnOrder": 36
-  },
-  {
-    "VariableName": "SessionID",
-    "ColumnLabel": "SessionID",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 100,
-    "IsEditable": false,
-    "ColumnOrder": 37
-  },
-  {
     "VariableName": "Strain",
     "ColumnLabel": "Strain",
     "ShowColumn": true,
