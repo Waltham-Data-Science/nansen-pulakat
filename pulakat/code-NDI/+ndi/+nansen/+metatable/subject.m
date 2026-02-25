@@ -88,9 +88,9 @@ end
 
 if isa(dataset,'ndi.dataset.dir')
     statusTable = ndi.nansen.sync.status(dataset);
-    subjectTable = join(subjectTable,statusTable,'LeftKeys',...
-        'SubjectDocumentIdentifier','RightKeys','DocumentIdentifier',...
-        'KeepOneCopy','Cloud');
+    [Lia, Locb] = ismember(subjectTable.SubjectDocumentIdentifier, statusTable.DocumentIdentifier);
+    subjectTable.Cloud = false(height(subjectTable), 1);
+    subjectTable.Cloud(Lia) = statusTable.Cloud(Locb(Lia));
 end
 
 end

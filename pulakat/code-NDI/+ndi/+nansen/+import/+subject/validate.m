@@ -19,7 +19,8 @@ projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json'
 projectInfo = jsondecode(fileread(projectFile));
 
 % Load strains info
-strainsFile = fullfile('+ndi','+nansen','+import','+subject','strains.json');
+[thisPath, ~, ~] = fileparts(mfilename('fullpath'));
+strainsFile = fullfile(thisPath, 'strains.json');
 strainsInfo = jsondecode(fileread(strainsFile));
 validStrains = {strainsInfo.value};
 allAliases = {strainsInfo.aliases};

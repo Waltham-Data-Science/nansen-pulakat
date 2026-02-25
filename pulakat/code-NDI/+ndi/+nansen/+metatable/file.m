@@ -101,8 +101,9 @@ if ~isempty(dataTable)
 
     if isa(dataset,'ndi.dataset.dir')
         statusTable = ndi.nansen.sync.status(dataset);
-        dataTable = join(dataTable,statusTable,'LeftKeys',...
-            'FileDocumentIdentifier','RightKeys','DocumentIdentifier');
+        [Lia, Locb] = ismember(dataTable.FileDocumentIdentifier, statusTable.DocumentIdentifier);
+        dataTable.Cloud = false(height(dataTable), 1);
+        dataTable.Cloud(Lia) = statusTable.Cloud(Locb(Lia));
     end
 end
 

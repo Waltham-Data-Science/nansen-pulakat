@@ -64,8 +64,15 @@ for i = 1:numel(sessions)
             ind = strcmp(fileMetaTable.entries.SessionName, sessions{i}.reference);
             sessionTable.NumFiles(i) = sum(ind);
 
+            if any(ind)
+                uniqueDataTypes = unique(fileMetaTable.entries.DataTypeName(ind));
+                sessionTable.DataTypes{i} = strjoin(uniqueDataTypes, ', ');
+            else
+                sessionTable.DataTypes{i} = '';
+            end
         else
             sessionTable.NumFiles(i) = 0;
+            sessionTable.DataTypes{i} = '';
         end
     catch
         % Fallback to NDI if project/metatables are not available
@@ -74,14 +81,13 @@ for i = 1:numel(sessions)
 
         fileDocs = sessions{i}.database_search(ndi.query('','isa','generic_file'));
         sessionTable.NumFiles(i) = numel(fileDocs);
+        sessionTable.DataTypes{i} = '';
     end
 
     if exist('dataset','var')
         sessionTable.DatasetIdentifier{i} = dataset.id;
         sessionTable.DatasetDocumentIdentifier{i} = datasetDocID;
-        statusTable = ndi.nansen.sync.status(dataset);
-        sessionTable = join(sessionTable,statusTable,'LeftKeys',...
-            'SessionDocumentIdentifier','RightKeys','DocumentIdentifier');
+
         % Add DateAdded from NDI
         doc = dataset.database_search(ndi.query('base.id','exact_string',sessionDocIDs{i}));
         if ~isempty(doc)
@@ -90,6 +96,14 @@ for i = 1:numel(sessions)
                 'yyyy-MM-dd''T''HH:mm:ss.SSS''Z''','TimeZone','UTC');
         end
     end
+end
+
+% Add cloud sync status
+if exist('dataset','var') && ~isempty(sessionTable)
+    statusTable = ndi.nansen.sync.status(dataset);
+    [Lia, Locb] = ismember(sessionTable.SessionDocumentIdentifier, statusTable.DocumentIdentifier);
+    sessionTable.Cloud = false(height(sessionTable), 1);
+    sessionTable.Cloud(Lia) = statusTable.Cloud(Locb(Lia));
 end
 
 % If wanting the full meta table, add summary of subject table
