@@ -148,7 +148,7 @@
     "ColumnLabel": "Dataset Local Path",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 429,
+    "ColumnWidth": 629,
     "IsEditable": false,
     "ColumnOrder": 19
   },
@@ -177,7 +177,7 @@
     "SkipColumn": false,
     "ColumnWidth": 130,
     "IsEditable": false,
-    "ColumnOrder": 28
+    "ColumnOrder": 27
   },
   {
     "VariableName": "FileDocumentIdentifier",
@@ -222,7 +222,7 @@
     "SkipColumn": false,
     "ColumnWidth": 68,
     "IsEditable": false,
-    "ColumnOrder": 34
+    "ColumnOrder": 28
   },
   {
     "VariableName": "newType",
@@ -295,14 +295,5 @@
     "ColumnWidth": 100,
     "IsEditable": false,
     "ColumnOrder": 33
-  },
-  {
-    "VariableName": "DateAdded",
-    "ColumnLabel": "Date Added",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 100,
-    "IsEditable": false,
-    "ColumnOrder": 27
   }
 ]

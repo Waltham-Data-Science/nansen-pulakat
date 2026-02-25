@@ -56,21 +56,43 @@ else
 
     if ~isempty(existingTable)
         % 1. Add missing columns to dataTable
-        missingVars = setdiff(existingTable.Properties.VariableNames, dataTable.Properties.VariableNames);
-        for i = 1:numel(missingVars)
-            varName = missingVars{i};
+        missingInNew = setdiff(existingTable.Properties.VariableNames, dataTable.Properties.VariableNames);
+        for i = 1:numel(missingInNew)
+            varName = missingInNew{i};
             dataTable.(varName) = repmat(getEmptyData(existingTable.(varName)), height(dataTable), 1);
         end
 
-        % 2. Add new columns from dataTable to existing metatable
+        % 2. Check for new columns in dataTable that are not in existingTable
         newVars = setdiff(dataTable.Properties.VariableNames, existingTable.Properties.VariableNames);
         if ~isempty(newVars)
-            entries = metaTable.entries;
+            % Since metaTable.entries is read-only, we can't update its schema directly.
+            % We must align the existing table and overwrite the metatable.
             for i = 1:numel(newVars)
                 varName = newVars{i};
-                entries.(varName) = repmat(getEmptyData(dataTable.(varName)), height(existingTable), 1);
+                existingTable.(varName) = repmat(getEmptyData(dataTable.(varName)), height(existingTable), 1);
             end
-            metaTable.entries = entries;
+
+            % Combine tables and handle duplicates
+            fullTable = [existingTable; dataTable];
+
+            % Use identifying fields to find unique rows
+            if strcmp(dataName, 'Subject')
+                keys = {'SessionName', 'SubjectEnumeratedIdentifier', 'SubjectCageIdentifier', 'SubjectTextIdentifier'};
+            elseif strcmp(dataName, 'File')
+                keys = {'SessionName', 'ElectronicFileName', 'DataTypeName', 'SubjectEnumeratedIdentifier', 'SubjectCageIdentifier', 'SubjectTextIdentifier'};
+            elseif strcmp(dataName, 'Session')
+                keys = {'SessionName', 'SessionPath'};
+            else
+                keys = {metaTable.MetaTableIdVarname};
+            end
+            keys = intersect(keys, fullTable.Properties.VariableNames, 'stable');
+
+            [~, ind] = unique(fullTable(:, keys), 'last');
+            fullTable = fullTable(sort(ind), :);
+
+            % Overwrite metatable
+            ndi.nansen.metatable.add(fullTable, dataName, 'Project', project, 'Overwrite', true);
+            return
         end
     end
 
@@ -94,8 +116,12 @@ function emptyData = getEmptyData(exampleData)
     elseif isenum(exampleData)
         % This is tricky, but let's try to get the first element or something
         mc = metaclass(exampleData);
-        emptyData = enumeration(mc.Name);
-        emptyData = emptyData(1);
+        if ~isempty(mc)
+            emptyData = enumeration(mc.Name);
+            emptyData = emptyData(1);
+        else
+            emptyData = {[]};
+        end
     else
         emptyData = {[]};
     end
