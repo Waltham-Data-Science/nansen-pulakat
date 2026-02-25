@@ -68,12 +68,22 @@ try
         for i = 1:height(subjectTable)
             ind = strcmp(fileTable.SubjectDocumentIdentifier, subjectTable.SubjectDocumentIdentifier{i});
             subjectTable.NumFiles(i) = sum(ind);
+
+            % Add DataTypes column
+            if any(ind)
+                uniqueDataTypes = unique(fileTable.DataTypeName(ind));
+                subjectTable.DataTypes{i} = strjoin(uniqueDataTypes, ', ');
+            else
+                subjectTable.DataTypes{i} = '';
+            end
         end
     else
         subjectTable.NumFiles(:) = 0;
+        subjectTable.DataTypes(:) = {''};
     end
 catch
     subjectTable.NumFiles(:) = 0;
+    subjectTable.DataTypes(:) = {''};
 end
 
 if isa(dataset,'ndi.dataset.dir')

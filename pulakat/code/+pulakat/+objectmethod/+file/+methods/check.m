@@ -1,13 +1,12 @@
-function varargout = edit(subjectObject, varargin)
-%EDIT Edits metadata for selected subjects.
+function varargout = check(fileObject, varargin)
+%CHECK Validates metadata for selected files.
 %
-%   This object method allows the user to interactively edit metadata for
-%   one or more subjects. It opens a dialog for each subject and updates
-%   the metatable with the new values.
+%   This object method checks if the metadata for the selected files
+%   is valid for creating NDI documents and syncing to the cloud.
 %
 %   Inputs:
-%       subjectObject (struct): A structure or array of structures
-%           representing subjects.
+%       fileObject (struct): A structure or array of structures
+%           representing files.
 %       varargin: Optional name-value pairs for parameters.
 %
 %   Outputs:
@@ -32,16 +31,21 @@ function varargout = edit(subjectObject, varargin)
 
     % --- Implementation of the method ---
 
-    % Convert subject object to table
-    subjectTable = struct2table(subjectObject, 'AsArray', true);
+    % Convert file object to table
+    fileTable = struct2table(fileObject, 'AsArray', true);
 
-    % Loop over subjects and open edit dialog
-    for i = 1:height(subjectTable)
-        % Get session object
-        session = ndi.session.dir(subjectTable.SessionPath{i});
+    % Call validation function
+    [isValid, errorReport] = ndi.nansen.import.file.validate(fileTable);
 
-        % Call edit function
-        ndi.nansen.metatable.edit(session, subjectTable(i, :), 'subject');
+    if isValid
+        msgbox('All selected files are valid.', 'Validation Success');
+    else
+        if numel(errorReport) > 5
+             listdlg('PromptString', 'Validation Errors:', 'ListString', errorReport, ...
+                 'SelectionMode', 'none', 'ListSize', [600 300], 'Name', 'Validation Fail');
+        else
+             msgbox(errorReport, 'Validation Fail', 'warn');
+        end
     end
 end
 
