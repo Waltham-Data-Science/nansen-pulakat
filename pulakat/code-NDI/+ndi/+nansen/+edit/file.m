@@ -49,4 +49,8 @@ dataTable{1,editableVariables} = answer';
 % Update Nansen metatable
 ndi.nansen.metatable.add(dataTable,'File');
 
+% Update Session metatable
+sessionTable = ndi.nansen.metatable.session(session);
+ndi.nansen.metatable.add(sessionTable, 'Session');
+
 end

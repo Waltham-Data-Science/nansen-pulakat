@@ -48,6 +48,13 @@ for i = 1:numel(sessions)
     sessionTable.SessionPath{i} = sessions{i}.path;
     sessionTable.DateAdded(i) = NaT('TimeZone', 'UTC');
 
+    % Count subjects and files
+    subjectDocs = sessions{i}.database_search(ndi.query('','isa','subject'));
+    sessionTable.NumSubjects(i) = numel(subjectDocs);
+
+    fileDocs = sessions{i}.database_search(ndi.query('','isa','generic_file'));
+    sessionTable.NumFiles(i) = numel(fileDocs);
+
     if exist('dataset','var')
         sessionTable.DatasetIdentifier{i} = dataset.id;
         sessionTable.DatasetDocumentIdentifier{i} = datasetDocID;

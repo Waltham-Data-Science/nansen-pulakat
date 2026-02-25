@@ -322,5 +322,23 @@
     "ColumnWidth": 100,
     "IsEditable": false,
     "ColumnOrder": 38
+  },
+  {
+    "VariableName": "NumSubjects",
+    "ColumnLabel": "Subjects",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 80,
+    "IsEditable": false,
+    "ColumnOrder": 39
+  },
+  {
+    "VariableName": "NumFiles",
+    "ColumnLabel": "Files",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 80,
+    "IsEditable": false,
+    "ColumnOrder": 40
   }
 ]
