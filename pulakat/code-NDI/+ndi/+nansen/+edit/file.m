@@ -36,6 +36,10 @@ settingsFileName = fullfile(options.Project.FolderPath,'metadata','tables','meta
 columnSettings = jsondecode(fileread(settingsFileName));
 columnMap = containers.Map({columnSettings.VariableName}, {columnSettings.ColumnLabel});
 
+% Find matching row index in metatable before editing
+metaTable = options.Project.MetaTableCatalog.getMetaTable('File');
+[indMatch, numMatch] = ndi.nansen.fun.matchTables(dataTable, metaTable.entries);
+
 % Query user for file changes
 editableVariables = intersect(cellstr(options.EditableVariables),...
     dataTable.Properties.VariableNames);
@@ -47,7 +51,16 @@ if isempty(answer); return; end
 dataTable{1,editableVariables} = answer';
 
 % Update Nansen metatable
-ndi.nansen.metatable.add(dataTable,'File');
+if numMatch == 1
+    rowInd = indMatch{1};
+    varNames = dataTable.Properties.VariableNames;
+    for i = 1:numel(varNames)
+        metaTable.editEntries(rowInd, varNames{i}, dataTable{1, varNames{i}});
+    end
+    metaTable.save();
+else
+    ndi.nansen.metatable.add(dataTable,'File');
+end
 
 % Update Session metatable
 sessionTable = ndi.nansen.metatable.session(session);

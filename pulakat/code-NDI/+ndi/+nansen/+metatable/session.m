@@ -48,12 +48,32 @@ for i = 1:numel(sessions)
     sessionTable.SessionPath{i} = sessions{i}.path;
     sessionTable.DateAdded(i) = NaT('TimeZone', 'UTC');
 
-    % Count subjects and files
-    subjectDocs = sessions{i}.database_search(ndi.query('','isa','subject'));
-    sessionTable.NumSubjects(i) = numel(subjectDocs);
+    % Count subjects and files from metatables
+    try
+        project = nansen.getCurrentProject();
+        subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
+        if ~isempty(subjectMetaTable) && ~isempty(subjectMetaTable.entries)
+            ind = strcmp(subjectMetaTable.entries.SessionName, sessions{i}.reference);
+            sessionTable.NumSubjects(i) = sum(ind);
+        else
+            sessionTable.NumSubjects(i) = 0;
+        end
 
-    fileDocs = sessions{i}.database_search(ndi.query('','isa','generic_file'));
-    sessionTable.NumFiles(i) = numel(fileDocs);
+        fileMetaTable = project.MetaTableCatalog.getMetaTable('File');
+        if ~isempty(fileMetaTable) && ~isempty(fileMetaTable.entries)
+            ind = strcmp(fileMetaTable.entries.SessionName, sessions{i}.reference);
+            sessionTable.NumFiles(i) = sum(ind);
+        else
+            sessionTable.NumFiles(i) = 0;
+        end
+    catch
+        % Fallback to NDI if project/metatables are not available
+        subjectDocs = sessions{i}.database_search(ndi.query('','isa','subject'));
+        sessionTable.NumSubjects(i) = numel(subjectDocs);
+
+        fileDocs = sessions{i}.database_search(ndi.query('','isa','generic_file'));
+        sessionTable.NumFiles(i) = numel(fileDocs);
+    end
 
     if exist('dataset','var')
         sessionTable.DatasetIdentifier{i} = dataset.id;
