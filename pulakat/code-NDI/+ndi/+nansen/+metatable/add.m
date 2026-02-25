@@ -80,27 +80,9 @@ else
                 existingTable.(varName) = repmat(getEmptyData(dataTable.(varName)), height(existingTable), 1);
             end
 
-            % Combine tables and handle duplicates
-            fullTable = [existingTable; dataTable];
-
-            % Use identifying fields to find unique rows
-            if strcmp(dataName, 'Subject')
-                keys = {'SubjectIdentifier'};
-            elseif strcmp(dataName, 'File')
-                keys = {'FileIdentifier'};
-            elseif strcmp(dataName, 'Session')
-                keys = {'SessionName', 'SessionPath'};
-            else
-                keys = {metaTable.MetaTableIdVarname};
-            end
-            keys = intersect(keys, fullTable.Properties.VariableNames, 'stable');
-
-            [~, ind] = unique(fullTable(:, keys), 'last');
-            fullTable = fullTable(sort(ind), :);
-
-            % Overwrite metatable
-            ndi.nansen.metatable.add(fullTable, dataName, 'Project', project, 'Overwrite', true);
-            return
+            % Overwrite metatable schema by replacing it with the aligned existingTable
+            metaTable = ndi.nansen.metatable.add(existingTable, dataName, 'Project', project, 'Overwrite', true);
+            existingTable = metaTable.entries;
         end
     end
 
@@ -143,8 +125,39 @@ else
             % Update existing entry
             rowInd = indMatch{i};
             varNames = dataTable.Properties.VariableNames;
+
+            % Check if row has an existing NDI document
+            docIDVar = [dataName, 'DocumentIdentifier'];
+            if ~ismember(docIDVar, existingTable.Properties.VariableNames)
+                docIDVar = 'DocumentIdentifier';
+            end
+
+            hasNDIDoc = false;
+            if ismember(docIDVar, existingTable.Properties.VariableNames)
+                val = existingTable{rowInd, docIDVar};
+                if iscell(val); val = val{1}; end
+                hasNDIDoc = ~isempty(val);
+            end
+
             for j = 1:numel(varNames)
-                metaTable.editEntries(rowInd, varNames{j}, dataTable{i, varNames{j}});
+                newValue = dataTable{i, varNames{j}};
+                existingValue = existingTable{rowInd, varNames{j}};
+
+                % Skip identifying keys
+                if ismember(varNames{j}, keys); continue; end
+
+                if hasNDIDoc
+                    % If has NDI doc, only update if existing is empty AND new is not
+                    if isDataEmpty(existingValue) && ~isDataEmpty(newValue)
+                        metaTable.editEntries(rowInd, varNames{j}, newValue);
+                    end
+                else
+                    % If no NDI doc, update if new is not empty
+                    % (prevents overwriting rich metadata with stubs)
+                    if ~isDataEmpty(newValue)
+                        metaTable.editEntries(rowInd, varNames{j}, newValue);
+                    end
+                end
             end
         else
             % Add new entry
@@ -154,6 +167,28 @@ else
     metaTable.save;
 end
 
+end
+
+function tf = isDataEmpty(data)
+    if iscell(data)
+        if isempty(data)
+            tf = true;
+        else
+            tf = all(cellfun(@isDataEmpty, data));
+        end
+    elseif ischar(data)
+        tf = isempty(data) || strcmp(data, 'n/a');
+    elseif isstring(data)
+        tf = ismissing(data) || all(data == "" | data == "n/a");
+    elseif isnumeric(data)
+        tf = isempty(data) || all(isnan(data) | data == 0);
+    elseif islogical(data)
+        tf = isempty(data) || all(~data);
+    elseif isdatetime(data)
+        tf = isempty(data) || all(isnat(data));
+    else
+        tf = isempty(data);
+    end
 end
 
 function emptyData = getEmptyData(exampleData)

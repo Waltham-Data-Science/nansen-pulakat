@@ -34,6 +34,7 @@ labName = char(labName);
 % Get project info
 projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
 projectInfo = jsondecode(fileread(char(projectFile)));
+subjectIdentifiers = projectInfo.subjectIdentifierFields;
 
 % Get identifying info for each data file
 subjectTable_files = ndi.setup.conv.(labName).subjectInfoFromFile(dataFiles);
@@ -70,25 +71,70 @@ if any(numSubjects == 0)
     uilabel(fig,'Text',{'The following subjects were not found in the database.'; ...
         'Do you wish to import the missing subjects now or skip these files?'},...
         'Position',[10 430 500 40],'FontSize',14);
-    uibutton(fig,'Text','Import subjects','Position',[450 435 100 20],...
-        "ButtonPushedFcn", @(btn,event) buttonCallback(btn, fig, 'Import'));
-    uibutton(fig,'Text','Skip data files','Position',[580 435 100 20],...
+    uibutton(fig,'Text','Auto Import','Position',[350 435 100 20],...
+        "ButtonPushedFcn", @(btn,event) buttonCallback(btn, fig, 'Auto'));
+    uibutton(fig,'Text','Manual Entry','Position',[460 435 100 20],...
+        "ButtonPushedFcn", @(btn,event) buttonCallback(btn, fig, 'Manual'));
+    uibutton(fig,'Text','Skip data files','Position',[570 435 100 20],...
         "ButtonPushedFcn", @(btn,event) buttonCallback(btn, fig, 'Skip'));
     uit = uitable(fig,'Position',[10 10 680 400]);
     skip = 'no';
     while any(numSubjects == 0) & strcmp(skip,'no')
-        uit.Data = unique(subjectTable_files(numSubjects == 0,:),'stable');
+        uit.Data = unique(subjectTable_files(numSubjects == 0,projectInfo.subjectIdentifierFields),'stable');
         figure(fig); uiwait(fig);
         switch fig.UserData
-            case 'Import'
-                subjectTable_session = ndi.nansen.import.subject.auto(session);
-                [indSubjects,numSubjects] = ndi.nansen.fun.matchTables( ...
-                    subjectTable_files,subjectTable_session);
+            case 'Auto'
+                newSubjectTable = ndi.nansen.import.subject.auto(session);
+                if ~isempty(newSubjectTable)
+                    ndi.nansen.metatable.add(newSubjectTable, 'Subject');
+                    % Refresh local session subject table
+                    subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
+                    subjectTable_session = subjectMetaTable.entries;
+                    indSession = strcmp(subjectTable_session.SessionIdentifier, session.id);
+                    subjectTable_session = subjectTable_session(indSession, :);
+                end
+            case 'Manual'
+                newSubjectTable = ndi.nansen.import.subject.manual(session);
+                if ~isempty(newSubjectTable)
+                    ndi.nansen.metatable.add(newSubjectTable, 'Subject');
+                    % Refresh local session subject table
+                    subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
+                    subjectTable_session = subjectMetaTable.entries;
+                    indSession = strcmp(subjectTable_session.SessionIdentifier, session.id);
+                    subjectTable_session = subjectTable_session(indSession, :);
+                end
             case 'Skip'
                 skip = 'yes';
         end
+        [indSubjects,numSubjects] = ndi.nansen.fun.matchTables( ...
+            subjectTable_files,subjectTable_session,'ElectronicFileName');
     end
     delete(fig);
+end
+
+% If there are still missing subjects (e.g. user skipped), create stub subjects
+if any(numSubjects == 0)
+    missingSubjects = unique(subjectTable_files(numSubjects == 0, subjectIdentifiers), 'stable');
+    missingSubjects.SessionIdentifier = repmat({session.id}, height(missingSubjects), 1);
+    missingSubjects.SessionName = repmat({session.reference}, height(missingSubjects), 1);
+    missingSubjects.SessionPath = repmat({session.path}, height(missingSubjects), 1);
+    missingSubjects.ElectronicFileName = repmat({'n/a'}, height(missingSubjects), 1);
+    missingSubjects.SubjectDocumentIdentifier = repmat({''}, height(missingSubjects), 1);
+    missingSubjects.DateAdded = repmat(datetime('now','TimeZone','UTC'), height(missingSubjects), 1);
+    missingSubjects.Cloud = false(height(missingSubjects), 1);
+
+    % Add stub subjects to metatable
+    ndi.nansen.metatable.add(missingSubjects, 'Subject');
+
+    % Refresh subjectTable_session one last time
+    subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
+    subjectTable_session = subjectMetaTable.entries;
+    indSession = strcmp(subjectTable_session.SessionIdentifier, session.id);
+    subjectTable_session = subjectTable_session(indSession, :);
+
+    % Final match
+    [indSubjects,numSubjects] = ndi.nansen.fun.matchTables( ...
+        subjectTable_files,subjectTable_session,'ElectronicFileName');
 end
 
 % Define the button callback function
@@ -98,7 +144,6 @@ function buttonCallback(~, fig, choice)
 end
 
 % Return data table with matching subjects
-subjectIdentifiers = projectInfo.subjectIdentifierFields;
 dataTable = [subjectTable_files(numSubjects == 1, [{'ElectronicFileName','DataTypeName'}, subjectIdentifiers']),...
     subjectTable_session(cell2mat(indSubjects(numSubjects == 1)),'SubjectDocumentIdentifier')];
 %dataTable_multiple = subjectFileTable(numSubjects > 1,:);
