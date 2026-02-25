@@ -94,6 +94,7 @@ subjectTable_new{:,'SessionIdentifier'} = session.id;
 subjectTable_new{:,'SessionName'} = session.reference;
 subjectTable_new{:,'SessionPath'} = session.path;
 subjectTable_new{:,'SubjectDocumentIdentifier'} = repmat({''}, height(subjectTable_new), 1);
+subjectTable_new{:,'SubjectIdentifier'} = ndi.nansen.fun.getIdentifier(subjectTable_new, 'Subject', labName);
 subjectTable_new{:,'DateAdded'} = repmat(datetime('now'), height(subjectTable_new), 1);
 subjectTable_new{:,'Cloud'} = false(height(subjectTable_new), 1);
 

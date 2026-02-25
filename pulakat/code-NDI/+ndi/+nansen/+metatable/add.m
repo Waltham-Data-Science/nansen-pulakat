@@ -34,7 +34,7 @@ metaTableEntry = metaTableCatalog.getEntry(dataName);
 if isempty(metaTableCatalog.Table) | options.Overwrite | isempty(metaTableEntry) || ...
         ~exist(fullfile(metaTableEntry.SavePath,metaTableEntry.FileName),'file')
     % Add new meta table to project
-    if strcmp(dataName,'File')
+    if ismember(dataName, {'File', 'Subject'})
         metaTable = nansen.metadata.MetaTable(dataTable, ...
             'MetaTableClass', dataName, ...
             'ItemClassName', 'table2struct', ...
@@ -49,6 +49,14 @@ if isempty(metaTableCatalog.Table) | options.Overwrite | isempty(metaTableEntry)
 else
     % Update meta table
     metaTable = project.MetaTableCatalog.getMetaTable(dataName);
+
+    % Ensure Subject/File identifiers are present
+    if ismember(dataName, {'Subject', 'File'})
+        idVar = [dataName, 'Identifier'];
+        if ~ismember(idVar, dataTable.Properties.VariableNames)
+             dataTable.(idVar) = ndi.nansen.fun.getIdentifier(dataTable, dataName);
+        end
+    end
 
     % Align columns between existing metatable and new dataTable
     % (Workaround for Nansen bug where table concatenation fails if columns don't match)
@@ -77,9 +85,9 @@ else
 
             % Use identifying fields to find unique rows
             if strcmp(dataName, 'Subject')
-                keys = {'SessionName', 'SubjectEnumeratedIdentifier', 'SubjectCageIdentifier', 'SubjectTextIdentifier'};
+                keys = {'SubjectIdentifier'};
             elseif strcmp(dataName, 'File')
-                keys = {'SessionName', 'ElectronicFileName', 'DataTypeName', 'SubjectEnumeratedIdentifier', 'SubjectCageIdentifier', 'SubjectTextIdentifier'};
+                keys = {'FileIdentifier'};
             elseif strcmp(dataName, 'Session')
                 keys = {'SessionName', 'SessionPath'};
             else
@@ -98,9 +106,9 @@ else
 
     % Use identifying fields to find unique rows
     if strcmp(dataName, 'Subject')
-        keys = {'SessionName', 'SubjectEnumeratedIdentifier', 'SubjectCageIdentifier', 'SubjectTextIdentifier'};
+        keys = {'SubjectIdentifier'};
     elseif strcmp(dataName, 'File')
-        keys = {'SessionName', 'ElectronicFileName', 'DataTypeName', 'SubjectEnumeratedIdentifier', 'SubjectCageIdentifier', 'SubjectTextIdentifier'};
+        keys = {'FileIdentifier'};
     elseif strcmp(dataName, 'Session')
         keys = {'SessionName', 'SessionPath'};
     else

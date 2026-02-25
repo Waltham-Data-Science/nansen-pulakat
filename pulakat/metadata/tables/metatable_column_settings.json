@@ -99,6 +99,15 @@
     "ColumnOrder": 10
   },
   {
+    "VariableName": "SubjectIdentifier",
+    "ColumnLabel": "Subject Identifier",
+    "ShowColumn": false,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 10
+  },
+  {
     "VariableName": "SubjectLocalIdentifier",
     "ColumnLabel": "Subject Local Identifier",
     "ShowColumn": true,
