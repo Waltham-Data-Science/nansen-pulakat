@@ -37,6 +37,22 @@ identifyingVariables = intersect(B.Properties.VariableNames,...
     A.Properties.VariableNames, 'stable');
 identifyingVariables = setdiff(identifyingVariables,cellstr(excludeVariables), 'stable');
 
+% Ensure variable types match for identifying variables
+for i = 1:numel(identifyingVariables)
+    varName = identifyingVariables{i};
+    if iscell(B.(varName)) && ~iscell(A.(varName))
+        if isnumeric(A.(varName)) && (isempty(A.(varName)) || all(isnan(A.(varName)) | A.(varName) == 0))
+            A.(varName) = repmat({''}, height(A), 1);
+        else
+            A.(varName) = cellstr(string(A.(varName)));
+        end
+    elseif ~iscell(B.(varName)) && iscell(A.(varName))
+        if isnumeric(B.(varName)) && (isempty(B.(varName)) || all(isnan(B.(varName)) | B.(varName) == 0))
+            B.(varName) = repmat({''}, height(B), 1); % This might change B's type but matches A
+        end
+    end
+end
+
 % If no identifying variables, no matches
 if isempty(identifyingVariables)
     indMatch = cell(height(A),1);

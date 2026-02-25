@@ -64,16 +64,8 @@ for i = 1:numel(sessions)
             ind = strcmp(fileMetaTable.entries.SessionName, sessions{i}.reference);
             sessionTable.NumFiles(i) = sum(ind);
 
-            % Add DataTypes column
-            if any(ind)
-                uniqueDataTypes = unique(fileMetaTable.entries.DataTypeName(ind));
-                sessionTable.DataTypes{i} = strjoin(uniqueDataTypes, ', ');
-            else
-                sessionTable.DataTypes{i} = '';
-            end
         else
             sessionTable.NumFiles(i) = 0;
-            sessionTable.DataTypes{i} = '';
         end
     catch
         % Fallback to NDI if project/metatables are not available
@@ -82,7 +74,6 @@ for i = 1:numel(sessions)
 
         fileDocs = sessions{i}.database_search(ndi.query('','isa','generic_file'));
         sessionTable.NumFiles(i) = numel(fileDocs);
-        sessionTable.DataTypes{i} = '';
     end
 
     if exist('dataset','var')
