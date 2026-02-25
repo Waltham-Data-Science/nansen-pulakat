@@ -28,16 +28,6 @@
       "SubjectEnumeratedIdentifier",
       "SubjectCageIdentifier",
       "SubjectTextIdentifier"],
-  "strains": [
-    {"value": "Wistar",
-     "speciesOntology": "NCBITaxon:10116",
-     "strainOntology": "RRID:RGD_13508588",
-     "geneticStrainType": "wildtype"},
-    {"value": "ZDF",
-     "speciesOntology": "NCBITaxon:10116",
-     "strainOntology": "RRID:RGD_70459",
-     "geneticStrainType": "wildtype"}
-    ],
    "dataFileTypes": [
        {"DataTypeName": "experiment metadata file",
         "contains": ["schedule"],

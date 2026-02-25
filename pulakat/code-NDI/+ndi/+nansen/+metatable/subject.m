@@ -44,8 +44,20 @@ if ~isempty(docs)
     subjectTable = ndi.fun.table.join({subjectTable,ontologyTable{1}});
 end
 
+% Add DateAdded from NDI documents
+for i = 1:height(subjectTable)
+    doc = dataset.database_search(ndi.query('base.id','exact_string',subjectTable.SubjectDocumentIdentifier{i}));
+    if ~isempty(doc)
+        datestamp = doc{1}.document_properties.base.datestamp;
+        subjectTable.DateAdded(i) = datetime(datestamp,'InputFormat', ...
+            'yyyy-MM-dd''T''HH:mm:ss.SSS''Z''','TimeZone','UTC');
+    else
+        subjectTable.DateAdded(i) = NaT('TimeZone', 'UTC');
+    end
+end
+
 % Add session info to subject table
-subjectTable = innerjoin(subjectTable,sessionTable);
+subjectTable = innerjoin(subjectTable,removevars(sessionTable,'DateAdded'));
 
 if isa(dataset,'ndi.dataset.dir')
     statusTable = ndi.nansen.sync.status(dataset);

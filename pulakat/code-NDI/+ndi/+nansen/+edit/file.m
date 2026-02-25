@@ -24,9 +24,9 @@ arguments
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
 end
 
-% Check is file is already in the cloud
-if dataTable.Cloud
-    warning('Cannot update file %s because it is already in the cloud.', ...
+% Check if file already has an NDI document
+if ~isempty(dataTable.FileDocumentIdentifier{1})
+    warning('Cannot update file %s because it already has an NDI document.', ...
         dataTable.ElectronicFileName{1})
     return
 end
@@ -46,23 +46,7 @@ answer = inputdlg(editableNames,'File Metadata',repmat([1 45],numel(editableName
 if isempty(answer); return; end
 dataTable{1,editableVariables} = answer';
 
-% Update ontologyLabel document in NDI
-% 1. Find the ontologyLabel document for this file
-query = ndi.query('','isa','ontologyLabel') & ...
-    ndi.query('depends_on.value','exact_string',dataTable.FileDocumentIdentifier{1});
-docs = session.database_search(query);
-
-if ~isempty(docs)
-    % 2. Update the ontologyNode
-    ontologyID = ndi.ontology.lookup(['EMPTY:',dataTable.DataTypeName{1}]);
-    docs{1}.document_properties.ontologyLabel.ontologyNode = ontologyID;
-    session.database_add(docs{1}); % database_add with existing ID updates the document
-end
-
 % Update Nansen metatable
 ndi.nansen.metatable.add(dataTable,'File');
-
-% Return updated data table
-dataTable = ndi.nansen.metatable.file(session);
 
 end

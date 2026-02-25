@@ -47,8 +47,17 @@ for i = 1:numel(requiredVariableNames)
 end
 subjectTable_files = ndi.fun.table.moveColumnsLeft(subjectTable_files,requiredVariableNames);
 
-% Get existing subject table from session
-subjectTable_session = ndi.nansen.metatable.subject(session);
+% Get existing subject table from project
+project = nansen.getCurrentProject;
+subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
+subjectTable_project = subjectMetaTable.entries;
+if ~isempty(subjectTable_project)
+    % Only include subjects for current session
+    indSession = strcmp(subjectTable_project.SessionIdentifier, session.id);
+    subjectTable_session = subjectTable_project(indSession, :);
+else
+    subjectTable_session = table();
+end
 
 % Match data files to subjects
 [indSubjects,numSubjects] = ndi.nansen.fun.matchTables( ...
@@ -89,7 +98,8 @@ function buttonCallback(~, fig, choice)
 end
 
 % Return data table with matching subjects
-dataTable = [subjectTable_files(numSubjects == 1,{'ElectronicFileName','DataTypeName'}),...
+subjectIdentifiers = projectInfo.subjectIdentifierFields;
+dataTable = [subjectTable_files(numSubjects == 1, [{'ElectronicFileName','DataTypeName'}, subjectIdentifiers']),...
     subjectTable_session([indSubjects{numSubjects == 1}],'SubjectDocumentIdentifier')];
 %dataTable_multiple = subjectFileTable(numSubjects > 1,:);
 

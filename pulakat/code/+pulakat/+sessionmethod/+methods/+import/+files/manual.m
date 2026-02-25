@@ -35,16 +35,9 @@ function varargout = manual(sessionObject, varargin)
     session = ndi.session.dir(sessionObject.SessionPath);
 
     % Add files to session
-    ndi.nansen.import.file.manual(session);
-    dataTable = ndi.nansen.metatable.file(session);
+    dataTable = ndi.nansen.import.file.manual(session);
 
     if isempty(dataTable); return; end
-
-    % Add cloud status to data table
-    dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
-    statusTable = ndi.nansen.sync.status(dataset);
-    dataTable = join(dataTable,statusTable,'LeftKeys',...
-        'FileDocumentIdentifier','RightKeys','DocumentIdentifier');
 
     % Add files to metatable
     ndi.nansen.metatable.add(dataTable,'File');

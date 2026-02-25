@@ -52,7 +52,15 @@ for i = 1:numel(subjectIdentifiers)
 end
 
 % Check for duplicates in session
-subjectTable_session = ndi.nansen.metatable.subject(session);
+project = nansen.getCurrentProject;
+subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
+subjectTable_session = subjectMetaTable.entries;
+if ~isempty(subjectTable_session)
+    % Only check duplicates for current session
+    indSession = strcmp(subjectTable_session.SessionIdentifier, session.id);
+    subjectTable_session = subjectTable_session(indSession, :);
+end
+
 if ~isempty(subjectTable_session)
     [~,indMatch] = ismember(subjectTable_new(:,subjectIdentifiers), ...
         subjectTable_session(:,subjectIdentifiers));
@@ -65,24 +73,15 @@ end
 subjectTable_new{:,'SessionID'} = session.id;
 subjectTable_new{:,'LabName'} = labName;
 subjectTable_new{:,'ElectronicFileName'} = 'manual';
+subjectTable_new{:,'SessionIdentifier'} = session.id;
+subjectTable_new{:,'SessionName'} = session.reference;
+subjectTable_new{:,'SessionPath'} = session.path;
+subjectTable_new{:,'SubjectDocumentIdentifier'} = {''};
+subjectTable_new{:,'DateAdded'} = datetime('now','TimeZone','UTC');
+subjectTable_new{:,'Cloud'} = false;
 
-% Create subjectMaker and tableDocMaker
-subjectMaker = ndi.setup.NDIMaker.subjectMaker;
-subjectCreator = ndi.nansen.import.subject.informationCreator();
-tableDocMaker = ndi.setup.NDIMaker.tableDocMaker(session,labName);
 
-% Create subject documents (and add to session)
-[~,subjectTable_new.SubjectLocalIdentifier,subjectTable_new.SubjectDocumentIdentifier] = ...
-    subjectMaker.addSubjectsFromTable(session,subjectTable_new,subjectCreator);
-
-% Create ontologyTableRow documents (and add to session)
-ind = strcmp({projectInfo.subjectFileColumns.document},'ontologyTableRow');
-tableRowVariables = ['SubjectLocalIdentifier','SubjectDocumentIdentifier',...
-    {projectInfo.subjectFileColumns(ind).name},'ElectronicFileName'];
-tableDocMaker.table2ontologyTableRowDocs(subjectTable_new(:,tableRowVariables), ...
-        {'SubjectDocumentIdentifier'});
-
-% Return updated subject table
-subjectTable = ndi.nansen.metatable.subject(session);
+% Return new subject table
+subjectTable = subjectTable_new;
 
 end

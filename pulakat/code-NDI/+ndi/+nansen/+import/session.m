@@ -27,23 +27,17 @@ arguments
         'Session title',[1 50],{'projectName_YYYY'});
 end
 
-% Create session
-SessionRef = cellstr(sessionName);
-[dataParentDir,sessionPath] = fileparts(sessionPath);
-SessionPath = cellstr(sessionPath);
-sessionMaker = ndi.setup.NDIMaker.sessionMaker(dataParentDir,...
-    table(SessionRef,SessionPath));
-session = sessionMaker.sessionIndices;
-session = session{1};
+% Return session info as table
+sessionTable = table();
+sessionTable.SessionName = {sessionName};
+sessionTable.SessionPath = {sessionPath};
+sessionTable.SessionIdentifier = {''};
+sessionTable.SessionDocumentIdentifier = {''};
+sessionTable.DatasetIdentifier = {dataset.id};
+sessionTable.DateAdded = datetime('now');
+sessionTable.Cloud = false;
 
-% Add session to dataset
-[sessionNames,sessionIDs] = dataset.session_list;
-ind = strcmp(sessionIDs,session.id);
-if any(ind)
-    warning('There is already a session at this location: %s',sessionNames{ind})
-else
-    dataset.add_linked_session(session);
-end
+session = sessionTable;
 
 end
 

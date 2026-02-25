@@ -57,6 +57,11 @@ for i = 1:numel(sessionPaths)
         [ontologyNode,ontologyName] = ndi.ontology.lookup(ontologyID);
         dataTable(j).DataTypeOntology = {ontologyNode};
         dataTable(j).DataTypeName = {ontologyName};
+
+        % Add DateAdded
+        datestamp = generic_file_docs{j}.document_properties.base.datestamp;
+        dataTable(j).DateAdded = datetime(datestamp,'InputFormat', ...
+            'yyyy-MM-dd''T''HH:mm:ss.SSS''Z''','TimeZone','UTC');
     end
     dataTable = struct2table(dataTable);
 

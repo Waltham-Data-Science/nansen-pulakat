@@ -33,11 +33,30 @@ if isequal(files, 0); return; end
 if ischar(files); files = {files}; end
 
 % For each file, ask for data type and subject(s)
-subjectTable = ndi.nansen.metatable.subject(session);
+project = nansen.getCurrentProject;
+subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
+subjectTable = subjectMetaTable.entries;
+if ~isempty(subjectTable)
+    % Only include subjects for current session
+    indSession = strcmp(subjectTable.SessionIdentifier, session.id);
+    subjectTable = subjectTable(indSession, :);
+end
+
 if isempty(subjectTable)
     error('No subjects found in session. Please add a subject first.');
 end
+
+% Prepare subject names for display (handle pending subjects)
 subjectNames = subjectTable.SubjectLocalIdentifier;
+subjectIdentifiers = projectInfo.subjectIdentifierFields;
+isPending = cellfun(@isempty, subjectNames);
+if any(isPending)
+    for i = find(isPending)'
+        subjectParts = cellfun(@(f) char(subjectTable.(f){i}), ...
+            subjectIdentifiers, 'UniformOutput', false);
+        subjectNames{i} = [strjoin(subjectParts, '_'), ' (pending)'];
+    end
+end
 
 dataTable_new = table();
 
@@ -60,7 +79,11 @@ for i = 1:numel(files)
         newRow = table();
         newRow.ElectronicFileName = {filePath};
         newRow.DataTypeName = {dataType};
-        newRow.SubjectLocalIdentifier = subjectTable.SubjectLocalIdentifier(indSubj(j));
+        % Add subject identifying fields
+        for f = 1:numel(subjectIdentifiers)
+            fieldName = subjectIdentifiers{f};
+            newRow.(fieldName) = subjectTable.(fieldName)(indSubj(j));
+        end
         newRow.SubjectDocumentIdentifier = subjectTable.SubjectDocumentIdentifier(indSubj(j));
         dataTable_new = [dataTable_new; newRow];
     end
@@ -68,11 +91,19 @@ end
 
 if isempty(dataTable_new); return; end
 
-% Get existing data table from session
-dataTable_session = ndi.nansen.metatable.file(session);
+% Get existing data table from project
+fileMetaTable = project.MetaTableCatalog.getMetaTable('File');
+dataTable_project = fileMetaTable.entries;
+if ~isempty(dataTable_project)
+    % Only include files for current session
+    indSession = strcmp(dataTable_project.SessionIdentifier, session.id);
+    dataTable_session = dataTable_project(indSession, :);
+else
+    dataTable_session = table();
+end
 
 % Identify new and unique files (prevent duplicates)
-fileIdentifiers = {'ElectronicFileName','DataTypeName','SubjectDocumentIdentifier'};
+fileIdentifiers = [{'ElectronicFileName','DataTypeName'}, subjectIdentifiers'];
 if ~isempty(dataTable_session)
     [~,indNew] = setdiff(dataTable_new(:,fileIdentifiers), ...
         dataTable_session(:,fileIdentifiers));
@@ -85,72 +116,15 @@ if isempty(dataTable_new)
     return
 end
 
-[dataFiles_unique,~,indUnique] = unique(dataTable_new(:,{'ElectronicFileName','DataTypeName'}),'stable');
+% Add session and other metadata
+dataTable_new.SessionIdentifier = repmat({session.id}, height(dataTable_new), 1);
+dataTable_new.SessionName = repmat({session.reference}, height(dataTable_new), 1);
+dataTable_new.SessionPath = repmat({session.path}, height(dataTable_new), 1);
+dataTable_new.FileDocumentIdentifier = repmat({''}, height(dataTable_new), 1);
+dataTable_new.DateAdded = repmat(datetime('now'), height(dataTable_new), 1);
+dataTable_new.Cloud = false(height(dataTable_new), 1);
 
-% Create data documents
-[generic_file_docs,ontologyLabel_docs] = deal(cell(height(dataFiles_unique),1));
-for i = 1:height(dataFiles_unique)
-
-    % Get subject document id(s)
-    subject_id = dataTable_new.SubjectDocumentIdentifier(indUnique == i);
-    if isscalar(subject_id)
-        subject_id = subject_id{1};
-    else
-        % If more than one subject, make subject group
-        subject_group_doc = ndi.document('subject_group') + session.newdocument();
-        for j = 1:numel(subject_id)
-            subject_group_doc = subject_group_doc.add_dependency_value_n(...
-                'subject_id',subject_id{j});
-        end
-        subject_id = subject_group_doc.id;
-        session.database_add(subject_group_doc);
-    end
-
-    % Define file format and label
-    indFileType = strcmp(fileTypes,dataFiles_unique.DataTypeName{i});
-    fileName = dataFiles_unique.ElectronicFileName{i};
-    fileFormat = projectInfo.dataFileTypes(indFileType).format;
-    fileDelete = projectInfo.dataFileTypes(indFileType).delete;
-
-    if projectInfo.dataFileTypes(indFileType).zip
-        filePath = [fileName,'.zip'];
-        if ~exist(filePath,'file')
-            zip(filePath, fileName);
-        end
-    else
-        filePath = fileName;
-    end
-
-    % Get file metadata
-    checksum = ndi.fun.file.MD5(filePath);
-    dateCreated = convertTo(ndi.fun.file.dateCreated(fileName),'datenum');
-    dateUpdated = convertTo(ndi.fun.file.dateUpdated(fileName),'datenum');
-
-    % Create generic_file document
-    generic_file = struct('filename',fileName,'formatOntology',fileFormat, ...
-        'checksum',checksum,'dateCreated',dateCreated,'dateUpdated',dateUpdated);
-    generic_file_doc = ndi.document('generic_file','generic_file',generic_file) + ...
-        session.newdocument();
-    generic_file_doc = generic_file_doc.add_file('generic_file.ext',filePath,...
-        'delete_original',fileDelete);
-    generic_file_doc = generic_file_doc.set_dependency_value('document_id', subject_id);
-    generic_file_docs{i} = generic_file_doc;
-
-    % Create ontologyLabel document
-    ontologyID = ndi.ontology.lookup(['EMPTY:',dataFiles_unique.DataTypeName{i}]);
-    ontologyLabel = struct('ontologyNode',ontologyID);
-    ontologyLabel_doc = ndi.document('ontologyLabel', ...
-        'ontologyLabel',ontologyLabel) + session.newdocument;
-    ontologyLabel_doc = ontologyLabel_doc.set_dependency_value( ...
-        'document_id',generic_file_doc.id);
-    ontologyLabel_docs{i} = ontologyLabel_doc;
-end
-
-% Add files to database
-session.database_add(generic_file_docs);
-session.database_add(ontologyLabel_docs);
-
-% Return updated data table
-dataTable = ndi.nansen.metatable.file(session);
+% Return new data table
+dataTable = dataTable_new;
 
 end

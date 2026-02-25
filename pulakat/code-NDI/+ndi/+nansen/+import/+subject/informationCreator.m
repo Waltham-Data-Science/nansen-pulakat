@@ -48,26 +48,44 @@ methods
                 'The tableRow is missing one or more required columns for the Pulakat subject creator.');
         end
 
+        % --- Load strains info ---
+        strainsFile = fullfile('+ndi','+nansen','+import','+subject','strains.json');
+        strainsInfo = jsondecode(fileread(strainsFile));
+
+        % --- Find correct strain from name or alias ---
+        strainNames = {strainsInfo.value};
+        indStrain = strcmp(strainNames, tableRow.Strain);
+        if ~any(indStrain)
+            for i = 1:numel(strainsInfo)
+                if any(strcmp(strainsInfo(i).aliases, tableRow.Strain))
+                    indStrain(i) = true;
+                    break;
+                end
+            end
+        end
+
+        if ~any(indStrain)
+             error('ndi:validators:InvalidStrain',...
+                'The strain "%s" was not found in the strains configuration.', tableRow.Strain{1});
+        end
+        selectedStrainInfo = strainsInfo(indStrain);
+
         % --- Populate openMINDS Objects by calling helper methods ---
-        species = obj.createSpeciesObject(tableRow,projectInfo);
-        strain = obj.createStrainObject(tableRow,species,projectInfo);
+        species = obj.createSpeciesObject(tableRow,selectedStrainInfo);
+        strain = obj.createStrainObject(tableRow,species,selectedStrainInfo);
         biologicalSex = obj.createBiologicalSexObject(tableRow);
         subjectIdentifier = obj.constructSubjectIdentifier(tableRow,projectInfo);
     end
 end % methods
 
 methods (Access = private, Static)
-    function species = createSpeciesObject(tableRow,projectInfo)
+    function species = createSpeciesObject(tableRow,selectedStrainInfo)
         % Creates an openMINDS species object
         species = openminds.controlledterms.Species;
         try
-            % Get strain
-            strains = {projectInfo.strains.value};
-            indStrain = strcmp(strains,tableRow.Strain);
-
             % Look up ontology information
             [ontologyID,name,~,definition,synonyms] = ...
-                ndi.ontology.lookup(projectInfo.strains(indStrain).speciesOntology);
+                ndi.ontology.lookup(selectedStrainInfo.speciesOntology);
 
             % Add species information
             species.name = name;
@@ -80,24 +98,20 @@ methods (Access = private, Static)
         end
     end
 
-    function strain = createStrainObject(tableRow,species,projectInfo)
+    function strain = createStrainObject(tableRow,species,selectedStrainInfo)
         % Creates an openMINDS strain object based on the table row data.
         strain = openminds.core.research.Strain;
         try
-            % Get strain
-            strains = {projectInfo.strains.value};
-            indStrain = strcmp(strains,tableRow.Strain);
-
             % Look up ontology information
             [ontologyID,name,~,definition,synonyms] = ...
-                ndi.ontology.lookup(projectInfo.strains(indStrain).strainOntology);
+                ndi.ontology.lookup(selectedStrainInfo.strainOntology);
 
             % Add strain information
             strain.name = name;
             strain.ontologyIdentifier = ontologyID;
             strain.description = definition;
             strain.synonym = string(synonyms);
-            strain.geneticStrainType = projectInfo.strains(indStrain).geneticStrainType;
+            strain.geneticStrainType = selectedStrainInfo.geneticStrainType;
             strain.species = species;
         catch ME
             warning('ndi:createSubjectInformation:StrainCreationFailed',...
