@@ -49,8 +49,54 @@ if isempty(metaTableCatalog.Table) | options.Overwrite | isempty(metaTableEntry)
 else
     % Update meta table
     metaTable = project.MetaTableCatalog.getMetaTable(dataName);
+
+    % Align columns between existing metatable and new dataTable
+    % (Workaround for Nansen bug where table concatenation fails if columns don't match)
+    existingTable = metaTable.entries;
+
+    if ~isempty(existingTable)
+        % 1. Add missing columns to dataTable
+        missingVars = setdiff(existingTable.Properties.VariableNames, dataTable.Properties.VariableNames);
+        for i = 1:numel(missingVars)
+            varName = missingVars{i};
+            dataTable.(varName) = repmat(getEmptyData(existingTable.(varName)), height(dataTable), 1);
+        end
+
+        % 2. Add new columns from dataTable to existing metatable
+        newVars = setdiff(dataTable.Properties.VariableNames, existingTable.Properties.VariableNames);
+        if ~isempty(newVars)
+            entries = metaTable.entries;
+            for i = 1:numel(newVars)
+                varName = newVars{i};
+                entries.(varName) = repmat(getEmptyData(dataTable.(varName)), height(existingTable), 1);
+            end
+            metaTable.entries = entries;
+        end
+    end
+
     metaTable.addTable(dataTable);
     metaTable.save;
 end
 
+end
+
+function emptyData = getEmptyData(exampleData)
+    if iscell(exampleData)
+        emptyData = {''};
+    elseif islogical(exampleData)
+        emptyData = false;
+    elseif isnumeric(exampleData)
+        emptyData = 0;
+    elseif isdatetime(exampleData)
+        emptyData = NaT;
+    elseif isstring(exampleData)
+        emptyData = "";
+    elseif isenum(exampleData)
+        % This is tricky, but let's try to get the first element or something
+        mc = metaclass(exampleData);
+        emptyData = enumeration(mc.Name);
+        emptyData = emptyData(1);
+    else
+        emptyData = {[]};
+    end
 end

@@ -46,22 +46,22 @@ for i = 1:numel(sessions)
     sessionTable.SessionIdentifier{i} = sessions{i}.identifier;
     sessionTable.SessionDocumentIdentifier{i} = sessionDocIDs{i};
     sessionTable.SessionPath{i} = sessions{i}.path;
-    sessionTable.DateAdded(i) = NaT('TimeZone', 'UTC');
-    
+
+    % Add DateAdded from NDI
+    doc = sessions{i}.database_search(ndi.query('base.id','exact_string',sessionDocIDs{i}));
+    if ~isempty(doc)
+        datestamp = doc{1}.document_properties.base.datestamp;
+        sessionTable.DateAdded(i) = datetime(datestamp,'InputFormat', ...
+            'yyyy-MM-dd''T''HH:mm:ss.SSS''Z''','TimeZone','UTC');
+    else
+        sessionTable.DateAdded(i) = NaT;
+    end
     if exist('dataset','var')
         sessionTable.DatasetIdentifier{i} = dataset.id;
         sessionTable.DatasetDocumentIdentifier{i} = datasetDocID;
         statusTable = ndi.nansen.sync.status(dataset);
         sessionTable = join(sessionTable,statusTable,'LeftKeys',...
             'SessionDocumentIdentifier','RightKeys','DocumentIdentifier');
-
-        % Add DateAdded from NDI
-        doc = dataset.database_search(ndi.query('base.id','exact_string',sessionDocIDs{i}));
-        if ~isempty(doc)
-            datestamp = doc{1}.document_properties.base.datestamp;
-            sessionTable.DateAdded(i) = datetime(datestamp,'InputFormat', ...
-                'yyyy-MM-dd''T''HH:mm:ss.SSS''Z''','TimeZone','UTC');
-        end
     end
 end
 
