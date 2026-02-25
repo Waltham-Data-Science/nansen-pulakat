@@ -146,15 +146,22 @@ else
                 % Skip identifying keys
                 if ismember(varNames{j}, keys); continue; end
 
+                % Fields that should always be updated (summaries)
+                isSummaryField = ismember(varNames{j}, {'NumFiles', 'DataTypes', ...
+                    'NumSubjects', 'Cloud', 'TotalDocuments', 'CloudDocuments', ...
+                    'DatasetUpdated', 'DateAdded'});
+
                 if hasNDIDoc
                     % If has NDI doc, only update if existing is empty AND new is not
-                    if isDataEmpty(existingValue) && ~isDataEmpty(newValue)
+                    % UNLESS it's a summary field, which should always be updated.
+                    if (isDataEmpty(existingValue) && ~isDataEmpty(newValue)) || isSummaryField
                         metaTable.editEntries(rowInd, varNames{j}, newValue);
                     end
                 else
                     % If no NDI doc, update if new is not empty
                     % (prevents overwriting rich metadata with stubs)
-                    if ~isDataEmpty(newValue)
+                    % OR if it's a summary field.
+                    if ~isDataEmpty(newValue) || isSummaryField
                         metaTable.editEntries(rowInd, varNames{j}, newValue);
                     end
                 end
@@ -177,9 +184,9 @@ function tf = isDataEmpty(data)
             tf = all(cellfun(@isDataEmpty, data));
         end
     elseif ischar(data)
-        tf = isempty(data) || strcmp(data, 'n/a');
+        tf = isempty(data) || strcmpi(data, 'n/a');
     elseif isstring(data)
-        tf = ismissing(data) || all(data == "" | data == "n/a");
+        tf = ismissing(data) || all(data == "" | strcmpi(data, "n/a"));
     elseif isnumeric(data)
         tf = isempty(data) || all(isnan(data) | data == 0);
     elseif islogical(data)
