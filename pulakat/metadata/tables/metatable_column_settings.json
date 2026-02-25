@@ -1,264 +1,84 @@
 [
   {
-    "VariableName": "SessionDocumentIdentifier",
-    "ColumnLabel": "Session Document Identifier",
-    "ShowColumn": false,
-    "SkipColumn": false,
-    "ColumnWidth": 289,
-    "IsEditable": false,
-    "ColumnOrder": 1
-  },
-  {
-    "VariableName": "StrainName",
-    "ColumnLabel": "Strain",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 68,
-    "IsEditable": false,
-    "ColumnOrder": 7
-  },
-  {
-    "VariableName": "StrainOntology",
-    "ColumnLabel": "Strain Ontology",
-    "ShowColumn": false,
-    "SkipColumn": false,
-    "ColumnWidth": 100,
-    "IsEditable": false,
-    "ColumnOrder": 6
-  },
-  {
-    "VariableName": "GeneticStrainTypeName",
-    "ColumnLabel": "Strain Type",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 106,
-    "IsEditable": false,
-    "ColumnOrder": 8
-  },
-  {
-    "VariableName": "SpeciesName",
-    "ColumnLabel": "Species",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 89,
-    "IsEditable": false,
-    "ColumnOrder": 10
-  },
-  {
-    "VariableName": "SpeciesOntology",
-    "ColumnLabel": "Species Ontology",
-    "ShowColumn": false,
-    "SkipColumn": false,
-    "ColumnWidth": 100,
-    "IsEditable": false,
-    "ColumnOrder": 9
-  },
-  {
-    "VariableName": "BiologicalSexName",
-    "ColumnLabel": "BioSex",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 70,
-    "IsEditable": false,
-    "ColumnOrder": 12
-  },
-  {
-    "VariableName": "BiologicalSexOntology",
-    "ColumnLabel": "BioSex Ontology",
-    "ShowColumn": false,
-    "SkipColumn": false,
-    "ColumnWidth": 100,
-    "IsEditable": false,
-    "ColumnOrder": 11
-  },
-  {
-    "VariableName": "SessionName",
-    "ColumnLabel": "Session Name",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 130,
-    "IsEditable": false,
-    "ColumnOrder": 2
-  },
-  {
-    "VariableName": "SubjectDocumentIdentifier",
-    "ColumnLabel": "Subject Document Identifier",
-    "ShowColumn": false,
-    "SkipColumn": false,
-    "ColumnWidth": 100,
-    "IsEditable": false,
-    "ColumnOrder": 3
-  },
-  {
-    "VariableName": "SubjectLocalIdentifier",
-    "ColumnLabel": "Subject Name",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 377,
-    "IsEditable": false,
-    "ColumnOrder": 4
-  },
-  {
-    "VariableName": "SubjectEnumeratedIdentifier",
-    "ColumnLabel": "Subject Number",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 104,
-    "IsEditable": false,
-    "ColumnOrder": 13
-  },
-  {
-    "VariableName": "SubjectCageIdentifier",
-    "ColumnLabel": "Subject Cage",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 121,
-    "IsEditable": false,
-    "ColumnOrder": 14
-  },
-  {
-    "VariableName": "SubjectTextIdentifier",
-    "ColumnLabel": "Subject Label",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 114,
-    "IsEditable": false,
-    "ColumnOrder": 15
-  },
-  {
-    "VariableName": "Treatment",
-    "ColumnLabel": "Treatment",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 100,
-    "IsEditable": false,
-    "ColumnOrder": 5
-  },
-  {
-    "VariableName": "ElectronicFileName",
-    "ColumnLabel": "Original File Name",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 382,
-    "IsEditable": false,
-    "ColumnOrder": 16
-  },
-  {
-    "VariableName": "DatasetPath",
-    "ColumnLabel": "Dataset Local Path",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 429,
-    "IsEditable": false,
-    "ColumnOrder": 19
-  },
-  {
-    "VariableName": "DatasetDocumentIdentifier",
-    "ColumnLabel": "Dataset Document Identifier",
-    "ShowColumn": false,
-    "SkipColumn": false,
-    "ColumnWidth": 196,
-    "IsEditable": false,
-    "ColumnOrder": 18
-  },
-  {
-    "VariableName": "DatasetName",
-    "ColumnLabel": "Dataset Name",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 136,
-    "IsEditable": false,
-    "ColumnOrder": 17
-  },
-  {
-    "VariableName": "DatasetUpdated",
-    "ColumnLabel": "Last Sync",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 130,
-    "IsEditable": false,
-    "ColumnOrder": 28
-  },
-  {
-    "VariableName": "FileDocumentIdentifier",
-    "ColumnLabel": "File Document Identifier",
-    "ShowColumn": false,
-    "SkipColumn": false,
-    "ColumnWidth": 100,
-    "IsEditable": false,
-    "ColumnOrder": 21
-  },
-  {
-    "VariableName": "DataTypeName",
-    "ColumnLabel": "Data Type",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 305,
-    "IsEditable": false,
-    "ColumnOrder": 22
-  },
-  {
-    "VariableName": "DataTypeOntology",
-    "ColumnLabel": "Data Type Ontology",
-    "ShowColumn": false,
-    "SkipColumn": false,
-    "ColumnWidth": 319,
-    "IsEditable": false,
-    "ColumnOrder": 23
-  },
-  {
-    "VariableName": "SessionPath",
-    "ColumnLabel": "Session Local Path",
-    "ShowColumn": false,
-    "SkipColumn": false,
-    "ColumnWidth": 473,
-    "IsEditable": false,
-    "ColumnOrder": 24
-  },
-  {
-    "VariableName": "Cloud",
-    "ColumnLabel": "Cloud",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 68,
-    "IsEditable": false,
-    "ColumnOrder": 34
-  },
-  {
-    "VariableName": "newType",
-    "ColumnLabel": "newType",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 100,
-    "IsEditable": false,
-    "ColumnOrder": 26
-  },
-  {
     "VariableName": "DatasetIdentifier",
     "ColumnLabel": "Dataset Identifier",
     "ShowColumn": false,
     "SkipColumn": false,
     "ColumnWidth": 100,
     "IsEditable": false,
-    "ColumnOrder": 29
+    "ColumnOrder": 1
+  },
+  {
+    "VariableName": "DatasetDocumentIdentifier",
+    "ColumnLabel": "Dataset Document Identifier",
+    "ShowColumn": false,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 2
+  },
+  {
+    "VariableName": "DatasetName",
+    "ColumnLabel": "Dataset Name",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 81,
+    "IsEditable": false,
+    "ColumnOrder": 3
+  },
+  {
+    "VariableName": "DatasetPath",
+    "ColumnLabel": "Dataset Local Path",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 366,
+    "IsEditable": false,
+    "ColumnOrder": 4
   },
   {
     "VariableName": "TotalDocuments",
     "ColumnLabel": "Total Documents",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 155,
+    "ColumnWidth": 89,
     "IsEditable": false,
-    "ColumnOrder": 20
+    "ColumnOrder": 5
   },
   {
     "VariableName": "CloudDocuments",
     "ColumnLabel": "Cloud Documents",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 160,
+    "ColumnWidth": 97,
     "IsEditable": false,
-    "ColumnOrder": 25
+    "ColumnOrder": 6
+  },
+  {
+    "VariableName": "DatasetUpdated",
+    "ColumnLabel": "Date Updated",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 76,
+    "IsEditable": false,
+    "ColumnOrder": 8
+  },
+  {
+    "VariableName": "DateAdded",
+    "ColumnLabel": "Date Added",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 75,
+    "IsEditable": false,
+    "ColumnOrder": 33
+  },
+  {
+    "VariableName": "Cloud",
+    "ColumnLabel": "Cloud",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 41,
+    "IsEditable": false,
+    "ColumnOrder": 34
   },
   {
     "VariableName": "SessionIdentifier",
@@ -267,25 +87,196 @@
     "SkipColumn": false,
     "ColumnWidth": 100,
     "IsEditable": false,
-    "ColumnOrder": 30
+    "ColumnOrder": 7
   },
   {
-    "VariableName": "Cloud_subjectTable",
-    "ColumnLabel": "Cloud_subjectTable",
+    "VariableName": "SubjectDocumentIdentifier",
+    "ColumnLabel": "Subject Document Identifier",
+    "ShowColumn": false,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 10
+  },
+  {
+    "VariableName": "SubjectLocalIdentifier",
+    "ColumnLabel": "Subject Local Identifier",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 223,
+    "IsEditable": false,
+    "ColumnOrder": 11
+  },
+  {
+    "VariableName": "StrainName",
+    "ColumnLabel": "Strain",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 59,
+    "IsEditable": false,
+    "ColumnOrder": 12
+  },
+  {
+    "VariableName": "StrainOntology",
+    "ColumnLabel": "Strain Ontology",
+    "ShowColumn": false,
+    "SkipColumn": false,
+    "ColumnWidth": 95,
+    "IsEditable": false,
+    "ColumnOrder": 14
+  },
+  {
+    "VariableName": "GeneticStrainTypeName",
+    "ColumnLabel": "Genetic Strain Type",
     "ShowColumn": true,
     "SkipColumn": false,
     "ColumnWidth": 100,
     "IsEditable": false,
-    "ColumnOrder": 31
+    "ColumnOrder": 15
   },
   {
-    "VariableName": "Cloud_statusTable",
-    "ColumnLabel": "Cloud_statusTable",
+    "VariableName": "SpeciesName",
+    "ColumnLabel": "Species Name",
     "ShowColumn": true,
     "SkipColumn": false,
     "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 16
+  },
+  {
+    "VariableName": "SpeciesOntology",
+    "ColumnLabel": "Species Ontology",
+    "ShowColumn": false,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 18
+  },
+  {
+    "VariableName": "BiologicalSexName",
+    "ColumnLabel": "BioSex",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 51,
+    "IsEditable": false,
+    "ColumnOrder": 17
+  },
+  {
+    "VariableName": "BiologicalSexOntology",
+    "ColumnLabel": "BioSex Ontology",
+    "ShowColumn": false,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 20
+  },
+  {
+    "VariableName": "SubjectEnumeratedIdentifier",
+    "ColumnLabel": "Animal",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 54,
+    "IsEditable": false,
+    "ColumnOrder": 19
+  },
+  {
+    "VariableName": "SubjectCageIdentifier",
+    "ColumnLabel": "Cage",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 43,
+    "IsEditable": false,
+    "ColumnOrder": 21
+  },
+  {
+    "VariableName": "SubjectTextIdentifier",
+    "ColumnLabel": "Label",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 59,
+    "IsEditable": false,
+    "ColumnOrder": 22
+  },
+  {
+    "VariableName": "Treatment",
+    "ColumnLabel": "Treatment",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 65,
+    "IsEditable": false,
+    "ColumnOrder": 23
+  },
+  {
+    "VariableName": "ElectronicFileName",
+    "ColumnLabel": "Original File Name",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 269,
     "IsEditable": false,
     "ColumnOrder": 32
+  },
+  {
+    "VariableName": "SessionName",
+    "ColumnLabel": "Session Name",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 72,
+    "IsEditable": false,
+    "ColumnOrder": 9
+  },
+  {
+    "VariableName": "SessionDocumentIdentifier",
+    "ColumnLabel": "Session Document Identifier",
+    "ShowColumn": false,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 13
+  },
+  {
+    "VariableName": "SessionPath",
+    "ColumnLabel": "Session Path",
+    "ShowColumn": false,
+    "SkipColumn": false,
+    "ColumnWidth": 244,
+    "IsEditable": false,
+    "ColumnOrder": 25
+  },
+  {
+    "VariableName": "NumFiles",
+    "ColumnLabel": "Num Files",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 60,
+    "IsEditable": false,
+    "ColumnOrder": 27
+  },
+  {
+    "VariableName": "FileDocumentIdentifier",
+    "ColumnLabel": "File Document Identifier",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 204,
+    "IsEditable": false,
+    "ColumnOrder": 26
+  },
+  {
+    "VariableName": "DataTypeName",
+    "ColumnLabel": "Data Type",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 171,
+    "IsEditable": false,
+    "ColumnOrder": 28
+  },
+  {
+    "VariableName": "DataTypeOntology",
+    "ColumnLabel": "Data Type Ontology",
+    "ShowColumn": false,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 29
   },
   {
     "VariableName": "FileIdentifier",
@@ -294,51 +285,24 @@
     "SkipColumn": false,
     "ColumnWidth": 100,
     "IsEditable": false,
-    "ColumnOrder": 33
-  },
-  {
-    "VariableName": "DateAdded",
-    "ColumnLabel": "Date Added",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 81,
-    "IsEditable": false,
-    "ColumnOrder": 27
-  },
-  {
-    "VariableName": "BiologicalSex",
-    "ColumnLabel": "BiologicalSex",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 100,
-    "IsEditable": true,
-    "ColumnOrder": 35
-  },
-  {
-    "VariableName": "Strain",
-    "ColumnLabel": "Strain",
-    "ShowColumn": true,
-    "SkipColumn": false,
-    "ColumnWidth": 100,
-    "IsEditable": false,
-    "ColumnOrder": 38
+    "ColumnOrder": 30
   },
   {
     "VariableName": "NumSubjects",
-    "ColumnLabel": "Subjects",
+    "ColumnLabel": "Num Subjects",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 80,
+    "ColumnWidth": 75,
     "IsEditable": false,
-    "ColumnOrder": 39
+    "ColumnOrder": 24
   },
   {
-    "VariableName": "NumFiles",
-    "ColumnLabel": "Files",
+    "VariableName": "DataTypes",
+    "ColumnLabel": "Data Types",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 80,
+    "ColumnWidth": 180,
     "IsEditable": false,
-    "ColumnOrder": 40
-  },
+    "ColumnOrder": 31
+  }
 ]

@@ -14,7 +14,7 @@ function [isValid, errorReport] = validate(subjectTable)
 
 % Get project info
 project = nansen.getCurrentProject;
-labName = project.Name;
+labName = char(project.Name);
 projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
 projectInfo = jsondecode(fileread(projectFile));
 

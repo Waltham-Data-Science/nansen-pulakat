@@ -65,7 +65,7 @@ function varargout = replace(subjectObject, varargin)
     newValue = answer{2};
 
     % Get identifying columns for subjects
-    labName = project.Name;
+    labName = char(project.Name);
     projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
     projectInfo = jsondecode(fileread(projectFile));
     identifyingVars = [{'SessionName'}, projectInfo.subjectIdentifierFields'];

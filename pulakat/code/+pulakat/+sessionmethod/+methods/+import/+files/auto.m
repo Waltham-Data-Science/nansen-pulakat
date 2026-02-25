@@ -35,8 +35,7 @@ function varargout = auto(sessionObject, varargin)
     session = ndi.session.dir(sessionObject.SessionPath);
 
     % Add files to session
-    ndi.nansen.import.file.auto(session);
-    dataTable = ndi.nansen.metatable.file(session);
+    dataTable = ndi.nansen.import.file.auto(session);
 
     % Add cloud status to subject table
     dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
