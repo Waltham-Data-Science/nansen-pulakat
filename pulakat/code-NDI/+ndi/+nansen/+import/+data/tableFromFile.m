@@ -60,9 +60,8 @@ else
     subjectTable_session = table();
 end
 
-% Match data files to subjects
-[indSubjects,numSubjects] = ndi.nansen.fun.matchTables( ...
-    subjectTable_files,subjectTable_session,'ElectronicFileName');
+% Match data files to subjects (Loose matching: ignore empty fields in subjectTable_files)
+[indSubjects, numSubjects] = matchSubjectsLoose(subjectTable_files, subjectTable_session, subjectIdentifiers);
 
 % Query user to add missing subjects
 if any(numSubjects == 0)
@@ -88,6 +87,7 @@ if any(numSubjects == 0)
                 if ~isempty(newSubjectTable)
                     ndi.nansen.metatable.add(newSubjectTable, 'Subject');
                     % Refresh local session subject table
+                    project = nansen.getCurrentProject;
                     subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
                     subjectTable_session = subjectMetaTable.entries;
                     indSession = strcmp(subjectTable_session.SessionIdentifier, session.id);
@@ -98,6 +98,7 @@ if any(numSubjects == 0)
                 if ~isempty(newSubjectTable)
                     ndi.nansen.metatable.add(newSubjectTable, 'Subject');
                     % Refresh local session subject table
+                    project = nansen.getCurrentProject;
                     subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
                     subjectTable_session = subjectMetaTable.entries;
                     indSession = strcmp(subjectTable_session.SessionIdentifier, session.id);
@@ -106,8 +107,7 @@ if any(numSubjects == 0)
             case 'Skip'
                 skip = 'yes';
         end
-        [indSubjects,numSubjects] = ndi.nansen.fun.matchTables( ...
-            subjectTable_files,subjectTable_session,'ElectronicFileName');
+        [indSubjects, numSubjects] = matchSubjectsLoose(subjectTable_files, subjectTable_session, subjectIdentifiers);
     end
     delete(fig);
 end
@@ -118,7 +118,6 @@ if any(numSubjects == 0)
     missingSubjects.SessionIdentifier = repmat({session.id}, height(missingSubjects), 1);
     missingSubjects.SessionName = repmat({session.reference}, height(missingSubjects), 1);
     missingSubjects.SessionPath = repmat({session.path}, height(missingSubjects), 1);
-    missingSubjects.ElectronicFileName = repmat({'n/a'}, height(missingSubjects), 1);
     missingSubjects.SubjectDocumentIdentifier = repmat({''}, height(missingSubjects), 1);
     missingSubjects.DateAdded = repmat(datetime('now','TimeZone','UTC'), height(missingSubjects), 1);
     missingSubjects.Cloud = false(height(missingSubjects), 1);
@@ -127,17 +126,61 @@ if any(numSubjects == 0)
     ndi.nansen.metatable.add(missingSubjects, 'Subject');
 
     % Refresh subjectTable_session one last time
+    project = nansen.getCurrentProject;
     subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
     subjectTable_session = subjectMetaTable.entries;
     indSession = strcmp(subjectTable_session.SessionIdentifier, session.id);
     subjectTable_session = subjectTable_session(indSession, :);
 
     % Final match
-    [indSubjects,numSubjects] = ndi.nansen.fun.matchTables( ...
-        subjectTable_files,subjectTable_session,'ElectronicFileName');
+    [indSubjects, numSubjects] = matchSubjectsLoose(subjectTable_files, subjectTable_session, subjectIdentifiers);
 end
 
 % Define the button callback function
+function [indMatch, numMatch] = matchSubjectsLoose(A, B, subjectIdentifiers)
+    %MATCHSUBJECTSLOOSE Matches subjects even if some identifiers are missing in A.
+
+    indMatch = cell(height(A), 1);
+    numMatch = zeros(height(A), 1);
+
+    if isempty(B)
+        return;
+    end
+
+    for i = 1:height(A)
+        % Find variables that are non-empty in A
+        matchVars = {};
+        for j = 1:numel(subjectIdentifiers)
+            val = A{i, subjectIdentifiers{j}};
+            if iscell(val); val = val{1}; end
+            if ~isempty(val) && ~strcmp(val, 'n/a') && ~strcmp(val, 'unknown')
+                matchVars{end+1} = subjectIdentifiers{j};
+            end
+        end
+
+        if isempty(matchVars)
+            % If no identifiers, it can't match anything
+            continue;
+        end
+
+        % Perform match on these variables
+        isMatch = true(height(B), 1);
+        for j = 1:numel(matchVars)
+            var = matchVars{j};
+            valA = A{i, var};
+            valB = B.(var);
+            if iscell(valA)
+                isMatch = isMatch & cellfun(@(x) isequal(x, valA{1}), valB);
+            else
+                isMatch = isMatch & cellfun(@(x) isequal(x, valA), valB);
+            end
+        end
+
+        indMatch{i} = find(isMatch);
+        numMatch(i) = numel(indMatch{i});
+    end
+end
+
 function buttonCallback(~, fig, choice)
     fig.UserData = choice; % Store the selected choice
     uiresume(fig); % Resume execution of the main script

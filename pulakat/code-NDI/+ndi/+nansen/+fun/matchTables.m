@@ -37,18 +37,32 @@ identifyingVariables = intersect(B.Properties.VariableNames,...
     A.Properties.VariableNames, 'stable');
 identifyingVariables = setdiff(identifyingVariables,cellstr(excludeVariables), 'stable');
 
-% Get the indices of each variable name
-indMatch = zeros(height(A),numel(identifyingVariables));
-for i = 1:numel(identifyingVariables)
-    [~,indSubject] = ismember(A(:,identifyingVariables{i}),...
-        B(:,identifyingVariables{i}));
-    indData = indSubject > 0;
-    indMatch(indData,i) = indSubject(indData);
-end
+% Match rows
+indMatch = cell(height(A), 1);
+for i = 1:height(A)
+    isMatch = true(height(B), 1);
+    for j = 1:numel(identifyingVariables)
+        var = identifyingVariables{j};
+        valA = A{i, var};
+        valB = B.(var);
 
-% Get unique indices of table B matching each row in table A
-indMatch = num2cell(indMatch,2);
-indMatch = cellfun(@(x) unique(x(x > 0)),indMatch,'UniformOutput',false);
+        if iscell(valA)
+            if iscell(valB)
+                isMatch = isMatch & cellfun(@(x) isequal(x, valA{1}), valB);
+            else
+                % This case should be rare, but handle it
+                isMatch = isMatch & (valB == valA{1});
+            end
+        else
+            if iscell(valB)
+                isMatch = isMatch & cellfun(@(x) isequal(x, valA), valB);
+            else
+                isMatch = isMatch & (valB == valA);
+            end
+        end
+    end
+    indMatch{i} = find(isMatch);
+end
 
 % Get count of unique table B matches per row in table A
 numMatch = cellfun(@numel,indMatch);
