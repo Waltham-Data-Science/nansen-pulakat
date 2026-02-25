@@ -70,16 +70,13 @@ if ~isempty(subjectTable_session)
 end
 
 % Add session id and lab name
-subjectTable_new{:,'SessionID'} = session.id;
-subjectTable_new{:,'LabName'} = labName;
-subjectTable_new{:,'ElectronicFileName'} = 'manual';
+subjectTable_new{:,'ElectronicFileName'} = 'n/a';
 subjectTable_new{:,'SessionIdentifier'} = session.id;
 subjectTable_new{:,'SessionName'} = session.reference;
 subjectTable_new{:,'SessionPath'} = session.path;
 subjectTable_new{:,'SubjectDocumentIdentifier'} = {''};
 subjectTable_new{:,'DateAdded'} = datetime('now','TimeZone','UTC');
 subjectTable_new{:,'Cloud'} = false;
-
 
 % Return new subject table
 subjectTable = subjectTable_new;

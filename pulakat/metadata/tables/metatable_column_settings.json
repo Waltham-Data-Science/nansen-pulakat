@@ -40,7 +40,7 @@
     "ColumnLabel": "Species",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 154,
+    "ColumnWidth": 89,
     "IsEditable": false,
     "ColumnOrder": 10
   },
@@ -103,7 +103,7 @@
     "ColumnLabel": "Subject Number",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 146,
+    "ColumnWidth": 104,
     "IsEditable": false,
     "ColumnOrder": 13
   },
@@ -121,7 +121,7 @@
     "ColumnLabel": "Subject Label",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 129,
+    "ColumnWidth": 114,
     "IsEditable": false,
     "ColumnOrder": 15
   },
@@ -148,7 +148,7 @@
     "ColumnLabel": "Dataset Local Path",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 629,
+    "ColumnWidth": 429,
     "IsEditable": false,
     "ColumnOrder": 19
   },
@@ -177,7 +177,7 @@
     "SkipColumn": false,
     "ColumnWidth": 130,
     "IsEditable": false,
-    "ColumnOrder": 27
+    "ColumnOrder": 28
   },
   {
     "VariableName": "FileDocumentIdentifier",
@@ -222,7 +222,7 @@
     "SkipColumn": false,
     "ColumnWidth": 68,
     "IsEditable": false,
-    "ColumnOrder": 28
+    "ColumnOrder": 34
   },
   {
     "VariableName": "newType",
@@ -295,5 +295,50 @@
     "ColumnWidth": 100,
     "IsEditable": false,
     "ColumnOrder": 33
+  },
+  {
+    "VariableName": "DateAdded",
+    "ColumnLabel": "Date Added",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 81,
+    "IsEditable": false,
+    "ColumnOrder": 27
+  },
+  {
+    "VariableName": "BiologicalSex",
+    "ColumnLabel": "BiologicalSex",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": true,
+    "ColumnOrder": 35
+  },
+  {
+    "VariableName": "LabName",
+    "ColumnLabel": "LabName",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 36
+  },
+  {
+    "VariableName": "SessionID",
+    "ColumnLabel": "SessionID",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 37
+  },
+  {
+    "VariableName": "Strain",
+    "ColumnLabel": "Strain",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 38
   }
 ]

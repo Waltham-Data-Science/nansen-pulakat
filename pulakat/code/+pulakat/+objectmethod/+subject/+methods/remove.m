@@ -1,4 +1,4 @@
-function varargout = remove(subjectsObject, varargin)
+function varargout = remove(subjectObject, varargin)
 %REMOVE Deletes local subjects and removes them from the metatable.
 %
 %   This object method checks if subjects are synchronized to the cloud.
@@ -6,7 +6,7 @@ function varargout = remove(subjectsObject, varargin)
 %   and removes their entries from the subject metatable.
 %
 %   Inputs:
-%       subjectsObject (struct): A structure or array of structures
+%       subjectObject (struct): A structure or array of structures
 %           representing subjects.
 %       varargin: Optional name-value pairs for parameters.
 %
@@ -33,7 +33,7 @@ function varargout = remove(subjectsObject, varargin)
     % --- Implementation of the method ---
 
     % Convert subject object to table
-    subjectTable = struct2table(subjectsObject);
+    subjectTable = struct2table(subjectObject,'AsArray',true);
     
     % Check the subject status
     if all(subjectTable.Cloud)

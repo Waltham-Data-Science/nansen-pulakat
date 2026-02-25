@@ -5,10 +5,10 @@
   "subjectFileName": "animal_mapping",
   "subjectFileColumns": [
     {"value": "Strain",
-     "name": "Strain",
+     "name": "StrainName",
      "document": "openMINDs"},
     {"value": "BiologicalSex",
-     "name": "BiologicalSex",
+     "name": "BiologicalSexName",
      "document": "openMINDs"},
     {"value": "Animal",
      "name": "SubjectEnumeratedIdentifier",
