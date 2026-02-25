@@ -57,7 +57,7 @@ for i = 1:height(subjectTable)
 end
 
 % Add session info to subject table
-subjectTable = innerjoin(subjectTable,removevars(sessionTable,{'DateAdded', 'NumSubjects', 'NumFiles', 'LabName', 'SessionID'}));
+subjectTable = innerjoin(subjectTable,removevars(sessionTable,{'DateAdded', 'NumSubjects', 'NumFiles'}));
 
 % Add NumFiles column for each subject
 try
