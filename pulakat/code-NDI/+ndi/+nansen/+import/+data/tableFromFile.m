@@ -33,7 +33,7 @@ labName = char(labName);
 
 % Get project info
 projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
-projectInfo = jsondecode(fileread(projectFile));
+projectInfo = jsondecode(fileread(char(projectFile)));
 
 % Get identifying info for each data file
 subjectTable_files = ndi.setup.conv.(labName).subjectInfoFromFile(dataFiles);

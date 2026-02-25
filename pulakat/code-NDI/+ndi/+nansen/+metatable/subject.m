@@ -57,7 +57,24 @@ for i = 1:height(subjectTable)
 end
 
 % Add session info to subject table
-subjectTable = innerjoin(subjectTable,removevars(sessionTable,'DateAdded'));
+subjectTable = innerjoin(subjectTable,removevars(sessionTable,{'DateAdded', 'NumSubjects', 'NumFiles', 'LabName', 'SessionID'}));
+
+% Add NumFiles column for each subject
+try
+    project = nansen.getCurrentProject();
+    fileMetaTable = project.MetaTableCatalog.getMetaTable('File');
+    if ~isempty(fileMetaTable) && ~isempty(fileMetaTable.entries)
+        fileTable = fileMetaTable.entries;
+        for i = 1:height(subjectTable)
+            ind = strcmp(fileTable.SubjectDocumentIdentifier, subjectTable.SubjectDocumentIdentifier{i});
+            subjectTable.NumFiles(i) = sum(ind);
+        end
+    else
+        subjectTable.NumFiles(:) = 0;
+    end
+catch
+    subjectTable.NumFiles(:) = 0;
+end
 
 if isa(dataset,'ndi.dataset.dir')
     statusTable = ndi.nansen.sync.status(dataset);
