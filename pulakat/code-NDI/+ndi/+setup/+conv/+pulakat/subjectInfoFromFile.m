@@ -29,7 +29,7 @@ svsFiles = dataFiles(endsWith(dataFiles,'.svs'));
 echoFiles = dataFiles(contains(dataFiles,'.bimg') | contains(dataFiles,'.pimg') | ...
     contains(dataFiles,'.mxml') | contains(dataFiles,'.vxml'));
 echoFolders = unique(fileparts(echoFiles));
-indKnownFiles = contains(dataFiles,[scheduleFiles;diaFiles;svsFiles;echoFolders]);
+indKnownFiles = contains(dataFiles,[scheduleFiles(:);diaFiles(:);svsFiles(:);echoFolders(:)]);
 miscFiles = dataFiles(~indKnownFiles); % how to handle these?
 
 % Process experiment schedule files
