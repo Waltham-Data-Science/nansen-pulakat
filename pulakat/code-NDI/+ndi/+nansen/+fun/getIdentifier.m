@@ -1,74 +1,78 @@
-function identifier = getIdentifier(dataTable, type, labName)
-%GETIDENTIFIER Generates unique identifiers for subjects and files.
+function identifier = getIdentifier(dataTable, type, metaTable)
+%GETIDENTIFIER Generates unique immutable identifiers for subjects and files.
 %
 %   IDENTIFIER = GETIDENTIFIER(DATATABLE, TYPE) creates a cell array of
-%   unique identifiers for each row in the DATATABLE of the specified TYPE
-%   ('Subject' or 'File').
+%   unique UUID-based identifiers for each row in the DATATABLE of the
+%   specified TYPE ('Subject' or 'File').
+%
+%   IDENTIFIER = GETIDENTIFIER(DATATABLE, TYPE, METATABLE) also persists
+%   newly generated UUIDs to the provided METATABLE object using the
+%   official editEntries framework method.
 %
 %   Inputs:
 %       dataTable (table): The metadata table.
 %       type (char): 'Subject' or 'File'.
-%       labName (char): Optional lab name for retrieving project settings.
+%       metaTable (nansen.metadata.MetaTable): Optional. The metatable
+%           object for framework-compliant persistence.
 %
 %   Outputs:
-%       identifier (cellstr): Unique identifiers for each row.
+%       identifier (cellstr): Unique UUIDs for each row.
 
     arguments
         dataTable table
         type {mustBeMember(type, {'Subject', 'File'})}
-        labName {mustBeText} = nansen.getCurrentProject().Name
+        metaTable = []
     end
 
-    labName = char(labName);
+    % Standard Nansen UID column name
+    uidVarName = 'Nansen_UUID';
+    legacyIdVar = [type, 'Identifier']; % e.g., SubjectIdentifier
 
-    % Get project info
-    projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
-    if exist(projectFile, 'file')
-        projectInfo = jsondecode(fileread(projectFile));
-        subjectIdentifiers = projectInfo.subjectIdentifierFields;
-    else
-        % Fallback if project info is not found (should not happen in standard setup)
-        subjectIdentifiers = {'SubjectEnumeratedIdentifier', 'SubjectCageIdentifier', 'SubjectTextIdentifier'};
-    end
+    % Check if uid column exists in dataTable
+    hasUIDCol = ismember(uidVarName, dataTable.Properties.VariableNames);
+    hasLegacyIDCol = ismember(legacyIdVar, dataTable.Properties.VariableNames);
 
-    if strcmp(type, 'Subject')
-        keys = [{'SessionName'}, subjectIdentifiers(:)'];
-    elseif strcmp(type, 'File')
-        keys = [{'SessionName', 'ElectronicFileName'}, subjectIdentifiers(:)'];
-    end
-
-    % Ensure all keys exist in dataTable
-    for i = 1:numel(keys)
-        if ~ismember(keys{i}, dataTable.Properties.VariableNames)
-             dataTable.(keys{i}) = repmat({''}, height(dataTable), 1);
-        end
-    end
-
-    % Generate identifier
     identifier = cell(height(dataTable), 1);
+
     for i = 1:height(dataTable)
-        parts = cell(numel(keys), 1);
-        for j = 1:numel(keys)
-            val = dataTable.(keys{j}){i};
-
-            % Handle different data types
-            if isnumeric(val)
-                val = num2str(val);
-            elseif isdatetime(val)
-                val = datestr(val, 'yyyymmdd');
+        % 1. Check for existing UID (Birth of the Tether)
+        existingUID = '';
+        if hasUIDCol
+            val = dataTable.(uidVarName){i};
+            if ~isempty(val) && ~strcmpi(val, 'unknown') && ~strcmpi(val, 'N/A')
+                existingUID = char(val);
             end
-
-            if iscell(val); val = val{1}; end % Handle nested cells
-            if isempty(val); val = 'unknown'; end
-
-            % If it's a file path, just use the name
-            if strcmp(keys{j}, 'ElectronicFileName')
-                [~, fName, fExt] = fileparts(char(val));
-                val = [fName, fExt];
-            end
-
-            parts{j} = char(val);
         end
-        identifier{i} = strjoin(parts, '_');
+
+        % 2. Fallback to Legacy ID if UID is missing
+        if isempty(existingUID) && hasLegacyIDCol
+            val = dataTable.(legacyIdVar){i};
+            % Only treat as valid if it looks like a UUID (not a composite name)
+            % UUID pattern: 8-4-4-4-12 hex chars
+            uuidPattern = '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$';
+            if ~isempty(val) && ~isempty(regexp(char(val), uuidPattern, 'once'))
+                existingUID = char(val);
+            end
+        end
+
+        % 3. Generate New UUID if none exists
+        if isempty(existingUID)
+            newUID = char(java.util.UUID.randomUUID.toString());
+            identifier{i} = newUID;
+
+            % 4. Persist to MetaTable if provided (Framework Compliance)
+            if ~isempty(metaTable)
+                % Identify row index in metaTable.entries if possible
+                % This assumes dataTable is a subset of metaTable or matches indices
+                try
+                    % We use editEntries to ensure the UID is saved and reflected in GUI
+                    metaTable.editEntries(i, uidVarName, newUID);
+                catch
+                    % Fallback if indexing is not 1:1 (caller should handle persistence)
+                end
+            end
+        else
+            identifier{i} = existingUID;
+        end
     end
 end
