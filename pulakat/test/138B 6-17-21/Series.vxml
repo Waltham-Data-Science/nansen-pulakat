@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<series id="8423443162144632241858636377461849765" idStudy="3543696942117525846452699932943737" name="138B" createdDate="2021-06-17T13:59:06.0Z" acquiredBy="Greg Martin" versionCreated="2.2.0.12089" versionModified="2.2.0.12089" notes="" application="Cardiology" msmntPackage="Cardiac Package" animalId="" animalColor="" strain="" source="" weight="" type="" heartRate="" bodyTemp="" c1="" c2="" c3="" c4="" c5="" c6="" c7="" c8="" c9="" c10="" c11="" c12="" c13="" c14="" lastModifiedBy="Greg Martin" lastModifiedDate="2021-06-17T13:59:06.0Z">
+	<fields>
+		<field name="c1" label="Anesthetic Type"/>
+		<field name="c2" label="Anesthetic On"/>
+		<field name="c3" label="Anesthetic Off"/>
+		<field name="c4" label="Protocol ID"/>
+		<field name="c5" label="Protocol Name"/>
+		<field name="c6" label="Injectable"/>
+		<field name="c7" label="Injection Site"/>
+		<field name="c8" label="Injection Amount"/>
+	</fields>
+</series>
