@@ -58,9 +58,13 @@ To eliminate the fragility of name-based matching, we implement an **Immutable T
 
 *   **Birth of the Tether:** Every record created in the Nansen Staging State is immediately assigned a `Nansen_UUID`. This ID is purely internal to Nansen and never changes, even if the user renames a session or changes a subject's ID.
 *   **The Commitment Link:** During the Sync Event, when an NDI document is created, two things happen:
-    1.  The `Nansen_UUID` is written into a specific property of the NDI document (e.g., `nansen.local_id`).
+    1.  The `Nansen_UUID` is written into a specific property of the NDI document (e.g., `nansen.local_id`) using standardized `ndi.document` constructors.
     2.  The NDI `base.id` (the database's own immutable UUID) is returned and stored in the Nansen table row as the `NDI_Document_ID`.
 *   **Decoupled Sync:** Subsequent synchronizations use the `NDI_Document_ID` as the primary key. If a user changes a Subject's "Cage ID" in Nansen, the system doesn't "search" for a matching cage; it simply tells NDI: *"Update the document with ID 'XYZ' to have Cage ID 'ABC'."*
+*   **Real-World Integration Rules:** To maintain system integrity, the following rules must be followed:
+    1.  **Framework Methods Only:** All metadata updates must be performed via the Nansen `metaTable.editEntries` method. Raw table assignments are prohibited to prevent GUI desync or metadata corruption.
+    2.  **NDI Document Registration:** Documents must be created using the official `ndi.document` class and registered using the NDI session's `database_add` method.
+    3.  **Naming Consistency:** Discovery and parsing of session/subject metadata must utilize the repository's established regex patterns (e.g., those found in `subjectInfoFromFile.m`).
 *   **Hierarchical Tethering:** Relationships are persisted via parent-child UIDs in a specific sequence:
     1.  **Session UID** is generated/verified first.
     2.  **Subject UID** is established as a child of the Session.
