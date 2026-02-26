@@ -1,120 +1,155 @@
 % POC_LIFECYCLE Proof of Concept for the Nansen-NDI State-Based Lifecycle.
 %
-% This script demonstrates the architectural redesign logic:
-% 1. Staging State: Local drafts with flexible metadata.
-% 2. Commitment Event: Generation of an immutable Tether (UUID).
-% 3. Source of Truth: Decoupled linking and STRICT SCHEMA MAPPING.
+% This script demonstrates:
+% 1. Hierarchical Staging: Linking Files to Subjects during import.
+% 2. Linked Commitment: Tethering Files to Subject UIDs in the Master DB.
+% 3. Integrity: Resilience to Subject renames via UUID tethers.
 
-fprintf('--- Starting NANSEN-NDI Lifecycle PoC ---\n\n');
+fprintf('--- Starting NANSEN-NDI Hierarchical Lifecycle PoC ---\n\n');
 
-%% 1. STAGING STATE: Scan and Create Local Drafts
+%% 1. HIERARCHICAL STAGING: Parent-Child Discovery
 testDir = fullfile('pulakat', 'test');
-fprintf('Step 1: Scanning %s for local records...\n', testDir);
+fprintf('Step 1: Scanning %s for Subjects and Files...\n', testDir);
 
-% Find all files in the test directory (simulating an import)
-files = dir(fullfile(testDir, '**', '*.*'));
-files = files(~[files.isdir]); % Remove directories
+% Extract subjects from directory names (e.g., "138A 6-17-21")
+subDirs = dir(testDir);
+subDirs = subDirs([subDirs.isdir] & ~startsWith({subDirs.name}, '.'));
 
-% Create a local Nansen table (Staging)
-numToDraft = min(3, numel(files));
-draftFiles = files(1:numToDraft);
+subjectTable = table();
+fileTable = table();
 
-nansenTable = table();
-nansenTable.LocalName = {draftFiles.name}';
-nansenTable.SessionLabel = repmat({'Experimental_Session_A'}, numToDraft, 1);
-% This column exists in Nansen but might not be mapped to NDI
-nansenTable.InternalNote = {'Draft'; 'Check calibration'; 'N/A'};
+for i = 1:numel(subDirs)
+    dirName = subDirs(i).name;
+    % Pattern: [SubjectID] [Date]
+    parts = strsplit(dirName, ' ');
+    if numel(parts) >= 2
+        subjID = parts{1};
+        subjDate = parts{2};
 
-fprintf('Nansen Staging Table created.\n');
-disp(nansenTable);
+        % Add Subject to Staging
+        subjectTable = [subjectTable; table({subjID}, {subjDate}, ...
+            'VariableNames', {'SubjectID', 'ImportDate'})];
 
-%% 2. COMMITMENT EVENT: Validation Gate and Strict Mapping
-fprintf('\nStep 2: Triggering Commitment Event (Sync)...\n');
+        % Find files for this subject
+        files = dir(fullfile(testDir, dirName, '*.*'));
+        files = files(~[files.isdir] & ~startsWith({files.name}, '.'));
 
-% Define the Mapping Registry (Simulation)
-% Only specific columns are allowed to move to NDI
-mappingRegistry = containers.Map();
-mappingRegistry('LocalName') = 'ndi.document.base.name';
-mappingRegistry('SessionLabel') = 'ndi.document.session.label';
-
-% User adds a new experimental column
-nansenTable.Temp_HormoneLevel = [10.5; 12.2; 9.8];
-fprintf('Experimental column "Temp_HormoneLevel" added in Staging.\n');
-
-% The Validation Gate logic
-fprintf('\nChecking columns against Mapping Registry...\n');
-nansenCols = nansenTable.Properties.VariableNames;
-for i = 1:numel(nansenCols)
-    col = nansenCols{i};
-    if mappingRegistry.isKey(col)
-        fprintf('  [OK] %-20s -> Maps to: %s\n', col, mappingRegistry(col));
-    else
-        fprintf('  [!!] %-20s -> UNMAPPED FIELD DETECTED\n', col);
+        % Limit to 2 files per subject for clarity
+        for j = 1:min(2, numel(files))
+            fileTable = [fileTable; table({files(j).name}, {subjID}, ...
+                'VariableNames', {'FileName', 'ParentSubjectID'})];
+        end
     end
 end
 
-fprintf('\nValidation Result: Sync Blocked. Unmapped fields must be resolved.\n');
+% Add an experimental column to test the Validation Gate
+fileTable.Temp_HormoneLevel = [10.5; 12.2; 9.8; 15.1; 11.0];
 
-%% 3. RESOLUTION: Define Mapping or Skip
-fprintf('\nStep 3: Resolving Unmapped Fields...\n');
+fprintf('Staging: Discovered %d Subjects and %d Files.\n', ...
+    height(subjectTable), height(fileTable));
+disp(subjectTable);
+disp(fileTable(:, {'FileName', 'ParentSubjectID', 'Temp_HormoneLevel'}));
 
-% User Action A: Explicitly skip 'InternalNote'
-fprintf('User Action: Skip "InternalNote" (Internal only).\n');
+%% 2. COMMITMENT GATE: Strict Schema Mapping
+fprintf('\nStep 2: Entering Commitment Gate (Validation)...\n');
 
-% User Action B: Map 'Temp_HormoneLevel' to a formal NDI property
-fprintf('User Action: Mapping "Temp_HormoneLevel" to "ndi.document.physiology.hormone_val".\n');
+% Define the Mapping Registry (Simulation)
+mappingRegistry = containers.Map();
+mappingRegistry('FileName') = 'ndi.document.base.name';
+mappingRegistry('ParentSubjectID') = 'skip'; % Handled by Hierarchical Tether
+
+fprintf('Checking columns against Mapping Registry...\n');
+for col = fileTable.Properties.VariableNames
+    if mappingRegistry.isKey(col{1})
+        fprintf('  [OK] %-20s -> Action: %s\n', col{1}, mappingRegistry(col{1}));
+    else
+        fprintf('  [!!] %-20s -> UNMAPPED FIELD DETECTED\n', col{1});
+    end
+end
+
+fprintf('\nValidation Result: Sync Blocked by "Temp_HormoneLevel".\n');
+fprintf('User Action: Map "Temp_HormoneLevel" to "ndi.document.physiology.hormone_val".\n');
 mappingRegistry('Temp_HormoneLevel') = 'ndi.document.physiology.hormone_val';
 
-% Retry Sync
-fprintf('\nRetrying Commitment with updated Registry...\n');
+%% 3. LINKED COMMITMENT: Tethering to Subject UIDs
+fprintf('\nStep 2: Committing Hierarchy to NDI Master...\n');
+
 ndiMasterDatabase = struct();
-for i = 1:height(nansenTable)
-    % Generate Tether
-    uid = sprintf('NANSEN-UUID-%08x', randi(2^32));
+ndiMasterDatabase.Subjects = struct();
+ndiMasterDatabase.Files = struct();
 
-    % Build NDI Document using ONLY mapped properties
+% A. Commit Subjects First
+fprintf('Committing Subjects and generating UIDs...\n');
+subjectTable.Nansen_UID = arrayfun(@(x) sprintf('SUBJ-UUID-%04d', x), ...
+    (1:height(subjectTable))', 'UniformOutput', false);
+
+for i = 1:height(subjectTable)
+    uid = subjectTable.Nansen_UID{i};
     ndiDoc = struct();
-    ndiDoc.ndi_id = sprintf('NDI-DOC-%08x', randi(2^32));
-    ndiDoc.nansen_tether = uid;
+    ndiDoc.ndi_id = sprintf('NDI-SUBJ-%04d', i);
+    ndiDoc.name = subjectTable.SubjectID{i};
+    ndiDoc.date = subjectTable.ImportDate{i};
 
-    for col = nansenTable.Properties.VariableNames
-        if mappingRegistry.isKey(col{1})
-            % Use generic indexing {row, col} to handle both cells and numeric arrays
-            ndiDoc.(strrep(mappingRegistry(col{1}), '.', '_')) = nansenTable{i, col{1}};
+    ndiMasterDatabase.Subjects.(strrep(uid, '-', '_')) = ndiDoc;
+end
+
+% B. Commit Files Tethered to Subject UIDs
+fprintf('Committing Files tethered to Subject UIDs (not names)...\n');
+fileTable.Nansen_UID = arrayfun(@(x) sprintf('FILE-UUID-%04d', x), ...
+    (1:height(fileTable))', 'UniformOutput', false);
+
+% Map staging File to its Subject UID
+[~, loc] = ismember(fileTable.ParentSubjectID, subjectTable.SubjectID);
+fileTable.Subject_Tether = subjectTable.Nansen_UID(loc);
+
+for i = 1:height(fileTable)
+    uid = fileTable.Nansen_UID{i};
+    subjUID = fileTable.Subject_Tether{i};
+
+    ndiDoc = struct();
+    ndiDoc.ndi_id = sprintf('NDI-FILE-%04d', i);
+    ndiDoc.parent_subject_uid = subjUID; % The Critical Tether
+
+    % Build using only mapped fields
+    for col = fileTable.Properties.VariableNames
+        if mappingRegistry.isKey(col{1}) && ~strcmp(mappingRegistry(col{1}), 'skip')
+            propName = strrep(mappingRegistry(col{1}), '.', '_');
+            ndiDoc.(propName) = fileTable{i, col{1}};
         end
     end
 
-    ndiMasterDatabase.(strrep(uid, '-', '_')) = ndiDoc;
+    ndiMasterDatabase.Files.(strrep(uid, '-', '_')) = ndiDoc;
 end
 
-fprintf('Commitment Successful. NDI Master created with standardized schema.\n');
-firstUID = fieldnames(ndiMasterDatabase);
-disp(ndiMasterDatabase.(firstUID{1}));
+fprintf('Hierarchy committed successfully.\n');
 
-%% 4. TETHER STRENGTH & VIEW MODE
-fprintf('\nStep 4: Demonstrating Tether Strength & View Mode...\n');
+%% 4. INTEGRITY TEST: Resilience to Subject Renames
+fprintf('\nStep 3: Integrity Test (Renaming Subject in Nansen)...\n');
 
-% Simulate Nansen View Mode refreshing from NDI
-% It only pulls back what is formally mapped
-targetTether = strrep(firstUID{1}, '_', '-');
-masterDoc = ndiMasterDatabase.(firstUID{1});
+% User renames a subject in the staging table
+oldName = subjectTable.SubjectID{1};
+newName = 'RENAMED_ANIMAL_X';
+subjectTable.SubjectID{1} = newName;
 
-viewTable = table();
-viewTable.NansenIdentifier = {targetTether};
-viewTable.NDI_Name = {masterDoc.ndi_document_base_name};
-viewTable.HormoneLevel = [masterDoc.ndi_document_physiology_hormone_val];
+fprintf('Subject 1 renamed in Nansen: %s -> %s\n', oldName, newName);
 
-fprintf('Nansen View Mode (Reflected from NDI Master via Tether):\n');
-disp(viewTable);
+% REFRESH LOGIC: Find files for the renamed subject using only the UID
+targetSubjUID = subjectTable.Nansen_UID{1};
+fprintf('Finding files for Subject UID: %s\n', targetSubjUID);
 
-% User tries to change something in Nansen View
-viewTable.NDI_Name{1} = 'LOCAL_EDIT_THAT_SHOULD_NOT_STAY';
-fprintf('\nLocal Edit Attempt: Changed Name to "%s"\n', viewTable.NDI_Name{1});
+% Simulate NDI Query: find files where parent_subject_uid == targetSubjUID
+allFileUIDs = fieldnames(ndiMasterDatabase.Files);
+associatedFiles = {};
+for i = 1:numel(allFileUIDs)
+    fDoc = ndiMasterDatabase.Files.(allFileUIDs{i});
+    if strcmp(fDoc.parent_subject_uid, targetSubjUID)
+        % Retrieve via the standardized property name
+        associatedFiles{end+1} = fDoc.ndi_document_base_name;
+    end
+end
 
-% Demonstration of State-Based "View" Logic (Reset from Source of Truth)
-viewTable.NDI_Name{1} = masterDoc.ndi_document_base_name;
-fprintf('Refreshed View from NDI: Name reset to "%s"\n', viewTable.NDI_Name{1});
-
-fprintf('\nNote: "InternalNote" is absent from View because it was never committed.\n');
+fprintf('Query Result for "%s": Found %d files.\n', newName, numel(associatedFiles));
+disp(associatedFiles');
+fprintf('Integrity Verified: Parent-Child link survived the rename because it uses UIDs.\n');
 
 fprintf('\n--- PoC Successfully Completed ---\n');

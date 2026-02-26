@@ -48,6 +48,7 @@ To eliminate the fragility of name-based matching, we implement an **Immutable T
     1.  The `Nansen_UUID` is written into a specific property of the NDI document (e.g., `nansen.local_id`).
     2.  The NDI `base.id` (the database's own immutable UUID) is returned and stored in the Nansen table row as the `NDI_Document_ID`.
 *   **Decoupled Sync:** Subsequent synchronizations use the `NDI_Document_ID` as the primary key. If a user changes a Subject's "Cage ID" in Nansen, the system doesn't "search" for a matching cage; it simply tells NDI: *"Update the document with ID 'XYZ' to have Cage ID 'ABC'."*
+*   **Hierarchical Tethering:** Relationships between records (e.g., a File belonging to a Subject) are persisted using these immutable UIDs. A File document in NDI stores the `Subject_UID` as its parent reference. This ensures that if a Subject is renamed or moved in the staging environment, its children remain perfectly linked in the Source of Truth.
 *   **View-Mode Integrity:** When Nansen displays a committed record, it performs a "Just-In-Time" refresh from NDI using the tether. If the record exists in NDI, the local Nansen table is treated as a temporary cache of the NDI Master.
 
 ---
