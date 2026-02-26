@@ -86,7 +86,10 @@ else
     ndi.nansen.metatable.add(dataTable, metaTableType);
 end
 
-% Update Session metatable
+% Update Subject and Session metatables
+subjectTable = ndi.nansen.metatable.subject(session);
+ndi.nansen.metatable.add(subjectTable, 'Subject');
+
 sessionTable = ndi.nansen.metatable.session(session);
 ndi.nansen.metatable.add(sessionTable, 'Session');
 

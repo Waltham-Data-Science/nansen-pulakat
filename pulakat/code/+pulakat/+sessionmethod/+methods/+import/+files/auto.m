@@ -47,6 +47,13 @@ function varargout = auto(sessionObject, varargin)
     % Add files to metatable
     ndi.nansen.metatable.add(dataTable,'File');
 
+    % Update Subject and Session metatables
+    subjectTable = ndi.nansen.metatable.subject(session);
+    ndi.nansen.metatable.add(subjectTable, 'Subject');
+
+    sessionTable = ndi.nansen.metatable.session(session);
+    ndi.nansen.metatable.add(sessionTable, 'Session');
+
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionObject}; end
 end

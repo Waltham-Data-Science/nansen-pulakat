@@ -71,11 +71,15 @@ for i = 1:numel(indToUpdate)
 end
 metaTable.save();
 
-% Update affected Session metatables
+% Update affected Session and Subject metatables
 affectedSessions = unique(data.SessionPath(indToUpdate));
 for i = 1:numel(affectedSessions)
     try
         session = ndi.session.dir(affectedSessions{i});
+
+        subjectTable = ndi.nansen.metatable.subject(session);
+        ndi.nansen.metatable.add(subjectTable, 'Subject');
+
         sessionTable = ndi.nansen.metatable.session(session);
         ndi.nansen.metatable.add(sessionTable, 'Session');
     catch

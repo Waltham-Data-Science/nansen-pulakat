@@ -110,6 +110,16 @@ if fullMetaTable & ~isempty(sessionTable)
             'SpeciesName','StrainName','Treatment','SessionIdentifier',...
             'DataTypes'})}, ...
             'uniqueVariables','SessionIdentifier');
+
+        % Ensure DataTypes is not NaN and is a cell array of strings
+        if ismember('DataTypes', sessionTable.Properties.VariableNames)
+            if isnumeric(sessionTable.DataTypes)
+                sessionTable.DataTypes = repmat({''}, height(sessionTable), 1);
+            elseif iscell(sessionTable.DataTypes)
+                isNan = cellfun(@(x) any(isnumeric(x) && isnan(x)), sessionTable.DataTypes);
+                sessionTable.DataTypes(isNan) = {''};
+            end
+        end
     end
 end
 
