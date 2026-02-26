@@ -186,7 +186,11 @@ for i = 1:numel(matches)
     end
 
     fprintf('  Instance %d (Session: %s) -> Subject UID: %s\n', i, sessName, subjUID);
-    fprintf('    Files Found: %s\n', strjoin(associatedFiles, ', '));
+    if isempty(associatedFiles)
+        fprintf('    Files Found: [None]\n');
+    else
+        fprintf('    Files Found: %s\n', strjoin(cellstr(associatedFiles), ', '));
+    end
 end
 
 fprintf('\nSuccess: The system maintains distinct tethers for the same animal across different sessions.\n');
