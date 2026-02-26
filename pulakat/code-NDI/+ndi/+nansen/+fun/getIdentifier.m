@@ -20,13 +20,18 @@ function identifier = getIdentifier(dataTable, type, metaTable)
 
     arguments
         dataTable table
-        type {mustBeMember(type, {'Subject', 'File'})}
+        type {mustBeMember(type, {'Session', 'Subject', 'File'})}
         metaTable = []
     end
 
     % Standard Nansen UID column name
     uidVarName = 'Nansen_UUID';
-    legacyIdVar = [type, 'Identifier']; % e.g., SubjectIdentifier
+
+    if strcmp(type, 'Session')
+        legacyIdVar = 'SessionName';
+    else
+        legacyIdVar = [type, 'Identifier']; % e.g., SubjectIdentifier
+    end
 
     % Check if uid column exists in dataTable
     hasUIDCol = ismember(uidVarName, dataTable.Properties.VariableNames);
