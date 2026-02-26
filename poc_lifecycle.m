@@ -8,7 +8,14 @@
 fprintf('--- Starting NANSEN-NDI Hierarchical Lifecycle PoC ---\n\n');
 
 %% 1. HIERARCHICAL STAGING: Parent-Child Discovery
-testDir = fullfile('pulakat', 'test');
+scriptPath = fileparts(mfilename('fullpath'));
+testDir = fullfile(scriptPath, 'pulakat', 'test');
+
+% Fallback if scriptPath is empty (e.g., if not running from a file)
+if isempty(scriptPath) || ~exist(testDir, 'dir')
+    testDir = fullfile(pwd, 'pulakat', 'test');
+end
+
 fprintf('Step 1: Scanning %s for Subjects and Files...\n', testDir);
 
 % Extract subjects from directory names (e.g., "138A 6-17-21")
@@ -43,7 +50,8 @@ for i = 1:numel(subDirs)
 end
 
 % Add an experimental column to test the Validation Gate
-fileTable.Temp_HormoneLevel = [10.5; 12.2; 9.8; 15.1; 11.0];
+% Dynamic assignment to match table height
+fileTable.Temp_HormoneLevel = 10 + 5 * rand(height(fileTable), 1);
 
 fprintf('Staging: Discovered %d Subjects and %d Files.\n', ...
     height(subjectTable), height(fileTable));
