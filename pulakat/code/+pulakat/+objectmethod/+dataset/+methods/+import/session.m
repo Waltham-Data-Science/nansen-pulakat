@@ -52,26 +52,6 @@ function varargout = session(datasetObject, varargin)
     sessionTable = ndi.nansen.import.session(dataset);
     ndi.nansen.metatable.add(sessionTable,'Session');
 
-    autoImport = questdlg('Would you like to automatically import subjects and files from the session directory?', ...
-        'Import Subjects and Files','Yes', 'No', 'Yes');
-    if strcmp(autoImport, 'Yes')
-        % Create a temporary NDI session object to allow auto import logic to work (it needs paths etc)
-        [dataParentDir, sessionFolderName] = fileparts(sessionTable.SessionPath{1});
-        SessionRef = sessionTable.SessionName;
-        SessionPath = {sessionFolderName};
-        sessionMaker = ndi.setup.NDIMaker.sessionMaker(dataParentDir,...
-                table(SessionRef,SessionPath));
-        sessionObj = sessionMaker.sessionIndices{1};
-
-        % Add subjects to session
-        subjectTable = ndi.nansen.import.subject.auto(sessionObj, sessionObj.path);
-        ndi.nansen.metatable.add(subjectTable,'Subject');
-
-        % Add data to session
-        dataTable = ndi.nansen.import.file.auto(sessionObj, sessionObj.path);
-        ndi.nansen.metatable.add(dataTable,'File');
-    end
-
     % Return session object (please do not remove):
     % if nargout; varargout = {datasetObject}; end
 end
