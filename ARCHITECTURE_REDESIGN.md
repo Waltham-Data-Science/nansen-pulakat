@@ -52,12 +52,16 @@ To eliminate the fragility of name-based matching, we implement an **Immutable T
 
 ---
 
-## 3. Ontology Handling: Schema Promotion
+## 3. Ontology Handling: Strict Schema Mapping
 
-To allow for experimental flexibility without database rigidity, we treat Nansen as an **Ontology Incubator**.
+To ensure NDI remains a standardized, "clean" source of truth, the integration uses **Strict Schema Mapping**. Nansen acts as a flexible incubator, but the database only accepts validated data.
 
-*   **Dynamic Staging Columns:** Users can add arbitrary columns to Nansen tables in the Staging state. These are stored locally as standard MATLAB table variables.
-*   **The "Promotion" Logic:** During the Sync Event, the system identifies columns that do not match the standard NDI core schema. Instead of ignoring them or breaking the sync, these are packed into an NDI `ontology_blob` or a series of `generic_metadata` documents linked to the main record.
-*   **Self-Describing Metadata:** Each promoted field includes metadata about itself (Type, Units, Label).
-*   **Promotion to "Standard":** If a specific "Experimental" column becomes standard across the lab, a "Promotion Task" can be run to migrate that specific key from the `generic_metadata` blob into a first-class property of a specialized NDI Document class, without ever losing the UID tether.
-*   **Reflection:** When Nansen pulls data back from NDI, it unpacks the `generic_metadata` blob back into table columns, ensuring the GUI remains a perfect reflection of the database's flexible storage.
+*   **Dynamic Staging Columns:** Users can add arbitrary columns to Nansen tables in the Staging state for local analysis or temporary notes.
+*   **The Validation Gate:** During the Commitment/Sync Event, every Nansen column is checked against a **Mapping Registry**.
+    *   **Mapped Fields:** Columns with a defined mapping are translated into specific NDI document properties.
+    *   **Unmapped Fields:** Any column without a corresponding NDI property is flagged. The sync is paused, and the user must either:
+        1.  **Map it:** Define a new relationship between the Nansen column and an NDI class property.
+        2.  **Skip it:** Explicitly exclude the column from the database synchronization.
+*   **No Unstructured Blobs:** "Catch-all" metadata blobs are prohibited. All data in NDI must conform to the formal schema of its document class.
+*   **Promotion to Database:** When a new metadata type is required, it is first defined in the NDI schema. Once the mapping is registered in Nansen, the data can be "promoted" from the staging table to the database.
+*   **Consistent Reflection:** Nansen’s "View" mode only displays properties that are explicitly defined in the NDI Master document, ensuring the user sees exactly what is persisted in the source of truth.

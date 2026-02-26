@@ -3,7 +3,7 @@
 % This script demonstrates the architectural redesign logic:
 % 1. Staging State: Local drafts with flexible metadata.
 % 2. Commitment Event: Generation of an immutable Tether (UUID).
-% 3. Source of Truth: Decoupled linking and metadata promotion.
+% 3. Source of Truth: Decoupled linking and STRICT SCHEMA MAPPING.
 
 fprintf('--- Starting NANSEN-NDI Lifecycle PoC ---\n\n');
 
@@ -16,96 +16,105 @@ files = dir(fullfile(testDir, '**', '*.*'));
 files = files(~[files.isdir]); % Remove directories
 
 % Create a local Nansen table (Staging)
-% We'll use a subset of files to keep the PoC readable
-numToDraft = min(5, numel(files));
+numToDraft = min(3, numel(files));
 draftFiles = files(1:numToDraft);
 
 nansenTable = table();
 nansenTable.LocalName = {draftFiles.name}';
-nansenTable.LocalPath = fullfile({draftFiles.folder}', {draftFiles.name}');
 nansenTable.SessionLabel = repmat({'Experimental_Session_A'}, numToDraft, 1);
-nansenTable.CustomNote = {'Draft'; 'Review required'; 'Experimental'; 'Stub'; 'N/A'};
+% This column exists in Nansen but might not be mapped to NDI
+nansenTable.InternalNote = {'Draft'; 'Check calibration'; 'N/A'};
 
-fprintf('Nansen Staging Table created with %d records.\n', height(nansenTable));
-disp(nansenTable(:, {'LocalName', 'SessionLabel', 'CustomNote'}));
+fprintf('Nansen Staging Table created.\n');
+disp(nansenTable);
 
-%% 2. COMMITMENT EVENT: Generate Immutable Tether
+%% 2. COMMITMENT EVENT: Validation Gate and Strict Mapping
 fprintf('\nStep 2: Triggering Commitment Event (Sync)...\n');
 
-% Simulation of the "Gate"
-committedTable = nansenTable;
-numRecords = height(committedTable);
+% Define the Mapping Registry (Simulation)
+% Only specific columns are allowed to move to NDI
+mappingRegistry = containers.Map();
+mappingRegistry('LocalName') = 'ndi.document.base.name';
+mappingRegistry('SessionLabel') = 'ndi.document.session.label';
 
-% Generate Nansen_UUID (The Tether)
-% In reality, we'd use a proper UUID generator. Here we simulate it.
-committedTable.NansenIdentifier = arrayfun(@(x) sprintf('NANSEN-UUID-%04d-%08x', x, randi(2^32)), ...
-    (1:numRecords)', 'UniformOutput', false);
+% User adds a new experimental column
+nansenTable.Temp_HormoneLevel = [10.5; 12.2; 9.8];
+fprintf('Experimental column "Temp_HormoneLevel" added in Staging.\n');
 
-% Simulate NDI Master Storage (The Source of Truth)
+% The Validation Gate logic
+fprintf('\nChecking columns against Mapping Registry...\n');
+nansenCols = nansenTable.Properties.VariableNames;
+for i = 1:numel(nansenCols)
+    col = nansenCols{i};
+    if mappingRegistry.isKey(col)
+        fprintf('  [OK] %-20s -> Maps to: %s\n', col, mappingRegistry(col));
+    else
+        fprintf('  [!!] %-20s -> UNMAPPED FIELD DETECTED\n', col);
+    end
+end
+
+fprintf('\nValidation Result: Sync Blocked. Unmapped fields must be resolved.\n');
+
+%% 3. RESOLUTION: Define Mapping or Skip
+fprintf('\nStep 3: Resolving Unmapped Fields...\n');
+
+% User Action A: Explicitly skip 'InternalNote'
+fprintf('User Action: Skip "InternalNote" (Internal only).\n');
+
+% User Action B: Map 'Temp_HormoneLevel' to a formal NDI property
+fprintf('User Action: Mapping "Temp_HormoneLevel" to "ndi.document.physiology.hormone_val".\n');
+mappingRegistry('Temp_HormoneLevel') = 'ndi.document.physiology.hormone_val';
+
+% Retry Sync
+fprintf('\nRetrying Commitment with updated Registry...\n');
 ndiMasterDatabase = struct();
-for i = 1:numRecords
-    uid = committedTable.NansenIdentifier{i};
-    ndiMasterDatabase.(strrep(uid, '-', '_')) = struct(...
-        'ndi_id', sprintf('NDI-DOC-%08x', randi(2^32)), ...
-        'filename', committedTable.LocalName{i}, ...
-        'session', committedTable.SessionLabel{i}, ...
-        'nansen_tether', uid, ...
-        'metadata_blob', struct() ...
-    );
+for i = 1:height(nansenTable)
+    % Generate Tether
+    uid = sprintf('NANSEN-UUID-%08x', randi(2^32));
+
+    % Build NDI Document using ONLY mapped properties
+    ndiDoc = struct();
+    ndiDoc.ndi_id = sprintf('NDI-DOC-%08x', randi(2^32));
+    ndiDoc.nansen_tether = uid;
+
+    for col = nansenTable.Properties.VariableNames
+        if mappingRegistry.isKey(col{1})
+            % Use generic indexing {row, col} to handle both cells and numeric arrays
+            ndiDoc.(strrep(mappingRegistry(col{1}), '.', '_')) = nansenTable{i, col{1}};
+        end
+    end
+
+    ndiMasterDatabase.(strrep(uid, '-', '_')) = ndiDoc;
 end
 
-% Nansen now stores the NDI_Document_ID (Commitment Link)
-committedTable.NDI_Document_ID = cell(numRecords, 1);
-for i = 1:numRecords
-    uid = committedTable.NansenIdentifier{i};
-    committedTable.NDI_Document_ID{i} = ndiMasterDatabase.(strrep(uid, '-', '_')).ndi_id;
-end
+fprintf('Commitment Successful. NDI Master created with standardized schema.\n');
+firstUID = fieldnames(ndiMasterDatabase);
+disp(ndiMasterDatabase.(firstUID{1}));
 
-fprintf('Records committed. Immutable Tether established.\n');
-disp(committedTable(:, {'LocalName', 'NansenIdentifier', 'NDI_Document_ID'}));
+%% 4. TETHER STRENGTH & VIEW MODE
+fprintf('\nStep 4: Demonstrating Tether Strength & View Mode...\n');
 
-%% 3. TETHER STRENGTH: Resilience to Metadata Drift
-fprintf('\nStep 3: Demonstrating Tether Strength (Metadata Drift)...\n');
+% Simulate Nansen View Mode refreshing from NDI
+% It only pulls back what is formally mapped
+targetTether = strrep(firstUID{1}, '_', '-');
+masterDoc = ndiMasterDatabase.(firstUID{1});
 
-% User changes the SessionLabel in the Nansen GUI (Metadata Drift)
-driftedTable = committedTable;
-driftedTable.SessionLabel{1} = 'RENAMED_SESSION_B';
-driftedTable.LocalName{1} = 'renamed_file_001.dat';
+viewTable = table();
+viewTable.NansenIdentifier = {targetTether};
+viewTable.NDI_Name = {masterDoc.ndi_document_base_name};
+viewTable.HormoneLevel = [masterDoc.ndi_document_physiology_hormone_val];
 
-fprintf('User renamed record 1 in Nansen: %s -> %s\n', ...
-    committedTable.LocalName{1}, driftedTable.LocalName{1});
+fprintf('Nansen View Mode (Reflected from NDI Master via Tether):\n');
+disp(viewTable);
 
-% REFRESH LOGIC: Re-identify the Master record using the Tether
-targetTether = driftedTable.NansenIdentifier{1};
-fprintf('Looking up master record using Tether: %s\n', targetTether);
+% User tries to change something in Nansen View
+viewTable.NDI_Name{1} = 'LOCAL_EDIT_THAT_SHOULD_NOT_STAY';
+fprintf('\nLocal Edit Attempt: Changed Name to "%s"\n', viewTable.NDI_Name{1});
 
-% The system ignores the drifted 'LocalName' and finds the match via UUID
-masterRecord = ndiMasterDatabase.(strrep(targetTether, '-', '_'));
+% Demonstration of State-Based "View" Logic (Reset from Source of Truth)
+viewTable.NDI_Name{1} = masterDoc.ndi_document_base_name;
+fprintf('Refreshed View from NDI: Name reset to "%s"\n', viewTable.NDI_Name{1});
 
-fprintf('Match Found! Master NDI Filename: %s (NDI ID: %s)\n', ...
-    masterRecord.filename, masterRecord.ndi_id);
-fprintf('Sync Status: Nansen local drift detected. Recommendation: Sync update to NDI.\n');
-
-%% 4. ONTOLOGY PROMOTION: Packing Experimental Fields
-fprintf('\nStep 4: Demonstrating Ontology Promotion...\n');
-
-% A new experimental column is added in Nansen
-driftedTable.Temp_HormoneLevel = [10.5; 12.2; 9.8; 15.1; 11.0];
-
-fprintf('New experimental column "Temp_HormoneLevel" added in Staging.\n');
-
-% Promotion Logic: Pack non-standard columns into a blob
-for i = 1:numRecords
-    uid = driftedTable.NansenIdentifier{i};
-    masterRef = strrep(uid, '-', '_');
-
-    % Only promote if it doesn't exist in core NDI schema
-    % (In this PoC, we just pack it)
-    ndiMasterDatabase.(masterRef).metadata_blob.Temp_HormoneLevel = ...
-        driftedTable.Temp_HormoneLevel(i);
-end
-
-fprintf('Experimental data "promoted" to NDI metadata blob for record 1.\n');
-disp(ndiMasterDatabase.(strrep(driftedTable.NansenIdentifier{1}, '-', '_')).metadata_blob);
+fprintf('\nNote: "InternalNote" is absent from View because it was never committed.\n');
 
 fprintf('\n--- PoC Successfully Completed ---\n');
