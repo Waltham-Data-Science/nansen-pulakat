@@ -25,7 +25,8 @@ end
 
 % Check that there are data files selected
 if isempty(dataFiles)
-    error('ndi.nansen.import.data.tableFromFiles: No file(s) selected.');
+    dataTable = table();
+    return;
 end
 
 % Convert inputs to char arrays for internal processing

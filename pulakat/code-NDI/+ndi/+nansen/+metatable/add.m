@@ -88,15 +88,15 @@ else
 
     % Use identifying fields to find unique rows
     if strcmp(dataName, 'Subject')
-        keys = {'SubjectIdentifier'};
+        idKeys = {'SubjectIdentifier'};
     elseif strcmp(dataName, 'File')
-        keys = {'FileIdentifier'};
+        idKeys = {'FileIdentifier'};
     elseif strcmp(dataName, 'Session')
-        keys = {'SessionName', 'SessionPath'};
+        idKeys = {'SessionName', 'SessionPath'};
     else
-        keys = {metaTable.MetaTableIdVarname};
+        idKeys = {metaTable.MetaTableIdVarname};
     end
-    keys = intersect(keys, dataTable.Properties.VariableNames, 'stable');
+    idKeys = intersect(idKeys, dataTable.Properties.VariableNames, 'stable');
 
     % Ensure variable types match for identifying keys before matching
     existingTable = metaTable.entries;
@@ -113,8 +113,8 @@ else
     end
 
     % Find matching rows in existing metatable
-    if ~isempty(keys)
-        excludeVars = setdiff(dataTable.Properties.VariableNames, keys, 'stable');
+    if ~isempty(idKeys)
+        excludeVars = setdiff(dataTable.Properties.VariableNames, idKeys, 'stable');
         [indMatch, numMatch] = ndi.nansen.fun.matchTables(dataTable, existingTable, excludeVars);
     else
         [indMatch, numMatch] = ndi.nansen.fun.matchTables(dataTable, existingTable);
@@ -144,7 +144,7 @@ else
                 existingValue = existingTable{rowInd, varNames{j}};
 
                 % Skip identifying keys
-                if ismember(varNames{j}, keys); continue; end
+                if ismember(varNames{j}, idKeys); continue; end
 
                 % Fields that should always be updated (summaries)
                 isSummaryField = ismember(varNames{j}, {'NumFiles', 'DataTypes', ...

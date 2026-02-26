@@ -41,7 +41,8 @@ end
 
 % Check that there are subject files selected
 if isempty(subjectFiles)
-    error('import.subject.tableFromFiles: No file(s) selected.');
+    subjectTable = table();
+    return;
 end
 
 subjectTables = cell(size(subjectFiles));
