@@ -39,7 +39,20 @@ graph TD
 
 ---
 
-## 2. The "Tether" Strategy: Bi-Directional Immutable Linking
+## 2. The 4-Tier Ownership Hierarchy
+
+The integration follows a strict hierarchical ownership model to ensure temporal and structural integrity across datasets.
+
+*   **Tier 1: Dataset** (The Global Project/Root).
+*   **Tier 2: Session** (The Recording Event/Timepoint). The Session is the primary parent of the recording data.
+*   **Tier 3: Subject** (The Animal/Entity). A Subject is owned by a Session for the duration of that recording event.
+*   **Tier 4: Files & Metadata**. These are linked directly to the Subject UID within the context of its parent Session.
+
+This structure allows the same Subject to exist across multiple Sessions as distinct NDI records while maintaining their unique temporal metadata.
+
+---
+
+## 3. The "Tether" Strategy: Bi-Directional Immutable Linking
 
 To eliminate the fragility of name-based matching, we implement an **Immutable Tether** (UID) that decouples the relationship from the metadata content.
 
@@ -48,12 +61,16 @@ To eliminate the fragility of name-based matching, we implement an **Immutable T
     1.  The `Nansen_UUID` is written into a specific property of the NDI document (e.g., `nansen.local_id`).
     2.  The NDI `base.id` (the database's own immutable UUID) is returned and stored in the Nansen table row as the `NDI_Document_ID`.
 *   **Decoupled Sync:** Subsequent synchronizations use the `NDI_Document_ID` as the primary key. If a user changes a Subject's "Cage ID" in Nansen, the system doesn't "search" for a matching cage; it simply tells NDI: *"Update the document with ID 'XYZ' to have Cage ID 'ABC'."*
-*   **Hierarchical Tethering:** Relationships between records (e.g., a File belonging to a Subject) are persisted using these immutable UIDs. A File document in NDI stores the `Subject_UID` as its parent reference. This ensures that if a Subject is renamed or moved in the staging environment, its children remain perfectly linked in the Source of Truth.
+*   **Hierarchical Tethering:** Relationships are persisted via parent-child UIDs in a specific sequence:
+    1.  **Session UID** is generated/verified first.
+    2.  **Subject UID** is established as a child of the Session.
+    3.  **File UID** is established as a child of the Subject.
+    This ensures that even if a Subject (e.g., 'Animal_A') appears in multiple sessions, each instance is tethered to the correct temporal parent.
 *   **View-Mode Integrity:** When Nansen displays a committed record, it performs a "Just-In-Time" refresh from NDI using the tether. If the record exists in NDI, the local Nansen table is treated as a temporary cache of the NDI Master.
 
 ---
 
-## 3. Ontology Handling: Strict Schema Mapping
+## 4. Ontology Handling: Strict Schema Mapping
 
 To ensure NDI remains a standardized, "clean" source of truth, the integration uses **Strict Schema Mapping**. Nansen acts as a flexible incubator, but the database only accepts validated data.
 
