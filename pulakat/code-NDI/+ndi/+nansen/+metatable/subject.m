@@ -71,8 +71,20 @@ try
     fileMetaTable = project.MetaTableCatalog.getMetaTable('File');
     if ~isempty(fileMetaTable) && ~isempty(fileMetaTable.entries)
         fileTable = fileMetaTable.entries;
+
+        % Ensure fileTable has SubjectIdentifier for matching unsynced records
+        if ~ismember('SubjectIdentifier', fileTable.Properties.VariableNames)
+            fileTable.SubjectIdentifier = ndi.nansen.fun.getIdentifier(fileTable, 'Subject');
+        end
+
         for i = 1:height(subjectTable)
-            ind = strcmp(fileTable.SubjectDocumentIdentifier, subjectTable.SubjectDocumentIdentifier{i});
+            % Match on DocumentIdentifier if available, otherwise on SubjectIdentifier
+            if ~isempty(subjectTable.SubjectDocumentIdentifier{i})
+                ind = strcmp(fileTable.SubjectDocumentIdentifier, subjectTable.SubjectDocumentIdentifier{i});
+            else
+                ind = strcmp(fileTable.SubjectIdentifier, subjectTable.SubjectIdentifier{i});
+            end
+
             subjectTable.NumFiles(i) = sum(ind);
 
             % Add DataTypes column
