@@ -33,15 +33,5 @@ session = ndi.session.dir(sessionName, sessionPath);
 % Add session to dataset
 dataset.add_linked_session(session);
 
-% Return session info as table
-% sessionTable = table();
-% sessionTable.SessionName = cellstr(sessionName);
-% sessionTable.SessionPath = cellstr(sessionPath);
-% sessionTable.SessionIdentifier = {''};
-% sessionTable.SessionDocumentIdentifier = {''};
-% sessionTable.DatasetIdentifier = {dataset.id};
-% sessionTable.DateAdded = datetime('now');
-% sessionTable.Cloud = false;
-
 end
 
