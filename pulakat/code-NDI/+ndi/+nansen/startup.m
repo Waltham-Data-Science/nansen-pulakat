@@ -68,13 +68,7 @@ end
 % Add to path
 addpath(genpath(datasetPath));
 
-% 4. Generate tables from dataset
-datasetTable = ndi.nansen.metatable.dataset(dataset);
-sessionTable = ndi.nansen.metatable.session(dataset);
-subjectTable = ndi.nansen.metatable.subject(dataset);
-dataTable = ndi.nansen.metatable.file(dataset);
-
-% 5. Load project from nansen project manager
+% 4. Load project from nansen project manager
 projectName = projectInfo.name;
 projectPath = fullfile(repoPath,projectName);
 projectManager = nansen.ProjectManager; 
@@ -95,15 +89,8 @@ if ~strcmp(project.Name,projectName)
     projectManager.changeProject(projectName)
 end
 
-% 6. Merge NDI metadata into project metatables and launch nansen viewer
-
-% Update metatables with information from NDI (this will merge with any local pending entries)
-ndi.nansen.metatable.add(datasetTable,'Dataset');
-ndi.nansen.metatable.add(sessionTable,'Session');
-ndi.nansen.metatable.add(subjectTable,'Subject');
-ndi.nansen.metatable.add(dataTable,'File');
-
-% Launch nansen
+% 5. Update Nansen metatables and launch
+ndi.nansen.metatable.updateAll(dataset);
 nansen
 
 end

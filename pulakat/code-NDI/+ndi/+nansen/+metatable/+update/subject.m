@@ -20,7 +20,7 @@ arguments
 end
 
 % Get subject table from dataset
-subjectTable_dataset = ndi.nansen.metatable.subject(dataset);
+subjectTable_dataset = ndi.nansen.metatable.subject.fromDataset(dataset);
 
 % Get subject metatable
 subjectMetaTable = options.Project.MetaTableCatalog.getMetaTable('Subject');

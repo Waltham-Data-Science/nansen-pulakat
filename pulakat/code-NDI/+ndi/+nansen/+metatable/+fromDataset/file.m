@@ -1,40 +1,35 @@
-function [dataTable] = file(dataset)
-%FILE Compiles a table of file metadata from an NDI session or dataset.
-%
-%   This function queries the NDI database for 'generic_file' and
-%   'ontologyLabel' documents to build a comprehensive table of data
-%   files. It resolves subject groups to ensure each row in the output
-%   table corresponds to a single subject.
-%
-%   Inputs:
-%       dataset (ndi.session.dir or ndi.dataset.dir): The NDI session or
-%           dataset object to query.
-%
-%   Outputs:
-%       dataTable (table): A table summarizing the files, including
-%           identifiers, file names, data types, and cloud status.
-
+function [fileTable] = file(session,options)
+%DATASET Summary of this function goes here
+%   Detailed explanation goes here
 % Input argument validation
 arguments
-    dataset {mustBeA(dataset,{'ndi.session.dir','ndi.dataset.dir'})}
+    session {mustBeA(session,{'ndi.session.dir','ndi.dataset.dir'})}
+    options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
 end
 
-% Get basic session table from dataset
-subjectTable = ndi.nansen.metatable.subject(dataset);
-if isempty(subjectTable)
-    dataTable = table();
-    return;
+% Get sessions (if dataset)
+if isa(session,'ndi.dataset.dir')
+    dataset = session;
+    [~,sessionIDs] = dataset.session_list;
+    sessions = cell(size(sessionIDs));
+    for i = 1:numel(sessionIDs)
+        sessions{i} = dataset.open_session(sessionIDs{i});
+    end
+else
+    sessions = {session};
 end
-sessionPaths = unique(subjectTable.SessionPath);
 
-dataTables = cell(numel(sessionPaths),1);
+% Get file metadata
+fileTables = cell(numel(sessions),1);
 for i = 1:numel(sessionPaths)
 
-    session = ndi.session.dir(sessionPaths{i});
+    session = sessions{i};
 
     % Get files
     query = ndi.query('','isa','generic_file');
     generic_file_docs = session.database_search(query);
+    generic_file_dependency = cellfun(@(d) d.dependency_value('document_id'), ...
+        generic_file_docs,'UniformOutput',false);
 
     % Get file labels
     query = ndi.query('','isa','ontologyLabel');
@@ -50,7 +45,7 @@ for i = 1:numel(sessionPaths)
         dataTable(j).FileDocumentIdentifier = {generic_file_docs{j}.id};
         dataTable(j).ElectronicFileName = {generic_file_docs{j}.document_properties.generic_file.filename};
         dataTable(j).SubjectDocumentIdentifier = {generic_file_docs{j}.dependency_value('document_id')};
-
+        
         % Add ontology label
         indOntologyLabel = strcmp(ontologyLabel_dependency,generic_file_docs{j}.id);
         ontologyID = ontologyLabel_docs{indOntologyLabel}.document_properties.ontologyLabel.ontologyNode;
@@ -81,32 +76,31 @@ for i = 1:numel(sessionPaths)
         dataTable = [dataTable(~ind,:);duplicateRow];
     end
 
-    dataTables{i} = dataTable;
+    fileTables{i} = dataTable;
 end
 
 % Stack tables
-dataTable = ndi.fun.table.vstack(dataTables);
+fileTable = ndi.fun.table.vstack(fileTables);
 
 % Add subject, session, and dataset info to data table
-if ~isempty(dataTable)
+if ~isempty(fileTable)
     subjectVariables = intersect(subjectTable.Properties.VariableNames,...
         {'SubjectDocumentIdentifier','SubjectLocalIdentifier', ...
         'SubjectEnumeratedIdentifier','SubjectTextIdentifier',...
         'SubjectCageIdentifier',...
         'SessionName','SessionIdentifier','SessionDocumentIdentifier', ...
         'SessionPath','DatasetDocumentIdentifier','DatasetIdentifier'});
-    dataTable = ndi.fun.table.join({dataTable, ...
+    fileTable = ndi.fun.table.join({fileTable, ...
         subjectTable(:,subjectVariables)});
-    dataTable.FileIdentifier = ndi.nansen.fun.getIdentifier(dataTable, 'File');
+    fileTable.FileIdentifier = ndi.nansen.fun.getIdentifier(fileTable, 'File');
 
     if isa(dataset,'ndi.dataset.dir')
         statusTable = ndi.nansen.sync.status(dataset);
-        [Lia, Locb] = ismember(dataTable.FileDocumentIdentifier, statusTable.DocumentIdentifier);
-        dataTable.Cloud = false(height(dataTable), 1);
-        dataTable.Cloud(Lia) = statusTable.Cloud(Locb(Lia));
+        [Lia, Locb] = ismember(fileTable.FileDocumentIdentifier, statusTable.DocumentIdentifier);
+        fileTable.Cloud = false(height(fileTable), 1);
+        fileTable.Cloud(Lia) = statusTable.Cloud(Locb(Lia));
     end
 end
-
 
 end
 

@@ -1,4 +1,4 @@
-function [subjectTable] = dataset(dataset)
+function [subjectTable] = subject(dataset)
 %DATASET Summary of this function goes here
 %   Detailed explanation goes here
 % Input argument validation

@@ -23,6 +23,9 @@ classdef ImportSubject < ndi.unittest.nansen.ImportSession
         end
 
         function createSubjectDocuments(testCase)
+            % DownloadNew from dataset before making new documents
+            % Update metatable
+            
             % Create subject documents
             session = ndi.session.dir(testCase.SessionPath);
             ndi.nansen.import.subject.documents(session,'LabName',testCase.LabName);
