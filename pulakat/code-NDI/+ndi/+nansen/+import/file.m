@@ -35,7 +35,14 @@ subjectIdentifiers = intersect(dataTable.Properties.VariableNames,...
 subjectTable = ndi.nansen.import.subject(session,dataTable(:,subjectIdentifiers),...
     'LabName',options.LabName,'Project',options.Project);
 
-% Join the subject table with the dataTable with subjectIdentifiers as keys
+% Join the subject table with the dataTable
+dataTable = join(dataTable,subjectTable,'Keys',subjectIdentifiers); % THIS WON"T WORK
+% NEED to duplicate subject import logic wherein any subject identifier
+% will be valid. Or maybe just matchTables logic? Need to avoid situation
+% where subjectIdentifiers have changed because the subjectTable had better
+% info and now there isn't a match. One option could be to have
+% subject import return the row indices...but maybe better to rematch?
+% SHould move matching code to new function
 % Check the existing dataTable_session against the new dataTable
 % Remove duplicates
 % Add new rows
