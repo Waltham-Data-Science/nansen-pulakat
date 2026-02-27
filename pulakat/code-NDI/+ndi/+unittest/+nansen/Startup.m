@@ -8,12 +8,25 @@ classdef Startup < ndi.unittest.nansen.CreateDataset & ndi.unittest.nansen.Creat
             datasetTable = ndi.nansen.metatable.dataset(dataset);
             ndi.nansen.metatable.add(datasetTable,'Dataset');
         end
+
+        function initializeProjectMetatables(testCase)
+            % Initialize metatables
+            dataset = ndi.dataset.dir(testCase.DatasetPath);
+            sessionTable = ndi.nansen.metatable.session(dataset);
+            subjectTable = ndi.nansen.metatable.subject(dataset);
+            dataTable = ndi.nansen.metatable.file(dataset);
+
+            % Add metatables to project
+            ndi.nansen.metatable.add(sessionTable,'Session');
+            ndi.nansen.metatable.add(subjectTable,'Subject');
+            ndi.nansen.metatable.add(dataTable,'File');
+        end
     end
     
     methods(Test)
         % Test methods
         
-         function testDatasetMetatable(testCase)
+         function verifyDatasetMetatable(testCase)
             % Verify the table exists in the Nansen project
             project = nansen.getCurrentProject;
             metaTableCatalog = project.MetaTableCatalog;

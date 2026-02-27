@@ -40,8 +40,18 @@ identifyingVariables = setdiff(identifyingVariables,cellstr(excludeVariables), '
 % Get the indices of each variable name
 indMatch = zeros(height(A),numel(identifyingVariables));
 for i = 1:numel(identifyingVariables)
-    [~,indSubject] = ismember(A(:,identifyingVariables{i}),...
-        B(:,identifyingVariables{i}));
+    dataA = A.(identifyingVariables{i});
+    dataB = B.(identifyingVariables{i});
+
+    [~,indSubject] = ismember(dataA,dataB);
+
+    % Create a mask to ignore matches that are just empty strings
+    % This ensures {0x0 char} in A doesn't "match" {0x0 char} in B
+    if iscellstr(dataA) || isstring(dataB)
+        isValEmpty = cellfun(@isempty, dataA);
+        indSubject(isValEmpty) = 0; 
+    end
+
     indData = indSubject > 0;
     indMatch(indData,i) = indSubject(indData);
 end

@@ -61,7 +61,7 @@ for i = 1:numel(subjectFiles)
     importOptions = setvartype(importOptions,requiredVariableNames,'char');
     importOptions.SelectedVariableNames = requiredVariableNames;
     subjectTables{i} = readtable(subjectFile,importOptions);
-    subjectTables{i}{:,'ElectronicFileName'} = subjectFile;
+    subjectTables{i}{:,'ElectronicFileName'} = {subjectFile};
 end
 
 % Stack subject tables

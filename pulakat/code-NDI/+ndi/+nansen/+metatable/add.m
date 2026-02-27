@@ -9,12 +9,6 @@ arguments
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject
 end
 
-% Define identifying variable
-nansenIdentifier = [dataName,'Identifier'];
-if ~ismember(nansenIdentifier,dataTable.Properties.VariableNames)
-    error('data table is missing the required column: %s',nansenIdentifier);
-end
-
 % Get meta table catalog
 project = options.Project;
 metaTableCatalog = project.MetaTableCatalog;
@@ -39,7 +33,7 @@ end
 metaTable = nansen.metadata.MetaTable(dataTable, ...
     'MetaTableClass', dataName, ...
     'ItemClassName', 'table2struct', ...
-    'MetaTableIdVarname', nansenIdentifier);
+    'MetaTableIdVarname', [dataName,'Identifier']);
 project.addMetaTable(metaTable);
 
 end

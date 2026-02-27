@@ -1,4 +1,4 @@
-function [subjectTable] = auto(session, dataPath, labName)
+function [subjectTable] = auto(session, subjectFile, labName)
 %AUTO Imports subjects into an NDI session from a specified data path.
 %
 %   This function identifies new subjects from metadata files, creates
@@ -20,25 +20,20 @@ function [subjectTable] = auto(session, dataPath, labName)
 % Input argument validation
 arguments
     session {mustBeA(session,{'ndi.session.dir'})}
-    dataPath {mustBeText} = '';
+    subjectFile {mustBeText} = ndi.nansen.import.file.select('','FileExtensions',{'csv','xls','xlsx'});
     labName {mustBeText} = nansen.getCurrentProject().Name;
 end
 
 % Convert inputs to char arrays for internal processing
-dataPath = char(dataPath);
+subjectFile = cellstr(subjectFile);
 labName = char(labName);
 
 % Get project info
 projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
 projectInfo = jsondecode(fileread(projectFile));
 
-% Retrieve subject files
-subjectFiles = ndi.nansen.import.file.select(dataPath, ...
-    'FileName',projectInfo.subjectFileName, ...
-    'FileExtensions',{'csv','xls','xlsx'});
-
 % Get current subject table from files
-subjectTable_files = ndi.nansen.import.subject.tableFromFile(subjectFiles,labName);
+subjectTable_files = ndi.nansen.import.subject.tableFromFile(subjectFile,labName);
 
 % Get existing subject table from project
 project = nansen.getCurrentProject;
@@ -63,19 +58,42 @@ end
 if isempty(subjectTable_session)
     subjectTable_new = subjectTable_files;
 else
-    [~,indNew] = setdiff(subjectTable_files(:,subjectIdentifiers), ...
-        subjectTable_session(:,subjectIdentifiers));
-    subjectTable_new = subjectTable_files(indNew,:);
+    % Find where all rows match
+    commonVars = intersect(subjectTable_files.Properties.VariableNames, ...
+        subjectTable_session.Properties.VariableNames);
+    % [~,ind] = setdiff(subjectTable_files(:,commonVars), ...
+    %     subjectTable_session(:,commonVars),'rows','stable');
+    % indMatchAll = false(height(subjectTable_files)); indMatchAll(ind) = true;
+    
+    indMatch = false(height(subjectTable_files),numel(commonVars));
+    for i = 1:numel(commonVars)
+
+        % Get data from both tables for this specific column
+        newVals = subjectTable_files.(commonVars{i});
+        existingVals = subjectTable_session.(commonVars{i});
+
+        % Filter out empty strings/values from the existing pool so they don't trigger matches
+        % Assuming cell arrays of strings based on your table preview
+        validExisting = existingVals(~cellfun(@isempty, existingVals));
+
+        % Find which 'new' values exist in the 'valid' existing pool
+        currentColMatch = ismember(newVals, validExisting);
+
+        % Ignore 'new' values that are empty (an empty new value shouldn't count as a match)
+        indMatch(:,i) = currentColMatch & ~cellfun(@isempty, newVals);
+    end
+
+    subjectTable_new = subjectTable_files(indMatchAll,:);
 end
 
 % Validate required columns for new subjects
-for i = 1:numel(subjectIdentifiers)
-    isEmpty = cellfun(@isempty, subjectTable_new.(subjectIdentifiers{i}));
-    if any(isEmpty)
-        warning('Some subjects are missing required column: %s. These subjects will not be added.', subjectIdentifiers{i})
-        subjectTable_new(isEmpty,:) = [];
-    end
-end
+% for i = 1:numel(subjectIdentifiers)
+%     isEmpty = cellfun(@isempty, subjectTable_new.(subjectIdentifiers{i}));
+%     if any(isEmpty)
+%         warning('Some subjects are missing required column: %s. These subjects will not be added.', subjectIdentifiers{i})
+%         subjectTable_new(isEmpty,:) = [];
+%     end
+% end
 
 [~,indUnique] = unique(subjectTable_new(:,subjectIdentifiers),'stable');
 subjectTable_new = subjectTable_new(indUnique,:);
@@ -88,16 +106,17 @@ if isempty(subjectTable_new)
 end
 
 % Add session id to subject table
-subjectTable_new{:,'SessionID'} = session.id;
-subjectTable_new{:,'LabName'} = labName;
-subjectTable_new{:,'SessionIdentifier'} = session.id;
-subjectTable_new{:,'SessionName'} = session.reference;
-subjectTable_new{:,'SessionPath'} = session.path;
-subjectTable_new{:,'SubjectDocumentIdentifier'} = repmat({''}, height(subjectTable_new), 1);
-subjectTable_new{:,'SubjectIdentifier'} = ndi.nansen.fun.getIdentifier(subjectTable_new, 'Subject', labName);
-subjectTable_new{:,'DateAdded'} = repmat(datetime('now'), height(subjectTable_new), 1);
-subjectTable_new{:,'Cloud'} = false(height(subjectTable_new), 1);
+numSubjects = height(subjectTable_new);
+subjectTable_new{:,'SessionIdentifier'} = {session.id};
+subjectTable_new{:,'SessionName'} = {session.reference};
+subjectTable_new{:,'SessionPath'} = {session.path};
+subjectTable_new{:,'SubjectDocumentIdentifier'} = repmat({''},numSubjects, 1);
+subjectTable_new{:,'SubjectIdentifier'} = cellstr(num2hex(rand(numSubjects,1) + randi(32727*[-1 1],numSubjects,1)));
+subjectTable_new{:,'DateAdded'} = repmat(datetime('now'), numSubjects, 1);
+subjectTable_new{:,'Cloud'} = false(numSubjects, 1);
 
+% Add subject table to nansen
+ndi.nansen.metatable.add(subjectTable_new,'Subject');
 
 % Return new subject table
 subjectTable = subjectTable_new;
