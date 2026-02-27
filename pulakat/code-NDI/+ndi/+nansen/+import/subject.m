@@ -5,8 +5,23 @@ function [subjectTable] = subject(session,subjectTable,options)
 % Input argument validation
 arguments
     session {mustBeA(session,{'ndi.session.dir'})}
-    subjectTable {mustBeTable}
-    options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject
+    subjectTable table
+    options.LabName {mustBeText} = nansen.getCurrentProject().Name;
+    options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
+end
+
+% Convert inputs to char arrays for internal processing
+labName = char(options.LabName);
+
+% Get project info
+projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
+projectInfo = jsondecode(fileread(projectFile));
+
+% Remove spaces from subject identifiers (if applicable)
+subjectIdentifiers = projectInfo.subjectIdentifierFields;
+for i = 1:numel(subjectIdentifiers)
+    subjectTable.(subjectIdentifiers{i}) = cellfun(@(c) replace(c,' ',''),...
+        subjectTable.(subjectIdentifiers{i}),'UniformOutput',false);
 end
 
 % Get current subject table from project
@@ -19,13 +34,6 @@ if ~isempty(subjectTable_project)
     subjectTable_session = subjectTable_project(indSession, :);
 else
     subjectTable_session = table();
-end
-
-% Remove spaces from subject identifiers (if applicable)
-subjectIdentifiers = projectInfo.subjectIdentifierFields;
-for i = 1:numel(subjectIdentifiers)
-    subjectTable.(subjectIdentifiers{i}) = cellfun(@(c) replace(c,' ',''),...
-        subjectTable.(subjectIdentifiers{i}),'UniformOutput',false);
 end
 
 % Identify new and unique subjects

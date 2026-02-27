@@ -1,4 +1,4 @@
-function [subjectTable_files] = auto(session, subjectFile, labName)
+function [subjectTable_files] = auto(session,subjectFile,options)
 %AUTO Imports subjects into an NDI session from a specified data path.
 %
 %   This function identifies new subjects from metadata files, creates
@@ -21,17 +21,19 @@ function [subjectTable_files] = auto(session, subjectFile, labName)
 arguments
     session {mustBeA(session,{'ndi.session.dir'})}
     subjectFile {mustBeText} = ndi.nansen.import.file.select('','FileExtensions',{'csv','xls','xlsx'});
-    labName {mustBeText} = nansen.getCurrentProject().Name;
+    options.LabName {mustBeText} = nansen.getCurrentProject().Name;
+    options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject
 end
 
 % Convert inputs to char arrays for internal processing
 subjectFile = cellstr(subjectFile);
-labName = char(labName);
+labName = char(options.LabName);
 
 % Get current subject table from files
 subjectTable_files = ndi.nansen.import.subject.tableFromFile(subjectFile,labName);
 
 % Add new subjects to metatable
-subjectTable = ndi.nansen.import.subject(session,subjectTable_files);
+subjectTable = ndi.nansen.import.subject(session,subjectTable_files,...
+    'LabName',labName,'Project',options.Project);
 
 end

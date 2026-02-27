@@ -35,6 +35,11 @@ function varargout = edit(fileObject, varargin)
     % Convert file object to table
     fileTable = struct2table(fileObject, 'AsArray', true);
 
+    % Query user for changes
+editableNames = cellfun(@(x) columnMap(x),editableVariables,'UniformOutput',false);
+answer = inputdlg(editableNames,sprintf('%s Metadata', metaTableType),...
+    repmat([1 45],numel(editableNames),1), dataTable{1,editableVariables});
+
     % Loop over files and open edit dialog
     for i = 1:height(fileTable)
         % Get session object

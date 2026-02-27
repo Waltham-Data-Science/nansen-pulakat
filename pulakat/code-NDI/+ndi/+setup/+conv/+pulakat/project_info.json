@@ -28,7 +28,7 @@
       "SubjectEnumeratedIdentifier",
       "SubjectCageIdentifier",
       "SubjectTextIdentifier"],
-   "dataFileTypes": [
+  "dataFileTypes": [
        {"DataTypeName": "experiment metadata file",
         "contains": ["schedule"],
         "format": "EDAM:3620",

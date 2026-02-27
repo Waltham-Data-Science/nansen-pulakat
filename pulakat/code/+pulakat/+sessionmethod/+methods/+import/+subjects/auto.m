@@ -31,25 +31,16 @@ function varargout = auto(sessionObject, varargin)
     
     % --- Implementation of the method ---
 
-    % Get session object
+    % Get dataset and session objects
+    dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
     session = ndi.session.dir(sessionObject.SessionPath);
 
     % Add subjects to session
-    subjectTable = ndi.nansen.import.subject.auto(session);
-
-    % Add cloud status to subject table
-    dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
-    statusTable = ndi.nansen.sync.status(dataset);
-    [Lia, Locb] = ismember(subjectTable.SubjectDocumentIdentifier, statusTable.DocumentIdentifier);
-    subjectTable.Cloud = false(height(subjectTable), 1);
-    subjectTable.Cloud(Lia) = statusTable.Cloud(Locb(Lia));
-
-    % Add subjects to metatable
-    ndi.nansen.metatable.add(subjectTable,'Subject');
+    ndi.nansen.import.subject.auto(session);
 
     % Update session metatable with subject summary metadata
     sessionTable = ndi.nansen.metatable.session(dataset);
-    ndi.nansen.metatable.add(sessionTable,'Session');
+    ndi.nansen.metatable.edit(sessionTable,'Session');
     
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionObject}; end

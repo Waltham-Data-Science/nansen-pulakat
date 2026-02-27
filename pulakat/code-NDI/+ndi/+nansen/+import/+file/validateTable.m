@@ -51,8 +51,8 @@ try
 catch ME
     missingCell = regexp(ME.message,'\d+','match');
     missingVariableName = requiredVariableNames{str2double(missingCell{1})};
-    warning('validateTable:missingData','%s contains invalid or missing data in column %s (%s): row %s',...
-        fileName,missingCell{1},missingVariableName,missingCell{2});
+    % warning('validateTable:missingData','%s contains invalid or missing data in column %s (%s): row %s',...
+    %     fileName,missingCell{1},missingVariableName,missingCell{2});
 end
 
 end

@@ -1,4 +1,4 @@
-function [dataTable] = edit(session, dataTable, type, options)
+function [dataTable] = edit(dataTable, dataName, options)
 %EDIT Edits metadata in an NDI session.
 %
 %   This function allows the user to interactively edit metadata for a
@@ -19,78 +19,56 @@ function [dataTable] = edit(session, dataTable, type, options)
 
 % Input argument validation
 arguments
-    session {mustBeA(session,{'ndi.session.dir'})}
     dataTable (1,:) table
-    type {mustBeMember(type, {'subject', 'file'})}
-    options.EditableVariables {mustBeText} = {}
+    dataName {mustBeMember(dataName,{'Dataset','Session','Subject','File'})}
+    options.LabName {mustBeText} = nansen.getCurrentProject().Name;
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
 end
 
+% Convert inputs to char arrays for internal processing
+labName = char(options.LabName);
+
+% Get project info
+projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
+projectInfo = jsondecode(fileread(projectFile));
+
 % Set default editable variables if not provided
-if isempty(options.EditableVariables)
-    if strcmp(type, 'subject')
-        options.EditableVariables = {'SubjectEnumeratedIdentifier',...
-            'SubjectCageIdentifier','SubjectTextIdentifier','Treatment',...
-            'StrainName','SpeciesName','BiologicalSexName','DataTypeName'};
-    else
-        options.EditableVariables = {'DataTypeName'};
+switch dataName
+    case 'Dataset'
+        editableVariables = {'TotalDocuments','CloudDocuments','DatasetUpdated'};
+    case 'Session'
+        editableVariables = {'NumSubjects';'NumFiles';'DataTypeName';'Cloud'};
+    case'Subject'
+        editableVariables = {'NumFiles';'DataTypeName';'Cloud'};
+    case 'File'
+        editableVariables = {'Cloud'};
+end
+
+% Check if row already has an NDI document
+documentID = dataTable.([dataName,'Identifier']);
+if isempty(documentID)
+    switch dataName
+        case'Subject'
+            editableVariables = [editableVariables;projectInfo.subjectIdentifierFields;...
+                {'SubjectDocumentIdentifier';'ElectronicFileName'}];
+        case 'File'
+            editableVariables = [editableVariables;'FileDocumentIdentifier'];
     end
 end
 
-% Check if already has an NDI document
-if strcmp(type, 'subject')
-    docID = dataTable.SubjectDocumentIdentifier{1};
-    ident = dataTable.SubjectLocalIdentifier{1};
-    msgName = 'subject';
-else
-    docID = dataTable.FileDocumentIdentifier{1};
-    ident = dataTable.ElectronicFileName{1};
-    msgName = 'file';
-end
-
-if ~isempty(docID)
-    warning('Cannot update %s %s because it already has an NDI document.', ...
-        msgName, ident)
-    return
-end
-
-% Get editable variables and their Nansen column names
-settingsFileName = fullfile(options.Project.FolderPath,'metadata','tables','metatable_column_settings.json');
-columnSettings = jsondecode(fileread(settingsFileName));
-columnMap = containers.Map({columnSettings.VariableName}, {columnSettings.ColumnLabel});
-
-% Find matching row index in metatable before editing
-metaTableType = [upper(type(1)), type(2:end)];
-metaTable = options.Project.MetaTableCatalog.getMetaTable(metaTableType);
-[indMatch, numMatch] = ndi.nansen.fun.matchTables(dataTable, metaTable.entries);
-
-% Query user for changes
-editableVariables = intersect(cellstr(options.EditableVariables),...
+% Remove any variables that don't exist in the data table
+editableVariables = intersect(cellstr(editableVariables),...
     dataTable.Properties.VariableNames);
-editableNames = cellfun(@(x) columnMap(x),editableVariables,'UniformOutput',false);
-answer = inputdlg(editableNames,sprintf('%s Metadata', metaTableType),...
-    repmat([1 45],numel(editableNames),1), dataTable{1,editableVariables});
 
-if isempty(answer); return; end
-dataTable{1,editableVariables} = answer';
+% Update metatable
+metaTable = options.Project.MetaTableCatalog.getMetaTable(dataName);
 
 % Update Nansen metatable
-if numMatch == 1
-    rowInd = indMatch{1};
-    varNames = dataTable.Properties.VariableNames;
-    for i = 1:numel(varNames)
-        metaTable.editEntries(rowInd, varNames{i}, dataTable{1, varNames{i}});
-    end
-    metaTable.save();
-else
-    ndi.nansen.metatable.add(dataTable, metaTableType);
+rowInd = metaTable.getIndexById(dataTable.(metaTable.MetaTableIdVarname){1});
+for i = 1:numel(editableVariables)
+    metaTable.editEntries(rowInd, editableVariables{i}, ...
+        dataTable{1, editableVariables{i}});
 end
-
-% Update Subject and Session metatables
-subjectTable = ndi.nansen.metatable.subject(session);
-ndi.nansen.metatable.add(subjectTable, 'Subject');
-
-sessionTable = ndi.nansen.metatable.session(session);
-ndi.nansen.metatable.add(sessionTable, 'Session');
+metaTable.save();
 
 end
