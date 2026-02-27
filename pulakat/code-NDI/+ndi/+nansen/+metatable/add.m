@@ -20,9 +20,27 @@ if ~isempty(metaTableCatalog.Table) && ...
 
     % Check that there is local metatable data
     if exist(fullfile(metaTableEntry.SavePath,metaTableEntry.FileName),'file')
+
+        % Add missing columns
+        metaTable = metaTableCatalog.getMetaTable(dataName);
+        indMissing = find(ismember(metaTable.VariableNames,...
+            dataTable.Properties.VariableNames)==0);
+        for i = 1:numel(indMissing)
+           varName = metaTable.VariableNames{indMissing(i)};
+           switch metaTable.entries.Properties.VariableTypes(indMissing(i))
+               case 'cell'
+                   missingVal = {''};
+               case 'datetime'
+                   missingVal = NaT('TimeZone', 'UTC');
+               case 'logical'
+                   missingVal = false;
+               case 'double'
+                   missingVal = NaN;
+           end 
+           dataTable{:,varName} = repmat(missingVal,height(dataTable),1);
+        end
         
         % Update meta table
-        metaTable = project.MetaTableCatalog.getMetaTable(dataName);
         metaTable.addTable(dataTable);
         metaTable.save;
         return

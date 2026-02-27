@@ -32,6 +32,10 @@ labName = char(options.LabName);
 projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
 projectInfo = jsondecode(fileread(projectFile));
 
+% Get metatable
+metaTable = options.Project.MetaTableCatalog.getMetaTable(dataName);
+rowInd = metaTable.getIndexById(dataTable.(metaTable.MetaTableIdVarname){1});
+
 % Set default editable variables if not provided
 switch dataName
     case 'Dataset'
@@ -45,14 +49,15 @@ switch dataName
 end
 
 % Check if row already has an NDI document
-documentID = dataTable.([dataName,'Identifier']);
+documentID = metaTable.entries.([dataName,'DocumentIdentifier']){rowInd};
 if isempty(documentID)
     switch dataName
         case'Subject'
-            editableVariables = [editableVariables;projectInfo.subjectIdentifierFields;...
-                {'SubjectDocumentIdentifier';'ElectronicFileName'}];
+            editableVariables = [editableVariables;{projectInfo.subjectFileColumns.name}';...
+                {'SubjectDocumentIdentifier';'SubjectLocalIdentifier';'ElectronicFileName'}];
         case 'File'
-            editableVariables = [editableVariables;'FileDocumentIdentifier'];
+            editableVariables = [editableVariables;{projectInfo.subjectFileColumns.name}';...
+                'SubjectDocumentIdentifier';'FileDocumentIdentifier'];
     end
 end
 
@@ -60,15 +65,13 @@ end
 editableVariables = intersect(cellstr(editableVariables),...
     dataTable.Properties.VariableNames);
 
-% Update metatable
-metaTable = options.Project.MetaTableCatalog.getMetaTable(dataName);
-
 % Update Nansen metatable
-rowInd = metaTable.getIndexById(dataTable.(metaTable.MetaTableIdVarname){1});
 for i = 1:numel(editableVariables)
     metaTable.editEntries(rowInd, editableVariables{i}, ...
         dataTable{1, editableVariables{i}});
 end
 metaTable.save();
+
+dataTable = metaTable.entries;
 
 end

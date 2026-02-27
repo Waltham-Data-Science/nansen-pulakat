@@ -40,7 +40,8 @@ docs = cat(2,docs{:});
 
 % Add ontologyTableRow data to subjectTable
 if ~isempty(docs)
-    ontologyTable = ndi.fun.doc.ontologyTableRowDoc2Table(docs);
+    ontologyTable = renamevars(ndi.fun.doc.ontologyTableRowDoc2Table(docs),...
+        'UniversallyUniqueIdentifier','SubjectIdentifier');
     subjectTable = ndi.fun.table.join({subjectTable,ontologyTable{1}});
 end
 

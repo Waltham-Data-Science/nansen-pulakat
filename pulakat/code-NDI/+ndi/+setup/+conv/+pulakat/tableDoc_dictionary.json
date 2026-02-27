@@ -1,9 +1,8 @@
 {
-  "SubjectLocalIdentifier": "EMPTY:subject local identifier",
-  "SubjectDocumentIdentifier": "EMPTY:subject document identifier",
   "SubjectEnumeratedIdentifier": "EMPTY:subject enumerated identifier",
   "SubjectCageIdentifier": "EMPTY:subject cage identifier",
   "SubjectTextIdentifier": "EMPTY:subject text identifier",
+  "SubjectIdentifier": "EMPTY:universally unique identifier",
   "Treatment": "EMPTY:treatment",
   "ElectronicFileName": "NCIT:C171191"
 }

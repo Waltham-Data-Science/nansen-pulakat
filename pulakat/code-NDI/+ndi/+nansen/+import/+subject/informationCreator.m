@@ -55,10 +55,10 @@ methods
 
         % --- Find correct strain from name or alias ---
         strainNames = {strainsInfo.value};
-        indStrain = strcmp(strainNames, tableRow.Strain);
+        indStrain = strcmp(strainNames, tableRow.StrainName);
         if ~any(indStrain)
             for i = 1:numel(strainsInfo)
-                if any(strcmp(strainsInfo(i).aliases, tableRow.Strain))
+                if any(strcmp(strainsInfo(i).aliases, tableRow.StrainName))
                     indStrain(i) = true;
                     break;
                 end
@@ -67,7 +67,7 @@ methods
 
         if ~any(indStrain)
              error('ndi:validators:InvalidStrain',...
-                'The strain "%s" was not found in the strains configuration.', tableRow.Strain{1});
+                'The strain "%s" was not found in the strains configuration.', tableRow.StrainName{1});
         end
         selectedStrainInfo = strainsInfo(indStrain);
 
@@ -126,7 +126,7 @@ methods (Access = private, Static)
         try
             % Look up ontology information
             [ontologyID,name,~,definition,synonyms] = ...
-                ndi.ontology.lookup(['PATO:',lower(tableRow.BiologicalSex{1})]);
+                ndi.ontology.lookup(['PATO:',lower(tableRow.BiologicalSexName{1})]);
             
             biologicalSex.name = name;
             biologicalSex.preferredOntologyIdentifier = ontologyID;

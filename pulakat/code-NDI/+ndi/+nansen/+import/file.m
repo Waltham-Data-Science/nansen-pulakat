@@ -35,23 +35,27 @@ subjectIdentifiers = intersect(dataTable.Properties.VariableNames,...
 subjectTable = ndi.nansen.import.subject(session,dataTable(:,subjectIdentifiers),...
     'LabName',options.LabName,'Project',options.Project);
 
-% Join the subject table with the dataTable
-dataTable = join(dataTable,subjectTable,'Keys',subjectIdentifiers); % THIS WON"T WORK
-% NEED to duplicate subject import logic wherein any subject identifier
-% will be valid. Or maybe just matchTables logic? Need to avoid situation
-% where subjectIdentifiers have changed because the subjectTable had better
-% info and now there isn't a match. One option could be to have
-% subject import return the row indices...but maybe better to rematch?
-% SHould move matching code to new function
-% Check the existing dataTable_session against the new dataTable
-% Remove duplicates
-% Add new rows
-
-% Get subject identifying fields
-subjectIdentifiers = projectInfo.subjectIdentifierFields;
+% Add the subject information to the dataTable
+[indMatch,numMatch] = ndi.nansen.fun.matchTables(dataTable(:,subjectIdentifiers),...
+    subjectTable(:,subjectIdentifiers));
+subjectTable_data = table();
+subjectVars = [projectInfo.subjectIdentifierFields;{'SubjectIdentifier';...
+    'SubjectDocumentIdentifier';'SessionIdentifier';'SessionName';...
+    'SessionPath';'SubjectLocalIdentifier'}];
+for i = 1:numel(indMatch)
+    ind = indMatch{i};
+    if numMatch(i) > 1
+        warning('More than one match found. Skipping second match. Consult NDI to discuss resolutions.')
+        ind = ind(1);
+    elseif numMatch(i) == 0
+        continue
+    end
+    subjectTable_data(end+1,:) = subjectTable(ind,subjectVars);
+end
+dataTable = [removevars(dataTable,subjectIdentifiers),subjectTable_data];
 
 % Identify new and unique files
-fileIdentifiers = {'ElectronicFileName','DataTypeName','SubjectIdentifier'};
+fileIdentifiers = {'ElectronicFileName','SubjectIdentifier'};
 if isempty(dataTable_session)
     dataTable_new = dataTable;
 else
@@ -59,26 +63,27 @@ else
         dataTable_session(:,fileIdentifiers));
     dataTable_new = dataTable(indNew,:);
 end
-[dataFiles_new,~,indUnique] = unique(dataTable_new(:,fileIdentifiers),'stable');
 
 % Check whether there are new files to add
-if isempty(dataFiles_new)
-    warning('No new files found in: %s.',strjoin(dataFiles,';'))
-    dataTable = dataTable_files;
+if isempty(dataTable_new)
+    warning('No new data files found.')
+    dataTable = dataTable_project;
     return
 end
 
-% Add session and other metadata
-dataTable_new.SessionIdentifier = repmat({session.id}, height(dataTable_new), 1);
-dataTable_new.SessionName = repmat({session.reference}, height(dataTable_new), 1);
-dataTable_new.SessionPath = repmat({session.path}, height(dataTable_new), 1);
-dataTable_new.FileDocumentIdentifier = repmat({''}, height(dataTable_new), 1);
-dataTable_new.FileIdentifier = ndi.nansen.fun.getIdentifier(dataTable_new, 'File', labName);
-dataTable_new.DateAdded = repmat(datetime('now'), height(dataTable_new), 1);
-dataTable_new.Cloud = false(height(dataTable_new), 1);
+% Add metadata
+numFiles = height(dataTable_new);
+dataTable_new.FileDocumentIdentifier = repmat({''},numFiles,1);
+dataTable_new.FileIdentifier = cellstr(num2hex(rand(numFiles,1) + randi(32727*[-1 1],numFiles,1)));
+dataTable_new.DateAdded = repmat(datetime('now','TimeZone','UTC'),numFiles,1);
+dataTable_new.Cloud = false(numFiles, 1);
+
+% Add data table to nansen
+ndi.nansen.metatable.add(dataTable_new,'File');
 
 % Return new data table
-dataTable = dataTable_new;
+fileMetaTable = project.MetaTableCatalog.getMetaTable('File');
+dataTable = fileMetaTable.entries;
 
 end
 

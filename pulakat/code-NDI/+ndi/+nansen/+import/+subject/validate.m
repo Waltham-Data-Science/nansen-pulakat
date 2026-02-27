@@ -1,4 +1,4 @@
-function [isValid, errorReport] = validate(subjectTable)
+function [isValid, errorReport] = validate(subjectTable,options)
 %VALIDATE Validates subject metadata against project requirements.
 %
 %   [ISVALID, ERRORREPORT] = VALIDATE(SUBJECTTABLE) checks if the provided
@@ -12,9 +12,14 @@ function [isValid, errorReport] = validate(subjectTable)
 %       isValid (logical): True if all checked rows are valid.
 %       errorReport (cellstr): A list of formatted error messages.
 
+% Input argument validation
+arguments
+    subjectTable table
+    options.LabName {mustBeText} = nansen.getCurrentProject().Name;
+end
+
 % Get project info
-project = nansen.getCurrentProject;
-labName = char(project.Name);
+labName = char(options.LabName);
 projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
 projectInfo = jsondecode(fileread(projectFile));
 
