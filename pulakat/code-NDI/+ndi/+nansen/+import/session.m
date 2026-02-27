@@ -1,4 +1,4 @@
-function [session] = session(dataset, sessionPath, sessionName)
+function [sessionTable] = session(dataset, sessionPath, sessionName)
 %SESSION Creates a new NDI session and adds it to a dataset.
 %
 %   This function prompts the user to select a directory for the session data,
@@ -27,17 +27,21 @@ arguments
         'Session title',[1 50],{'projectName_YYYY'});
 end
 
+% Create session
+session = ndi.session.dir(sessionName, sessionPath);
+
+% Add session to dataset
+dataset.add_linked_session(session);
+
 % Return session info as table
 sessionTable = table();
-sessionTable.SessionName = {sessionName};
-sessionTable.SessionPath = {sessionPath};
+sessionTable.SessionName = cellstr(sessionName);
+sessionTable.SessionPath = cellstr(sessionPath);
 sessionTable.SessionIdentifier = {''};
 sessionTable.SessionDocumentIdentifier = {''};
 sessionTable.DatasetIdentifier = {dataset.id};
 sessionTable.DateAdded = datetime('now');
 sessionTable.Cloud = false;
-
-session = sessionTable;
 
 end
 

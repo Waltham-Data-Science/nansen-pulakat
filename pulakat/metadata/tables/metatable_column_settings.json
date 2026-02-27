@@ -220,7 +220,7 @@
     "ColumnLabel": "Original File Name",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 269,
+    "ColumnWidth": 138,
     "IsEditable": false,
     "ColumnOrder": 32
   },
@@ -310,7 +310,7 @@
     "ColumnLabel": "Data Types",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 180,
+    "ColumnWidth": 326,
     "IsEditable": false,
     "ColumnOrder": 31
   }

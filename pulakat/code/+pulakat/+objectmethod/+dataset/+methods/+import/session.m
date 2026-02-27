@@ -49,7 +49,11 @@ function varargout = session(datasetObject, varargin)
     dataset = ndi.dataset.dir(datasetObject.DatasetPath);
 
     % Create new session entry in metatable
-    sessionTable = ndi.nansen.import.session(dataset);
+    sessionPath {mustBeFolder} = uigetdir(userpath, ...
+        'Select directory where session data is located.');
+    sessionName {mustBeText} = inputdlg('What is the name of the new session?', ...
+        'Session title',[1 50],{'projectName_YYYY'});
+    sessionTable = ndi.nansen.import.session(dataset,sessionPath,sessionName);
     ndi.nansen.metatable.add(sessionTable,'Session');
 
     % Return session object (please do not remove):
