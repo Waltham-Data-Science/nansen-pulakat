@@ -19,6 +19,8 @@ arguments
     dataFiles {mustBeText} = ndi.nansen.import.file.select('','GetType','dir');
 end
 
+dataFiles = cellstr(dataFiles);
+
 % Suppress warning
 warning('off', 'MATLAB:table:ModifiedAndSavedVarnames');
 

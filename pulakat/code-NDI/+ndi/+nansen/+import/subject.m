@@ -18,7 +18,8 @@ projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json'
 projectInfo = jsondecode(fileread(projectFile));
 
 % Remove spaces from subject identifiers (if applicable)
-subjectIdentifiers = projectInfo.subjectIdentifierFields;
+subjectIdentifiers = intersect(subjectTable.Properties.VariableNames,...
+    projectInfo.subjectIdentifierFields);
 for i = 1:numel(subjectIdentifiers)
     subjectTable.(subjectIdentifiers{i}) = cellfun(@(c) replace(c,' ',''),...
         subjectTable.(subjectIdentifiers{i}),'UniformOutput',false);

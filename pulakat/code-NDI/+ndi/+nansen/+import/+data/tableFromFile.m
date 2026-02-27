@@ -40,6 +40,10 @@ subjectIdentifiers = projectInfo.subjectIdentifierFields;
 % Get identifying info for each data file
 subjectTable_files = ndi.setup.conv.(labName).subjectInfoFromFile(dataFiles);
 
+% Create new subjects (if necessary)
+subjectTable = ndi.nansen.import.subject(session,subjectTable_files,...
+    'LabName',labName,'Project',options.Project);
+
 % Check required variables
 requiredVariableNames = projectInfo.subjectIdentifierFields;
 for i = 1:numel(requiredVariableNames)

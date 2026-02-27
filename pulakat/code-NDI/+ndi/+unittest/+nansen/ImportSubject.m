@@ -34,7 +34,6 @@ classdef ImportSubject < ndi.unittest.nansen.ImportSession
             % check that session metatable is also updated
         end
 
-
         % Add functions for manual subject import
     end
     

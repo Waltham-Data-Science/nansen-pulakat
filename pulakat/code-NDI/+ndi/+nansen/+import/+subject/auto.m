@@ -1,4 +1,4 @@
-function [subjectTable_files] = auto(session,subjectFile,options)
+function [subjectTable] = auto(session,subjectFile,options)
 %AUTO Imports subjects into an NDI session from a specified data path.
 %
 %   This function identifies new subjects from metadata files, creates
