@@ -33,7 +33,7 @@ classdef CreateDataset < matlab.unittest.TestCase
 
         function downloadDataset(testCase)
             % Download dataset
-            pause(2); % issue with dataset not retrieving reference correctly if this runs too fast
+            pause(3); % issue with dataset not retrieving reference correctly if this runs too fast
             dataset = ndi.cloud.downloadDataset(testCase.DatasetCloudID,testCase.DataPath);
             testCase.fatalAssertClass(dataset,'ndi.dataset.dir','Dataset could not be downloaded from NDI Cloud.');
             testCase.DatasetPath = dataset.path;

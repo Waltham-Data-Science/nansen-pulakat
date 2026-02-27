@@ -40,12 +40,9 @@ subjectTable_new = subjectTable(indNew,:);
 % Create ontologyTableRow documents (and add to session)
 ind = strcmp({projectInfo.subjectFileColumns.document},'ontologyTableRow');
 tableRowVariables = [{projectInfo.subjectFileColumns(ind).name},...
-    'SubjectIdentifier','ElectronicFileName'];
+    'SubjectIdentifier','ElectronicFileName','SubjectDocumentIdentifier'];
 docs = tableDocMaker.table2ontologyTableRowDocs(subjectTable_new(:,tableRowVariables), ...
-    {'SubjectIdentifier'});
-for i = 1:numel(docs)
-    docs{i}.set_dependency_value('document_id',subjectTable_new.SubjectDocumentIdentifier{i});
-end
+    {'SubjectIdentifier'},'DependencyVariable','SubjectDocumentIdentifier');
 
 % Add subject identifiers to metatable
 for i = 1:height(subjectTable_new)
