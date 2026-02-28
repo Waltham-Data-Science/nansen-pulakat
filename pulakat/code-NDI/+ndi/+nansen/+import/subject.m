@@ -27,10 +27,15 @@ end
 
 % Get current subject table from project
 project = options.Project;
-subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
-subjectTable_project = subjectMetaTable.entries;
+if ismember('Subject',project.MetaTableCatalog.Table.MetaTableName)
+    subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
+    subjectTable_project = subjectMetaTable.entries;
+else
+    subjectTable_project = table();
+end
+
+% Only include subjects for current session
 if ~isempty(subjectTable_project)
-    % Only include subjects for current session
     indSession = strcmp(subjectTable_project.SessionIdentifier, session.id);
     subjectTable_session = subjectTable_project(indSession, :);
 else
@@ -113,11 +118,7 @@ subjectTable_new{:,'DateAdded'} = repmat(datetime('now','TimeZone','UTC'), numSu
 subjectTable_new{:,'Cloud'} = false(numSubjects, 1);
 
 % Add subject table to nansen
-ndi.nansen.metatable.add(subjectTable_new,'Subject');
-
-% Return new subject table
-subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
-subjectTable = subjectMetaTable.entries;
+ndi.nansen.metatable.merge(subjectTable_new,'Subject','Project',options.Project);
 
 end
 

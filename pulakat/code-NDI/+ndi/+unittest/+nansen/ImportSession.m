@@ -14,11 +14,10 @@ classdef ImportSession < ndi.unittest.nansen.Startup
             testCase.fatalAssertClass(session,'ndi.session.dir','Session could not be created.');
         end
 
-        function addSession2Project(testCase)
+        function updateSessionMetatable(testCase)
             dataset = ndi.dataset.dir(testCase.DatasetPath);
             testCase.fatalAssertClass(dataset,'ndi.dataset.dir','Dataset could not be retrieved.');
-            sessionTable = ndi.nansen.metatable.session(dataset);
-            ndi.nansen.metatable.add(sessionTable,'Session');
+            ndi.nansen.metatable.updateAll(dataset,'LabName',testCase.LabName);
         end
     end
 

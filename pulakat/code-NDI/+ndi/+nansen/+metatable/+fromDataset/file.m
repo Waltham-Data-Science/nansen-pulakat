@@ -1,11 +1,13 @@
-function [fileTable] = file(session,options)
+function [fileTable] = file(session)
 %DATASET Summary of this function goes here
 %   Detailed explanation goes here
 % Input argument validation
 arguments
     session {mustBeA(session,{'ndi.session.dir','ndi.dataset.dir'})}
-    options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
 end
+
+% Intialize output
+fileTable = table();
 
 % Get sessions (if dataset)
 if isa(session,'ndi.dataset.dir')
@@ -19,9 +21,14 @@ else
     sessions = {session};
 end
 
+% Return if empty
+if isempty(sessions)
+    return
+end
+
 % Get file metadata
 fileTables = cell(numel(sessions),1);
-for i = 1:numel(sessionPaths)
+for i = 1:numel(sessions)
 
     session = sessions{i};
 

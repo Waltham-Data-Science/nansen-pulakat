@@ -20,6 +20,9 @@ arguments
     fullMetaTable (1,1) logical = true
 end
 
+% Initialize output
+sessionTable = table();
+
 % Get sessions (if dataset)
 if isa(session,'ndi.dataset.dir')
     dataset = session;
@@ -39,8 +42,12 @@ else
     sessionDocIDs = {doc{1}.document_properties.base.id};
 end
 
+% Return if empty
+if isempty(sessions)
+    return
+end
+
 % Get basic session metadata
-sessionTable = table();
 for i = 1:numel(sessions)
     sessionTable.SessionName{i} = sessions{i}.reference;
     sessionTable.SessionIdentifier{i} = sessions{i}.identifier;
@@ -98,30 +105,30 @@ if exist('dataset','var') && ~isempty(sessionTable)
 end
 
 % If wanting the full meta table, add summary of subject table
-if fullMetaTable & ~isempty(sessionTable)
-    if exist('dataset','var')
-        subjectTable = ndi.nansen.metatable.subject(dataset);
-    else
-        subjectTable = ndi.nansen.metatable.subject(session);
-    end
-    if ~isempty(subjectTable)
-        sessionTable = ndi.fun.table.join({sessionTable, ...
-            subjectTable(:,{'BiologicalSexName','GeneticStrainTypeName',...
-            'SpeciesName','StrainName','Treatment','SessionIdentifier',...
-            'DataTypes'})}, ...
-            'uniqueVariables','SessionIdentifier');
-
-        % Ensure DataTypes is not NaN and is a cell array of strings
-        if ismember('DataTypes', sessionTable.Properties.VariableNames)
-            if isnumeric(sessionTable.DataTypes)
-                sessionTable.DataTypes = repmat({''}, height(sessionTable), 1);
-            elseif iscell(sessionTable.DataTypes)
-                isNan = cellfun(@(x) any(isnumeric(x) && isnan(x)), sessionTable.DataTypes);
-                sessionTable.DataTypes(isNan) = {''};
-            end
-        end
-    end
-end
+% if fullMetaTable & ~isempty(sessionTable)
+%     if exist('dataset','var')
+%         subjectTable = ndi.nansen.metatable.subject(dataset);
+%     else
+%         subjectTable = ndi.nansen.metatable.subject(session);
+%     end
+%     if ~isempty(subjectTable)
+%         sessionTable = ndi.fun.table.join({sessionTable, ...
+%             subjectTable(:,{'BiologicalSexName','GeneticStrainTypeName',...
+%             'SpeciesName','StrainName','Treatment','SessionIdentifier',...
+%             'DataTypes'})}, ...
+%             'uniqueVariables','SessionIdentifier');
+% 
+%         % Ensure DataTypes is not NaN and is a cell array of strings
+%         if ismember('DataTypes', sessionTable.Properties.VariableNames)
+%             if isnumeric(sessionTable.DataTypes)
+%                 sessionTable.DataTypes = repmat({''}, height(sessionTable), 1);
+%             elseif iscell(sessionTable.DataTypes)
+%                 isNan = cellfun(@(x) any(isnumeric(x) && isnan(x)), sessionTable.DataTypes);
+%                 sessionTable.DataTypes(isNan) = {''};
+%             end
+%         end
+%     end
+% end
 
 end
 

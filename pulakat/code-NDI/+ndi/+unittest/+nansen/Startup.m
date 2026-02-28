@@ -1,25 +1,13 @@
 classdef Startup < ndi.unittest.nansen.CreateDataset & ndi.unittest.nansen.CreateProject
+    properties
+        LabName = 'pulakat'; % change this later to be robust
+    end
     
     methods(TestClassSetup)
-        function addDataset2Project(testCase)
-            % Add dataset metatable to project
+        function initializeProjectMetatables(testCase)
             dataset = ndi.dataset.dir(testCase.DatasetPath);
             testCase.fatalAssertClass(dataset,'ndi.dataset.dir','Dataset could not be retrieved.');
-            datasetTable = ndi.nansen.metatable.dataset(dataset);
-            ndi.nansen.metatable.add(datasetTable,'Dataset');
-        end
-
-        function initializeProjectMetatables(testCase)
-            % Initialize metatables
-            dataset = ndi.dataset.dir(testCase.DatasetPath);
-            sessionTable = ndi.nansen.metatable.session(dataset);
-            subjectTable = ndi.nansen.metatable.subject(dataset);
-            dataTable = ndi.nansen.metatable.file(dataset);
-
-            % Add metatables to project
-            ndi.nansen.metatable.add(sessionTable,'Session');
-            ndi.nansen.metatable.add(subjectTable,'Subject');
-            ndi.nansen.metatable.add(dataTable,'File');
+            ndi.nansen.metatable.updateAll(dataset,'LabName',testCase.LabName);
         end
     end
     
