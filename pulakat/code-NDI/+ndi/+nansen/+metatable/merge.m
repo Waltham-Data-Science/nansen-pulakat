@@ -44,10 +44,12 @@ if any(indNew)
     dataTable_new = dataTable(indNew,:);
     
     % Add missing columns to data table prior to appending
-    indMissing = find(ismember(metaTable.VariableNames,dataTable_new.Properties.VariableNames)==0);
-    for i = 1:numel(indMissing)
-        varName = metaTable.VariableNames{indMissing(i)};
-        switch metaTable.entries.Properties.VariableTypes(indMissing(i))
+    missingVars = setdiff(metaTable.VariableNames,...
+        dataTable_new.Properties.VariableNames);
+    for i = 1:numel(missingVars)
+        varName = missingVars{i};
+        ind = strcmp(metaTable.VariableNames,varName);
+        switch metaTable.entries.Properties.VariableTypes(ind)
             case 'cell'
                 missingVal = {''};
             case 'datetime'
@@ -66,15 +68,25 @@ if any(indNew)
 end
 
 % Check if any existing rows have changes
-indExist = 
 if any(indExist)
-% Get metatable
-rowInd = metaTable.getIndexById({1});
+    dataTable_exist = dataTable(indExist,:);
+    commonvars = intersect(dataTable_exist.Properties.VariableNames,...
+        metaTable.VariableNames);
+    [~,indDiff] = setdiff(dataTable_exist(:,commonvars),...
+        metaTable.entries(:,commonvars));
+    dataTable_change = dataTable_exist(indDiff,:);
+end
 
-% Get project info
-labName = char(options.LabName);
-projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
-projectInfo = jsondecode(fileread(projectFile));
+% Continue if no lines to edit
+if ~exist('dataTable_change','var') || isempty(dataTable_change)
+    return
+end
+
+% Edit existing rows (if allowable)
+for i = 1:numel(indDiff)
+    ndi.nansen.metatable.edit(dataTable_change(i,:),dataName,...
+        'LabName',options.LabName,'Project',options.Project);
+end
 
 end
 

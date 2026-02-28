@@ -13,7 +13,8 @@ end
 dataTable = ndi.nansen.metatable.fromDataset.(lower(dataName))(dataset);
 
 % Merge dataset table into Nansen metatable
-ndi.nansen.metatable.merge(dataTable,dataName)
+ndi.nansen.metatable.merge(dataTable,dataName,'LabName',options.LabName,...
+    'Project',options.Project);
 
 end
 

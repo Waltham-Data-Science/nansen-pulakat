@@ -1,4 +1,4 @@
-function [dataTable] = edit(dataTable, dataName, options)
+function [] = edit(dataTable, dataName, options)
 %EDIT Edits metadata in an NDI session.
 %
 %   This function allows the user to interactively edit metadata for a
@@ -39,13 +39,13 @@ rowInd = metaTable.getIndexById(dataTable.(metaTable.MetaTableIdVarname){1});
 % Set default editable variables if not provided
 switch dataName
     case 'Dataset'
-        editableVariables = {'TotalDocuments','CloudDocuments','DatasetUpdated'};
+        editableVars = {'TotalDocuments','CloudDocuments','DatasetUpdated'};
     case 'Session'
-        editableVariables = {'NumSubjects';'NumFiles';'DataTypeName';'Cloud'};
+        editableVars = {'NumSubjects';'NumFiles';'DataTypeName';'Cloud'};
     case'Subject'
-        editableVariables = {'NumFiles';'DataTypeName';'Cloud'};
+        editableVars = {'NumFiles';'DataTypeName';'Cloud'};
     case 'File'
-        editableVariables = {'Cloud'};
+        editableVars = {'Cloud'};
 end
 
 % Check if row already has an NDI document
@@ -53,25 +53,27 @@ documentID = metaTable.entries.([dataName,'DocumentIdentifier']){rowInd};
 if isempty(documentID)
     switch dataName
         case'Subject'
-            editableVariables = [editableVariables;{projectInfo.subjectFileColumns.name}';...
+            editableVars = [editableVars;{projectInfo.subjectFileColumns.name}';...
                 {'SubjectDocumentIdentifier';'SubjectLocalIdentifier';'ElectronicFileName'}];
         case 'File'
-            editableVariables = [editableVariables;{projectInfo.subjectFileColumns.name}';...
+            editableVars = [editableVars;{projectInfo.subjectFileColumns.name}';...
                 'SubjectDocumentIdentifier';'FileDocumentIdentifier'];
     end
 end
 
 % Remove any variables that don't exist in the data table
-editableVariables = intersect(cellstr(editableVariables),...
+editableVars = intersect(cellstr(editableVars),...
     dataTable.Properties.VariableNames);
 
-% Update Nansen metatable
-for i = 1:numel(editableVariables)
-    metaTable.editEntries(rowInd, editableVariables{i}, ...
-        dataTable{1, editableVariables{i}});
+% Update Nansen metatable values
+for i = 1:numel(editableVars)
+    newValue = dataTable{1, editableVars{i}};
+    oldValue = metaTable.entries{rowInd,editableVars{i}};
+    if ~isequaln(newValue,oldValue) && ... % old and new are not equal
+            ~isempty(newValue) && ~isequal(newValue,{''}) % new is not empty
+        metaTable.editEntries(rowInd,editableVars{i},newValue);
+    end
 end
 metaTable.save();
-
-dataTable = metaTable.entries;
 
 end
