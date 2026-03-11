@@ -24,7 +24,7 @@ if ~success
     ndi.cloud.uilogin(true);
     [success,datasetInfo] = ndi.cloud.api.datasets.getDataset(cloudDatasetID);
     if ~success
-        error('Could not retrieve dataset information from cloud: %s',datasetInfo.message);
+        error('Could not retrieve dataset information from cloud: %s',datasetInfo.error);
     end
 end
 

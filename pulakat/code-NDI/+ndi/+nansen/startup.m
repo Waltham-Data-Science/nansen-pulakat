@@ -51,7 +51,10 @@ if isfolder(datasetPath)
         % Update login token
         setenv('CLOUD_API_ENVIRONMENT','prod');
         ndi.cloud.uilogin(true);
-        ndi.cloud.sync.downloadNew(dataset);
+        [success,errorMessage] = ndi.cloud.sync.downloadNew(dataset);
+        if ~success
+            disp(errorMessage)
+        end
     end
 else
     % Download from cloud
