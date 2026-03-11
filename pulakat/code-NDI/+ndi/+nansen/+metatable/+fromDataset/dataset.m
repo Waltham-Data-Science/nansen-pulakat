@@ -16,8 +16,13 @@ arguments
     dataset {mustBeA(dataset,'ndi.dataset.dir')}
 end
 
-% Get dataset metadata
+% Get cloud dataset id
 cloudDatasetID = ndi.cloud.internal.getCloudDatasetIdForLocalDataset(dataset);
+if isempty(cloudDatasetID)
+    error('Could not find a matching cloud dataset for the local dataset')
+end
+
+% Get dataset metadata
 [success,datasetInfo] = ndi.cloud.api.datasets.getDataset(cloudDatasetID);
 if ~success
     warning('Error encountered retrieving dataset information from cloud. Try logging in again.')
