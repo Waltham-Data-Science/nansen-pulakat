@@ -85,7 +85,7 @@ end
 
 % Ensure the current project is set correctly
 project = projectManager.getCurrentProject;
-if ~strcmp(project.Name,projectName)
+if isempty(project) || ~strcmp(project.Name,projectName)
     projectManager.changeProject(projectName)
 end
 
