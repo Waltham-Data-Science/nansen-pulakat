@@ -13,16 +13,20 @@ end
 ndi.cloud.sync.downloadNew(dataset);
 
 % Update dataset table
-ndi.nansen.metatable.update(dataset,'Dataset','Project',options.Project);
+ndi.nansen.metatable.update(dataset,'Dataset','Project',options.Project,...
+    'LabName',options.LabName);
 
 % Update file metatable
-ndi.nansen.metatable.update(dataset,'File','Project',options.Project);
+ndi.nansen.metatable.update(dataset,'File','Project',options.Project,...
+    'LabName',options.LabName);
 
 % Update subject metatable
-ndi.nansen.metatable.update(dataset,'Subject','Project',options.Project);
+ndi.nansen.metatable.update(dataset,'Subject','Project',options.Project,...
+    'LabName',options.LabName);
 
 % Update session metatable
-ndi.nansen.metatable.update(dataset,'Session','Project',options.Project);
+ndi.nansen.metatable.update(dataset,'Session','Project',options.Project,...
+    'LabName',options.LabName);
 
 end
 

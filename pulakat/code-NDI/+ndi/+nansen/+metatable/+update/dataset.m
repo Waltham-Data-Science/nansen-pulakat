@@ -16,16 +16,10 @@ arguments
     dataset {mustBeA(dataset,'ndi.dataset.dir')}
 end
 
-% Get dataset metadata
+% Get cloud dataset id
 cloudDatasetID = ndi.cloud.internal.getCloudDatasetIdForLocalDataset(dataset);
-[success,datasetInfo] = ndi.cloud.api.datasets.getDataset(cloudDatasetID);
-if ~success
-    warning('Error encountered retrieving dataset information from cloud. Try logging in again.')
-    ndi.cloud.uilogin(true);
-    [success,datasetInfo] = ndi.cloud.api.datasets.getDataset(cloudDatasetID);
-    if ~success
-        error('Could not retrieve dataset information from cloud: %s',datasetInfo.message);
-    end
+if isempty(cloudDatasetID)
+    error('Could not find a matching cloud dataset for the local dataset')
 end
 
 % Get dataset document id
@@ -34,25 +28,10 @@ query = ndi.query('base.session_id','exact_string',dataset.id) & ...
 doc = dataset.database_search(query);
 datasetDocID = doc{1}.document_properties.base.id;
 
-% Get cloud status 
-lastUpdated = datetime(datasetInfo.updatedAt,'InputFormat', ...
-    'yyyy-MM-dd''T''HH:mm:ss.SSS''Z''','TimeZone','UTC');
-[~, localDocumentIds] = ndi.cloud.sync.internal.listLocalDocuments(dataset);
-totalDocuments = numel(localDocumentIds);
-cloudDocuments = datasetInfo.documentCount;
-
-% Create dataset table
-datestamp = doc{1}.document_properties.base.datestamp;
-dateAdded = datetime(datestamp,'InputFormat', ...
-            'yyyy-MM-dd''T''HH:mm:ss.SSS''Z''','TimeZone','UTC');
-datasetTable = cell2table({dataset.id,datasetDocID,dataset.reference, ...
-    dataset.path,totalDocuments,cloudDocuments,lastUpdated,dateAdded}, ...
-    'VariableNames',{'DatasetIdentifier','DatasetDocumentIdentifier',...
-    'DatasetName','DatasetPath','TotalDocuments','CloudDocuments','DatasetUpdated','DateAdded'});
-
-% Add cloud status
-statusTable = ndi.nansen.sync.status(dataset);
-datasetTable = join(datasetTable,statusTable,'LeftKeys',...
-    'DatasetDocumentIdentifier','RightKeys','DocumentIdentifier');
+% Build basic dataset table
+datasetTable = cell2table({dataset.id,cloudDatasetID,datasetDocID,...
+    dataset.reference,dataset.path},'VariableNames', ...
+    {'DatasetIdentifier','DatasetCloudIdentifier','DatasetDocumentIdentifier',...
+    'DatasetName','DatasetPath'});
 
 end

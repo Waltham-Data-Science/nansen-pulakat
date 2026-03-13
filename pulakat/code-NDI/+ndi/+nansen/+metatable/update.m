@@ -10,13 +10,11 @@ arguments
 end
 
 % Get table from dataset
-dataTable = ndi.nansen.metatable.fromDataset.(lower(dataName))(dataset);
+dataTable = ndi.nansen.metatable.update.(lower(dataName))(dataset);
 
 % Merge dataset table into Nansen metatable
-if ~isempty(dataTable)
-    ndi.nansen.metatable.merge(dataTable,dataName,'LabName',options.LabName,...
-        'Project',options.Project);
-end
+ndi.nansen.metatable.merge(dataTable,dataName,'LabName',options.LabName,...
+    'Project',options.Project);
 
 end
 
