@@ -1,4 +1,4 @@
-function [dataset] = datasetID2Object(datasetID)
+function [dataset] = datasetID2Object(datasetID,options)
 %DATASETID2OBJECT Retrieves an NDI dataset object from its identifier.
 %
 %   This function looks up the dataset identifier in the master metatable
@@ -10,10 +10,21 @@ function [dataset] = datasetID2Object(datasetID)
 %   Outputs:
 %       dataset (ndi.dataset.dir): The NDI dataset object.
 
-datasetStruct = load('dataset_master_metatable.mat','MetaTableEntries');
-datasetTable = datasetStruct.MetaTableEntries;
-ind = strcmp(datasetTable.DatasetIdentifier,datasetID);
-dataset = ndi.dataset.dir(datasetTable.DatasetPath{ind});
+% Input argument validation
+arguments
+    datasetID {mustBeTextScalar}
+    options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
+end
+
+% Standardize inputs
+datasetID = char(datasetID);
+
+% Get dataset path
+datasetPath = ndi.nansen.fun.getMetaTableValue('Dataset','DatasetPath',datasetID,...
+    'Project',options.Project);
+
+% Get dataset
+dataset = ndi.dataset.dir(datasetPath);
 
 end
 
