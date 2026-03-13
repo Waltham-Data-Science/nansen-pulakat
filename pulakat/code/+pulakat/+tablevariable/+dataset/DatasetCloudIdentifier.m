@@ -1,5 +1,5 @@
-classdef DatasetUpdated < nansen.metadata.abstract.TableVariable
-%DATASETUPDATED Definition for table variable
+classdef DatasetCloudIdentifier < nansen.metadata.abstract.TableVariable
+%DATASETCLOUDIDENTIFIER Definition for table variable
 %   Detailed explanation goes here
 %
 %   See also nansen.metadata.abstract.TableVariable
@@ -10,7 +10,7 @@ classdef DatasetUpdated < nansen.metadata.abstract.TableVariable
     end
     
     methods
-        function obj = DatasetUpdated(varargin)
+        function obj = DatasetCloudIdentifier(varargin)
             obj@nansen.metadata.abstract.TableVariable(varargin{:});
         end
     end
