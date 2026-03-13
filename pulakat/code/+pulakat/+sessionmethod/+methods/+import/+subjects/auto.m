@@ -38,9 +38,9 @@ function varargout = auto(sessionObject, varargin)
     % Add subjects to session
     ndi.nansen.import.subject.auto(session);
 
-    % Update session metatable with subject summary metadata
-    sessionTable = ndi.nansen.metatable.session(dataset);
-    ndi.nansen.metatable.edit(sessionTable,'Session');
+    % Update subject and session metatables
+    ndi.nansen.metatable.update(dataset,'Subject');
+    ndi.nansen.metatable.update(dataset,'Session');
     
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionObject}; end

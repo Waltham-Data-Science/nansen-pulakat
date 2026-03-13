@@ -1,5 +1,5 @@
-classdef SessionDocumentIdentifier < nansen.metadata.abstract.TableVariable
-%SESSIONDOCUMENTIDENTIFIER Definition for table variable
+classdef SubjectIdentifier < nansen.metadata.abstract.TableVariable
+%SUBJECTIDENTIFIER Definition for table variable
 %   Detailed explanation goes here
 %
 %   See also nansen.metadata.abstract.TableVariable
@@ -10,7 +10,7 @@ classdef SessionDocumentIdentifier < nansen.metadata.abstract.TableVariable
     end
     
     methods
-        function obj = SessionDocumentIdentifier(varargin)
+        function obj = SubjectIdentifier(varargin)
             obj@nansen.metadata.abstract.TableVariable(varargin{:});
         end
     end

@@ -14,4 +14,29 @@ classdef NumFiles < nansen.metadata.abstract.TableVariable
             obj@nansen.metadata.abstract.TableVariable(varargin{:});
         end
     end
+
+    methods (Static)
+        function value = update(sessionObject)
+
+            % Initialize output value with the default value.
+            value = eval([mfilename('class'),'.DEFAULT_VALUE']);
+
+            % Return default value if no input is given (used during config).
+            if nargin < 1; return; end
+
+            % Get file table
+            project = nansen.getCurrentProject;
+            fileTable = project.MetaTableCatalog.getMetaTable('File');
+            files = fileTable.entries;
+
+            if isempty(files)
+                return
+            end
+
+            % Find # of files with matching session id
+            ind = strcmp(files.SessionIdentifier,sessionObject.SessionIdentifier);
+            uniqueFiles = files.FileIdentifier(ind);
+            value = numel(uniqueFiles);
+        end
+    end
 end
