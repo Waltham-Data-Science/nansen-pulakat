@@ -21,7 +21,7 @@ function [] = edit(dataTable, dataName, options)
 arguments
     dataTable (1,:) table
     dataName {mustBeMember(dataName,{'Dataset','Session','Subject','File'})}
-    options.LabName {mustBeText} = nansen.getCurrentProject().Name;
+    options.LabName {mustBeTextScalar} = nansen.getCurrentProject().Name;
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
 end
 

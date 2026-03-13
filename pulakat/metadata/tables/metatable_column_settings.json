@@ -78,12 +78,12 @@
     "SkipColumn": false,
     "ColumnWidth": 41,
     "IsEditable": false,
-    "ColumnOrder": 34
+    "ColumnOrder": 37
   },
   {
     "VariableName": "SessionIdentifier",
     "ColumnLabel": "Session Identifier",
-    "ShowColumn": false,
+    "ShowColumn": true,
     "SkipColumn": false,
     "ColumnWidth": 100,
     "IsEditable": false,
@@ -313,5 +313,32 @@
     "ColumnWidth": 326,
     "IsEditable": false,
     "ColumnOrder": 31
+  },
+  {
+    "VariableName": "CloudDatasetIdentifier",
+    "ColumnLabel": "CloudDatasetIdentifier",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 36
+  },
+  {
+    "VariableName": "DatasetCloudIdentifier",
+    "ColumnLabel": "Dataset Cloud Identifier",
+    "ShowColumn": false,
+    "SkipColumn": false,
+    "ColumnWidth": 100,
+    "IsEditable": false,
+    "ColumnOrder": 38
+  },
+  {
+    "VariableName": "DateSynced",
+    "ColumnLabel": "Date Synced",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 76,
+    "IsEditable": false,
+    "ColumnOrder": 34
   }
 ]

@@ -23,12 +23,13 @@ if ~isempty(metaTableCatalog.Table) && ...
 end
 
 % If no meta table is retrieved, add new meta table to project
-if ~exist('metatable','var')
+if ~exist('metaTable','var')
     metaTable = nansen.metadata.MetaTable(dataTable, ...
         'MetaTableClass', dataName, ...
         'ItemClassName', 'table2struct', ...
         'MetaTableIdVarname', [dataName,'Identifier']);
     project.addMetaTable(metaTable);
+    metaTable.addMissingVarsToMetaTable(dataName);
     return
 end
 
@@ -42,26 +43,26 @@ indExist(indNew) = false; indNew = ~indExist;
 % Add new rows to metatable
 if any(indNew)
     dataTable_new = dataTable(indNew,:);
-    
-    % Add missing columns to data table prior to appending
-    missingVars = setdiff(metaTable.VariableNames,...
-        dataTable_new.Properties.VariableNames);
-    for i = 1:numel(missingVars)
-        varName = missingVars{i};
-        ind = strcmp(metaTable.VariableNames,varName);
-        switch metaTable.entries.Properties.VariableTypes(ind)
-            case 'cell'
-                missingVal = {''};
-            case 'datetime'
-                missingVal = NaT('TimeZone', 'UTC');
-            case 'logical'
-                missingVal = false;
-            case 'double'
-                missingVal = NaN;
-        end
-        dataTable_new{:,varName} = repmat(missingVal,sum(indNew),1);
-    end
-
+% 
+%     % Add missing columns to data table prior to appending
+%     missingVars = setdiff(metaTable.VariableNames,...
+%         dataTable_new.Properties.VariableNames);
+%     for i = 1:numel(missingVars)
+%         varName = missingVars{i};
+%         ind = strcmp(metaTable.VariableNames,varName);
+%         switch metaTable.entries.Properties.VariableTypes(ind)
+%             case 'cell'
+%                 missingVal = {''};
+%             case 'datetime'
+%                 missingVal = NaT('TimeZone', 'UTC');
+%             case 'logical'
+%                 missingVal = false;
+%             case 'double'
+%                 missingVal = NaN;
+%         end
+%         dataTable_new{:,varName} = repmat(missingVal,sum(indNew),1);
+%     end
+% 
     % Add new rows to meta table
     metaTable.addTable(dataTable);
     metaTable.save;

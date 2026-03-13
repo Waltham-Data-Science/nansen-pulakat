@@ -1,39 +1,55 @@
-function [subjectTable] = subject(dataset,options)
-%SUBJECT Compiles a subject information table from an NDI session or dataset.
-%
-%   This function retrieves all subject documents from the specified NDI
-%   session or dataset and enriches this information with data from any
-%   associated 'ontologyTableRow' documents.
-%
-%   Inputs:
-%       dataset (ndi.session.dir or ndi.dataset.dir): The NDI session or
-%           dataset object to query.
-%
-%   Outputs:
-%       subjectTable (table): A table containing comprehensive information
-%           about the subjects found.
-
+function [subjectTable] = subject(session)
+%DATASET Summary of this function goes here
+%   Detailed explanation goes here
 % Input argument validation
 arguments
-    dataset {mustBeA(dataset,{'ndi.session.dir','ndi.dataset.dir'})}
-    options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
+    session {mustBeA(session,{'ndi.session.dir','ndi.dataset.dir'})}
 end
 
-% Get subject table from dataset
-subjectTable_dataset = ndi.nansen.metatable.subject.fromDataset(dataset);
+% Intialize output
+subjectTable = table();
 
-% Get subject metatable
-subjectMetaTable = options.Project.MetaTableCatalog.getMetaTable('Subject');
-subjectTable_project = subjectMetaTable.entries;
+% Get sessions (if dataset)
+if isa(session,'ndi.dataset.dir')
+    dataset = session;
+    [~,sessionIDs] = dataset.session_list;
+    sessions = cell(size(sessionIDs));
+    for i = 1:numel(sessionIDs)
+        sessions{i} = dataset.open_session(sessionIDs{i});
+    end
+else
+    sessions = {session};
+end
 
-% How best to merge?
-subjectTable = join(subjectTable,subjectTable_project);
+% Return if empty
+if isempty(sessions)
+    return
+end
 
-if isa(dataset,'ndi.dataset.dir')
-    statusTable = ndi.nansen.sync.status(dataset);
-    [Lia, Locb] = ismember(subjectTable.SubjectDocumentIdentifier, statusTable.DocumentIdentifier);
-    subjectTable.Cloud = false(height(subjectTable), 1);
-    subjectTable.Cloud(Lia) = statusTable.Cloud(Locb(Lia));
+% Get basic subject table from dataset
+subjectTable = ndi.fun.docTable.subject(dataset);
+
+if isempty(subjectTable)
+    return
+end
+
+% Get ontologyTableRow documents
+query = ndi.query('','isa','ontologyTableRow');
+docs = cell(numel(sessions),1);
+for i = 1:numel(sessions)
+    session = sessions{i};
+    docs{i} = session.database_search(query);
+end
+docs = cat(2,docs{:});
+
+% Add ontologyTableRow data to subjectTable
+if ~isempty(docs)
+    [ontologyTable,~,sessionID,subjectDocID] = ndi.fun.doc.ontologyTableRowDoc2Table(docs,'StackAll',true);
+    ontologyTable = renamevars(ontologyTable{1},'UniversallyUniqueIdentifier','SubjectIdentifier');
+    ontologyTable.SessionIdentifier = sessionID{1}';
+    ontologyTable.SubjectDocumentIdentifier = subjectDocID{1}';
+    subjectTable = ndi.fun.table.join({subjectTable,ontologyTable});
 end
 
 end
+
