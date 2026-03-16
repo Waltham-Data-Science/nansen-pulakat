@@ -1,4 +1,4 @@
-function [subjectTable] = manual(session, labName)
+function [subjectTable] = manual(session, options)
 %MANUAL Manually adds a subject to an NDI session.
 %
 %   This function prompts the user to enter subject metadata, creates
@@ -17,10 +17,11 @@ function [subjectTable] = manual(session, labName)
 % Input argument validation
 arguments
     session {mustBeA(session,{'ndi.session.dir'})}
-    labName {mustBeText} = nansen.getCurrentProject().Name;
+    options.LabName {mustBeText} = nansen.getCurrentProject().Name;
+    options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject
 end
 
-labName = char(labName);
+labName = char(options.LabName);
 
 % Get project info
 projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
@@ -44,6 +45,7 @@ if isempty(answer); return; end
 subjectTable_new = cell2table(answer', 'VariableNames', {subjectColumns.name});
 
 % Add new subject to metatable
-subjectTable = ndi.nansen.import.subject(session,subjectTable_new);
+subjectTable = ndi.nansen.import.subject(session,subjectTable_new,...
+    'LabName',labName,'Project',options.Project);
 
 end

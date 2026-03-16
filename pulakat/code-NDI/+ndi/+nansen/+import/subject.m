@@ -53,7 +53,7 @@ else
     % Check matching subjects for conflicting data
     commonVars = intersect(subjectTable.Properties.VariableNames, ...
         subjectTable_session.Properties.VariableNames);
-    for i = 1:height(subjectTable_session)
+    for i = 1:height(subjectTable)
         ind = indMatch{i};
         if isempty(ind)
             continue
@@ -113,10 +113,6 @@ subjectTable_new{:,'SessionName'} = {session.reference};
 subjectTable_new{:,'SessionPath'} = {session.path};
 subjectTable_new{:,'DatasetIdentifier'} = ndi.nansen.fun.getMetaTableValue('Session','DatasetIdentifier',session.id);
 subjectTable_new{:,'SubjectIdentifier'} = cellstr(num2hex(rand(numSubjects,1) + randi(32727*[-1 1],numSubjects,1)));
-% subjectTable_new{:,'SubjectLocalIdentifier'} = repmat({''},numSubjects, 1);
-% subjectTable_new{:,'SubjectDocumentIdentifier'} = repmat({''},numSubjects, 1);
-% subjectTable_new{:,'DateAdded'} = repmat(datetime('now','TimeZone','UTC'), numSubjects, 1);
-% subjectTable_new{:,'Cloud'} = false(numSubjects, 1);
 
 % Add subject table to nansen
 ndi.nansen.metatable.merge(subjectTable_new,'Subject','Project',options.Project);
