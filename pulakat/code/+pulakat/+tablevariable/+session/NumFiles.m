@@ -16,7 +16,7 @@ classdef NumFiles < nansen.metadata.abstract.TableVariable
     end
 
     methods (Static)
-        function value = update(sessionObject)
+        function value = update(obj)
 
             % Initialize output value with the default value.
             value = eval([mfilename('class'),'.DEFAULT_VALUE']);
@@ -34,7 +34,7 @@ classdef NumFiles < nansen.metadata.abstract.TableVariable
             end
 
             % Find # of files with matching session id
-            ind = strcmp(files.SessionIdentifier,sessionObject.SessionIdentifier);
+            ind = strcmp(files.SessionIdentifier,obj.SessionIdentifier);
             uniqueFiles = files.FileIdentifier(ind);
             value = numel(uniqueFiles);
         end

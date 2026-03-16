@@ -6,12 +6,46 @@ classdef DataTypes < nansen.metadata.abstract.TableVariable
 
     properties (Constant)
         IS_EDITABLE = false
-        DEFAULT_VALUE = ''
+        DEFAULT_VALUE = {'N/A'}
     end
 
     methods
         function obj = DataTypes(varargin)
             obj@nansen.metadata.abstract.TableVariable(varargin{:});
+        end
+    end
+
+    methods (Static)
+        function value = update(obj)
+
+            % Initialize output value with the default value.
+            className = mfilename('class');
+            classParts = strsplit(className,'.');
+            variableName = classParts{end};
+            value = eval([className,'.DEFAULT_VALUE']);
+
+            % Return default value if no input is given (used during config).
+            if nargin < 1; return; end
+
+            % Get subject table
+            project = nansen.getCurrentProject;
+            fileTable = project.MetaTableCatalog.getMetaTable('File');
+            subjects = fileTable.entries;
+
+            if isempty(subjects)
+                return
+            end
+
+            % Find unique values with matching session id
+            ind = strcmp(subjects.SessionIdentifier,obj.SessionIdentifier);
+            defaultValue = eval(strjoin([classParts(1:end-2),'file',...
+                variableName,'DEFAULT_VALUE'],'.'));
+            uniqueValues = setdiff(subjects.(variableName)(ind),defaultValue);
+            if isempty(uniqueValues)
+                return
+            else
+                value = strjoin(uniqueValues,',');
+            end
         end
     end
 end

@@ -16,19 +16,31 @@ classdef DateAdded < nansen.metadata.abstract.TableVariable
     end
 
     methods (Static)
-        function value = update(sessionObject)
+         function value = update(obj)
             
             % Initialize output value with the default value.
-            value = eval([mfilename('class'),'.DEFAULT_VALUE']);
+            className = mfilename('class');
+            classParts = strsplit(className,'.');
+            tableName = classParts{end-1}; tableName(1) = upper(tableName(1));
+            value = eval([className,'.DEFAULT_VALUE']);
 
             % Return default value if no input is given (used during config).
-            if nargin < 1; return; end
+            if nargin < 1 || ~isfield(obj,[tableName,'DocumentIdentifier'])
+                return;
+            end
+
+            % Return if no doc id
+            defaultDocID = eval(strjoin([classParts(1:end-1),...
+                [tableName,'DocumentIdentifier'],'DEFAULT_VALUE'],'.'));
+            if strcmp(obj.([tableName,'DocumentIdentifier']),defaultDocID)
+                return;
+            end
 
             % Get dataset
-            dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
+            dataset = ndi.nansen.fun.datasetID2Object(obj.DatasetIdentifier);
 
             % Get session document
-            query = ndi.query('base.id','exact_string',sessionObject.SessionDocumentIdentifier);
+            query = ndi.query('base.id','exact_string',obj.([tableName,'DocumentIdentifier']));
             doc = dataset.database_search(query);
 
             % Get date added

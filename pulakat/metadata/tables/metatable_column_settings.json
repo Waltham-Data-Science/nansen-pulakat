@@ -256,7 +256,7 @@
     "ColumnLabel": "Num Files",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 60,
+    "ColumnWidth": 85,
     "IsEditable": false,
     "ColumnOrder": 27
   },
