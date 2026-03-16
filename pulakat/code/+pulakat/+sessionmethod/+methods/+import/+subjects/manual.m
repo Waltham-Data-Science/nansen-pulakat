@@ -31,21 +31,18 @@ function varargout = manual(sessionObject, varargin)
 
     % --- Implementation of the method ---
 
-    % Get session object
+    % Get dataset and session objects
+    dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
     session = ndi.session.dir(sessionObject.SessionPath);
 
-    % Add subjects to session
+    % Add subject to session
     subjectTable = ndi.nansen.import.subject.manual(session);
 
     if isempty(subjectTable); return; end
 
-    % Add subjects to metatable
-    ndi.nansen.metatable.add(subjectTable,'Subject');
-
-    % Update session metatable with subject summary metadata
-    dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
-    sessionTable = ndi.nansen.metatable.session(dataset);
-    ndi.nansen.metatable.add(sessionTable,'Session');
+    % Update subject and session metatables
+    ndi.nansen.metatable.update(dataset,'Subject');
+    ndi.nansen.metatable.update(dataset,'Session');
 
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionObject}; end

@@ -36,7 +36,9 @@ function varargout = auto(sessionObject, varargin)
     session = ndi.session.dir(sessionObject.SessionPath);
 
     % Add subjects to session
-    ndi.nansen.import.subject.auto(session);
+    subjectTable = ndi.nansen.import.subject.auto(session);
+
+    if isempty(subjectTable); return; end
 
     % Update subject and session metatables
     ndi.nansen.metatable.update(dataset,'Subject');
