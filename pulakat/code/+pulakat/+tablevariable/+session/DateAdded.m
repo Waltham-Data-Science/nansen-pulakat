@@ -35,8 +35,6 @@ classdef DateAdded < nansen.metadata.abstract.TableVariable
             datestamp = doc{1}.document_properties.base.datestamp;
             value = datetime(datestamp,'InputFormat', ...
                 'yyyy-MM-dd''T''HH:mm:ss.SSS''Z''','TimeZone','UTC');
-
-
         end
     end
 end

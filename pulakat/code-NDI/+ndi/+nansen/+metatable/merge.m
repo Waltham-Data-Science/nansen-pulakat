@@ -33,6 +33,11 @@ if ~exist('metaTable','var')
     return
 end
 
+% If no new data, skip
+if isempty(dataTable)
+    return
+end
+
 % If meta table exists, identify rows of dataTable that are new
 existingIDs = metaTable.entries.(metaTable.MetaTableIdVarname);
 newIDs = dataTable.(metaTable.MetaTableIdVarname);
