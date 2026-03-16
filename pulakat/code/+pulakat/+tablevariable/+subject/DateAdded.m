@@ -26,6 +26,15 @@ classdef DateAdded < nansen.metadata.abstract.TableVariable
                 return;
             end
 
+            % Return if no doc id
+            classParts = strsplit(mfilename('class'),'.');
+            tableName = classParts{end-1}; tableName(1) = upper(tableName(1));
+            defaultDocID = eval(strjoin([classParts(1:end-1),...
+                [tableName,'DocumentIdentifier'],'DEFAULT_VALUE'],'.'));
+            if strcmp(subjectObject.([tableName,'DocumentIdentifier']),defaultDocID)
+                return;
+            end
+
             % Get dataset
             dataset = ndi.nansen.fun.datasetID2Object(subjectObject.DatasetIdentifier);
 

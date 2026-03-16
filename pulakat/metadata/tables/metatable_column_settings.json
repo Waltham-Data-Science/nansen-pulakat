@@ -67,7 +67,7 @@
     "ColumnLabel": "Date Added",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 75,
+    "ColumnWidth": 95,
     "IsEditable": false,
     "ColumnOrder": 33
   },
@@ -137,7 +137,7 @@
   {
     "VariableName": "GeneticStrainTypeName",
     "ColumnLabel": "Genetic Strain Type",
-    "ShowColumn": true,
+    "ShowColumn": false,
     "SkipColumn": false,
     "ColumnWidth": 100,
     "IsEditable": false,
@@ -310,7 +310,7 @@
     "ColumnLabel": "Data Types",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 326,
+    "ColumnWidth": 188,
     "IsEditable": false,
     "ColumnOrder": 31
   },
