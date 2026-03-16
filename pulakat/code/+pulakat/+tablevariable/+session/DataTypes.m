@@ -30,17 +30,17 @@ classdef DataTypes < nansen.metadata.abstract.TableVariable
             % Get subject table
             project = nansen.getCurrentProject;
             fileTable = project.MetaTableCatalog.getMetaTable('File');
-            subjects = fileTable.entries;
+            files = fileTable.entries;
 
-            if isempty(subjects)
+            if isempty(files)
                 return
             end
 
             % Find unique values with matching session id
-            ind = strcmp(subjects.SessionIdentifier,obj.SessionIdentifier);
+            ind = strcmp(files.([tableName,'Identifier']),obj.([tableName,'Identifier']));
             defaultValue = eval(strjoin([classParts(1:end-2),'file',...
                 variableName,'DEFAULT_VALUE'],'.'));
-            uniqueValues = setdiff(subjects.(variableName)(ind),defaultValue);
+            uniqueValues = setdiff(files.(variableName)(ind),defaultValue);
             if isempty(uniqueValues)
                 return
             else

@@ -53,39 +53,40 @@ classdef SpeciesName < nansen.metadata.abstract.TableVariable & nansen.metadata.
             end
         end
 
-        % function str = getCellTooltipString(obj)
-        % %getCellTooltipString Get character vector to display as tooltip
-        % 
-        %     datalocStruct = obj.Value;
-        % 
-        %     if isa(datalocStruct, 'cell')
-        %         datalocStruct = datalocStruct{1};
-        %     end
-        % 
-        %     if isempty(datalocStruct)
-        %         str = '';
-        % 
-        %     else
-        %         % Create a html formatted string from values in struct
-        %         str = cell(size(datalocStruct));
-        %         strtab = '&nbsp;&nbsp;&nbsp;&nbsp;';
-        % 
-        %         for i = 1:numel(datalocStruct)
-        %             str{i} = sprintf(['%s (%s)',...
-        %                 '<br/>%s Root Number: %d', ...
-        %                 '<br/>%s DiskName: %s', ...
-        %                 '<br/>%s RootPath: %s', ...
-        %                 '<br/>%s Folder: %s'], ...
-        %                 datalocStruct(i).Name, char( datalocStruct(i).Type ), ...
-        %                 strtab, datalocStruct(i).RootIdx,...
-        %                 strtab, datalocStruct(i).Diskname, ...
-        %                 strtab, datalocStruct(i).RootPath, ...
-        %                 strtab, datalocStruct(i).Subfolders);
-        %         end
-        % 
-        %         str = strjoin(str, '<br /><br />'); % Add blank line between data locations
-        %         str = sprintf('<html><div align="left"> %s </div>', str);
-        %     end
-        % end
+        function str = getCellTooltipString(obj)
+        %getCellTooltipString Get character vector to display as tooltip
+
+            str = 'testing';
+            % datalocStruct = obj.Value;
+            % 
+            % if isa(datalocStruct, 'cell')
+            %     datalocStruct = datalocStruct{1};
+            % end
+            % 
+            % if isempty(datalocStruct)
+            %     str = '';
+            % 
+            % else
+            %     % Create a html formatted string from values in struct
+            %     str = cell(size(datalocStruct));
+            %     strtab = '&nbsp;&nbsp;&nbsp;&nbsp;';
+            % 
+            %     for i = 1:numel(datalocStruct)
+            %         str{i} = sprintf(['%s (%s)',...
+            %             '<br/>%s Root Number: %d', ...
+            %             '<br/>%s DiskName: %s', ...
+            %             '<br/>%s RootPath: %s', ...
+            %             '<br/>%s Folder: %s'], ...
+            %             datalocStruct(i).Name, char( datalocStruct(i).Type ), ...
+            %             strtab, datalocStruct(i).RootIdx,...
+            %             strtab, datalocStruct(i).Diskname, ...
+            %             strtab, datalocStruct(i).RootPath, ...
+            %             strtab, datalocStruct(i).Subfolders);
+            %     end
+            % 
+            %     str = strjoin(str, '<br /><br />'); % Add blank line between data locations
+            %     str = sprintf('<html><div align="left"> %s </div>', str);
+            % end
+        end
     end
 end

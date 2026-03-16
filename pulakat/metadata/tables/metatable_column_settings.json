@@ -83,7 +83,7 @@
   {
     "VariableName": "SessionIdentifier",
     "ColumnLabel": "Session Identifier",
-    "ShowColumn": true,
+    "ShowColumn": false,
     "SkipColumn": false,
     "ColumnWidth": 100,
     "IsEditable": false,
@@ -121,9 +121,9 @@
     "ColumnLabel": "Strain",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 59,
+    "ColumnWidth": 37,
     "IsEditable": false,
-    "ColumnOrder": 12
+    "ColumnOrder": 21
   },
   {
     "VariableName": "StrainOntology",
@@ -145,12 +145,12 @@
   },
   {
     "VariableName": "SpeciesName",
-    "ColumnLabel": "Species Name",
+    "ColumnLabel": "Species",
     "ShowColumn": true,
     "SkipColumn": false,
     "ColumnWidth": 100,
     "IsEditable": false,
-    "ColumnOrder": 16
+    "ColumnOrder": 22
   },
   {
     "VariableName": "SpeciesOntology",
@@ -168,7 +168,7 @@
     "SkipColumn": false,
     "ColumnWidth": 51,
     "IsEditable": false,
-    "ColumnOrder": 17
+    "ColumnOrder": 23
   },
   {
     "VariableName": "BiologicalSexOntology",
@@ -186,7 +186,7 @@
     "SkipColumn": false,
     "ColumnWidth": 54,
     "IsEditable": false,
-    "ColumnOrder": 19
+    "ColumnOrder": 12
   },
   {
     "VariableName": "SubjectCageIdentifier",
@@ -195,7 +195,7 @@
     "SkipColumn": false,
     "ColumnWidth": 43,
     "IsEditable": false,
-    "ColumnOrder": 21
+    "ColumnOrder": 16
   },
   {
     "VariableName": "SubjectTextIdentifier",
@@ -204,7 +204,7 @@
     "SkipColumn": false,
     "ColumnWidth": 59,
     "IsEditable": false,
-    "ColumnOrder": 22
+    "ColumnOrder": 17
   },
   {
     "VariableName": "Treatment",
@@ -213,7 +213,7 @@
     "SkipColumn": false,
     "ColumnWidth": 65,
     "IsEditable": false,
-    "ColumnOrder": 23
+    "ColumnOrder": 19
   },
   {
     "VariableName": "ElectronicFileName",
@@ -229,7 +229,7 @@
     "ColumnLabel": "Session Name",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 72,
+    "ColumnWidth": 75,
     "IsEditable": false,
     "ColumnOrder": 9
   },
@@ -253,10 +253,10 @@
   },
   {
     "VariableName": "NumFiles",
-    "ColumnLabel": "Num Files",
+    "ColumnLabel": "# Files",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 85,
+    "ColumnWidth": 43,
     "IsEditable": false,
     "ColumnOrder": 27
   },
@@ -298,7 +298,7 @@
   },
   {
     "VariableName": "NumSubjects",
-    "ColumnLabel": "Num Subjects",
+    "ColumnLabel": "# Subjects",
     "ShowColumn": true,
     "SkipColumn": false,
     "ColumnWidth": 75,
