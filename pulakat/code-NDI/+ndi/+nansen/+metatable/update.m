@@ -22,12 +22,8 @@ TVA = options.Project.getTable('TableVariable');
 TVA = TVA(TVA.TableType == lower(dataName), :);
 updateVariableNames = TVA{TVA.HasUpdateFunction, 'Name'};
 for i = 1:numel(updateVariableNames)
-    try
     metaTable.updateTableVariable(updateVariableNames{i});
-    catch
-        keyboard
-    end
 end
+metaTable.save();
 
 end
-

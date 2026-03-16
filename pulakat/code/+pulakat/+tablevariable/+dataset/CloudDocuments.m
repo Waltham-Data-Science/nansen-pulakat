@@ -29,7 +29,7 @@ classdef CloudDocuments < nansen.metadata.abstract.TableVariable
             if ~success
                 warning('Error encountered retrieving dataset information from cloud. Try logging in again.')
                 ndi.cloud.uilogin(true);
-                [success,datasetInfo] = ndi.cloud.api.datasets.getDataset(cloudDatasetID);
+                [success,datasetInfo] = ndi.cloud.api.datasets.getDataset(datasetObject.DatasetCloudIdentifier);
                 if ~success
                     error('Could not retrieve dataset information from cloud: %s',datasetInfo.error);
                 end

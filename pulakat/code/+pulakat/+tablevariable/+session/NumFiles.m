@@ -16,10 +16,10 @@ classdef NumFiles < nansen.metadata.abstract.TableVariable
     end
 
     methods (Static)
-        function value = update(obj)
+        function value = update(varargin)
             className = mfilename('class');
             dataName = 'File';
-            value = ndi.nansen.fun.countUniqueMetaTableValues(className,obj,dataName);
+            value = ndi.nansen.fun.countUniqueMetaTableValues(className,dataName,varargin{:});
         end
     end
 end

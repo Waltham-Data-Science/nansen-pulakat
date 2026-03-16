@@ -16,10 +16,10 @@ classdef NumSubjects < nansen.metadata.abstract.TableVariable
     end
 
     methods (Static)
-        function value = update(obj)
+        function value = update(varargin)
             className = mfilename('class');
             dataName = 'Subject';
-            value = ndi.nansen.fun.countMetaTableValues(className,obj,dataName);
+            value = ndi.nansen.fun.countUniqueMetaTableValues(className,dataName,varargin{:});
         end
     end
 end

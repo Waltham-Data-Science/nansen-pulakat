@@ -1,6 +1,13 @@
-function [obj] = editMetaTableCell(className,obj)
+function [obj] = editMetaTableCell(className,obj,options)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
+
+% Input argument validation
+arguments
+    className {mustBeTextScalar}
+    obj struct
+    options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
+end
 
 % Get table type and variable name
 classParts = strsplit(className,'.');
@@ -24,8 +31,7 @@ if strcmp(obj.([tableName,'DocumentIdentifier']),defaultDocID)
 
     if ~isequal(newValue,defaultValue)
         % Get metatable
-        project = nansen.getCurrentProject;
-        metaTable = project.MetaTableCatalog.getMetaTable(tableName);
+        metaTable = options.Project.MetaTableCatalog.getMetaTable(tableName);
 
         % Replace value
         rowInd = metaTable.getIndexById(obj.(metaTable.MetaTableIdVarname));
