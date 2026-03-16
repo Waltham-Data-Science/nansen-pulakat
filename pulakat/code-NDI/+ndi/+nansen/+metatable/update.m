@@ -16,5 +16,18 @@ dataTable = ndi.nansen.metatable.update.(lower(dataName))(dataset);
 ndi.nansen.metatable.merge(dataTable,dataName,'LabName',options.LabName,...
     'Project',options.Project);
 
+% Update dynamic table variables
+metaTable = options.Project.MetaTableCatalog.getMetaTable(dataName);
+TVA = options.Project.getTable('TableVariable');
+TVA = TVA(TVA.TableType == lower(dataName), :);
+updateVariableNames = TVA{TVA.HasUpdateFunction, 'Name'};
+for i = 1:numel(updateVariableNames)
+    try
+    metaTable.updateTableVariable(updateVariableNames{i});
+    catch
+        keyboard
+    end
+end
+
 end
 

@@ -1,4 +1,4 @@
-function [] = merge(dataTable,dataName,options)
+function [metaTable] = merge(dataTable,dataName,options)
 %MERGE Summary of this function goes here
 %   Detailed explanation goes here
 % Input argument validation
@@ -90,7 +90,7 @@ end
 
 % Edit existing rows (if allowable)
 for i = 1:numel(indDiff)
-    ndi.nansen.metatable.edit(dataTable_change(i,:),dataName,...
+    metaTable = ndi.nansen.metatable.edit(dataTable_change(i,:),dataName,...
         'LabName',options.LabName,'Project',options.Project);
 end
 

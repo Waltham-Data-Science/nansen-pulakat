@@ -1,4 +1,4 @@
-function [] = edit(dataTable, dataName, options)
+function [metaTable] = edit(dataTable, dataName, options)
 %EDIT Edits metadata in an NDI session.
 %
 %   This function allows the user to interactively edit metadata for a
