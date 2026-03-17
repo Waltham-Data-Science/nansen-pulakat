@@ -1,4 +1,4 @@
-function [dataTable] = manual(session, labName)
+function [dataTable] = manual(session,dataFiles,options)
 %MANUAL Manually adds a file to an NDI session.
 %
 %   This function prompts the user to select one or more files and
@@ -17,115 +17,45 @@ function [dataTable] = manual(session, labName)
 % Input argument validation
 arguments
     session {mustBeA(session,{'ndi.session.dir'})}
-    labName {mustBeText} = nansen.getCurrentProject().Name;
+    dataFiles {mustBeText} = ndi.nansen.import.file.select();
+    options.LabName {mustBeText} = nansen.getCurrentProject().Name;
+    options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject
 end
 
-labName = char(labName);
+% Convert inputs to char arrays for internal processing
+dataFiles = cellstr(dataFiles);
+labName = char(options.LabName);
 
 % Get project info
 projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
 projectInfo = jsondecode(fileread(projectFile));
-fileTypes = {projectInfo.dataFileTypes.DataTypeName};
 
-% Select file(s)
-[files, path] = uigetfile('*.*', 'Select File(s) to Import', 'MultiSelect', 'on');
-if isequal(files, 0); return; end
-if ischar(files); files = {files}; end
-
-% For each file, ask for data type and subject(s)
-project = nansen.getCurrentProject;
+% Get current subject table from project
+project = options.Project;
 subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
 subjectTable = subjectMetaTable.entries;
+
+% Only include subjects for current session
 if ~isempty(subjectTable)
-    % Only include subjects for current session
     indSession = strcmp(subjectTable.SessionIdentifier, session.id);
     subjectTable = subjectTable(indSession, :);
 end
 
-if isempty(subjectTable)
-    error('No subjects found in session. Please add a subject first.');
-end
-
-% Prepare subject names for display (handle pending subjects)
-subjectNames = subjectTable.SubjectLocalIdentifier;
+% Query user for subjects matching these files
+fileTypes = {projectInfo.dataFileTypes.DataTypeName};
 subjectIdentifiers = projectInfo.subjectIdentifierFields;
-isPending = cellfun(@isempty, subjectNames);
-if any(isPending)
-    for i = find(isPending)'
-        subjectParts = cellfun(@(f) char(subjectTable.(f){i}), ...
-            subjectIdentifiers, 'UniformOutput', false);
-        subjectNames{i} = [strjoin(subjectParts, '_'), ' (pending)'];
-    end
+dataTable_files = cell(size(dataFiles));
+for i = 1:numel(dataFiles)
+    dataTable_files{i} = ndi.nansen.fun.selectionPickerGUI(subjectTable(:,subjectIdentifiers),...
+        'Title',['Select subject(s) matching the file: ',dataFiles{i}]);
+    dataTable_files{i}{:,'ElectronicFileName'} = dataFiles(i);
+    dataTable_files{i}{:,'DataTypeName'} = ndi.nansen.fun.simplePickerGUI(fileTypes,...
+        'Prompt',['Select data type matching the file: ',dataFiles{i}]);
 end
+dataTable_files = ndi.fun.table.vstack(dataTable_files);
 
-dataTable_new = table();
-
-for i = 1:numel(files)
-    filePath = fullfile(path, files{i});
-
-    % Select Data Type
-    [ind, ok] = listdlg('ListString', fileTypes, 'SelectionMode', 'single', ...
-        'Name', ['Data Type for ', files{i}], 'PromptString', 'Select Data Type:');
-    if ~ok; continue; end
-    dataType = fileTypes{ind};
-
-    % Select Subject(s)
-    [indSubj, okSubj] = listdlg('ListString', subjectNames, 'SelectionMode', 'multiple', ...
-        'Name', ['Subject(s) for ', files{i}], 'PromptString', 'Select Subject(s):');
-    if ~okSubj; continue; end
-
-    % Create entries for this file
-    for j = 1:numel(indSubj)
-        newRow = table();
-        newRow.ElectronicFileName = {filePath};
-        newRow.DataTypeName = {dataType};
-        % Add subject identifying fields
-        for f = 1:numel(subjectIdentifiers)
-            fieldName = subjectIdentifiers{f};
-            newRow.(fieldName) = subjectTable.(fieldName)(indSubj(j));
-        end
-        newRow.SubjectDocumentIdentifier = subjectTable.SubjectDocumentIdentifier(indSubj(j));
-        dataTable_new = [dataTable_new; newRow];
-    end
-end
-
-if isempty(dataTable_new); return; end
-
-% Get existing data table from project
-fileMetaTable = project.MetaTableCatalog.getMetaTable('File');
-dataTable_project = fileMetaTable.entries;
-if ~isempty(dataTable_project)
-    % Only include files for current session
-    indSession = strcmp(dataTable_project.SessionIdentifier, session.id);
-    dataTable_session = dataTable_project(indSession, :);
-else
-    dataTable_session = table();
-end
-
-% Identify new and unique files (prevent duplicates)
-fileIdentifiers = [{'ElectronicFileName','DataTypeName'}, subjectIdentifiers'];
-if ~isempty(dataTable_session)
-    [~,indNew] = setdiff(dataTable_new(:,fileIdentifiers), ...
-        dataTable_session(:,fileIdentifiers));
-    dataTable_new = dataTable_new(indNew,:);
-end
-
-if isempty(dataTable_new)
-    warning('No new files to add.')
-    dataTable = dataTable_session;
-    return
-end
-
-% Add session and other metadata
-dataTable_new.SessionIdentifier = repmat({session.id}, height(dataTable_new), 1);
-dataTable_new.SessionName = repmat({session.reference}, height(dataTable_new), 1);
-dataTable_new.SessionPath = repmat({session.path}, height(dataTable_new), 1);
-dataTable_new.FileDocumentIdentifier = repmat({''}, height(dataTable_new), 1);
-dataTable_new.FileIdentifier = ndi.nansen.fun.getIdentifier(dataTable_new, 'File', labName);
-dataTable_new.DateAdded = repmat(datetime('now'), height(dataTable_new), 1);
-dataTable_new.Cloud = false(height(dataTable_new), 1);
-
-% Return new data table
-dataTable = dataTable_new;
+% Add new files to metatable
+dataTable = ndi.nansen.import.file(session,dataTable_files,...
+    'LabName',labName,'Project',options.Project);
 
 end

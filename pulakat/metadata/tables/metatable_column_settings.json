@@ -85,7 +85,7 @@
     "ColumnLabel": "Session Identifier",
     "ShowColumn": false,
     "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 132,
     "IsEditable": false,
     "ColumnOrder": 7
   },
@@ -121,7 +121,7 @@
     "ColumnLabel": "Strain",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 37,
+    "ColumnWidth": 47,
     "IsEditable": false,
     "ColumnOrder": 21
   },
@@ -146,7 +146,7 @@
   {
     "VariableName": "SpeciesName",
     "ColumnLabel": "Species",
-    "ShowColumn": true,
+    "ShowColumn": false,
     "SkipColumn": false,
     "ColumnWidth": 100,
     "IsEditable": false,
@@ -211,7 +211,7 @@
     "ColumnLabel": "Treatment",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 65,
+    "ColumnWidth": 62,
     "IsEditable": false,
     "ColumnOrder": 19
   },
@@ -263,7 +263,7 @@
   {
     "VariableName": "FileDocumentIdentifier",
     "ColumnLabel": "File Document Identifier",
-    "ShowColumn": true,
+    "ShowColumn": false,
     "SkipColumn": false,
     "ColumnWidth": 204,
     "IsEditable": false,

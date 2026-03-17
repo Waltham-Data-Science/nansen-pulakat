@@ -48,7 +48,7 @@ for i = 1:numel(identifyingVariables)
     % Create a mask to ignore matches that are just empty strings
     % This ensures {0x0 char} in A doesn't "match" {0x0 char} in B
     if iscellstr(dataA) || isstring(dataB)
-        isValEmpty = cellfun(@isempty, dataA);
+        isValEmpty = cellfun(@(x) isempty(x) || strcmp(x,'N/A'), dataA);
         indSubject(isValEmpty) = 0; 
     end
 

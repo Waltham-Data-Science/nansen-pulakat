@@ -7,6 +7,7 @@ arguments
     dataName {mustBeMember(dataName,{'Dataset','Session','Subject','File'})}
     obj struct = struct([]);
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
+    options.VariableName {mustBeTextScalar} = [dataName,'Identifier'];
 end
 
 % Initialize output value with the default value.
@@ -28,7 +29,7 @@ end
 
 % Find # of entries with matching id
 ind = strcmp(entries.([tableName,'Identifier']),obj.([tableName,'Identifier']));
-uniqueValues = unique(entries.([dataName,'Identifier'])(ind));
-value = numel(uniqueValues);
+uniqueValues = unique(entries(ind,cellstr(options.VariableName)));
+value = height(uniqueValues);
 
 end

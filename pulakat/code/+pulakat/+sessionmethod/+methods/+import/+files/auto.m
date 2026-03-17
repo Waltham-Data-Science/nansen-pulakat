@@ -41,8 +41,8 @@ function varargout = auto(sessionObject, varargin)
     if isempty(dataTable); return; end
 
     % Update metatables
-    ndi.nansen.metatable.update(dataset,'Subject');
-    ndi.nansen.metatable.update(dataset,'File'); % file needs to inheret info from new subjects
+    ndi.nansen.metatable.update(dataset,'Subject'); % file needs to inheret info from new subjects
+    ndi.nansen.metatable.update(dataset,'File');
     ndi.nansen.metatable.update(dataset,'Subject','UpdateVariableNames',{'NumFiles','DataTypeName'}); % subject needs # files & datatypes
     ndi.nansen.metatable.update(dataset,'Session');
 

@@ -65,8 +65,7 @@ else
         diffMask = ~cellfun(@isequaln, A, B);
 
         % 2. Identify where A is empty but B has info
-        % (Adjust this if your 'empty' is '' or {0x0 char})
-        aIsEmpty = cellfun(@(x) isempty(x) || (ischar(x) && isempty(x)), A);
+        aIsEmpty = cellfun(@(x) isempty(x) || (ischar(x) && isempty(x)) || strcmp(x,'N/A'), A);
         bHasData = cellfun(@(x) ~isempty(x), B);
 
         % 4. Identify True Conflicts

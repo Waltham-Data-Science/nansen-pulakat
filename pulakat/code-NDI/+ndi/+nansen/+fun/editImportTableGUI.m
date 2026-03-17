@@ -33,7 +33,7 @@ uibutton(fig, 'Text', 'Import', ...
     'BackgroundColor', [0.8 1 0.8], ...
     'ButtonPushedFcn', @(btn, event) confirmAndClose(fig, uit));
 
-% 6. Retrieve the data after the wait is over
+% 6. Retrieve the data after confirmation
 uiwait(fig);
 if isvalid(fig)
     dataTable = getappdata(fig, 'OutputData');

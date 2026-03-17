@@ -31,7 +31,8 @@ function varargout = manual(sessionObject, varargin)
 
     % --- Implementation of the method ---
 
-    % Get session object
+    % Get dataset and session objects
+    dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
     session = ndi.session.dir(sessionObject.SessionPath);
 
     % Add files to session
@@ -39,8 +40,11 @@ function varargout = manual(sessionObject, varargin)
 
     if isempty(dataTable); return; end
 
-    % Add files to metatable
-    ndi.nansen.metatable.add(dataTable,'File');
+    % Update metatables
+    ndi.nansen.metatable.update(dataset,'Subject'); % file needs to inheret info from new subjects
+    ndi.nansen.metatable.update(dataset,'File');
+    ndi.nansen.metatable.update(dataset,'Subject','UpdateVariableNames',{'NumFiles','DataTypeName'}); % subject needs # files & datatypes
+    ndi.nansen.metatable.update(dataset,'Session');
 
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionObject}; end
