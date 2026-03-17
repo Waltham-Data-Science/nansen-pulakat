@@ -21,7 +21,7 @@ function [dataTable] = auto(session, dataFiles, options)
 % Input argument validation
 arguments
     session {mustBeA(session,{'ndi.session.dir'})}
-    dataFiles {mustBeText} = ndi.nansen.import.file.select(session.path);
+    dataFiles {mustBeText} = ndi.nansen.import.file.select();
     options.LabName {mustBeText} = nansen.getCurrentProject().Name;
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject
 end

@@ -18,18 +18,23 @@ projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json'
 projectInfo = jsondecode(fileread(projectFile));
 
 % Get current data table from project
-project = nansen.getCurrentProject;
-fileMetaTable = project.MetaTableCatalog.getMetaTable('File');
-dataTable_project = fileMetaTable.entries;
+project = options.Project;
+if ismember('Subject',project.MetaTableCatalog.Table.MetaTableName)
+    fileMetaTable = options.Project.MetaTableCatalog.getMetaTable('File');
+    dataTable_project = fileMetaTable.entries;
+else
+    dataTable_project = table();
+end
+
+% Only include files for current session
 if ~isempty(dataTable_project)
-    % Only include files for current session
     indSession = strcmp(dataTable_project.SessionIdentifier, session.id);
     dataTable_session = dataTable_project(indSession, :);
 else
     dataTable_session = table();
 end
 
-% Add new subjects (if necessary)
+% Add new subjects
 subjectIdentifiers = intersect(dataTable.Properties.VariableNames,...
     projectInfo.subjectIdentifierFields);
 subjectTable = ndi.nansen.import.subject(session,dataTable(:,subjectIdentifiers),...
@@ -38,11 +43,7 @@ subjectTable = ndi.nansen.import.subject(session,dataTable(:,subjectIdentifiers)
 % Add the subject information to the dataTable
 [indMatch,numMatch] = ndi.nansen.fun.matchTables(dataTable(:,subjectIdentifiers),...
     subjectTable(:,subjectIdentifiers));
-subjectTable_data = table();
-subjectVars = [projectInfo.subjectIdentifierFields;{'SubjectIdentifier';...
-    'SubjectDocumentIdentifier';'SessionIdentifier';'SessionName';...
-    'SessionPath';'SubjectLocalIdentifier'}];
-for i = 1:numel(indMatch)
+for i = 1:height(dataTable)
     ind = indMatch{i};
     if numMatch(i) > 1
         warning('More than one match found. Skipping second match. Consult NDI to discuss resolutions.')
@@ -50,9 +51,9 @@ for i = 1:numel(indMatch)
     elseif numMatch(i) == 0
         continue
     end
-    subjectTable_data(end+1,:) = subjectTable(ind,subjectVars);
+    dataTable.SubjectIdentifier(i) = subjectTable.SubjectIdentifier(ind);
 end
-dataTable = [removevars(dataTable,subjectIdentifiers),subjectTable_data];
+dataTable = removevars(dataTable,subjectIdentifiers);
 
 % Identify new and unique files
 fileIdentifiers = {'ElectronicFileName','SubjectIdentifier'};
@@ -66,22 +67,19 @@ end
 
 % Check whether there are new files to add
 if isempty(dataTable_new)
-    warning('No new data files found.')
+    disp('No new data files found.')
     dataTable = dataTable_project;
     return
 end
 
 % Add metadata
 numFiles = height(dataTable_new);
-dataTable_new.FileDocumentIdentifier = repmat({''},numFiles,1);
 dataTable_new.FileIdentifier = cellstr(num2hex(rand(numFiles,1) + randi(32727*[-1 1],numFiles,1)));
-dataTable_new.DateAdded = repmat(datetime('now','TimeZone','UTC'),numFiles,1);
-dataTable_new.Cloud = false(numFiles, 1);
 
 % Add data table to nansen
-ndi.nansen.metatable.add(dataTable_new,'File');
+ndi.nansen.metatable.merge(dataTable_new,'File','Project',options.Project);
 
-% Return new data table
+% Return data table
 fileMetaTable = project.MetaTableCatalog.getMetaTable('File');
 dataTable = fileMetaTable.entries;
 

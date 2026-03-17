@@ -31,28 +31,20 @@ function varargout = auto(sessionObject, varargin)
     
     % --- Implementation of the method ---
 
-    % Get session object
+     % Get dataset and session objects
+    dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
     session = ndi.session.dir(sessionObject.SessionPath);
 
     % Add files to session
     dataTable = ndi.nansen.import.file.auto(session);
 
-    % Add cloud status to data table
-    dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
-    statusTable = ndi.nansen.sync.status(dataset);
-    [Lia, Locb] = ismember(dataTable.FileDocumentIdentifier, statusTable.DocumentIdentifier);
-    dataTable.Cloud = false(height(dataTable), 1);
-    dataTable.Cloud(Lia) = statusTable.Cloud(Locb(Lia));
+    if isempty(dataTable); return; end
 
-    % Add files to metatable
-    ndi.nansen.metatable.add(dataTable,'File');
-
-    % Update Subject and Session metatables
-    subjectTable = ndi.nansen.metatable.subject(session);
-    ndi.nansen.metatable.add(subjectTable, 'Subject');
-
-    sessionTable = ndi.nansen.metatable.session(session);
-    ndi.nansen.metatable.add(sessionTable, 'Session');
+    % Update metatables
+    ndi.nansen.metatable.update(dataset,'Subject');
+    ndi.nansen.metatable.update(dataset,'File'); % file needs to inheret info from new subjects
+    ndi.nansen.metatable.update(dataset,'Subject','UpdateVariableNames',{'NumFiles','DataTypeName'}); % subject needs # files & datatypes
+    ndi.nansen.metatable.update(dataset,'Session');
 
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionObject}; end

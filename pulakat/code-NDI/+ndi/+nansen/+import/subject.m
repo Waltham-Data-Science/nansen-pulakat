@@ -100,11 +100,14 @@ subjectTable_new = subjectTable_new(indUnique,:);
 
 % Check whether there are new subjects to add
 if isempty(subjectTable_new)
-    warning('No new subjects found.')
+    disp('No new subjects found.')
     subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
     subjectTable = subjectMetaTable.entries;
     return
 end
+
+% Check subjects to import with user
+subjectTable_new = ndi.nansen.fun.editImportTableGUI(subjectTable_new,'Subject');
 
 % Add session id to subject table
 numSubjects = height(subjectTable_new);
@@ -116,6 +119,10 @@ subjectTable_new{:,'SubjectIdentifier'} = cellstr(num2hex(rand(numSubjects,1) + 
 
 % Add subject table to nansen
 ndi.nansen.metatable.merge(subjectTable_new,'Subject','Project',options.Project);
+
+% Return subject table
+subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
+subjectTable = subjectMetaTable.entries;
 
 end
 
