@@ -19,8 +19,8 @@ projectInfo = jsondecode(fileread(projectFile));
 
 % Get current data table from project
 project = options.Project;
-if ismember('Subject',project.MetaTableCatalog.Table.MetaTableName)
-    fileMetaTable = options.Project.MetaTableCatalog.getMetaTable('File');
+if ismember('File',project.MetaTableCatalog.Table.MetaTableName)
+    fileMetaTable = project.MetaTableCatalog.getMetaTable('File');
     dataTable_project = fileMetaTable.entries;
 else
     dataTable_project = table();

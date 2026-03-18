@@ -1,4 +1,4 @@
-function varargout = auto(sessionObject, varargin)
+function varargout = files(sessionObject, varargin)
 %AUTO Imports subjects for a session into NDI and updates the metatable.
 %
 %   This session method identifies subjects associated with the session,

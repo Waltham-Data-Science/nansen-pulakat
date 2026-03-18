@@ -93,9 +93,11 @@ else
     subjectTable_new = subjectTable(numMatch == 0,:);
 end
 
-% Verify subjects are unique. Remove any duplicates
+% Verify subjects are unique. Remove any duplicates or empties
 [~,indUnique] = unique(subjectTable_new(:,subjectIdentifiers),'stable');
 subjectTable_new = subjectTable_new(indUnique,:);
+allEmpty = all(cellfun(@(x) isempty(x), subjectTable_new{:,subjectIdentifiers}),2);
+subjectTable_new(allEmpty,:) = [];
 
 % Check whether there are new subjects to add
 if isempty(subjectTable_new)
@@ -106,7 +108,13 @@ if isempty(subjectTable_new)
 end
 
 % Check subjects to import with user
-subjectTable_new = ndi.nansen.fun.editImportTableGUI(subjectTable_new,'Subject');
+[~,ind] = intersect({projectInfo.subjectFileColumns.name}',subjectIdentifiers);
+idShortNames = {projectInfo.subjectFileColumns(ind).value}';
+subjectTable_new = renamevars(subjectTable_new,subjectIdentifiers,idShortNames);
+subjectTable_new = ndi.nansen.fun.editImportTableGUI(subjectTable_new,'Subject',...
+    'Prompt',['The following subjects were detected, but have not yet been imported. ' ...
+    'Carefully confirm and ensure that each subject has a fully unique set of identifiers.']);
+subjectTable_new = renamevars(subjectTable_new,idShortNames,subjectIdentifiers);
 
 % Add session id to subject table
 numSubjects = height(subjectTable_new);
