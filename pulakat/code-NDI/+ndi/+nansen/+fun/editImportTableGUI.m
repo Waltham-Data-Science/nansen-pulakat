@@ -1,35 +1,56 @@
-function dataTable = editImportTableGUI(dataTable,dataName)
+function dataTable = editImportTableGUI(dataTable,dataName,options)
 
 % Input argument validation
 arguments
     dataTable table
     dataName {mustBeTextScalar} = 'Data'
+    options.DropDown struct = struct('VariableName', {}, 'Values', {})
+    options.Editable {mustBeText} = dataTable.Properties.VariableNames
+    options.AddRow (1,1) logical = true
+    options.Prompt {mustBeTextScalar} = {''};
 end
 
-% 1. Create a modern UI Figure
-fig = uifigure('Name', [dataName,' Import Editor'], 'Position', [100 100 700 500]);
+% 1. Create the modern UI Figure
+fig = uifigure('Name', [dataName,' Import Editor'], 'Position', [100 100 800 650]);
+movegui(fig, 'center');
 
-% 2. Create the Table
+% 2. Create Column Formats
+colFormats = repmat({[]},1,width(dataTable));
+if ~isempty(options.DropDown)
+    for i = 1:numel(options.DropDown)
+        colIdx = find(strcmp(dataTable.Properties.VariableNames, options.DropDown(i).VariableName));
+        if ~isempty(colIdx)
+            colFormats{colIdx} = cellstr(options.DropDown(i).Values(:)');
+        end
+    end
+end
+
+% 3. Create the UI Table
+isEditable = contains(dataTable.Properties.VariableNames, cellstr(options.Editable));
 uit = uitable(fig, ...
-    'Data', dataTable, ...
-    'Position', [20 80 660 400], ...
-    'ColumnEditable', true, ...
+    'Data', table2cell(dataTable), ...
+    'ColumnName', dataTable.Properties.VariableNames, ... % Set headers manually
+    'Position', [20 80 760 500], ...
+    'ColumnEditable', isEditable, ...
+    'ColumnFormat', colFormats, ...
     'SelectionType', 'row', ...       % Allows row-based highlighting
     'MultiSelect', 'on');             % Allow selecting multiple rows with Shift/Ctrl
 
-% 3. Delete Button
+% 4. Delete Button
 uibutton(fig, 'Text', 'Delete Selected', ...
-    'Position', [20 30 120 30], ...
+    'Position', [20 30 100 30], ...
     'ButtonPushedFcn', @(btn, event) deleteSelected(uit));
 
-% 4. Add row button
-uibutton(fig, 'Text', 'Add Row', ...
-    'Position', [150 30 120 30], ...
-    'ButtonPushedFcn', @(btn, event) addRow(uit));
+% 5. Add row button
+if options.AddRow
+    uibutton(fig, 'Text', 'Add Row', ...
+        'Position', [130 30 120 30], ...
+        'ButtonPushedFcn', @(btn, event) addRow(uit));
+end
 
-% 5. Save/Export Button
+% 6. Save/Export Button
 uibutton(fig, 'Text', 'Import', ...
-    'Position', [560 30 120 30], ...
+    'Position', [640 30 140 30], ...
     'BackgroundColor', [0.8 1 0.8], ...
     'ButtonPushedFcn', @(btn, event) confirmAndClose(fig, uit));
 
@@ -65,7 +86,9 @@ end
 
 function confirmAndClose(fig, uit)
     % Save the current state of the table into the figure's AppData
-    setappdata(fig, 'OutputData', uit.Data);
+    finalData = cell2table(uit.Data, 'VariableNames', uit.ColumnName);
+    setappdata(fig, 'OutputData', finalData);
+
     % Resume the function execution
     uiresume(fig);
 end
@@ -95,10 +118,8 @@ function addRow(uit)
         elseif isduration(val)
             newRow{1,i} = seconds(0);
         elseif iscell(val)
-            % This fixes your error: if it's a cell, wrap the string in a cell
             newRow{1,i} = {''}; 
         else
-            % For modern strings or other types
             newRow{1,i} = ""; 
         end
     end
