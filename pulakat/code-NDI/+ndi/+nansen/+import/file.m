@@ -54,6 +54,7 @@ for i = 1:height(dataTable)
     dataTable.SubjectIdentifier(i) = subjectTable.SubjectIdentifier(ind);
 end
 dataTable = removevars(dataTable,subjectIdentifiers);
+dataTable(numMatch == 0,:) = [];
 
 % Identify new and unique files
 fileIdentifiers = {'ElectronicFileName','SubjectIdentifier'};
@@ -84,4 +85,3 @@ fileMetaTable = project.MetaTableCatalog.getMetaTable('File');
 dataTable = fileMetaTable.entries;
 
 end
-

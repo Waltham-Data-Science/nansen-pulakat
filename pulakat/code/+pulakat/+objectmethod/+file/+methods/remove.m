@@ -35,44 +35,16 @@ function varargout = remove(filesObject, varargin)
     % Convert files object to table
     fileTable = struct2table(filesObject);
 
-    % Check the file status
-    if all(fileTable.Cloud)
-        error('Files that are already synced to the cloud cannot be deleted.')
-    elseif any(fileTable.Cloud)
-        warning('Only files that not already synced to the cloud were deleted.')
-        fileTable(fileTable.Cloud,:) = []; % remove cloud files from table
+     % Check the subject status
+    indDocument = ~strcmp(fileTable.FileDocumentIdentifier,'N/A');
+    if all(indDocument)
+        error('Subjects that are already documents cannot be deleted.')
+    elseif any(indDocument)
+        warning('Only subjects that are not already documents were deleted.')
+        fileTable(indDocument,:) = []; % remove document subjects from table
     end
 
-    % Get unique sessions
-    sessionPaths = cellstr(fileTable.SessionPath);
-    [sessionPaths_unique,~,ind] = unique(sessionPaths,'stable');
-    for i = 1:numel(sessionPaths_unique)
-
-        % Get session object
-        session = ndi.session.dir(sessionPaths_unique{i});
-
-        % Delete file document(s) from session
-        % Also delete the file on disk if it exists
-        fileIDs = cellstr(fileTable.FileDocumentIdentifier);
-        fileIDs = fileIDs(ind == i);
-        for j = 1:numel(fileIDs)
-            doc = session.database_search(ndi.query('','isa','generic_file') & ...
-                ndi.query('base.id','exact_string',fileIDs{j}));
-            if ~isempty(doc)
-                % Delete associated ontologyLabel as well
-                labelDoc = session.database_search(ndi.query('','isa','ontologyLabel') & ...
-                    ndi.query('depends_on.value','exact_string',fileIDs{j}));
-                if ~isempty(labelDoc)
-                    session.database_rm(labelDoc{1}.id);
-                end
-
-                % Delete generic_file doc and file on disk
-                session.database_rm(doc{1}.id);
-            end
-        end
-    end
-
-    % Remove file(s) from metatable
+    % Remove subject(s) from metatable
     ndi.nansen.metatable.remove(fileTable,'File');
 
     % Return session object (please do not remove):

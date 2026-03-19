@@ -36,28 +36,22 @@ function varargout = remove(subjectObject, varargin)
     subjectTable = struct2table(subjectObject,'AsArray',true);
     
     % Check the subject status
-    if all(subjectTable.Cloud)
-        error('Subjects that are already synced to the cloud cannot be deleted.')
-    elseif any(subjectTable.Cloud)
-        warning('Only subjects that not already synced to the cloud were deleted.')
-        subjectTable(subjectTable.Cloud,:) = []; % remove cloud subjects from table
-    end
-
-    % Get unique sessions
-    sessionPaths = cellstr(subjectTable.SessionPath);
-    [sessionPaths_unique,~,ind] = unique(sessionPaths,'stable');
-    for i = 1:numel(sessionPaths_unique)
-
-        % Get session object
-        session = ndi.session.dir(sessionPaths_unique{i});
-
-        % Delete subject(s) from session
-        subjectIDs = cellstr(subjectTable.SubjectDocumentIdentifier);
-        session.database_rm(subjectIDs(ind == i));
+    indDocument = ~strcmp(subjectTable.SubjectDocumentIdentifier,'N/A');
+    if all(indDocument)
+        error('Subjects that are already documents cannot be deleted.')
+    elseif any(indDocument)
+        warning('Only subjects that are not already documents were deleted.')
+        subjectTable(indDocument,:) = []; % remove document subjects from table
     end
 
     % Remove subject(s) from metatable
     ndi.nansen.metatable.remove(subjectTable,'Subject');
+
+    % Remove associated file(s) from metatble
+    project = nansen.getCurrentProject;
+    fileTable = project.MetaTableCatalog.getMetaTable('File');
+    indRemove = ismember(fileTable.entries.SubjectIdentifier,subjectTable.SubjectIdentifier);
+    ndi.nansen.metatable.remove(fileTable.entries(indRemove,:),'File');
 
     % Return session object (please do not remove):
     % if nargout; varargout = {subjectsObject}; end

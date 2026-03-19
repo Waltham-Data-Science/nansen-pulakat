@@ -27,19 +27,15 @@ end
 
 % Get current subject table from project
 project = options.Project;
-if ismember('Subject',project.MetaTableCatalog.Table.MetaTableName)
-    subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
-    subjectTable_project = subjectMetaTable.entries;
-else
-    subjectTable_project = table();
-end
+subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
+subjectTable_project = subjectMetaTable.entries;
 
 % Only include subjects for current session
 if ~isempty(subjectTable_project)
     indSession = strcmp(subjectTable_project.SessionIdentifier, session.id);
     subjectTable_session = subjectTable_project(indSession, :);
 else
-    subjectTable_session = table();
+    subjectTable_session = subjectTable_project;
 end
 
 % Identify new and unique subjects
@@ -93,9 +89,8 @@ else
     subjectTable_new = subjectTable(numMatch == 0,:);
 end
 
-% Verify subjects are unique. Remove any duplicates or empties
-[~,indUnique] = unique(subjectTable_new(:,subjectIdentifiers),'stable');
-subjectTable_new = subjectTable_new(indUnique,:);
+% Resolve conflicts
+subjectTable_new = ndi.nansen.fun.getCompleteUniqueRows(subjectTable_new);
 allEmpty = all(cellfun(@(x) isempty(x), subjectTable_new{:,subjectIdentifiers}),2);
 subjectTable_new(allEmpty,:) = [];
 
@@ -113,8 +108,10 @@ idShortNames = {projectInfo.subjectFileColumns(ind).value}';
 subjectTable_new = renamevars(subjectTable_new,subjectIdentifiers,idShortNames);
 subjectTable_new = ndi.nansen.fun.editImportTableGUI(subjectTable_new,'Subject',...
     'Prompt',['The following subjects were detected, but have not yet been imported. ' ...
-    'Carefully confirm and ensure that each subject has a fully unique set of identifiers.']);
+    'Carefully confirm and ensure that each subject has a fully unique set of identifiers ' ...
+    '(i.e. ',strjoin(idShortNames,', '),').']);
 subjectTable_new = renamevars(subjectTable_new,idShortNames,subjectIdentifiers);
+subjectTable_new = unique(subjectTable_new);
 
 % Add session id to subject table
 numSubjects = height(subjectTable_new);
@@ -132,4 +129,3 @@ subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
 subjectTable = subjectMetaTable.entries;
 
 end
-

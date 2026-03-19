@@ -27,7 +27,7 @@ end
 
 % If no rows in table B, return empty
 if isempty(B)
-    indMatch = cell(height(A),1);
+    matches = cell(height(A),1);
     numMatch = zeros(height(A),1);
     return
 end
@@ -38,27 +38,29 @@ identifyingVariables = intersect(B.Properties.VariableNames,...
 identifyingVariables = setdiff(identifyingVariables,cellstr(excludeVariables), 'stable');
 
 % Get the indices of each variable name
-indMatch = zeros(height(A),numel(identifyingVariables));
+matches = cell(height(A),numel(identifyingVariables));
 for i = 1:numel(identifyingVariables)
     dataA = A.(identifyingVariables{i});
     dataB = B.(identifyingVariables{i});
 
-    [~,indSubject] = ismember(dataA,dataB);
+    % Get all matches
+    matches(:,i) = cellfun(@(s) find(strcmp(s, dataB)), dataA, 'UniformOutput', false);
 
     % Create a mask to ignore matches that are just empty strings
     % This ensures {0x0 char} in A doesn't "match" {0x0 char} in B
-    if iscellstr(dataA) || isstring(dataB)
-        isValEmpty = cellfun(@(x) isempty(x) || strcmp(x,'N/A'), dataA);
-        indSubject(isValEmpty) = 0; 
+    if iscellstr(dataA) || isstring(dataA)
+        indEmpty = cellfun(@(x) isempty(x) || strcmp(x,'N/A'), dataA);
+        matches(indEmpty,i) = {[]};
     end
-
-    indData = indSubject > 0;
-    indMatch(indData,i) = indSubject(indData);
 end
 
 % Get unique indices of table B matching each row in table A
-indMatch = num2cell(indMatch,2);
-indMatch = cellfun(@(x) unique(x(x > 0)),indMatch,'UniformOutput',false);
+indMatch = cell(height(matches), 1);
+for i = 1:height(matches)
+    rowCells = matches(i, :);
+    combined = vertcat(rowCells{:});
+    indMatch{i} = unique(combined);
+end
 
 % Get count of unique table B matches per row in table A
 numMatch = cellfun(@numel,indMatch);
