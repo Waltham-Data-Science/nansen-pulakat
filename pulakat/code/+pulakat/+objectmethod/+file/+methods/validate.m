@@ -1,4 +1,4 @@
-function varargout = check(fileObject, varargin)
+function varargout = validate(fileObject, varargin)
 %CHECK Validates metadata for selected files.
 %
 %   This object method checks if the metadata for the selected files

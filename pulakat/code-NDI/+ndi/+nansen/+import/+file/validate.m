@@ -1,4 +1,4 @@
-function [isValid, errorReport] = validate(fileTable)
+function [isValid, errorReport] = validate(fileTable,options)
 %VALIDATE Validates file metadata against project requirements.
 %
 %   [ISVALID, ERRORREPORT] = VALIDATE(FILETABLE) checks if the provided
@@ -12,11 +12,20 @@ function [isValid, errorReport] = validate(fileTable)
 %       isValid (logical): True if all checked rows are valid.
 %       errorReport (cellstr): A list of formatted error messages.
 
+% Input argument validation
+arguments
+    fileTable table
+    options.LabName {mustBeText} = nansen.getCurrentProject().Name;
+end
+
+% Convert inputs to char arrays for internal processing
+labName = char(options.LabName);
+
 % Get project info
-project = nansen.getCurrentProject;
-labName = project.Name;
 projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
 projectInfo = jsondecode(fileread(projectFile));
+
+% Get supported data types
 validDataTypes = {projectInfo.dataFileTypes.DataTypeName};
 
 % Filter rows that need validation (no DocumentIdentifier)

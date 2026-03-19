@@ -5,13 +5,14 @@ arguments
     dataTable table
     options.Title {mustBeTextScalar} = 'Record Selector';
     options.AddRow (1,1) logical = true
-    options.Prompt {mustBeTextScalar} = ''; % New Option
+    options.Prompt {mustBeTextScalar} = ''
+    options.Default = true
 end
 
 % 1. Prepare Data: Add a 'Select' column at the start if it doesn't exist
 numRows = height(dataTable);
 if ~ismember('Select', dataTable.Properties.VariableNames)
-    dataTable{:,'Select'} = false; 
+    dataTable{:,'Select'} = options.Default; 
     dataTable = movevars(dataTable,'Select','Before',1);
 end
 
@@ -60,6 +61,13 @@ if options.AddRow
         'Position', [20 30 140 30], ...
         'ButtonPushedFcn', @(btn, event) addRow(uit));
 end
+
+% Bulk Selection Buttons (Middle)
+uibutton(fig, 'Text', 'Select All', 'Position', [130 30 100 30], ...
+    'ButtonPushedFcn', @(btn, event) toggleAll(uit, true));
+
+uibutton(fig, 'Text', 'Deselect All', 'Position', [240 30 100 30], ...
+    'ButtonPushedFcn', @(btn, event) toggleAll(uit, false));
 
 uibutton(fig, 'Text', 'Confirm Selection', ...
     'Position', [640 30 140 30], ...
@@ -145,4 +153,17 @@ function validateEdit(src, event, origHeight)
         src.Data = lastGoodData;
         uialert(src.Parent, 'Original data rows are locked. You can only change the "Select" status.', 'Locked Cell');
     end
+end
+
+function toggleAll(uit, state)
+    % state is true (Select All) or false (Unselect All)
+    tempData = uit.Data;
+    if isempty(tempData); return; end
+    
+    % Update the first column ('Select') for all rows
+    tempData.Select(:) = state;
+    uit.Data = tempData;
+    
+    % Also update the CleanData backup so validation doesn't revert it
+    setappdata(uit, 'CleanData', tempData);
 end

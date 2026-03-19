@@ -1,4 +1,4 @@
-function varargout = check(subjectObject, varargin)
+function varargout = validate(subjectObject, varargin)
 %CHECK Validates metadata for selected subjects.
 %
 %   This object method checks if the metadata for the selected subjects

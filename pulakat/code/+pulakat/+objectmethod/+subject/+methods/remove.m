@@ -44,14 +44,32 @@ function varargout = remove(subjectObject, varargin)
         subjectTable(indDocument,:) = []; % remove document subjects from table
     end
 
+    % Confirm subjects to remove
+    [subjectTable] = ndi.nansen.fun.selectionPickerGUI(subjectTable,...
+        'Prompt',['Deleting subjects cannot be undone. ' ...
+        'Carefully select which subject(s) you wish to delete. ' ...
+        'Deleting these subjects will also delete associated files.'], ...
+        'Default',true,'AddRow',false);
+    if isempty(subjectTable)
+        return
+    end
+
     % Remove subject(s) from metatable
     ndi.nansen.metatable.remove(subjectTable,'Subject');
 
-    % Remove associated file(s) from metatble
+    % Remove associated file(s) from metatable
     project = nansen.getCurrentProject;
     fileTable = project.MetaTableCatalog.getMetaTable('File');
     indRemove = ismember(fileTable.entries.SubjectIdentifier,subjectTable.SubjectIdentifier);
     ndi.nansen.metatable.remove(fileTable.entries(indRemove,:),'File');
+
+    % Get dataset object
+    dataset = ndi.nansen.fun.datasetID2Object(unique(subjectTable.DatasetIdentifier));
+
+    % Update metatables
+    ndi.nansen.metatable.update(dataset,'Subject');
+    ndi.nansen.metatable.update(dataset,'File');
+    ndi.nansen.metatable.update(dataset,'Session');
 
     % Return session object (please do not remove):
     % if nargout; varargout = {subjectsObject}; end

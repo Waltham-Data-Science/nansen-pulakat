@@ -1,4 +1,4 @@
-function [subjectTable] = documents(session, options)
+function [subjectTable] = documents(session, subjectTable, options)
 %CREATEDOCUMENTS Creates NDI subject documents tethered to Sessions.
 %
 %   This function implements the Tier 2 -> Tier 3 hierarchical sync.
@@ -7,6 +7,7 @@ function [subjectTable] = documents(session, options)
 % Input argument validation
 arguments
     session {mustBeA(session,{'ndi.session.dir'})}
+    subjectTable table
     options.LabName {mustBeText} = nansen.getCurrentProject().Name;
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
 end
@@ -24,10 +25,10 @@ tableDocMaker = ndi.setup.NDIMaker.tableDocMaker(session,labName);
 % Get subject metatable
 project = options.Project;
 subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
-subjectTable = subjectMetaTable.entries;
+subjectTable_session = subjectMetaTable.entries;
 
 % Identify new subjects
-indNew = ~ndi.fun.table.identifyValidRows(subjectTable,'SubjectDocumentIdentifier',{''});
+indNew = ~ndi.fun.table.identifyValidRows(subjectTable,'SubjectDocumentIdentifier',{'N/A'});
 subjectTable{:,'LabName'} = labName;
 subjectTable_new = subjectTable(indNew,:);
 

@@ -19,59 +19,32 @@ function [metaTable] = edit(dataTable, dataName, options)
 
 % Input argument validation
 arguments
-    dataTable (1,:) table
+    dataTable table
     dataName {mustBeMember(dataName,{'Dataset','Session','Subject','File'})}
-    options.LabName {mustBeTextScalar} = nansen.getCurrentProject().Name;
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
 end
 
-% Convert inputs to char arrays for internal processing
-labName = char(options.LabName);
-
-% Get project info
-projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
-projectInfo = jsondecode(fileread(projectFile));
-
 % Get metatable
 metaTable = options.Project.MetaTableCatalog.getMetaTable(dataName);
-rowInd = metaTable.getIndexById(dataTable.(metaTable.MetaTableIdVarname){1});
+rowInd = cellfun(@(id) metaTable.getIndexById(id),dataTable.(metaTable.MetaTableIdVarname));
 
-% Set default editable variables if not provided
-switch dataName
-    case 'Dataset'
-        editableVars = {'TotalDocuments','CloudDocuments','DatasetUpdated'};
-    case 'Session'
-        editableVars = {'NumSubjects';'NumFiles';'DataTypeName';'Cloud'};
-    case'Subject'
-        editableVars = {'NumFiles';'DataTypeName';'Cloud'};
-    case 'File'
-        editableVars = {'Cloud'};
-end
-
-% Check if row already has an NDI document
-documentID = metaTable.entries.([dataName,'DocumentIdentifier']){rowInd};
-if isempty(documentID)
-    switch dataName
-        case'Subject'
-            editableVars = [editableVars;{projectInfo.subjectFileColumns.name}';...
-                {'SubjectDocumentIdentifier';'SubjectLocalIdentifier';'ElectronicFileName'}];
-        case 'File'
-            editableVars = [editableVars;{projectInfo.subjectFileColumns.name}';...
-                'SubjectDocumentIdentifier';'FileDocumentIdentifier'];
-    end
-end
-
-% Remove any variables that don't exist in the data table
-editableVars = intersect(cellstr(editableVars),...
-    dataTable.Properties.VariableNames);
+% Check if row(s) already have an NDI document
+documentID = metaTable.entries.([dataName,'DocumentIdentifier'])(rowInd);
+hasDocument = cellfun(@(id) ~strcmp(id,'N/A'),documentID);
 
 % Update Nansen metatable values
-for i = 1:numel(editableVars)
-    newValue = dataTable{1, editableVars{i}};
-    oldValue = metaTable.entries{rowInd,editableVars{i}};
-    if ~isequaln(newValue,oldValue) && ... % old and new are not equal
-            ~isempty(newValue) && ~isequal(newValue,{''}) % new is not empty
-        metaTable.editEntries(rowInd,editableVars{i},newValue);
+for i = 1:height(dataTable)
+    if hasDocument(i)
+        continue
+    end
+    for j = 1:width(dataTable)
+        varName = dataTable.Properties.VariableNames{j};
+        newValue = dataTable{i, varName};
+        oldValue = metaTable.entries{rowInd(i),varName};
+        if ~isequaln(newValue,oldValue) && ... % old and new are not equal
+                ~isempty(newValue) && ~isequal(newValue,{''}) && ~isequal(newValue,{'N/A'}) % new is not empty
+            metaTable.editEntries(rowInd(i),varName,newValue);
+        end
     end
 end
 metaTable.save();
