@@ -6,7 +6,7 @@ classdef StrainName < nansen.metadata.abstract.TableVariable
     
     properties (Constant)
         IS_EDITABLE = false
-        DEFAULT_VALUE = {'N/A'}
+        DEFAULT_VALUE = {''}
     end
     
     methods

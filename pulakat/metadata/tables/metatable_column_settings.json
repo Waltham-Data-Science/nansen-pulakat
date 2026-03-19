@@ -166,7 +166,7 @@
     "ColumnLabel": "BioSex",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 51,
+    "ColumnWidth": 68,
     "IsEditable": false,
     "ColumnOrder": 23
   },
@@ -193,7 +193,7 @@
     "ColumnLabel": "Cage",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 43,
+    "ColumnWidth": 70,
     "IsEditable": false,
     "ColumnOrder": 16
   },
@@ -211,7 +211,7 @@
     "ColumnLabel": "Treatment",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 62,
+    "ColumnWidth": 87,
     "IsEditable": false,
     "ColumnOrder": 19
   },
@@ -220,7 +220,7 @@
     "ColumnLabel": "Original File Name",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 180,
+    "ColumnWidth": 524,
     "IsEditable": false,
     "ColumnOrder": 32
   },
@@ -274,7 +274,7 @@
     "ColumnLabel": "Data Type",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 171,
+    "ColumnWidth": 257,
     "IsEditable": false,
     "ColumnOrder": 28
   },
