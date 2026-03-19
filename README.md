@@ -1,48 +1,82 @@
-## nansen-pulakat
+# nansen-pulakat: Nansen-NDI Integration
 
-First time:
+This repository provides an integration between the **Nansen** data management framework and the **Neuroscience Data Interface (NDI)**. It is specifically configured for the **Pulakat Lab**, but the core logic is designed to be extensible.
 
-1. Make sure `git` is installed on your machine. If it is not, on Windows, go [here](https://git-scm.com/download/win). On Mac, open a terminal, and type `xcode-select --install`. Accept the license and wait for install. On Linux, consult your Linux distribution's package manager.
-2. Download the file [![download](https://img.shields.io/badge/_-install.m-blue?logo=github)](https://github.com/Waltham-Data-Science/nansen-pulakat/raw/main/install.m). Note: If the link opens as text in your browser, simply press Ctrl+S (or Cmd+S) and save it to your computer as `install.m`.
-3. Run `install.m` in MATLAB.
+## Getting Started
 
-Subsequent uses:
+### First Time Setup
+1.  **Git Installation:** Make sure `git` is installed.
+    - **Windows:** Download from [git-scm.com](https://git-scm.com/download/win).
+    - **Mac:** Open terminal and run `xcode-select --install`.
+    - **Linux:** Use your distribution's package manager.
+2.  **Download Installer:** Download [install.m](https://github.com/Waltham-Data-Science/nansen-pulakat/raw/main/install.m).
+3.  **Run in MATLAB:** Execute `install.m` in the MATLAB Command Window.
 
-Run `pulakat.startup` to open the GUI.
+### Subsequent Uses
+Run `pulakat.startup` to initialize the environment, sync with the NDI cloud, and open the Nansen GUI.
 
-### Using the GUI
+---
 
-This repository provides a graphical user interface (GUI) for managing experimental data. Below are instructions for common tasks.
+## Workflow Overview
 
-#### 1. Adding a Session
-A "Session" represents a single experimental session (e.g., a specific day or recording).
-1. Open the **Dataset** table from the main menu.
-2. Select your dataset from the list.
-3. In the **Methods** menu, select **Import > Session**.
-4. Follow the prompts to select the session directory.
+1.  **Import Session:** Add a new experimental session (day/recording) to the Nansen Dataset table.
+2.  **Import Subjects:** Use **Import > Subjects > Auto** (detects from `animal_mapping.csv`) or **Manual** to add animals to a session.
+3.  **Import Files:** Use **Import > Files > Auto** or **Manual** to link data files (.svs, .bimg, etc.) to subjects.
+4.  **Validate & Edit:** Verify metadata and correct errors *before* committing to NDI.
+5.  **Commit/Sync:** Use the **Sync** method on the Dataset table to create NDI documents and upload to the cloud.
+6.  **Undo (Recovery):** If errors are found after commitment but before cloud sync, use the **Undo** method on the Dataset table to revert local NDI documents.
 
-#### 2. Adding Subjects
-Subjects (animals) can be added to a session automatically from metadata files or manually.
-1. In the **Dataset** table, select your dataset.
-2. In the **Methods** menu, select **Import > Subjects > Auto** to automatically find subjects in the session folder.
-3. Alternatively, select **Import > Subjects > Manual** to enter subject details (ID, Cage, Label, etc.) through a dialog.
-*Note: Subjects will not be added if required identification fields are missing.*
+---
 
-#### 3. Adding Files
-Experimental data files (images, metadata, etc.) can be added to subjects.
-1. Navigate to the **Subject** table (you can do this by selecting a session and viewing its subjects).
-2. Select one or more subjects.
-3. In the **Methods** menu, select **Import > Files > Auto** to automatically scan for files in the session directory.
-4. Or select **Import > Files > Manual** to pick specific files from your computer and assign them a data type and subject.
+## Nansen GUI Methods
 
-#### 4. Editing and Deleting
-- **To Edit:** Select the record you wish to change and find the **Edit** option in the **Methods** menu. A dialog will appear where you can update metadata.
-- **To Delete:** Select the records you wish to remove, and in the **Methods** menu, select **Remove**.
-*Note: Records that have already been synced to the cloud cannot be deleted or edited.*
+Methods are divided into "Session Methods" (Dataset table) and "Object Methods" (Subject/File tables).
 
-#### 5. Syncing to the Cloud
-Syncing ensures your local data is backed up and available to other lab members.
-1. Go to the **Dataset** table.
-2. Select the dataset you want to sync.
-3. In the **Methods** menu, select **Sync**.
-4. The system will upload new files and metadata to the cloud.
+### Session Methods (Dataset Table)
+
+| Method | Description |
+| :--- | :--- |
+| **Import > Session** | Select a session directory and give it a unique name. |
+| **Import > Subjects > Auto** | Detects and imports subjects from lab-standard metadata files. |
+| **Import > Subjects > Manual** | Enter subject details (ID, Cage, Label, Strain) manually. |
+| **Sync** | Creates NDI documents and performs a two-way sync with the cloud. |
+| **Undo** | Reverts local NDI document creations that haven't been synced yet. |
+
+### Object Methods (Subject Table)
+
+| Method | Description |
+| :--- | :--- |
+| **Validate** | Dry-run validation of metadata against NDI/openMINDS ontologies. |
+| **Edit** | Edit animal metadata (locked once synced to NDI). |
+| **Remove** | Delete the subject record from the local metatable. |
+
+### Object Methods (File Table)
+
+| Method | Description |
+| :--- | :--- |
+| **Import > Files > Auto** | Scans session directory for supported data types. |
+| **Import > Files > Manual** | Manually pick files and assign data types/subjects. |
+| **Validate** | Checks physical file existence and data type validity. |
+
+---
+
+## Identification & Synchronization
+
+### UUID Tethers
+Every record (Subject, File) is assigned an immutable `Nansen_UUID` (e.g., `Subject-xxxx...`). This identifier tethers the Nansen record to the corresponding NDI document, ensuring links survive metadata renames.
+
+### The Commitment Phase
+The **Sync** process implements a 4-Tier Hierarchical Ownership model:
+- **Dataset -> Session -> Subject -> Files**
+NDI documents are created with strict referential integrity (children depend on parent UIDs).
+
+---
+
+## Documentation for Developers
+
+Standard MATLAB help blocks are available for all core integration functions.
+```matlab
+help ndi.nansen.import.subject
+help ndi.nansen.fun.getIdentifier
+help ndi.nansen.sync.undo
+```
