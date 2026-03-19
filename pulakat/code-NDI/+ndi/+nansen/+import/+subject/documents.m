@@ -28,7 +28,7 @@ subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
 subjectTable_session = subjectMetaTable.entries;
 
 % Identify new subjects
-indNew = ~ndi.fun.table.identifyValidRows(subjectTable,'SubjectDocumentIdentifier',{'N/A'});
+indNew = cellfun(@(x) isempty(x) || strcmp(x, 'N/A'), subjectTable.SubjectDocumentIdentifier);
 subjectTable{:,'LabName'} = labName;
 subjectTable_new = subjectTable(indNew,:);
 

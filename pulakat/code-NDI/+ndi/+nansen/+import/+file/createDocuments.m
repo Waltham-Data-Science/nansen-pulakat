@@ -13,7 +13,14 @@ fileTypes = {projectInfo.dataFileTypes.DataTypeName};
 % (Logic discussed in ARCHITECTURE_REDESIGN.md)
 % Here we focus on the Hierarchical Tethering for Tier 4
 
-[dataFiles_unique,~,indUnique] = unique(dataTable(:,{'ElectronicFileName','DataTypeName'}),'stable');
+% Filter rows that need new documents (no FileDocumentIdentifier)
+indPending = cellfun(@(x) isempty(x) || strcmp(x, 'N/A'), dataTable.FileDocumentIdentifier);
+if ~any(indPending)
+    return;
+end
+dataTable_pending = dataTable(indPending, :);
+
+[dataFiles_unique,~,indUnique] = unique(dataTable_pending(:,{'ElectronicFileName','DataTypeName'}),'stable');
 
 % Create data documents
 [generic_file_docs,ontologyLabel_docs] = deal(cell(height(dataFiles_unique),1));
@@ -79,10 +86,13 @@ for i = 1:height(dataFiles_unique)
         'document_id',generic_file_doc.id);
     ontologyLabel_docs{i} = ontologyLabel_doc;
 
-    % Update dataTable with new FileDocumentIdentifier
+    % Update dataTable_pending with new FileDocumentIdentifier
     indRows = (indUnique == i);
-    dataTable.FileDocumentIdentifier(indRows) = {generic_file_doc.id};
+    dataTable_pending.FileDocumentIdentifier(indRows) = {generic_file_doc.id};
 end
+
+% Update original dataTable
+dataTable.FileDocumentIdentifier(indPending) = dataTable_pending.FileDocumentIdentifier;
 
 % Add files to database
 session.database_add(generic_file_docs);

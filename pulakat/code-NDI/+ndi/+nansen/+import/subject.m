@@ -69,9 +69,9 @@ else
         conflictMask = diffMask & ~aIsEmpty & bHasData;
         if any(conflictMask)
             % Log conflict or handle here
-            fprintf('Conflict found for row %d in variables: %s\n', ...
-                i, strjoin(commonVars(conflictMask), ', '));
-            % How do we want to deal with these conflicts?
+            warning('NDI:Nansen:SubjectConflict', ...
+                'Conflict found for subject matching %s in variables: %s. Existing data will be preserved.', ...
+                strjoin(cellstr(string(A(1, 1:min(3, end)))), ' '), strjoin(commonVars(conflictMask), ', '));
         end
 
         % 3. Update A with B's data ONLY where A was empty
@@ -119,7 +119,7 @@ subjectTable_new{:,'SessionIdentifier'} = {session.id};
 subjectTable_new{:,'SessionName'} = {session.reference};
 subjectTable_new{:,'SessionPath'} = {session.path};
 subjectTable_new{:,'DatasetIdentifier'} = ndi.nansen.fun.getMetaTableValue('Session','DatasetIdentifier',session.id);
-subjectTable_new{:,'SubjectIdentifier'} = cellstr(num2hex(rand(numSubjects,1) + randi(32727*[-1 1],numSubjects,1)));
+subjectTable_new{:,'SubjectIdentifier'} = ndi.nansen.fun.getIdentifier(subjectTable_new, 'Subject');
 
 % Add subject table to nansen
 ndi.nansen.metatable.merge(subjectTable_new,'Subject','Project',options.Project);

@@ -74,8 +74,7 @@ if isempty(dataTable_new)
 end
 
 % Add metadata
-numFiles = height(dataTable_new);
-dataTable_new.FileIdentifier = cellstr(num2hex(rand(numFiles,1) + randi(32727*[-1 1],numFiles,1)));
+dataTable_new.FileIdentifier = ndi.nansen.fun.getIdentifier(dataTable_new, 'File');
 
 % Add data table to nansen
 ndi.nansen.metatable.merge(dataTable_new,'File','Project',options.Project);

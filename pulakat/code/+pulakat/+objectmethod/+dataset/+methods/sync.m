@@ -81,7 +81,7 @@ function varargout = sync(datasetObject, varargin)
     subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
     subjectTable = subjectMetaTable.entries;
     if ~isempty(subjectTable)
-        indPending = cellfun(@isempty, subjectTable.SubjectDocumentIdentifier);
+        indPending = cellfun(@(x) isempty(x) || strcmp(x, 'N/A'), subjectTable.SubjectDocumentIdentifier);
     else
         indPending = false(0,1);
     end
@@ -121,7 +121,7 @@ function varargout = sync(datasetObject, varargin)
         fileTable.SubjectDocumentIdentifier(Lia) = subjectTable.SubjectDocumentIdentifier(indS(Lia));
         fileTable.SubjectLocalIdentifier(Lia) = subjectTable.SubjectLocalIdentifier(indS(Lia));
 
-        indPending = cellfun(@isempty, fileTable.FileDocumentIdentifier);
+        indPending = cellfun(@(x) isempty(x) || strcmp(x, 'N/A'), fileTable.FileDocumentIdentifier);
     else
         indPending = false(0,1);
     end
