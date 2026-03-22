@@ -24,7 +24,6 @@ Run `pulakat.startup` to initialize the environment, sync with the NDI cloud, an
 3.  **Import Files:** Use **Import > Files > Auto** or **Manual** to link data files (.svs, .bimg, etc.) to subjects.
 4.  **Validate & Edit:** Verify metadata and correct errors *before* committing to NDI.
 5.  **Commit/Sync:** Use the **Sync** method on the Dataset table to create NDI documents and upload to the cloud.
-6.  **Undo (Recovery):** If errors are found after commitment but before cloud sync, use the **Undo** method on the Dataset table to revert local NDI documents.
 
 ---
 
@@ -40,7 +39,6 @@ Methods are divided into "Session Methods" (Dataset table) and "Object Methods" 
 | **Import > Subjects > Auto** | Detects and imports subjects from lab-standard metadata files. |
 | **Import > Subjects > Manual** | Enter subject details (ID, Cage, Label, Strain) manually. |
 | **Sync** | Creates NDI documents and performs a two-way sync with the cloud. |
-| **Undo** | Reverts local NDI document creations that haven't been synced yet. |
 
 ### Object Methods (Subject Table)
 
