@@ -1,34 +1,41 @@
 function [status,repoPath] = repo(repoReference, options)
 %REPO Synchronize, update, and add repository to MATLAB path.
 %
-%   STATUS = ndi.nansen.sync.repo(REPOREFERENCE) resolves a repository from 
-%   a folder, function name, or URL, pulls updates, and updates the MATLAB path.
+%   STATUS = REPO(REPOREFERENCE) resolves a repository from a folder,
+%   function name, or URL, pulls updates, and updates the MATLAB path.
 %
-%   INPUT ARGUMENTS:
-%       repoReference : char array or string
+%   STATUS = REPO(REPOREFERENCE, 'Branch', BRANCHNAME) switches the
+%   repository to the specified branch.
+%
+%   STATUS = REPO(REPOREFERENCE, 'ClonePath', CLONEPATH) clones the
+%   repository to the specified directory if it is not found locally.
+%
+%   Inputs:
+%       repoReference (char or string):
 %           The reference used to find the repository. Can be:
 %           - A local directory path: '/Users/Name/Documents/MATLAB/ndi/tools/NDI-matlab'
 %           - A function/class name: 'ndi.session'
 %           - A Git URL: 'https://github.com/VH-Lab/NDI-matlab'
 %
-%   NAME-VALUE PAIRS:
-%       'Branch'      : char array or string (Default: '')
+%       options.Branch (char or string): Optional. Default is ''.
 %           The name of the Git branch to switch to (e.g., 'development'). 
 %           If empty, it stays on the current branch.
-%       'ClonePath'   : char array or string (Default: [userpath]/ndi/tools)
+%
+%       options.ClonePath (char or string): Optional. Default is [userpath]/ndi/tools.
 %           The parent directory where a URL reference should be cloned if 
 %           no local match is found on the disk.
 %
-%   EXAMPLES:
-%       % 1. Update Nansen using a function name as a char array:
-%       ndi.nansen.sync.repo()
+%   Outputs:
+%       status (double): 0 if successful, non-zero otherwise.
+%       repoPath (char): The local path to the repository.
 %
-%       % 2. Update via URL (string) and switch to a branch (char):
+%   Examples:
+%       % Update Nansen using a function name:
+%       ndi.nansen.sync.repo('nansen')
+%
+%       % Update via URL and switch to a branch:
 %       url = 'https://github.com/VH-Lab/NDI-matlab';
 %       ndi.nansen.sync.repo(url, 'Branch', 'development')
-%
-%       % 3. Update a specific local path:
-%       ndi.nansen.sync.repo('/Users/Name/Documents/MATLAB/ndi/tools/NDI-matlab')
 
 arguments
     repoReference {mustBeText}

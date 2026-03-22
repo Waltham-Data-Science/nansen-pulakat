@@ -1,7 +1,7 @@
 function [datasetTable] = dataset(dataset)
 %DATASET Compiles a metadata table for an NDI dataset.
 %
-%   This function retrieves information about an NDI dataset from both
+%   DATASET(DATASET) retrieves information about an NDI dataset from both
 %   local and cloud sources and compiles it into a MATLAB table.
 %
 %   Inputs:
@@ -10,6 +10,10 @@ function [datasetTable] = dataset(dataset)
 %   Outputs:
 %       datasetTable (table): A table containing dataset metadata,
 %           including its identifier, path, document counts, and cloud status.
+%
+%   Examples:
+%       % Get metadata table for an NDI dataset:
+%       datasetTable = ndi.nansen.metatable.update.dataset(dataset)
 
 % Input argument validation
 arguments

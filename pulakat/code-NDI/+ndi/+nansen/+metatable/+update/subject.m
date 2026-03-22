@@ -1,6 +1,22 @@
 function [subjectTable] = subject(session)
-%DATASET Summary of this function goes here
-%   Detailed explanation goes here
+%SUBJECT Compiles a subject metadata table for an NDI session or dataset.
+%
+%   SUBJECT(SESSION) retrieves subject information from an NDI session
+%   (or all sessions in a dataset) and compiles it into a MATLAB table.
+%   It combines basic subject information with metadata from
+%   'ontologyTableRow' documents.
+%
+%   Inputs:
+%       session (ndi.session.dir or ndi.dataset.dir): The NDI session
+%           or dataset object.
+%
+%   Outputs:
+%       subjectTable (table): A table containing subject metadata.
+%
+%   Examples:
+%       % Get subject table for a dataset:
+%       subjectTable = ndi.nansen.metatable.update.subject(dataset)
+
 % Input argument validation
 arguments
     session {mustBeA(session,{'ndi.session.dir','ndi.dataset.dir'})}
@@ -52,4 +68,3 @@ if ~isempty(docs)
 end
 
 end
-

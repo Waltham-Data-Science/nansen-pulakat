@@ -1,6 +1,22 @@
 function [fileTable] = file(session)
-%DATASET Summary of this function goes here
-%   Detailed explanation goes here
+%FILE Compiles a file metadata table for an NDI session or dataset.
+%
+%   FILE(SESSION) retrieves metadata for all files in an NDI session
+%   (or all sessions in a dataset) and compiles it into a MATLAB table.
+%   This includes information about the electronic file name, the
+%   subject it belongs to, and its data type and ontology.
+%
+%   Inputs:
+%       session (ndi.session.dir or ndi.dataset.dir): The NDI session
+%           or dataset object.
+%
+%   Outputs:
+%       fileTable (table): A table containing file metadata.
+%
+%   Examples:
+%       % Get file metadata for a session:
+%       fileTable = ndi.nansen.metatable.update.file(session)
+
 % Input argument validation
 arguments
     session {mustBeA(session,{'ndi.session.dir','ndi.dataset.dir'})}
@@ -90,24 +106,32 @@ end
 fileTable = ndi.fun.table.vstack(fileTables);
 
 % Add subject, session, and dataset info to data table
-% if ~isempty(fileTable)
-%     subjectVariables = intersect(subjectTable.Properties.VariableNames,...
-%         {'SubjectDocumentIdentifier','SubjectLocalIdentifier', ...
-%         'SubjectEnumeratedIdentifier','SubjectTextIdentifier',...
-%         'SubjectCageIdentifier',...
-%         'SessionName','SessionIdentifier','SessionDocumentIdentifier', ...
-%         'SessionPath','DatasetDocumentIdentifier','DatasetIdentifier'});
-%     fileTable = ndi.fun.table.join({fileTable, ...
-%         subjectTable(:,subjectVariables)});
-%     fileTable.FileIdentifier = ndi.nansen.fun.getIdentifier(fileTable, 'File');
-% 
-%     if isa(dataset,'ndi.dataset.dir')
-%         statusTable = ndi.nansen.sync.status(dataset);
-%         [Lia, Locb] = ismember(fileTable.FileDocumentIdentifier, statusTable.DocumentIdentifier);
-%         fileTable.Cloud = false(height(fileTable), 1);
-%         fileTable.Cloud(Lia) = statusTable.Cloud(Locb(Lia));
-%     end
-% end
+if ~isempty(fileTable)
+    try
+        project = nansen.getCurrentProject();
+        subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
+        subjectTable = subjectMetaTable.entries;
 
+        subjectVariables = intersect(subjectTable.Properties.VariableNames,...
+            {'SubjectDocumentIdentifier','SubjectLocalIdentifier', ...
+            'SubjectEnumeratedIdentifier','SubjectTextIdentifier',...
+            'SubjectCageIdentifier',...
+            'SessionName','SessionIdentifier','SessionDocumentIdentifier', ...
+            'SessionPath','DatasetDocumentIdentifier','DatasetIdentifier'});
+
+        fileTable = ndi.fun.table.join({fileTable, ...
+            subjectTable(:,subjectVariables)});
+        fileTable.FileIdentifier = ndi.nansen.fun.getIdentifier(fileTable, 'File');
+
+        if exist('dataset','var') && isa(dataset,'ndi.dataset.dir')
+            statusTable = ndi.nansen.sync.status(dataset);
+            [Lia, Locb] = ismember(fileTable.FileDocumentIdentifier, statusTable.DocumentIdentifier);
+            fileTable.Cloud = false(height(fileTable), 1);
+            fileTable.Cloud(Lia) = statusTable.Cloud(Locb(Lia));
+        end
+    catch
+        % Fallback if project is not available
+    end
 end
 
+end

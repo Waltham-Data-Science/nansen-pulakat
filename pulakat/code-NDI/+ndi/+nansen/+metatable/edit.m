@@ -1,21 +1,29 @@
 function [metaTable] = edit(dataTable, dataName, options)
-%EDIT Edits metadata in an NDI session.
+%EDIT Updates metadata in a Nansen metatable.
 %
-%   This function allows the user to interactively edit metadata for a
-%   subject or file in an NDI session and updates the corresponding NDI
-%   documents and Nansen metatables.
+%   EDIT(DATATABLE, DATANAME) updates the Nansen metatable (specified
+%   by DATANAME) with values from the provided DATATABLE. It identifies
+%   the rows to update based on the identifier variable (e.g.,
+%   'SubjectIdentifier'). Metadata is only updated if the row does not
+%   yet have an associated NDI document.
+%
+%   EDIT(DATATABLE, DATANAME, 'Project', PROJECTOBJ) uses the
+%   provided Nansen project object.
 %
 %   Inputs:
-%       session (ndi.session.dir): The NDI session object.
-%       dataTable (table): A table containing the metadata (1 row).
-%       type (char): The type of metadata to edit ('subject' or 'file').
-%       options.EditableVariables (cell array): Optional. A list of
-%           variables that can be edited.
-%       options.Project (nansen.config.project.Project): Optional. The
-%           Nansen project object.
+%       dataTable (table): A table containing the updated metadata.
+%       dataName (char or string): The name of the metatable to update.
+%           Must be one of: 'Dataset', 'Session', 'Subject', 'File'.
+%       options.Project (nansen.config.project.Project): Optional. Default
+%           is current Nansen project.
 %
 %   Outputs:
-%       dataTable (table): The updated metadata table.
+%       metaTable (nansen.metadata.MetaTable): The updated Nansen
+%           metatable object.
+%
+%   Examples:
+%       % Update subject metadata in the Subject metatable:
+%       ndi.nansen.metatable.edit(updatedSubjectRow, 'Subject')
 
 % Input argument validation
 arguments

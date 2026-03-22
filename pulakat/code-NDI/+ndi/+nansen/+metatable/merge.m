@@ -1,6 +1,33 @@
 function [metaTable] = merge(dataTable,dataName,options)
-%MERGE Summary of this function goes here
-%   Detailed explanation goes here
+%MERGE Merges a new metadata table into a Nansen metatable.
+%
+%   MERGE(DATATABLE, DATANAME) identifies new rows in the DATATABLE
+%   that are not present in the existing Nansen metatable (specified
+%   by DATANAME) and appends them. It also identifies changed rows
+%   and updates them.
+%
+%   MERGE(DATATABLE, DATANAME, 'LabName', LABNAME) specifies the lab/project.
+%
+%   MERGE(DATATABLE, DATANAME, 'Project', PROJECTOBJ) uses the provided
+%   Nansen project object.
+%
+%   Inputs:
+%       dataTable (table): A table containing the new metadata.
+%       dataName (char or string): The name of the metatable to merge
+%           into. Must be one of: 'Dataset', 'Session', 'Subject', 'File'.
+%       options.LabName (char or string): Optional. Default is current
+%           Nansen project name.
+%       options.Project (nansen.config.project.Project): Optional. Default
+%           is current Nansen project.
+%
+%   Outputs:
+%       metaTable (nansen.metadata.MetaTable): The updated Nansen
+%           metatable object.
+%
+%   Examples:
+%       % Merge new subject data into the Subject metatable:
+%       ndi.nansen.metatable.merge(newSubjectTable, 'Subject')
+
 % Input argument validation
 arguments
     dataTable table
@@ -47,29 +74,7 @@ indExist(indNew) = false; indNew = ~indExist;
 
 % Add new rows to metatable
 if any(indNew)
-    dataTable_new = dataTable(indNew,:);
-% 
-%     % Add missing columns to data table prior to appending
-%     missingVars = setdiff(metaTable.VariableNames,...
-%         dataTable_new.Properties.VariableNames);
-%     for i = 1:numel(missingVars)
-%         varName = missingVars{i};
-%         ind = strcmp(metaTable.VariableNames,varName);
-%         switch metaTable.entries.Properties.VariableTypes(ind)
-%             case 'cell'
-%                 missingVal = {''};
-%             case 'datetime'
-%                 missingVal = NaT('TimeZone', 'UTC');
-%             case 'logical'
-%                 missingVal = false;
-%             case 'double'
-%                 missingVal = NaN;
-%         end
-%         dataTable_new{:,varName} = repmat(missingVal,sum(indNew),1);
-%     end
-% 
-    % Add new rows to meta table
-    metaTable.addTable(dataTable);
+    metaTable.addTable(dataTable(indNew,:));
     metaTable.save;
 end
 
@@ -78,21 +83,22 @@ if any(indExist)
     dataTable_exist = dataTable(indExist,:);
     commonvars = intersect(dataTable_exist.Properties.VariableNames,...
         metaTable.VariableNames);
+
+    % Find rows that are different
     [~,indDiff] = setdiff(dataTable_exist(:,commonvars),...
         metaTable.entries(:,commonvars));
     dataTable_change = dataTable_exist(indDiff,:);
+
+    % Continue if no lines to edit
+    if isempty(dataTable_change)
+        return
+    end
+
+    % Edit existing rows
+    for i = 1:height(dataTable_change)
+        metaTable = ndi.nansen.metatable.edit(dataTable_change(i,:),dataName,...
+            'Project',options.Project);
+    end
 end
 
-% Continue if no lines to edit
-if ~exist('dataTable_change','var') || isempty(dataTable_change)
-    return
 end
-
-% Edit existing rows (if allowable)
-for i = 1:numel(indDiff)
-    metaTable = ndi.nansen.metatable.edit(dataTable_change(i,:),dataName,...
-        'LabName',options.LabName,'Project',options.Project);
-end
-
-end
-

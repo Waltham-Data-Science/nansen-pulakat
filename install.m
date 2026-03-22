@@ -1,4 +1,28 @@
 function install(codePath)
+%INSTALL Downloads and installs the NDI-Nansen environment and dependencies.
+%
+%   INSTALL() downloads the 'nansen-pulakat' repository and its
+%   dependencies (NANSEN, NDI-Matlab, openMINDS) to the default
+%   directory ([userpath]/ndi/tools). It then initializes the 'pulakat'
+%   project and launches the Nansen GUI.
+%
+%   INSTALL(CODEPATH) specifies the parent directory where the
+%   repositories should be installed.
+%
+%   The function checks if the repositories already exist on the local
+%   machine. If they do, it updates them to the latest version instead of
+%   downloading new copies.
+%
+%   Inputs:
+%       codePath (char or string): Optional. The parent directory for
+%           installing the code repositories. Defaults to '~/ndi/tools'.
+%
+%   Examples:
+%       % Install to default location:
+%       install()
+%
+%       % Install to a specific folder:
+%       install('C:\MyToolboxes')
 
 % Input argument validation
 arguments
@@ -58,18 +82,25 @@ savepath; % Saves the path for future sessions
 
 fprintf('--- Installation Successful! ---\n');
 
-% 9. Delete this function (if not part of the repository)
-cmd = sprintf('git -C "%s" rev-parse --show-toplevel', downloadDir);
-[status,~] = system(cmd);
-if status ~= 0
-    delete([mfilename('fullpath'), '.m']);
-end
-
-% 10. Delete temporary folder (if applicable)
+% 9. Delete temporary folder (if applicable)
 if exist('tempSyncFolder', 'var') && isfolder(tempSyncFolder)
     clear repoSync;
     rmpath(tempSyncFolder);
     rmdir(tempSyncFolder,'s');
+end
+
+% 10. Initialize 'pulakat' project and launch
+if ~isempty(which('ndi.nansen.startup'))
+    ndi.nansen.startup('pulakat');
+else
+    warning('ndi.nansen.startup not found. Please ensure all repositories are on the MATLAB path.');
+end
+
+% 11. Delete this function (if not part of the repository)
+cmd = sprintf('git -C "%s" rev-parse --show-toplevel', downloadDir);
+[status,~] = system(cmd);
+if status ~= 0
+    delete([mfilename('fullpath'), '.m']);
 end
 
 end
