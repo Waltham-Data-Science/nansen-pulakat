@@ -39,7 +39,7 @@ end
 labName = char(options.LabName);
 
 % Get project info
-projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
+projectBase = fileparts(fileparts(which('ndi.nansen.startup'))); projectFile = fullfile(projectBase,'+setup','+conv',['+',labName],'project_info.json');
 projectInfo = jsondecode(fileread(projectFile));
 
 % Remove spaces from subject identifiers (if applicable)

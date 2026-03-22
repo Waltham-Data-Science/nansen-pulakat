@@ -38,7 +38,7 @@ methods
         end
 
         % Get project info
-        projectFile = fullfile('+ndi','+setup','+conv',['+',tableRow.LabName],'project_info.json');
+        projectBase = fileparts(fileparts(which('ndi.nansen.startup'))); projectFile = fullfile(projectBase,'+setup','+conv',['+',tableRow.LabName],'project_info.json');
         projectInfo = jsondecode(fileread(projectFile));
 
         % --- Validate required columns ---

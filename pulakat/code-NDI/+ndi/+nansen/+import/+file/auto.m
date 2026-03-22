@@ -39,7 +39,7 @@ dataFiles = cellstr(dataFiles);
 labName = char(options.LabName);
 
 % Get project info
-projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
+projectBase = fileparts(fileparts(which('ndi.nansen.startup'))); projectFile = fullfile(projectBase,'+setup','+conv',['+',labName],'project_info.json');
 projectInfo = jsondecode(fileread(projectFile));
 
 % Initialize output
@@ -61,8 +61,17 @@ end
 % Auto-detect file types
 dataTable_type = ndi.nansen.import.file.detectType(dataFiles,'LabName',options.LabName);
 
+% Create a mapping between base filenames (with extension) and full paths for later use
+[~, fileNames, fileExts] = cellfun(@fileparts, dataFiles, 'UniformOutput', false);
+fullNames = strcat(fileNames, fileExts);
+fullPathsMap = containers.Map(fullNames, dataFiles);
+
 % Detect already imported files
-indExist = contains(dataTable_type.ElectronicFileName,dataTable_session.ElectronicFileName);
+if ~isempty(dataTable_session)
+    indExist = ismember(dataTable_type.ElectronicFileName, dataTable_session.ElectronicFileName);
+else
+    indExist = false(height(dataTable_type), 1);
+end
 indNew = ~indExist;
 
 % Query user for changes to existing files
@@ -87,7 +96,7 @@ dataTable_new = ndi.nansen.fun.editImportTableGUI(dataTable_type(indNew,:), ...
 if isempty(dataTable_review) && isempty(dataTable_new)
     return
 end
-dataTable_new{strcmp(dataTable_new.DataTypeName,'other') | ....
+dataTable_new{strcmp(dataTable_new.DataTypeName,'other') | ...
     strcmp(dataTable_new.DataTypeName,''),'DataTypeName'} = {'unknown electronic file type'};
 
 % Auto-detect subject info
@@ -98,7 +107,11 @@ for i = 1:numFiles
     funcString = sprintf('ndi.setup.conv.%s.fileType.%s', ...
         labName, matlab.lang.makeValidName(dataTable_files.DataTypeName{i}));
     funcHandle = str2func(funcString);
-    detectedSubjects = funcHandle(string(dataTable_files.ElectronicFileName{i}));
+
+    % Pass full path to the detection function
+    fullPath = fullPathsMap(dataTable_files.ElectronicFileName{i});
+    detectedSubjects = funcHandle(string(fullPath));
+
     numSubjects = height(detectedSubjects);
     if isempty(detectedSubjects)
         subjectTable_files{i} = dataTable_files(i,:);

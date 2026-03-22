@@ -38,7 +38,7 @@ dataFiles = cellstr(dataFiles);
 labName = char(options.LabName);
 
 % Get project info
-projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
+projectBase = fileparts(fileparts(which('ndi.nansen.startup'))); projectFile = fullfile(projectBase,'+setup','+conv',['+',labName],'project_info.json');
 projectInfo = jsondecode(fileread(projectFile));
 
 % Get current subject table from project
