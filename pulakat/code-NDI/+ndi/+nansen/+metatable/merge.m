@@ -5,19 +5,6 @@ function [metaTable] = merge(dataTable,dataName,options)
 %   present in the existing Nansen metatable (specified by DATANAME)
 %   and appends them. It also identifies changed rows and updates them.
 %
-%   Inputs:
-%       dataTable (table): A table containing the new metadata.
-%       dataName (char or string): The name of the metatable to merge
-%           into. Must be one of: 'Dataset', 'Session', 'Subject', 'File'.
-%       options.LabName (char or string): Optional. Default is current
-%           Nansen project name.
-%       options.Project (nansen.config.project.Project): Optional. Default
-%           is current Nansen project.
-%
-%   Outputs:
-%       metaTable (nansen.metadata.MetaTable): The updated Nansen
-%           metatable object.
-%
 %   Examples:
 %       % Merge new subject data into the Subject metatable:
 %       ndi.nansen.metatable.merge(newSubjectTable, 'Subject')

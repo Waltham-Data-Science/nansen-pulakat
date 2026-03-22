@@ -5,13 +5,6 @@ function [sessionTable] = session(session)
 %   sessions within a session directory or dataset and compiles it
 %   into a MATLAB table.
 %
-%   Inputs:
-%       session (ndi.session.dir or ndi.dataset.dir): The NDI session
-%           or dataset object.
-%
-%   Outputs:
-%       sessionTable (table): A table containing session metadata.
-%
 %   Examples:
 %       % Get session metadata for a dataset:
 %       sessionTable = ndi.nansen.metatable.update.session(dataset)

@@ -6,13 +6,6 @@ function [fileTable] = file(session)
 %   This includes information about the electronic file name, the
 %   subject it belongs to, and its data type and ontology.
 %
-%   Inputs:
-%       session (ndi.session.dir or ndi.dataset.dir): The NDI session
-%           or dataset object.
-%
-%   Outputs:
-%       fileTable (table): A table containing file metadata.
-%
 %   Examples:
 %       % Get file metadata for a session:
 %       fileTable = ndi.nansen.metatable.update.file(session)

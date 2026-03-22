@@ -4,18 +4,6 @@ function [] = update(dataset,dataName,options)
 %   This function updates the specified metatable (e.g., 'Subject')
 %   for the current Nansen project from the NDI dataset.
 %
-%   Inputs:
-%       dataset (ndi.session.dir or ndi.dataset.dir): The NDI dataset or
-%           session object.
-%       dataName (char or string): The name of the metatable to update.
-%           Must be one of: 'Dataset', 'Session', 'Subject', 'File'.
-%       options.LabName (char or string): Optional. Default is current
-%           Nansen project name.
-%       options.Project (nansen.config.project.Project): Optional. Default
-%           is current Nansen project.
-%       options.UpdateVariableNames (char, string, or cell array): Optional.
-%           Variable names to update. Default is 'all'.
-%
 %   Examples:
 %       % Update the Subject metatable:
 %       ndi.nansen.metatable.update(dataset, 'Subject')
