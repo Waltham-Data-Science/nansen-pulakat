@@ -1,14 +1,11 @@
 function [metaTable] = edit(dataTable, dataName, options)
 %EDIT Updates metadata in a Nansen metatable.
 %
-%   EDIT updates the Nansen metatable (specified
-%   by DATANAME) with values from the provided DATATABLE. It identifies
+%   This function updates the Nansen metatable (specified by
+%   DATANAME) with values from the provided DATATABLE. It identifies
 %   the rows to update based on the identifier variable (e.g.,
-%   'SubjectIdentifier'). Metadata is only updated if the row does not
-%   yet have an associated NDI document.
-%
-%   EDIT(DATATABLE, DATANAME, 'Project', PROJECTOBJ) uses the
-%   provided Nansen project object.
+%   'SubjectIdentifier'). Metadata is only updated if the row does
+%   not yet have an associated NDI document.
 %
 %   Inputs:
 %       dataTable (table): A table containing the updated metadata.

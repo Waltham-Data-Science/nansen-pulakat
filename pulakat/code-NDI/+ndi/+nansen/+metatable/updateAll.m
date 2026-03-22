@@ -1,15 +1,9 @@
 function [] = updateAll(dataset,options)
 %UPDATEALL Updates all Nansen metatables for a given NDI dataset.
 %
-%   UPDATEALL synchronizes the local dataset with the NDI cloud,
+%   This function synchronizes the local dataset with the NDI cloud,
 %   and updates the Dataset, File, Subject, and Session metatables for
 %   the current Nansen project.
-%
-%   UPDATEALL(DATASET, 'LabName', LABNAME) updates the metatables for the
-%   specified lab.
-%
-%   UPDATEALL(DATASET, 'Project', PROJECTOBJ) uses the provided Nansen
-%   project object.
 %
 %   Inputs:
 %       dataset (ndi.session.dir or ndi.dataset.dir): The NDI dataset

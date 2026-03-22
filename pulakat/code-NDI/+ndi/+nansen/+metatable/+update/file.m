@@ -1,7 +1,7 @@
 function [fileTable] = file(session)
 %FILE Compiles a file metadata table for an NDI session or dataset.
 %
-%   FILE retrieves metadata for all files in an NDI session
+%   This function retrieves metadata for all files in an NDI session
 %   (or all sessions in a dataset) and compiles it into a MATLAB table.
 %   This includes information about the electronic file name, the
 %   subject it belongs to, and its data type and ontology.

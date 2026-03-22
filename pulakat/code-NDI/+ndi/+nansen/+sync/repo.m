@@ -1,14 +1,8 @@
 function [status,repoPath] = repo(repoReference, options)
 %REPO Synchronize, update, and add repository to MATLAB path.
 %
-%   STATUS = REPO resolves a repository from a folder,
-%   function name, or URL, pulls updates, and updates the MATLAB path.
-%
-%   STATUS = REPO switches the
-%   repository to the specified branch.
-%
-%   STATUS = REPO clones the
-%   repository to the specified directory if it is not found locally.
+%   This function resolves a repository from a folder, function name,
+%   or URL, pulls updates, and updates the MATLAB path.
 %
 %   Inputs:
 %       repoReference (char or string):
