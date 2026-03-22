@@ -1,7 +1,7 @@
 function install(codePath)
 %INSTALL Downloads and installs the NDI-Nansen environment and dependencies.
 %
-%   INSTALL() downloads the 'nansen-pulakat' repository and its
+%   INSTALL downloads the 'nansen-pulakat' repository and its
 %   dependencies (NANSEN, NDI-Matlab, openMINDS) to the default
 %   directory ([userpath]/ndi/tools). It then initializes the 'pulakat'
 %   project and launches the Nansen GUI.

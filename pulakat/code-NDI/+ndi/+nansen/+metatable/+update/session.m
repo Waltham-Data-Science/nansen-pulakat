@@ -1,7 +1,7 @@
 function [sessionTable] = session(session)
 %SESSION Compiles a session metadata table for NDI sessions or datasets.
 %
-%   SESSION(SESSION) retrieves information about one or more NDI
+%   SESSION retrieves information about one or more NDI
 %   sessions within a session directory or dataset and compiles it
 %   into a MATLAB table.
 %

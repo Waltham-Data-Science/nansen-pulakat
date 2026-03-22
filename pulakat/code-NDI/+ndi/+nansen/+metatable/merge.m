@@ -1,7 +1,7 @@
 function [metaTable] = merge(dataTable,dataName,options)
 %MERGE Merges a new metadata table into a Nansen metatable.
 %
-%   MERGE(DATATABLE, DATANAME) identifies new rows in the DATATABLE
+%   MERGE identifies new rows in the DATATABLE
 %   that are not present in the existing Nansen metatable (specified
 %   by DATANAME) and appends them. It also identifies changed rows
 %   and updates them.

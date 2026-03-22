@@ -1,7 +1,7 @@
 function [datasetTable] = dataset(dataset)
 %DATASET Compiles a metadata table for an NDI dataset.
 %
-%   DATASET(DATASET) retrieves information about an NDI dataset from both
+%   DATASET retrieves information about an NDI dataset from both
 %   local and cloud sources and compiles it into a MATLAB table.
 %
 %   Inputs:

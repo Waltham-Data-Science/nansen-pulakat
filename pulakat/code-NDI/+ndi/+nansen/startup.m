@@ -1,15 +1,6 @@
 function [ ] = startup(labName, dataPath)
 %STARTUP Initializes the NDI-Nansen environment for a specific lab.
 %
-%   STARTUP() initializes the current Nansen project's NDI-Nansen
-%   environment. It updates necessary repositories, synchronizes the
-%   dataset with the NDI cloud, generates metatables, and launches the
-%   Nansen GUI.
-%
-%   STARTUP(LABNAME) initializes the specified lab/project (e.g., 'pulakat').
-%
-%   STARTUP(LABNAME, DATAPATH) specifies the local directory where NDI
-%   datasets are stored.
 %
 %   Inputs:
 %       labName (char or string): Optional. The name of the lab/project to

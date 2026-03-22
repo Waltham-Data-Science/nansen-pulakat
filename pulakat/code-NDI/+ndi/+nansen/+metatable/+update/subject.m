@@ -1,7 +1,7 @@
 function [subjectTable] = subject(session)
 %SUBJECT Compiles a subject metadata table for an NDI session or dataset.
 %
-%   SUBJECT(SESSION) retrieves subject information from an NDI session
+%   SUBJECT retrieves subject information from an NDI session
 %   (or all sessions in a dataset) and compiles it into a MATLAB table.
 %   It combines basic subject information with metadata from
 %   'ontologyTableRow' documents.

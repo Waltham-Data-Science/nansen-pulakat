@@ -1,7 +1,7 @@
 function [] = update(dataset,dataName,options)
 %UPDATE Updates a specific Nansen metatable from an NDI dataset.
 %
-%   UPDATE(DATASET, DATANAME) updates the specified metatable (e.g.,
+%   UPDATE updates the specified metatable (e.g.,
 %   'Subject') for the current Nansen project from the NDI dataset.
 %
 %   UPDATE(DATASET, DATANAME, 'LabName', LABNAME) specifies the lab/project.
