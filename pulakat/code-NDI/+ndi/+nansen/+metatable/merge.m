@@ -65,7 +65,7 @@ end
 
 % If meta table exists, identify rows of dataTable that are new
 existingIDs = metaTable.entries.(metaTable.MetaTableIdVarname);
-newIDs = dataTable.(metaTable.MetaTableIdVarname);
+newIDs = dataTable.(metaTable.MetaTableIdVarname); % This will break for subjects/files! Need to test once uploaded some files
 [~,indNew] = setdiff(newIDs,existingIDs);
 indExist = true(height(dataTable),1);
 indExist(indNew) = false; indNew = ~indExist;

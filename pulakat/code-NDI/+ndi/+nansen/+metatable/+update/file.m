@@ -63,22 +63,20 @@ for i = 1:numel(sessions)
         ontologyLabel_docs,'UniformOutput',false);
 
     % Construct data table
-    dataTable = struct('FileDocumentIdentifier',[],'ElectronicFileName',[],...
-        'SubjectDocumentIdentifier',[],'DataTypeName',[],'DataTypeOntology',[]);
+    dataTable = table();
     for j = 1:numel(generic_file_docs)
         % Add file information
-        dataTable(j).FileDocumentIdentifier = {generic_file_docs{j}.id};
-        dataTable(j).ElectronicFileName = {generic_file_docs{j}.document_properties.generic_file.filename};
-        dataTable(j).SubjectDocumentIdentifier = {generic_file_docs{j}.dependency_value('document_id')};
+        dataTable.FileDocumentIdentifier(j) = {generic_file_docs{j}.id};
+        dataTable.ElectronicFileName(j) = {generic_file_docs{j}.document_properties.generic_file.filename};
+        dataTable.SubjectDocumentIdentifier(j) = {generic_file_docs{j}.dependency_value('document_id')};
         
         % Add ontology label
         indOntologyLabel = strcmp(ontologyLabel_dependency,generic_file_docs{j}.id);
         ontologyID = ontologyLabel_docs{indOntologyLabel}.document_properties.ontologyLabel.ontologyNode;
         [ontologyNode,ontologyName] = ndi.ontology.lookup(ontologyID);
-        dataTable(j).DataTypeName = {ontologyName};
-        dataTable(j).DataTypeOntology = {ontologyNode};
+        dataTable.DataTypeName(j) = {ontologyName};
+        dataTable.DataTypeOntology(j) = {ontologyNode};
     end
-    dataTable = struct2table(dataTable);
 
     % Check for subject groups
     query = ndi.query('','isa','subject_group');
@@ -96,36 +94,10 @@ for i = 1:numel(sessions)
         dataTable = [dataTable(~ind,:);duplicateRow];
     end
 
-    % Add session identifiers
-    dataTable{:,'SessionName'} = {session.reference};
-    dataTable{:,'SessionPath'} = {session.path};
-
     fileTables{i} = dataTable;
 end
 
 % Stack tables
 fileTable = ndi.fun.table.vstack(fileTables);
-
-% Add subject, session, and dataset info to data table
-if ~isempty(fileTable)
-    try
-        project = nansen.getCurrentProject();
-        subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
-        subjectTable = subjectMetaTable.entries;
-
-        subjectVariables = intersect(subjectTable.Properties.VariableNames,...
-            {'SubjectDocumentIdentifier','SubjectLocalIdentifier', ...
-            'SubjectEnumeratedIdentifier','SubjectTextIdentifier',...
-            'SubjectCageIdentifier',...
-            'SessionName','SessionIdentifier','SessionDocumentIdentifier', ...
-            'SessionPath','DatasetDocumentIdentifier','DatasetIdentifier'});
-
-        fileTable = ndi.fun.table.join({fileTable, ...
-            subjectTable(:,subjectVariables)});
-        fileTable.FileIdentifier = ndi.nansen.fun.getIdentifier(fileTable, 'File');
-    catch
-        % Fallback if project is not available
-    end
-end
 
 end
