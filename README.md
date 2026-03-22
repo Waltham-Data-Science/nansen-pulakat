@@ -13,13 +13,13 @@ This repository provides a database system that enables the organization and clo
 3.  **Run in MATLAB:** Execute `install.m` in the MATLAB Command Window.
 
 ### Subsequent Uses
-Run `pulakat.startup` to initialize the environment, sync with the NDI cloud, and open the Nansen GUI.
+Run `pulakat.startup` to initialize the environment, sync with the NDI cloud, and open the GUI.
 
 ---
 
 ## Workflow Overview
 
-1.  **Import Session:** Add a new experimental session (day/recording) to the Nansen Dataset table.
+1.  **Import Session:** Add a new experimental session (day/recording) to the Dataset table.
 2.  **Import Subjects:** Use **Import > Subjects > Auto** (detects from `animal_mapping.csv`) or **Manual** to add animals to a session.
 3.  **Import Files:** Use **Import > Files > Auto** or **Manual** to link data files (.svs, .bimg, etc.) to subjects.
 4.  **Validate & Edit:** Verify metadata and correct errors *before* committing to NDI.
@@ -70,7 +70,7 @@ The following methods are accessible through the "Methods" menu when a record is
 ## Identification & Synchronization
 
 ### UUID Tethers
-Every record (Subject, File) is assigned an immutable `Nansen_UUID` (e.g., `Subject-xxxx...`). This identifier tethers the Nansen record to the corresponding NDI document, ensuring links survive metadata renames.
+Every record (Subject, File) is assigned an immutable `UUID` (e.g., `Subject-xxxx...`). This identifier tethers the record to the corresponding NDI document, ensuring links survive metadata renames.
 
 ### The Commitment Phase
 The **Sync** process implements a 4-Tier Hierarchical Ownership model:
