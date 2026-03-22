@@ -36,8 +36,6 @@ The following methods are accessible through the "Methods" menu when a record is
 | Method | Description |
 | :--- | :--- |
 | **Import > Session** | Select a session directory and give it a unique name. |
-| **Import > Subjects > Auto** | Detects and imports subjects from lab-standard metadata files. |
-| **Import > Subjects > Manual** | Enter subject details (ID, Cage, Label, Strain) manually. |
 | **Sync** | Creates NDI documents and performs a two-way sync with the cloud. |
 
 ### Session Table
