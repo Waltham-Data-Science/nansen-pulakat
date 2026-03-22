@@ -67,7 +67,7 @@ end
 existingIDs = metaTable.entries.(metaTable.MetaTableIdVarname);
 newIDs = dataTable.(metaTable.MetaTableIdVarname);
 [~,indNew] = setdiff(newIDs,existingIDs);
-indExist = true(height(dataTable),1); 
+indExist = true(height(dataTable),1);
 indExist(indNew) = false; indNew = ~indExist;
 
 % Add new rows to metatable

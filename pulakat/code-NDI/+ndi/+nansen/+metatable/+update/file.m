@@ -36,7 +36,6 @@ if isa(session,'ndi.dataset.dir')
         sessions{i} = dataset.open_session(sessionIDs{i});
     end
 else
-    dataset = []; % Not a dataset
     sessions = {session};
 end
 
@@ -49,17 +48,17 @@ end
 fileTables = cell(numel(sessions),1);
 for i = 1:numel(sessions)
 
-    thisSession = sessions{i};
+    session = sessions{i};
 
     % Get files
     query = ndi.query('','isa','generic_file');
-    generic_file_docs = thisSession.database_search(query);
+    generic_file_docs = session.database_search(query);
     generic_file_dependency = cellfun(@(d) d.dependency_value('document_id'), ...
         generic_file_docs,'UniformOutput',false);
 
     % Get file labels
     query = ndi.query('','isa','ontologyLabel');
-    ontologyLabel_docs = thisSession.database_search(query);
+    ontologyLabel_docs = session.database_search(query);
     ontologyLabel_dependency = cellfun(@(d) d.dependency_value('document_id'), ...
         ontologyLabel_docs,'UniformOutput',false);
 
@@ -76,14 +75,14 @@ for i = 1:numel(sessions)
         indOntologyLabel = strcmp(ontologyLabel_dependency,generic_file_docs{j}.id);
         ontologyID = ontologyLabel_docs{indOntologyLabel}.document_properties.ontologyLabel.ontologyNode;
         [ontologyNode,ontologyName] = ndi.ontology.lookup(ontologyID);
-        dataTable(j).DataTypeOntology = {ontologyNode};
         dataTable(j).DataTypeName = {ontologyName};
+        dataTable(j).DataTypeOntology = {ontologyNode};
     end
     dataTable = struct2table(dataTable);
 
     % Check for subject groups
     query = ndi.query('','isa','subject_group');
-    subject_group_docs = thisSession.database_search(query);
+    subject_group_docs = session.database_search(query);
 
     % Split subjects to individual rows
     for j = 1:numel(subject_group_docs)
@@ -96,6 +95,10 @@ for i = 1:numel(sessions)
         duplicateRow.SubjectDocumentIdentifier = subject_ids;
         dataTable = [dataTable(~ind,:);duplicateRow];
     end
+
+    % Add session identifiers
+    dataTable{:,'SessionName'} = {session.reference};
+    dataTable{:,'SessionPath'} = {session.path};
 
     fileTables{i} = dataTable;
 end
@@ -120,13 +123,6 @@ if ~isempty(fileTable)
         fileTable = ndi.fun.table.join({fileTable, ...
             subjectTable(:,subjectVariables)});
         fileTable.FileIdentifier = ndi.nansen.fun.getIdentifier(fileTable, 'File');
-
-        if ~isempty(dataset)
-            statusTable = ndi.nansen.sync.status(dataset);
-            [Lia, Locb] = ismember(fileTable.FileDocumentIdentifier, statusTable.DocumentIdentifier);
-            fileTable.Cloud = false(height(fileTable), 1);
-            fileTable.Cloud(Lia) = statusTable.Cloud(Locb(Lia));
-        end
     catch
         % Fallback if project is not available
     end

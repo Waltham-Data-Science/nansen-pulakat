@@ -35,19 +35,14 @@ if isa(session,'ndi.dataset.dir')
     for i = 1:numel(sessionIDs)
         sessions{i} = dataset.open_session(sessionIDs{i});
     end
+    subjectTable = ndi.fun.docTable.subject(dataset);
 else
+    subjectTable = ndi.fun.docTable.subject(session);
     sessions = {session};
 end
 
 % Return if empty
-if isempty(sessions)
-    return
-end
-
-% Get basic subject table from dataset
-subjectTable = ndi.fun.docTable.subject(dataset);
-
-if isempty(subjectTable)
+if isempty(sessions) || isempty(subjectTable)
     return
 end
 

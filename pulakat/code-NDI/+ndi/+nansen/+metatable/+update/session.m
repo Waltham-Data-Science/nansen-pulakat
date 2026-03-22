@@ -36,7 +36,6 @@ if isa(session,'ndi.dataset.dir')
     end
     datasetID = dataset.id;
 else
-    dataset = []; % Not a dataset
     sessions = {session};
     query = ndi.query('base.session_id','exact_string',session.id);
     doc = session.database_search(query);
@@ -59,64 +58,11 @@ end
 
 % Get basic session metadata
 for i = 1:numel(sessions)
-    sessionTable.SessionName{i,1} = sessions{i}.reference;
-    sessionTable.SessionIdentifier{i,1} = sessions{i}.identifier;
-    sessionTable.SessionDocumentIdentifier{i,1} = sessionDocIDs{i};
-    sessionTable.SessionPath{i,1} = sessions{i}.path;
-    sessionTable.DatasetIdentifier{i,1} = datasetID;
-end
-
-% Add summary and cloud status (if project and dataset are available)
-try
-    project = nansen.getCurrentProject();
-
-    for i = 1:numel(sessions)
-        sessionTable.DateAdded(i,1) = NaT('TimeZone', 'UTC');
-
-        % Count subjects and files from metatables
-        subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
-        if ~isempty(subjectMetaTable) && ~isempty(subjectMetaTable.entries)
-            ind = strcmp(subjectMetaTable.entries.SessionName, sessions{i}.reference);
-            sessionTable.NumSubjects(i,1) = sum(ind);
-        else
-            sessionTable.NumSubjects(i,1) = 0;
-        end
-
-        fileMetaTable = project.MetaTableCatalog.getMetaTable('File');
-        if ~isempty(fileMetaTable) && ~isempty(fileMetaTable.entries)
-            ind = strcmp(fileMetaTable.entries.SessionName, sessions{i}.reference);
-            sessionTable.NumFiles(i,1) = sum(ind);
-        else
-            sessionTable.NumFiles(i,1) = 0;
-        end
-
-        % Get DateAdded from NDI
-        if ~isempty(dataset)
-            doc = dataset.database_search(ndi.query('base.id','exact_string',sessionDocIDs{i}));
-            if ~isempty(doc)
-                datestamp = doc{1}.document_properties.base.datestamp;
-                sessionTable.DateAdded(i,1) = datetime(datestamp,'InputFormat', ...
-                    'yyyy-MM-dd''T''HH:mm:ss.SSS''Z''','TimeZone','UTC');
-            end
-        end
-    end
-
-    % Add cloud sync status
-    if ~isempty(dataset) && ~isempty(sessionTable)
-        statusTable = ndi.nansen.sync.status(dataset);
-        [Lia, Locb] = ismember(sessionTable.SessionDocumentIdentifier, statusTable.DocumentIdentifier);
-        sessionTable.Cloud = false(height(sessionTable), 1);
-        sessionTable.Cloud(Lia) = statusTable.Cloud(Locb(Lia));
-    end
-catch
-    % Fallback to NDI if project/metatables are not available
-    for i = 1:numel(sessions)
-        subjectDocs = sessions{i}.database_search(ndi.query('','isa','subject'));
-        sessionTable.NumSubjects(i,1) = numel(subjectDocs);
-
-        fileDocs = sessions{i}.database_search(ndi.query('','isa','generic_file'));
-        sessionTable.NumFiles(i,1) = numel(fileDocs);
-    end
+    sessionTable.SessionName{i} = sessions{i}.reference;
+    sessionTable.SessionIdentifier{i} = sessions{i}.identifier;
+    sessionTable.SessionDocumentIdentifier{i} = sessionDocIDs{i};
+    sessionTable.SessionPath{i} = sessions{i}.path;
+    sessionTable.DatasetIdentifier{i} = datasetID;
 end
 
 end
