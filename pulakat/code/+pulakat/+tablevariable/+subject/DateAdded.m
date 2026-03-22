@@ -1,4 +1,4 @@
-classdef DateAdded < nansen.metadata.abstract.TableVariable
+classdef DateAdded < nansen.metadata.abstract.TableVariable & nansen.metadata.abstract.TableColumnFormatter
 %DATEADDED Definition for table variable
 %   Detailed explanation goes here
 %
@@ -12,6 +12,20 @@ classdef DateAdded < nansen.metadata.abstract.TableVariable
     methods
         function obj = DateAdded(varargin)
             obj@nansen.metadata.abstract.TableVariable(varargin{:});
+        end
+
+        function value = getCellDisplayString(obj)
+            value = cellstr(char([obj.Value], 'MMM-dd-yyyy'));
+        end
+
+        function value = getCellTooltipString(obj)
+            if isequaln(obj.Value,obj.DEFAULT_VALUE)
+                classParts = strsplit(class(obj),'.');
+                variableName = classParts{end};
+                value = sprintf('%s will be filled in when NDI documents are created.',variableName);
+            else
+                value = '';
+            end
         end
     end
 
