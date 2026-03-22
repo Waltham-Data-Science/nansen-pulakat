@@ -7,8 +7,10 @@ function [statusTable] = status(dataset, options)
 %
 %   Inputs:
 %       dataset (ndi.dataset.dir): The NDI dataset object.
-%       options.Verbose (logical): Optional. Whether to print status
-%           messages. Defaults to false.
+%
+%   Name-Value Pairs:
+%       Verbose (logical): Optional. Whether to print status messages.
+%           Defaults to false.
 %
 %   Outputs:
 %       statusTable (table): A table containing document identifiers and
