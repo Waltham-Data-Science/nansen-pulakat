@@ -146,7 +146,7 @@
   {
     "VariableName": "SpeciesName",
     "ColumnLabel": "Species",
-    "ShowColumn": false,
+    "ShowColumn": true,
     "SkipColumn": false,
     "ColumnWidth": 100,
     "IsEditable": false,

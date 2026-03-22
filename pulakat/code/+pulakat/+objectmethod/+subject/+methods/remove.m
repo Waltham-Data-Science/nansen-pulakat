@@ -49,7 +49,7 @@ function varargout = remove(subjectObject, varargin)
         'Prompt',['Deleting subjects cannot be undone. ' ...
         'Carefully select which subject(s) you wish to delete. ' ...
         'Deleting these subjects will also delete associated files.'], ...
-        'Default',true,'AddRow',false);
+        'Default',true,'AddRow',false,'Editable',false);
     if isempty(subjectTable)
         return
     end
@@ -64,7 +64,7 @@ function varargout = remove(subjectObject, varargin)
     ndi.nansen.metatable.remove(fileTable.entries(indRemove,:),'File');
 
     % Get dataset object
-    dataset = ndi.nansen.fun.datasetID2Object(unique(subjectTable.DatasetIdentifier));
+    dataset = ndi.nansen.fun.datasetID2Object(subjectTable.DatasetIdentifier{1});
 
     % Update metatables
     ndi.nansen.metatable.update(dataset,'Subject');

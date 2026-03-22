@@ -29,7 +29,8 @@ arguments
     options.Title {mustBeTextScalar} = 'Record Selector';
     options.AddRow (1,1) logical = true
     options.Prompt {mustBeTextScalar} = ''
-    options.Default = true
+    options.Default (1,1) logical = true
+    options.Editable (1,1) logical = true
 end
 
 % 1. Prepare Data: Add a 'Select' column at the start if it doesn't exist
@@ -68,10 +69,10 @@ uit = uitable(fig, ...
     'Position', tablePos, ...
     'ColumnEditable', true, ...
     'ColumnWidth', widths, ...
-    'CellEditCallback', @(src, event) validateEdit(src, event, numRows));
+    'CellEditCallback', @(src, event) validateEdit(src, event, numRows, options.Editable));
 
 % Add a subtle background color to "locked" original rows
-if numRows > 0
+if numRows > 0 && ~options.Editable
     addStyle(uit, uistyle('BackgroundColor', [0.96 0.96 0.96]), 'row', 1:numRows);
 end
 
@@ -158,23 +159,28 @@ function confirmSelection(fig, uit)
     uiresume(fig);
 end
 
-function validateEdit(src, event, origHeight)
+function validateEdit(src, event, origHeight, isGloballyEditable)
     rowIdx = event.Indices(1);
     colIdx = event.Indices(2);
     lastGoodData = getappdata(src, 'CleanData');
     
-    % Get column name to check if it is the 'Select' column
+    % Get current column name
     colName = src.Data.Properties.VariableNames{colIdx};
     
     % Allow editing if:
-    % 1. It's the 'Select' column
-    % 2. It's a new row (index > origHeight)
-    if strcmp(colName, 'Select') || rowIdx > origHeight
+    % 1. It's the 'Select' column (always allowed)
+    % 2. options.Editable is true
+    % 3. It's a new row (index > origHeight) - always allowed to fill in new data
+    
+    if strcmp(colName, 'Select') || isGloballyEditable || rowIdx > origHeight
+        % Valid edit: update our "CleanData" backup to match
         setappdata(src, 'CleanData', src.Data);
     else
-        % Revert illegal edit
+        % Illegal edit: Revert the cell to its previous value
         src.Data = lastGoodData;
-        uialert(src.Parent, 'Original data rows are locked. You can only change the "Select" status.', 'Locked Cell');
+        uialert(src.Parent, ...
+            'This table is set to read-only. You can only change the "Select" status.', ...
+            'Locked Table');
     end
 end
 

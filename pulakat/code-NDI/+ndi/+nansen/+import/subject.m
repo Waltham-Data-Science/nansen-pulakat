@@ -114,8 +114,16 @@ else
     subjectTable_new = subjectTable(numMatch == 0,:);
 end
 
+% Check whether there are new subjects to add
+if isempty(subjectTable_new)
+    disp('No new subjects found.')
+    subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
+    subjectTable = subjectMetaTable.entries;
+    return
+end
+
 % Resolve conflicts
-subjectTable_new = ndi.nansen.fun.getCompleteUniqueRows(subjectTable_new);
+subjectTable_new = ndi.nansen.fun.getCompleteUniqueRows(subjectTable_new,subjectIdentifiers);
 allEmpty = all(cellfun(@(x) isempty(x), subjectTable_new{:,subjectIdentifiers}),2);
 subjectTable_new(allEmpty,:) = [];
 

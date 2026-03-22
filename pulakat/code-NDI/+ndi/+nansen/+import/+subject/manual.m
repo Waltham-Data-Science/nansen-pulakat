@@ -31,6 +31,9 @@ end
 
 labName = char(options.LabName);
 
+% Initialize output
+subjectTable = table();
+
 % Get project info
 projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
 projectInfo = jsondecode(fileread(projectFile));

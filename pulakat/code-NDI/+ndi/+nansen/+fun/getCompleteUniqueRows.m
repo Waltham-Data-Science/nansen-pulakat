@@ -1,4 +1,4 @@
-function [dataTable] = getCompleteUniqueRows(dataTable)
+function [dataTable] = getCompleteUniqueRows(dataTable,identifiers)
 %GETCOMPLETEUNIQUEROWS Consolidates duplicate rows by filling empty values.
 %
 %   This function identifies duplicate rows in a table (based on common
@@ -21,9 +21,19 @@ function [dataTable] = getCompleteUniqueRows(dataTable)
 % Input argument validation
 arguments
     dataTable table
+    identifiers {mustBeText} = ''
 end
 
-[indMatch,numMatch] = ndi.nansen.fun.matchTables(dataTable,dataTable);
+% Get variables to match
+identifiers = cellstr(identifiers);
+tableVars = dataTable.Properties.VariableNames;
+if isequal(identifiers,{''})
+    commonVars = tableVars;
+else
+    commonVars = intersect(tableVars,identifiers);
+end
+
+[indMatch,numMatch] = ndi.nansen.fun.matchTables(dataTable(:,commonVars),dataTable(:,commonVars));
 
 indResolved = false(size(indMatch));
 for i = 1:numel(indMatch)
