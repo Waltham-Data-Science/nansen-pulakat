@@ -5,15 +5,21 @@ function [dataset, cloudDatasetID] = dataset(datasetName, dataPath, cloud)
 %   and can automatically upload it to the NDI cloud.
 %
 %   Inputs:
-%       datasetName (char or string): The name of the new dataset.
-%       dataPath (char or string): Optional. The local path where the
-%           dataset directory will be created. Defaults to '~/ndi/data'.
-%       cloud (logical): Optional. Whether to automatically upload the
-%           dataset to the cloud. Defaults to true.
+%      datasetName (char or string): The name of the new dataset.
+%      dataPath (char or string): Optional. The local path for the dataset.
+%         Default is [userpath]/ndi/data.
+%      cloud (logical): Optional. Whether to upload the dataset to the
+%         cloud. Default is true.
 %
 %   Outputs:
-%       dataset (ndi.dataset.dir): The newly created NDI dataset object.
-%       cloudDatasetID (char): The unique cloud identifier for the dataset.
+%      dataset (ndi.dataset.dir): The newly created NDI dataset object.
+%      cloudDatasetID (char): The unique cloud identifier for the dataset.
+%
+%   Examples:
+%      % Create a new dataset named 'MyProject':
+%      [ds, id] = ndi.nansen.import.dataset('MyProject')
+%
+%   See also: NDI.NANSEN.IMPORT.SESSION, NDI.CLOUD.UPLOADDATASET
 
 % Input argument validation
 arguments

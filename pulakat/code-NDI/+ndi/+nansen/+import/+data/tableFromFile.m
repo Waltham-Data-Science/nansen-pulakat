@@ -1,20 +1,26 @@
 function [dataTable] = tableFromFile(session,dataFiles,labName)
-%TABLEFROMFILES Creates a table linking data files to subjects in an NDI session.
-%   This function processes a list of data files, identifies the subjects
-%   associated with each file, and matches them against subjects already present
-%   in the NDI session. If any files are associated with subjects not found in
-%   the session, it interactively prompts the user to import them.
+%TABLEFROMFILE Links data files to subjects in an NDI session.
+%
+%   This function processes a list of data files, identifies associated
+%   subjects, and matches them against existing NDI records. If
+%   subjects are missing, it prompts the user to import or create them.
 %
 %   Inputs:
-%       session (ndi.session.dir): The NDI session object to work with.
-%       dataFiles (cell array of strings): Optional. A cell array of paths 
-%           to the data files. If not provided, the function will prompt 
-%           the user to select a directory.
+%      session (ndi.session.dir): The NDI session object.
+%      dataFiles (cell array of strings): Optional. Paths to data files.
+%         If not provided, a selection dialog will open.
+%      labName (char or string): Optional. The name of the lab. Default
+%         is the current Nansen project name.
 %
 %   Outputs:
-%       dataTable (table): A table that maps data files to subjects. It 
-%           includes columns for 'ElectronicFileName', 'DataTypeName', and 
-%           'SubjectDocumentIdentifier'.
+%      dataTable (table): A table mapping data files to subjects with
+%         columns for 'ElectronicFileName' and identifiers.
+%
+%   Examples:
+%      % Identify data files and their subjects:
+%      dataTable = ndi.nansen.import.data.tableFromFile(session)
+%
+%   See also: NDI.NANSEN.IMPORT.SUBJECT.AUTO, NDI.NANSEN.METATABLE.MERGE
 
 % Input argument validation
 arguments
@@ -90,7 +96,7 @@ if any(numSubjects == 0)
             case 'Auto'
                 newSubjectTable = ndi.nansen.import.subject.auto(session);
                 if ~isempty(newSubjectTable)
-                    ndi.nansen.metatable.add(newSubjectTable, 'Subject');
+                    ndi.nansen.metatable.merge(newSubjectTable, 'Subject');
                     % Refresh local session subject table
                     project = nansen.getCurrentProject;
                     subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
@@ -101,7 +107,7 @@ if any(numSubjects == 0)
             case 'Manual'
                 newSubjectTable = ndi.nansen.import.subject.manual(session);
                 if ~isempty(newSubjectTable)
-                    ndi.nansen.metatable.add(newSubjectTable, 'Subject');
+                    ndi.nansen.metatable.merge(newSubjectTable, 'Subject');
                     % Refresh local session subject table
                     project = nansen.getCurrentProject;
                     subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
@@ -128,7 +134,7 @@ if any(numSubjects == 0)
     missingSubjects.Cloud = false(height(missingSubjects), 1);
 
     % Add stub subjects to metatable
-    ndi.nansen.metatable.add(missingSubjects, 'Subject');
+    ndi.nansen.metatable.merge(missingSubjects, 'Subject');
 
     % Refresh subjectTable_session one last time
     project = nansen.getCurrentProject;
