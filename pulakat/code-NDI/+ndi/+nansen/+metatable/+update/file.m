@@ -7,14 +7,15 @@ function [fileTable] = file(session)
 %   subject it belongs to, and its data type and ontology.
 %
 %   Inputs:
-%       session (ndi.session.dir or ndi.dataset.dir)
+%      session (ndi.session.dir or ndi.dataset.dir): The NDI session
+%         or dataset object.
 %
 %   Outputs:
-%       fileTable (table)
+%      fileTable (table): A table containing file metadata.
 %
 %   Examples:
-%       % Get file metadata for a session:
-%       fileTable = ndi.nansen.metatable.update.file(session)
+%      % Get file metadata for a session:
+%      fileTable = ndi.nansen.metatable.update.file(session)
 
 % Input argument validation
 arguments

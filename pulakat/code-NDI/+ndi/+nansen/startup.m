@@ -6,18 +6,20 @@ function [ ] = startup(labName, dataPath)
 %   cloud, generating metatables, and launching the Nansen GUI.
 %
 %   Inputs:
-%       labName (char or string)
-%       dataPath (char or string)
+%      labName (char or string): Optional. The name of the lab/project to
+%         start. Defaults to the current Nansen project name.
+%      dataPath (char or string): Optional. The local directory path where
+%         NDI datasets are stored. Defaults to '~/ndi/data'.
 %
 %   Examples:
-%       % Initialize current Nansen project:
-%       ndi.nansen.startup()
+%      % Initialize current Nansen project:
+%      ndi.nansen.startup()
 %
-%       % Initialize 'pulakat' project:
-%       ndi.nansen.startup('pulakat')
+%      % Initialize 'pulakat' project:
+%      ndi.nansen.startup('pulakat')
 %
-%       % Initialize with specific data path:
-%       ndi.nansen.startup('pulakat', 'C:\NDI\Data')
+%      % Initialize with specific data path:
+%      ndi.nansen.startup('pulakat', 'C:\NDI\Data')
 
 % Input argument validation
 arguments

@@ -7,14 +7,15 @@ function install(codePath)
 %   project and launches the Nansen GUI.
 %
 %   Inputs:
-%       codePath (char or string)
+%      codePath (char or string): Optional. The parent directory for
+%         installing the code repositories. Defaults to '~/ndi/tools'.
 %
 %   Examples:
-%       % Install to default location:
-%       install()
+%      % Install to default location:
+%      install()
 %
-%       % Install to a specific folder:
-%       install('C:\MyToolboxes')
+%      % Install to a specific folder:
+%      install('C:\MyToolboxes')
 
 % Input argument validation
 arguments

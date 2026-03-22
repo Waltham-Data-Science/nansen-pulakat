@@ -7,14 +7,15 @@ function [subjectTable] = subject(session)
 %   'ontologyTableRow' documents.
 %
 %   Inputs:
-%       session (ndi.session.dir or ndi.dataset.dir)
+%      session (ndi.session.dir or ndi.dataset.dir): The NDI session
+%         or dataset object.
 %
 %   Outputs:
-%       subjectTable (table)
+%      subjectTable (table): A table containing subject metadata.
 %
 %   Examples:
-%       % Get subject table for a dataset:
-%       subjectTable = ndi.nansen.metatable.update.subject(dataset)
+%      % Get subject table for a dataset:
+%      subjectTable = ndi.nansen.metatable.update.subject(dataset)
 
 % Input argument validation
 arguments

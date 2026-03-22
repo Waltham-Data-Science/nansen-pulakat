@@ -6,15 +6,18 @@ function [] = updateAll(dataset,options)
 %   the current Nansen project.
 %
 %   Inputs:
-%       dataset (ndi.session.dir or ndi.dataset.dir)
+%      dataset (ndi.session.dir or ndi.dataset.dir): The NDI dataset
+%         or session object.
 %
 %   Name-Value Pairs:
-%       options.LabName (char or string)
-%       options.Project (nansen.config.project.Project)
+%      LabName (char or string): Optional. The name of the lab. Default
+%         is current Nansen project name.
+%      Project (nansen.config.project.Project): Optional. The Nansen
+%         project object. Default is current Nansen project.
 %
 %   Examples:
-%       % Update all metatables for the current dataset:
-%       ndi.nansen.metatable.updateAll(dataset)
+%      % Update all metatables for the current dataset:
+%      ndi.nansen.metatable.updateAll(dataset)
 
 % Input argument validation
 arguments

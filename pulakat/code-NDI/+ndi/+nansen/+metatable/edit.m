@@ -8,18 +8,21 @@ function [metaTable] = edit(dataTable, dataName, options)
 %   not yet have an associated NDI document.
 %
 %   Inputs:
-%       dataTable (table)
-%       dataName (char or string)
+%      dataTable (table): A table containing the updated metadata.
+%      dataName (char or string): The name of the metatable to update.
+%         Must be one of: 'Dataset', 'Session', 'Subject', 'File'.
 %
 %   Name-Value Pairs:
-%       options.Project (nansen.config.project.Project)
+%      Project (nansen.config.project.Project): Optional. The Nansen
+%         project object. Default is current Nansen project.
 %
 %   Outputs:
-%       metaTable (nansen.metadata.MetaTable)
+%      metaTable (nansen.metadata.MetaTable): The updated Nansen
+%         metatable object.
 %
 %   Examples:
-%       % Update subject metadata in the Subject metatable:
-%       ndi.nansen.metatable.edit(updatedSubjectRow, 'Subject')
+%      % Update subject metadata in the Subject metatable:
+%      ndi.nansen.metatable.edit(updatedSubjectRow, 'Subject')
 
 % Input argument validation
 arguments

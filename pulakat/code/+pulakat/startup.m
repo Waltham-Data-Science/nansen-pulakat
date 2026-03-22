@@ -7,8 +7,8 @@ function [] = startup()
 %   dataset is updated, and the Nansen GUI is launched.
 %
 %   Examples:
-%       % Initialize the Pulakat lab:
-%       pulakat.startup()
+%      % Initialize the Pulakat lab:
+%      pulakat.startup()
 
 ndi.nansen.startup('pulakat');
 
