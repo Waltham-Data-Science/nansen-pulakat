@@ -20,7 +20,7 @@ Run `pulakat.startup` to initialize the environment, sync with the NDI cloud, an
 ## Workflow Overview
 
 1.  **Import Session:** Add a new experimental session (day/recording) to the Dataset table.
-2.  **Import Subjects:** Use **Import > Subjects > Auto** (detects from `animal_mapping.csv`) or **Manual** to add animals to a session.
+2.  **Import Subjects:** Use **Import > Subjects > Files** (detects from `animal_mapping.csv`) or **Manual** to add animals to a session.
 3.  **Import Files:** Use **Import > Files > Auto** or **Manual** to link data files (.svs, .bimg, etc.) to subjects.
 4.  **Validate & Edit:** Verify metadata and correct errors *before* committing to NDI.
 5.  **Commit/Sync:** Use the **Sync** method on the Dataset table to create NDI documents and upload to the cloud.
@@ -42,9 +42,8 @@ The following methods are accessible through the "Methods" menu when a record is
 
 | Method | Description |
 | :--- | :--- |
-| **Import > Subjects > Auto** | Detects and imports subjects from lab-standard metadata files in the session directory. |
+| **Import > Subjects > Files** | Detects and imports subjects from lab-standard metadata files. |
 | **Import > Subjects > Manual** | Opens a dialog to manually enter subject details (ID, Cage, Label, etc.). |
-| **Import > Subjects > Files** | Imports subjects by selecting specific metadata files. |
 | **Remove** | Removes the selected session from the local metatable (only if not yet synced). |
 
 ### Subject Table
