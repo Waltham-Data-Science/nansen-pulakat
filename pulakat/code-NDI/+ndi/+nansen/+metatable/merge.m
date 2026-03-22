@@ -23,6 +23,8 @@ function [metaTable] = merge(dataTable,dataName,options)
 %   Examples:
 %      % Merge new subject data into the Subject metatable:
 %      ndi.nansen.metatable.merge(newSubjectTable, 'Subject')
+%
+%   See also: NDI.NANSEN.METATABLE.EDIT, NANSEN.METADATA.METATABLE
 
 % Input argument validation
 arguments

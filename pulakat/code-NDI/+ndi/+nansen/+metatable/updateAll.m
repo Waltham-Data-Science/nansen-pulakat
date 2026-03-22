@@ -18,6 +18,8 @@ function [] = updateAll(dataset,options)
 %   Examples:
 %      % Update all metatables for the current dataset:
 %      ndi.nansen.metatable.updateAll(dataset)
+%
+%   See also: NDI.NANSEN.METATABLE.UPDATE, NDI.CLOUD.SYNC.DOWNLOADNEW
 
 % Input argument validation
 arguments

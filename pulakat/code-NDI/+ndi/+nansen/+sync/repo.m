@@ -26,6 +26,8 @@ function [status,repoPath] = repo(repoReference, options)
 %      % Update via URL and switch to a branch:
 %      url = 'https://github.com/VH-Lab/NDI-matlab';
 %      ndi.nansen.sync.repo(url, 'Branch', 'development')
+%
+%   See also: NDI.NANSEN.STARTUP, INSTALL
 
 arguments
     repoReference {mustBeText}

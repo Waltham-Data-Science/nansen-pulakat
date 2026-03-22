@@ -20,6 +20,8 @@ function [ ] = startup(labName, dataPath)
 %
 %      % Initialize with specific data path:
 %      ndi.nansen.startup('pulakat', 'C:\NDI\Data')
+%
+%   See also: NDI.NANSEN.METATABLE.UPDATEALL, NDI.NANSEN.SYNC.REPO, NANSEN
 
 % Input argument validation
 arguments

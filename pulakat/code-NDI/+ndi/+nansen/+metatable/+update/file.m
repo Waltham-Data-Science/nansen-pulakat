@@ -16,6 +16,8 @@ function [fileTable] = file(session)
 %   Examples:
 %      % Get file metadata for a session:
 %      fileTable = ndi.nansen.metatable.update.file(session)
+%
+%   See also: NDI.NANSEN.METATABLE.SUBJECT, NDI.NANSEN.FUN.GETIDENTIFIER
 
 % Input argument validation
 arguments

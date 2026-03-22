@@ -21,8 +21,10 @@ function [metaTable] = edit(dataTable, dataName, options)
 %         metatable object.
 %
 %   Examples:
-%      % Update subject metadata in the Subject metatable:
-%      ndi.nansen.metatable.edit(updatedSubjectRow, 'Subject')
+%       % Update subject metadata in the Subject metatable:
+%       ndi.nansen.metatable.edit(updatedSubjectRow, 'Subject')
+%
+%   See also: NDI.NANSEN.METATABLE.MERGE, NANSEN.METADATA.METATABLE
 
 % Input argument validation
 arguments

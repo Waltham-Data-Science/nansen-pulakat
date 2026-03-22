@@ -14,6 +14,8 @@ function [datasetTable] = dataset(dataset)
 %   Examples:
 %      % Get metadata table for an NDI dataset:
 %      datasetTable = ndi.nansen.metatable.update.dataset(dataset)
+%
+%   See also: NDI.DATASET.DIR, NDI.CLOUD.SYNC.DOWNLOADNEW
 
 % Input argument validation
 arguments

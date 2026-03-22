@@ -9,6 +9,8 @@ function [] = startup()
 %   Examples:
 %      % Initialize the Pulakat lab:
 %      pulakat.startup()
+%
+%   See also: NDI.NANSEN.STARTUP, NANSEN.PROJECTMANAGER
 
 ndi.nansen.startup('pulakat');
 

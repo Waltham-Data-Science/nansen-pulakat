@@ -24,6 +24,8 @@ function [] = update(dataset,dataName,options)
 %
 %      % Update only specific variables in the File metatable:
 %      ndi.nansen.metatable.update(dataset, 'File', 'UpdateVariableNames', {'NumFiles'})
+%
+%   See also: NDI.NANSEN.METATABLE.MERGE, NANSEN.METADATA.METATABLE
 
 % Input argument validation
 arguments

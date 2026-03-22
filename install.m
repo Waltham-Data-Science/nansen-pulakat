@@ -16,6 +16,8 @@ function install(codePath)
 %
 %      % Install to a specific folder:
 %      install('C:\MyToolboxes')
+%
+%   See also: NDI.NANSEN.STARTUP, NANSEN_INSTALL, NDI_INSTALL, NDI.NANSEN.SYNC.REPO
 
 % Input argument validation
 arguments

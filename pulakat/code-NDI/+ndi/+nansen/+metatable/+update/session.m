@@ -15,6 +15,8 @@ function [sessionTable] = session(session)
 %   Examples:
 %      % Get session metadata for a dataset:
 %      sessionTable = ndi.nansen.metatable.update.session(dataset)
+%
+%   See also: NDI.SESSION.DIR, NDI.DATASET.DIR, NANSEN.PROJECTMANAGER
 
 % Input argument validation
 arguments

@@ -16,6 +16,8 @@ function [subjectTable] = subject(session)
 %   Examples:
 %      % Get subject table for a dataset:
 %      subjectTable = ndi.nansen.metatable.update.subject(dataset)
+%
+%   See also: NDI.FUN.DOCTABLE.SUBJECT, NDI.FUN.DOC.ONTOLOGYTABLEROWDOC2TABLE
 
 % Input argument validation
 arguments
