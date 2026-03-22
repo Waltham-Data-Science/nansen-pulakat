@@ -1,18 +1,29 @@
 function [dataTable] = manual(session,dataFiles,options)
-%MANUAL Manually adds a file to an NDI session.
+%MANUAL Manually adds data files to an NDI session via GUI.
 %
-%   This function prompts the user to select one or more files and
-%   specify their data type, then creates corresponding data documents
-%   and adds them to the NDI session's database.
+%   This function guides the user through selecting files, assigning
+%   data types, and matching files to subjects using interactive
+%   dialogs and pickers.
 %
 %   Inputs:
-%       session (ndi.session.dir): The NDI session object.
-%       labName (char or string): Optional. The name of the lab. Defaults
-%           to the current project name.
+%      session (ndi.session.dir): The NDI session object.
+%      dataFiles (cell array of strings): Optional. List of file paths.
+%         If not provided, a selection dialog will open.
+%
+%   Name-Value Pairs:
+%      LabName (char or string): Optional. The name of the lab. Default
+%         is the current Nansen project name.
+%      Project (nansen.config.project.Project): Optional. The Nansen
+%         project object. Default is the current Nansen project.
 %
 %   Outputs:
-%       dataTable (table): An updated table containing information about
-%           all data in the session.
+%      dataTable (table): The updated Nansen 'File' metatable entries.
+%
+%   Examples:
+%      % Start manual import for a session:
+%      ndi.nansen.import.file.manual(session)
+%
+%   See also: NDI.NANSEN.IMPORT.FILE, NDI.NANSEN.IMPORT.FILE.AUTO
 
 % Input argument validation
 arguments

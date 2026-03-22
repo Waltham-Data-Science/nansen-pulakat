@@ -8,7 +8,13 @@ function [dataset] = datasetID2Object(datasetID,options)
 %       datasetID (char or string): The unique identifier of the dataset.
 %
 %   Outputs:
-%       dataset (ndi.dataset.dir): The NDI dataset object.
+%      dataset (ndi.dataset.dir): The NDI dataset object.
+%
+%   Examples:
+%      % Get a dataset object by ID:
+%      ds = ndi.nansen.fun.datasetID2Object('DS-123')
+%
+%   See also: NDI.NANSEN.IMPORT.DATASET, NDI.DATASET.DIR
 
 % Input argument validation
 arguments

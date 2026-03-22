@@ -1,4 +1,24 @@
 function [value] = getCloudStatus(className,obj)
+%GETCLOUDSTATUS Checks the cloud synchronization status of a record.
+%
+%   This function determines if a specific record (e.g., a Subject or File)
+%   has been successfully synchronized to the NDI cloud.
+%
+%   Inputs:
+%      className (char or string): The name of the class (e.g.,
+%         'nansen.metadata.type.Subject').
+%      obj (struct): A struct representation of the record. Must include
+%         'DatasetIdentifier' and the class-specific document identifier.
+%
+%   Outputs:
+%      value (logical): True if the record is on the cloud, false otherwise.
+%
+%   Examples:
+%      % Check if a subject record is on the cloud:
+%      onCloud = ndi.nansen.fun.getCloudStatus('nansen.metadata.type.Subject', subjectStruct)
+%
+%   See also: NDI.NANSEN.SYNC.STATUS, NDI.NANSEN.FUN.DATASETID2OBJECT
+
 % Input argument validation
 arguments
     className {mustBeTextScalar}

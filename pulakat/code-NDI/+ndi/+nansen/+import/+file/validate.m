@@ -1,16 +1,26 @@
 function [isValid, errorReport] = validate(fileTable,options)
 %VALIDATE Validates file metadata against project requirements.
 %
-%   [ISVALID, ERRORREPORT] = VALIDATE(FILETABLE) checks if the provided
-%   file metadata table follows the rules for NDI document creation.
-%   It checks for valid data types and physical file existence.
+%   This function checks if the provided file metadata table follows
+%   the rules for NDI document creation, specifically checking for
+%   valid data types and physical file existence.
 %
 %   Inputs:
-%       fileTable (table): A table containing file metadata.
+%      fileTable (table): A table containing file metadata.
+%
+%   Name-Value Pairs:
+%      LabName (char or string): Optional. The name of the lab. Default
+%         is the current Nansen project name.
 %
 %   Outputs:
-%       isValid (logical): True if all checked rows are valid.
-%       errorReport (cellstr): A list of formatted error messages.
+%      isValid (logical): True if all checked rows are valid.
+%      errorReport (cellstr): A list of formatted error messages.
+%
+%   Examples:
+%      % Validate a file table:
+%      [ok, report] = ndi.nansen.import.file.validate(myFileTable)
+%
+%   See also: NDI.NANSEN.IMPORT.FILE.CREATEDOCUMENTS
 
 % Input argument validation
 arguments

@@ -1,6 +1,22 @@
 function [dataTable] = getCompleteUniqueRows(dataTable)
-%RESOLVECONFLICTS Summary of this function goes here
-%   Detailed explanation goes here
+%GETCOMPLETEUNIQUEROWS Consolidates duplicate rows by filling empty values.
+%
+%   This function identifies duplicate rows in a table (based on common
+%   identifiers) and attempts to merge them. If a variable is empty in
+%   one row but has a value in a duplicate row, the value is populated
+%   into the empty field.
+%
+%   Inputs:
+%      dataTable (table): The input table with potential duplicates.
+%
+%   Outputs:
+%      dataTable (table): The consolidated table with unique rows.
+%
+%   Examples:
+%      % Consolidate records:
+%      dataTable = ndi.nansen.fun.getCompleteUniqueRows(dataTable)
+%
+%   See also: NDI.NANSEN.FUN.MATCHTABLES, UNIQUE
 
 % Input argument validation
 arguments

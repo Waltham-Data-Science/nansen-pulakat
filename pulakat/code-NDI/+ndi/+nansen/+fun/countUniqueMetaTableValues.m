@@ -1,6 +1,32 @@
 function [value] = countUniqueMetaTableValues(className,dataName,obj,options)
-%COUNTMETATABLEVALUES Summary of this function goes here
-%   Detailed explanation goes here
+%COUNTUNIQUEMETATABLEVALUES Counts unique values in a Nansen metatable.
+%
+%   This function calculates the number of unique occurrences of a
+%   specified variable in a Nansen metatable, filtered by an object
+%   identifier.
+%
+%   Inputs:
+%      className (char or string): The name of the class (e.g.,
+%         'nansen.metadata.type.Session').
+%      dataName (char or string): The metatable class name ('Dataset',
+%         'Session', 'Subject', 'File').
+%      obj (struct): A struct representation of the record.
+%
+%   Name-Value Pairs:
+%      Project (nansen.config.project.Project): Optional. The Nansen
+%         project object. Default is current Nansen project.
+%      VariableName (char or string): Optional. The variable to count.
+%         Default is '[dataName]Identifier'.
+%
+%   Outputs:
+%      value (double): The count of unique values.
+%
+%   Examples:
+%      % Count unique files for a subject:
+%      n = ndi.nansen.fun.countUniqueMetaTableValues(cls, 'File', subj)
+%
+%   See also: NDI.NANSEN.FUN.LISTUNIQUEMETATABLEVALUES
+
 % Input argument validation
 arguments
     className {mustBeTextScalar}

@@ -1,4 +1,28 @@
 function dataTable = editImportTableGUI(dataTable, dataName, options)
+%EDITIMPORTTABLEGUI Opens a comprehensive UI for editing import tables.
+%
+%   This function allows full table editing (addition/deletion) and
+%   column-specific dropdowns. It is the primary interface for
+%   manual data entry and confirmation in the import package.
+%
+%   Inputs:
+%      dataTable (table): The input table to edit.
+%      dataName (char or string): Name of the data type ('Subject').
+%
+%   Name-Value Pairs:
+%      Prompt (char or string): Instruction text at top.
+%      DropDown (struct): A struct with 'VariableName' and 'Values'
+%         for dropdown columns.
+%      AddRow (logical): Whether to allow adding new rows. Default is true.
+%
+%   Outputs:
+%      dataTable (table): The updated table after user confirmation.
+%
+%   Examples:
+%      % Edit a subject import table:
+%      updatedTable = ndi.nansen.fun.editImportTableGUI(subjTable, 'Subject')
+%
+%   See also: NDI.NANSEN.FUN.SELECTIONPICKERGUI, NDI.NANSEN.FUN.SIMPLEPICKERGUI
 
 % Input argument validation
 arguments

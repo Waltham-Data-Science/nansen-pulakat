@@ -1,6 +1,31 @@
 function [dataTable] = file(session,dataTable,options)
-%SUBJECT Summary of this function goes here
-%   Detailed explanation goes here
+%FILE Imports data files into a Nansen metatable and links them to subjects.
+%
+%   This function imports new data files into the Nansen 'File' metatable,
+%   ensuring they are linked to the correct subjects. It identifies new
+%   files by comparing the provided dataTable against existing entries
+%   for the current session.
+%
+%   Inputs:
+%      session (ndi.session.dir): The NDI session object.
+%      dataTable (table): A table containing the files to import. Must
+%         include columns for 'ElectronicFileName' and subject identifiers.
+%
+%   Name-Value Pairs:
+%      LabName (char or string): Optional. The name of the lab (e.g.,
+%         'pulakat'). Default is the current Nansen project name.
+%      Project (nansen.config.project.Project): Optional. The Nansen
+%         project object. Default is the current Nansen project.
+%
+%   Outputs:
+%      dataTable (table): The updated Nansen 'File' metatable entries for
+%         the current project.
+%
+%   Examples:
+%      % Import files for a session:
+%      ndi.nansen.import.file(session, newFileData)
+%
+%   See also: NDI.NANSEN.IMPORT.SUBJECT, NDI.NANSEN.METATABLE.MERGE
 
 % Input argument validation
 arguments

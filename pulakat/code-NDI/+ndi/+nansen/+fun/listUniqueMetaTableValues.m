@@ -1,6 +1,29 @@
 function [value] = listUniqueMetaTableValues(className,dataName,obj,options)
-%LISTUNIQUEMETATABLEVALUES Summary of this function goes here
-%   Detailed explanation goes here
+%LISTUNIQUEMETATABLEVALUES Lists unique values in a Nansen metatable.
+%
+%   This function retrieves all unique values of a specified variable
+%   in a Nansen metatable, filtered by an object identifier, and
+%   returns them as a comma-separated string.
+%
+%   Inputs:
+%      className (char or string): Full name of the class and variable
+%         (e.g., 'nansen.metadata.type.Session.DataTypes').
+%      dataName (char or string): The metatable class name ('Dataset',
+%         'Session', 'Subject', 'File').
+%      obj (struct): A struct representation of the record.
+%
+%   Name-Value Pairs:
+%      Project (nansen.config.project.Project): Optional. The Nansen
+%         project object. Default is current Nansen project.
+%
+%   Outputs:
+%      value (char): A comma-separated list of unique values.
+%
+%   Examples:
+%      % List all data types in a session:
+%      types = ndi.nansen.fun.listUniqueMetaTableValues(cls, 'File', sess)
+%
+%   See also: NDI.NANSEN.FUN.COUNTUNIQUEMETATABLEVALUES
 
 % Input argument validation
 arguments

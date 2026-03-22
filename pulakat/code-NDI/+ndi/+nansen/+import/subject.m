@@ -1,6 +1,31 @@
 function [subjectTable] = subject(session,subjectTable,options)
-%SUBJECT Summary of this function goes here
-%   Detailed explanation goes here
+%SUBJECT Imports subject metadata into a Nansen metatable.
+%
+%   This function identifies new and unique subjects from a provided
+%   table and merges them into the Nansen 'Subject' metatable for the
+%   specified session. It handles conflict resolution if incoming
+%   metadata differs from existing records.
+%
+%   Inputs:
+%      session (ndi.session.dir): The NDI session object.
+%      subjectTable (table): A table containing the subject metadata to
+%         import. Must include identifying fields (e.g., 'Animal').
+%
+%   Name-Value Pairs:
+%      LabName (char or string): Optional. The name of the lab. Default
+%         is the current Nansen project name.
+%      Project (nansen.config.project.Project): Optional. The Nansen
+%         project object. Default is the current Nansen project.
+%
+%   Outputs:
+%      subjectTable (table): The updated Nansen 'Subject' metatable
+%         entries for the current project.
+%
+%   Examples:
+%      % Import subjects for a session:
+%      ndi.nansen.import.subject(session, newSubjectData)
+%
+%   See also: NDI.NANSEN.IMPORT.FILE, NDI.NANSEN.METATABLE.MERGE
 
 % Input argument validation
 arguments

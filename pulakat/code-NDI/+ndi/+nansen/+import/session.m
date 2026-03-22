@@ -1,22 +1,26 @@
 function [session] = session(dataset, sessionPath, sessionName)
 %SESSION Creates a new NDI session and adds it to a dataset.
 %
-%   This function prompts the user to select a directory for the session data,
-%   asks for a session name, creates the NDI session, and then links it to the
-%   specified NDI dataset.
+%   This function creates an NDI session from a local path and links
+%   it to the specified NDI dataset. If path or name are not provided,
+%   the function will prompt the user via dialog boxes.
 %
 %   Inputs:
-%       dataset (ndi.dataset.dir): The NDI dataset object to which the new 
-%           session will be added.
-%       sessionPath (char or string): Optional. The path to the directory 
-%           where the session data is located. If not provided, a dialog 
-%           box will open for the user to select the directory.
-%       sessionName (char or string): Optional. The name of the new 
-%           session. If not provided, a dialog box will prompt the user to 
-%           enter a name.
+%      dataset (ndi.dataset.dir): The NDI dataset object to which the
+%         session will be added.
+%      sessionPath (char or string): Optional. Local path for session data.
+%         If not provided, a directory picker will open.
+%      sessionName (char or string): Optional. Name of the new session.
+%         If not provided, a dialog box will prompt the user.
 %
 %   Outputs:
-%       session (ndi.session.dir): The newly created NDI session object.
+%      session (ndi.session.dir): The newly created NDI session object.
+%
+%   Examples:
+%      % Create a session interactively:
+%      session = ndi.nansen.import.session(dataset)
+%
+%   See also: NDI.NANSEN.IMPORT.DATASET, NDI.SESSION.DIR
 
 % Input argument validation
 arguments

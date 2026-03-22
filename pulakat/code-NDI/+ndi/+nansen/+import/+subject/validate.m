@@ -1,9 +1,26 @@
 function [isValid, errorReport] = validate(subjectTable, options)
 %VALIDATE Validates subject metadata using the informationCreator.
 %
-%   [ISVALID, ERRORREPORT] = VALIDATE(SUBJECTTABLE) checks if the provided
-%   subject metadata table can successfully be processed by the 
-%   informationCreator to generate NDI documents.
+%   This function checks if the provided subject metadata table can
+%   successfully be processed by the informationCreator to generate
+%   NDI documents and openMINDS objects.
+%
+%   Inputs:
+%      subjectTable (table): A table containing the subject records.
+%
+%   Name-Value Pairs:
+%      LabName (char or string): Optional. The name of the lab. Default
+%         is the current Nansen project name.
+%
+%   Outputs:
+%      isValid (logical): True if all records are valid.
+%      errorReport (cellstr): A list of error messages for invalid records.
+%
+%   Examples:
+%      % Validate a subject table:
+%      [ok, report] = ndi.nansen.import.subject.validate(mySubjectTable)
+%
+%   See also: NDI.NANSEN.IMPORT.SUBJECT.DOCUMENTS, NDI.NANSEN.IMPORT.SUBJECT.AUTO
 
 arguments
     subjectTable table

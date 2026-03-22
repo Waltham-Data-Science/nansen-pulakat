@@ -1,4 +1,27 @@
 function [dataTable] = selectionPickerGUI(dataTable,options)
+%SELECTIONPICKERGUI Opens a GUI to select rows from a table.
+%
+%   This function displays a table in a GUI with a 'Select' checkbox
+%   column. The user can select/deselect rows and add new rows if
+%   enabled.
+%
+%   Inputs:
+%      dataTable (table): The input table to display.
+%
+%   Name-Value Pairs:
+%      Title (char or string): Window title. Default is 'Record Selector'.
+%      AddRow (logical): Whether to allow adding new rows. Default is true.
+%      Prompt (char or string): Instruction text at top. Default is ''.
+%      Default (logical): Initial selection state. Default is true.
+%
+%   Outputs:
+%      dataTable (table): The table containing only the selected rows.
+%
+%   Examples:
+%      % Select subjects from a list:
+%      selected = ndi.nansen.fun.selectionPickerGUI(subjectTable)
+%
+%   See also: NDI.NANSEN.FUN.EDITIMPORTTABLEGUI, NDI.NANSEN.FUN.SIMPLEPICKERGUI
 
 % Input argument validation
 arguments

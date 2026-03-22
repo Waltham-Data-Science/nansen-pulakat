@@ -1,25 +1,23 @@
 function valid = validateTable(fileName,requiredVariableNames)
-%VALIDATETABLE Validates the format and integrity of a tabular data file.
-%   This function serves as a pre-import check for tabular data files like
-%   CSV or Excel spreadsheets. It verifies two main conditions:
-%   1.  Column Integrity: It checks if a specified set of required column
-%       headers exists in the file.
-%   2.  Data Integrity: It checks for missing or improperly formatted data
-%       within those required columns.
-%   The function returns a logical flag indicating whether the file passed
-%   all checks. Warnings are issued to the command window detailing any
-%   failures.
+%VALIDATETABLE Checks if a table or file contains required columns.
+%
+%   This function validates that a provided tabular file (e.g., CSV)
+%   contains all the necessary variable names and data integrity
+%   for NDI import.
 %
 %   Inputs:
-%       fileName: A character vector or string scalar specifying the full 
-%           path to the file to be validated. The file must exist.
-%       requiredVariableNames (Optional): A string array or cell array of
-%           character vectors listing the exact column headers that must be 
-%           present in the file. If left empty, this check is skipped.
+%      fileName (char or string): Path to the file to be validated.
+%      requiredVariableNames (cell array): Optional. List of required
+%         column names.
 %
 %   Outputs:
-%       valid: A logical scalar. Returns 'true' if the file passes all 
-%           validation checks, and 'false' if any check fails.
+%      valid (logical): True if the file passes validation, false otherwise.
+%
+%   Examples:
+%      % Check if a CSV has required subject columns:
+%      ok = ndi.nansen.import.file.validateTable('animal.csv', {'Animal'})
+%
+%   See also: NDI.NANSEN.IMPORT.SUBJECT.TABLEFROMFILE
 
 % Input argument validation
 arguments

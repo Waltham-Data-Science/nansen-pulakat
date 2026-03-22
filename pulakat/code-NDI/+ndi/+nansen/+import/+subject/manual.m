@@ -1,18 +1,26 @@
 function [subjectTable] = manual(session, options)
-%MANUAL Manually adds a subject to an NDI session.
+%MANUAL Manually adds a subject to an NDI session via dialog.
 %
-%   This function prompts the user to enter subject metadata, creates
-%   a corresponding subject document, and adds it to the NDI session's
-%   database.
+%   This function prompts the user to enter subject metadata
+%   interactively and merges it into the Nansen 'Subject' metatable.
 %
 %   Inputs:
-%       session (ndi.session.dir): The NDI session object.
-%       labName (char or string): Optional. The name of the lab. Defaults
-%           to the current project name.
+%      session (ndi.session.dir): The NDI session object.
+%
+%   Name-Value Pairs:
+%      LabName (char or string): Optional. The name of the lab. Default
+%         is the current Nansen project name.
+%      Project (nansen.config.project.Project): Optional. The Nansen
+%         project object. Default is the current Nansen project.
 %
 %   Outputs:
-%       subjectTable (table): An updated table containing information about
-%           all subjects in the session.
+%      subjectTable (table): The updated Nansen 'Subject' metatable entries.
+%
+%   Examples:
+%      % Manually enter a new subject:
+%      ndi.nansen.import.subject.manual(session)
+%
+%   See also: NDI.NANSEN.IMPORT.SUBJECT, NDI.NANSEN.IMPORT.SUBJECT.AUTO
 
 % Input argument validation
 arguments
