@@ -27,11 +27,11 @@ Run `pulakat.startup` to initialize the environment, sync with the NDI cloud, an
 
 ---
 
-## Nansen GUI Methods
+## Table Methods
 
-Methods are divided into "Session Methods" (Dataset table) and "Object Methods" (Subject/File tables).
+The following methods are accessible through the "Methods" menu when a record is selected in the corresponding table.
 
-### Session Methods (Dataset Table)
+### Dataset Table
 
 | Method | Description |
 | :--- | :--- |
@@ -40,21 +40,30 @@ Methods are divided into "Session Methods" (Dataset table) and "Object Methods" 
 | **Import > Subjects > Manual** | Enter subject details (ID, Cage, Label, Strain) manually. |
 | **Sync** | Creates NDI documents and performs a two-way sync with the cloud. |
 
-### Object Methods (Subject Table)
+### Session Table
 
 | Method | Description |
 | :--- | :--- |
-| **Validate** | Dry-run validation of metadata against NDI/openMINDS ontologies. |
-| **Edit** | Edit animal metadata (locked once synced to NDI). |
-| **Remove** | Delete the subject record from the local metatable. |
+| **Import > Subjects > Auto** | Detects and imports subjects from lab-standard metadata files in the session directory. |
+| **Import > Subjects > Manual** | Opens a dialog to manually enter subject details (ID, Cage, Label, etc.). |
+| **Import > Subjects > Files** | Imports subjects by selecting specific metadata files. |
+| **Remove** | Removes the selected session from the local metatable (only if not yet synced). |
 
-### Object Methods (File Table)
+### Subject Table
 
 | Method | Description |
 | :--- | :--- |
-| **Import > Files > Auto** | Scans session directory for supported data types. |
-| **Import > Files > Manual** | Manually pick files and assign data types/subjects. |
-| **Validate** | Checks physical file existence and data type validity. |
+| **Validate** | Performs a "dry run" validation of subject metadata. |
+| **Edit** | Allows editing of subject metadata (locked once synced). |
+| **Remove** | Deletes the subject record from the local metatable. |
+
+### File Table
+
+| Method | Description |
+| :--- | :--- |
+| **Import > Files > Auto** | Scans the session directory for files matching supported data types. |
+| **Import > Files > Manual** | Allows manual selection of files and assignment of data types and subjects. |
+| **Validate** | Checks for physical file existence and valid data type assignments. |
 
 ---
 
