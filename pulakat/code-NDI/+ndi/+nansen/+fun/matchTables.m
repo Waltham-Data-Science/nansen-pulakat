@@ -12,11 +12,15 @@ function [indMatch, numMatch] = matchTables(A, B, excludeVariables)
 %           exclude from the matching process.
 %
 %   Outputs:
-%       indMatch (cell array): A cell array where each element contains a
-%           numeric vector of row indices from table B that match the
-%           corresponding row in table A.
-%       numMatch (vector): A numeric vector containing the count of unique
-%           matches in table B for each row in table A.
+%      indMatch (cell array): Row indices from table B that match each
+%         row in table A.
+%      numMatch (vector): Count of matches in table B for each row in table A.
+%
+%   Examples:
+%      % Find matches between two subject tables:
+%      [ind, num] = ndi.nansen.fun.matchTables(newTable, existingTable)
+%
+%   See also: NDI.NANSEN.FUN.GETCOMPLETEUNIQUEROWS
 
 % Input argument validation
 arguments

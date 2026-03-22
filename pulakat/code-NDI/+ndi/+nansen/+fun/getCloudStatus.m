@@ -13,6 +13,10 @@ function [value] = getCloudStatus(className,obj)
 %   Outputs:
 %      value (logical): True if the record is on the cloud, false otherwise.
 %
+%   Examples:
+%      % Check if a subject record is on the cloud:
+%      onCloud = ndi.nansen.fun.getCloudStatus('nansen.metadata.type.Subject', subjectStruct)
+%
 %   See also: NDI.NANSEN.SYNC.STATUS, NDI.NANSEN.FUN.DATASETID2OBJECT
 
 % Input argument validation

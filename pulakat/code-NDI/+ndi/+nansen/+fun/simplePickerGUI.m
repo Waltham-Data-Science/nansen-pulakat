@@ -1,4 +1,24 @@
 function selectedItem = simplePickerGUI(items,options)
+%SIMPLEPICKERGUI Opens a simple dropdown GUI to select one item.
+%
+%   This function displays a list of items in a dropdown menu and
+%   waits for the user to select one.
+%
+%   Inputs:
+%      items (cell array of strings): List of items to choose from.
+%
+%   Name-Value Pairs:
+%      Prompt (char or string): Label above the dropdown. Default
+%         is 'Please select an item from the list below'.
+%
+%   Outputs:
+%      selectedItem (char): The item selected by the user.
+%
+%   Examples:
+%      % Pick a data type from a list:
+%      choice = ndi.nansen.fun.simplePickerGUI({'type1', 'type2'})
+%
+%   See also: NDI.NANSEN.FUN.SELECTIONPICKERGUI, NDI.NANSEN.FUN.EDITIMPORTTABLEGUI
 
 % Input argument validation
 arguments

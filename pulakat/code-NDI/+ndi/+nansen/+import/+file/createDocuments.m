@@ -2,7 +2,23 @@ function [dataTable] = createDocuments(session, dataTable, labName)
 %CREATEDOCUMENTS Creates NDI file documents tethered to Subject UIDs.
 %
 %   This function implements the Tier 3 -> Tier 4 hierarchical sync.
-%   Files are established as children of their parent Subject UID.
+%   Files are established as children of their parent Subject UID
+%   within the NDI database.
+%
+%   Inputs:
+%      session (ndi.session.dir): The NDI session object.
+%      dataTable (table): A table containing the file records.
+%      labName (char or string): The name of the lab.
+%
+%   Outputs:
+%      dataTable (table): The updated Nansen 'File' metatable entries
+%         with established UIDs.
+%
+%   Examples:
+%      % Create NDI documents for session files:
+%      ndi.nansen.import.file.createDocuments(session, myFileTable, 'pulakat')
+%
+%   See also: NDI.NANSEN.IMPORT.SUBJECT.DOCUMENTS
 
 % Get project info
 projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');

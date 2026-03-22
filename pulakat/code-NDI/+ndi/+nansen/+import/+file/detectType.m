@@ -1,6 +1,27 @@
 function [dataTable] = detectType(dataFiles,options)
-%DETECTFILETYPE Summary of this function goes here
-%   Detailed explanation goes here
+%DETECTTYPE Automatically identifies NDI data types for files.
+%
+%   This function scans a list of files and uses project-specific
+%   rules (e.g., from project_info.json) to assign an NDI data type
+%   to each file based on its name or extension.
+%
+%   Inputs:
+%      dataFiles (cell array of strings): Optional. List of file paths.
+%         If not provided, a selection dialog will open.
+%
+%   Name-Value Pairs:
+%      LabName (char or string): Optional. The name of the lab. Default
+%         is the current Nansen project name.
+%
+%   Outputs:
+%      dataTable (table): A table with 'ElectronicFileName' and
+%         'DataTypeName' columns.
+%
+%   Examples:
+%      % Detect types for files in a directory:
+%      typesTable = ndi.nansen.import.file.detectType(filePaths)
+%
+%   See also: NDI.NANSEN.IMPORT.FILE.AUTO
 
 % Input argument validation
 arguments

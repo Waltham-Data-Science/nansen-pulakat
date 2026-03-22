@@ -1,13 +1,18 @@
 classdef informationCreator < ndi.setup.NDIMaker.SubjectInformationCreator
-% PULAKAT - Creates NDI subject information for the Pulakat Lab.
+%INFORMATIONCREATOR Creates NDI subject information and openMINDS objects.
 %
-% This class implements the 'create' method to generate subject identifiers
-% and openMINDS objects based on the specific metadata structure used in the
-% Pulakat lab's experimental tables for Rattus norvegicus.
+%   This class implements the 'create' method to generate subject identifiers
+%   and openMINDS objects based on the specific metadata structure used in
+%   experimental tables.
+%
+%   Methods:
+%      create - Generates subject data from a table row.
+%
+%   See also: NDI.SETUP.NDIMAKER.SUBJECTINFORMATIONCREATOR
 
 methods
     function [subjectIdentifier, strain, species, biologicalSex] = create(obj, tableRow)
-        % CREATE - Generates subject data from a Pulakat Lab table row.
+        %CREATE Generates subject data from a table row.
         %
         %   [SUBJECTIDENTIFIER, STRAIN, SPECIES, BIOLOGICALSEX] = CREATE(OBJ, TABLEROW)
         %
@@ -16,22 +21,17 @@ methods
         %   species, strain, and biological sex.
         %
         %   Inputs:
-        %       obj (ndi.setup.NDIMaker.SubjectInformationCreator) - The instance of this creator class.
-        %       tableRow (table) - A single row from a MATLAB table. It must contain the columns
-        %                          'Strain', 'SubjectCageIdentifier', and 'SubjectTextIdentifier'.
+        %      obj (ndi.nansen.import.subject.informationCreator): The creator instance.
+        %      tableRow (table): A single row from a MATLAB table containing
+        %         subject metadata.
         %
         %   Outputs:
-        %       subjectIdentifier (char) - The unique local identifier string for the subject.
-        %                                  Returns NaN on failure.
-        %       strain (openminds.core.research.Strain) - The corresponding openMINDS strain object.
-        %                                                   Returns NaN on failure.
-        %       species (openminds.controlledterms.Species) - The openMINDS species object.
-        %                                                       Returns NaN on failure.
-        %       biologicalSex (openminds.controlledterms.BiologicalSex) - The openMINDS biological sex object.
-        %                                                                   Returns NaN on failure.
+        %      subjectIdentifier (char): Unique local identifier string.
+        %      strain (openminds.core.research.Strain): openMINDS strain object.
+        %      species (openminds.controlledterms.Species): openMINDS species object.
+        %      biologicalSex (openminds.controlledterms.BiologicalSex): openMINDS sex object.
         %
-        %   See also: ndi.setup.NDIMaker.SubjectInformationCreator
-        %
+        %   See also: NDI.SETUP.NDIMAKER.SUBJECTINFORMATIONCREATOR
         arguments
             obj ndi.setup.NDIMaker.SubjectInformationCreator
             tableRow (1,:) table

@@ -19,6 +19,10 @@ function [value] = getMetaTableValue(dataName,variableName,entryIdentifier,optio
 %   Outputs:
 %      value (any): The value of the requested variable for the entry.
 %
+%   Examples:
+%      % Get the path for a dataset:
+%      p = ndi.nansen.fun.getMetaTableValue('Dataset', 'DatasetPath', 'DS-123')
+%
 %   See also: NANSEN.METADATA.METATABLE.GETENTRY
 
 % Input argument validation

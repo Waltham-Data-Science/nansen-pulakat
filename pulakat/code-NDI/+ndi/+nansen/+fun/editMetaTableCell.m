@@ -1,6 +1,24 @@
 function [obj] = editMetaTableCell(className,obj,options)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+%EDITMETATABLECELL Edits a single cell in a Nansen metatable via dialog.
+%
+%   This function allows the user to edit a specific metadata field
+%   in a Nansen metatable using an input dialog. It checks if the
+%   record has already been documented in NDI to prevent modification
+%   of established records.
+%
+%   Inputs:
+%      className (char or string): Full name of the class and variable
+%         (e.g., 'nansen.metadata.type.Subject.Animal').
+%      obj (struct): A struct representation of the record row.
+%
+%   Name-Value Pairs:
+%      Project (nansen.config.project.Project): Optional. The Nansen
+%         project object. Default is current Nansen project.
+%
+%   Outputs:
+%      obj (struct): The updated record struct.
+%
+%   See also: NDI.NANSEN.METATABLE.EDIT, NDI.NANSEN.FUN.EDITIMPORTTABLEGUI
 
 % Input argument validation
 arguments

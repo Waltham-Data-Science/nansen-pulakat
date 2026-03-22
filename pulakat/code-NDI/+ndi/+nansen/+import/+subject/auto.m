@@ -1,21 +1,30 @@
 function [subjectTable] = auto(session,subjectFile,options)
-%AUTO Imports subjects into an NDI session from a specified data path.
+%AUTO Automatically imports subject metadata from a file.
 %
-%   This function identifies new subjects from metadata files, creates
-%   corresponding subject documents, and adds them to the NDI session's
-%   database.
+%   This function reads subject information from a specified metadata
+%   file (e.g., CSV or Excel) and merges it into the Nansen 'Subject'
+%   metatable. It ensures that subjects are unique and associated
+%   with the correct session.
 %
 %   Inputs:
-%       session (ndi.session.dir): The NDI session object where the 
-%           subjects will be imported.
-%       dataPath (char or string): Optional. The path to the directory 
-%           containing the subject files. Defaults to the current directory.
-%       labName (char or string): Optional. The name of the lab. Defaults
-%           to the current project name.
+%      session (ndi.session.dir): The NDI session object.
+%      subjectFile (char or string): Optional. Path to the subject file.
+%         If not provided, a selection dialog will open.
+%
+%   Name-Value Pairs:
+%      LabName (char or string): Optional. The name of the lab. Default
+%         is the current Nansen project name.
+%      Project (nansen.config.project.Project): Optional. The Nansen
+%         project object. Default is the current Nansen project.
 %
 %   Outputs:
-%       subjectTable (table): An updated table containing information about
-%           all subjects in the session, including the newly imported subjects.
+%      subjectTable (table): The updated Nansen 'Subject' metatable entries.
+%
+%   Examples:
+%      % Import subjects from a CSV file:
+%      ndi.nansen.import.subject.auto(session, 'subjects.csv')
+%
+%   See also: NDI.NANSEN.IMPORT.SUBJECT, NDI.NANSEN.IMPORT.SUBJECT.TABLEFROMFILE
 
 % Input argument validation
 arguments

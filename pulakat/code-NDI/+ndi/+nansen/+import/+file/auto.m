@@ -1,22 +1,30 @@
 function [dataTable] = auto(session, dataFiles, options)
-%AUTO Imports data into an NDI session from a specified data path.
+%AUTO Automatically detects and imports data files into an NDI session.
 %
-%   This function identifies new data files in the given path, creates
-%   corresponding data and ontologyLabel documents, and adds them to the
-%   NDI session's database. It handles different data types and associates
-%   the data with the correct subject.
+%   This function identifies new data files, auto-detects their types,
+%   matches them to subjects, and imports them into the Nansen 'File'
+%   metatable and NDI database. It uses interactive GUIs to confirm
+%   data types and subject associations.
 %
 %   Inputs:
-%       session (ndi.session.dir): The NDI session object where the data 
-%           will be imported.
-%       dataPath (char or string): Optional. The path to the directory 
-%           containing the data files. Defaults to the current directory.
-%       labName (char or string): Optional. The name of the lab. Defaults
-%           to the current project name.
+%      session (ndi.session.dir): The NDI session object.
+%      dataFiles (cell array of strings): Optional. List of file paths.
+%         If not provided, a file selection dialog will open.
+%
+%   Name-Value Pairs:
+%      LabName (char or string): Optional. The name of the lab. Default
+%         is the current Nansen project name.
+%      Project (nansen.config.project.Project): Optional. The Nansen
+%         project object. Default is the current Nansen project.
 %
 %   Outputs:
-%       dataTable (table): An updated table containing information about 
-%           all data in the session, including the newly imported data.
+%      dataTable (table): The updated Nansen 'File' metatable entries.
+%
+%   Examples:
+%      % Run auto-import for a session:
+%      ndi.nansen.import.file.auto(session)
+%
+%   See also: NDI.NANSEN.IMPORT.FILE, NDI.NANSEN.IMPORT.FILE.DETECTTYPE
 
 % Input argument validation
 arguments

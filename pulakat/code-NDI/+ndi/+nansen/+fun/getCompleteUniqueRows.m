@@ -12,6 +12,10 @@ function [dataTable] = getCompleteUniqueRows(dataTable)
 %   Outputs:
 %      dataTable (table): The consolidated table with unique rows.
 %
+%   Examples:
+%      % Consolidate records:
+%      dataTable = ndi.nansen.fun.getCompleteUniqueRows(dataTable)
+%
 %   See also: NDI.NANSEN.FUN.MATCHTABLES, UNIQUE
 
 % Input argument validation
