@@ -46,6 +46,8 @@ The following methods are accessible through the "Methods" menu when a record is
 | **Import > Subjects > Manual** | Opens a dialog to manually enter subject details (ID, Cage, Label, etc.). |
 | **Import > Files > Auto** | Scans the session directory for files matching supported data types. |
 | **Import > Files > Manual** | Allows manual selection of files and assignment of data types and subjects. |
+| **Export > Metadata** | Exports session metadata to a file. |
+| **Export > Files** | Exports session files. |
 | **Remove** | Removes the selected session from the local metatable (only if not yet synced). |
 
 ### Subject Table
@@ -54,6 +56,8 @@ The following methods are accessible through the "Methods" menu when a record is
 | :--- | :--- |
 | **Validate** | Performs a "dry run" validation of subject metadata. |
 | **Edit** | Allows editing of subject metadata (locked once synced). |
+| **Export > Metadata** | Exports subject metadata to a file. |
+| **Export > Files** | Exports subject files. |
 | **Remove** | Deletes the subject record from the local metatable. |
 
 ### File Table
@@ -61,6 +65,8 @@ The following methods are accessible through the "Methods" menu when a record is
 | Method | Description |
 | :--- | :--- |
 | **Validate** | Checks for physical file existence and valid data type assignments. |
+| **Export** | Exports selected files. |
+| **Remove** | Removes the file record from the metatable. |
 
 ---
 
