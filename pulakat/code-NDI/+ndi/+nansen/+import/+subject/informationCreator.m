@@ -38,7 +38,7 @@ methods
         end
 
         % Get project info
-        projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
+        projectFile = fullfile('+ndi','+setup','+conv',['+',tableRow.LabName],'project_info.json');
         projectInfo = jsondecode(fileread(projectFile));
 
         % --- Validate required columns ---
