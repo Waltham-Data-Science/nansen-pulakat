@@ -1,6 +1,6 @@
-# nansen-pulakat: Nansen-NDI Integration
+# nansen-pulakat: Data Management System
 
-This repository provides an integration between the **Nansen** data management framework and the **Neuroscience Data Interface (NDI)**. It is specifically configured for the **Pulakat Lab**, but the core logic is designed to be extensible.
+This repository provides a database system that enables the organization and cloud syncing of experimental sessions, subjects, and files. It provides a graphical user interface (GUI) for managing research data and ensuring it is securely backed up and accessible.
 
 ## Getting Started
 
