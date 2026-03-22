@@ -48,7 +48,7 @@ end
 creator = ndi.nansen.import.subject.informationCreator();
 
 % 4. Load Project Info for Row Description/ID Fields
-projectBase = fileparts(fileparts(which('ndi.nansen.startup'))); projectFile = fullfile(projectBase,'+setup','+conv',['+',labName],'project_info.json');
+projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
 projectInfo = jsondecode(fileread(projectFile));
 idFields = projectInfo.subjectIdentifierFields;
 

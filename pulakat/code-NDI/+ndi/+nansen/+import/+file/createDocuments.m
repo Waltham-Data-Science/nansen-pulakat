@@ -21,7 +21,7 @@ function [dataTable] = createDocuments(session, dataTable, labName)
 %   See also: NDI.NANSEN.IMPORT.SUBJECT.DOCUMENTS
 
 % Get project info
-projectBase = fileparts(fileparts(which('ndi.nansen.startup'))); projectFile = fullfile(projectBase,'+setup','+conv',['+',labName],'project_info.json');
+projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
 projectInfo = jsondecode(fileread(projectFile));
 fileTypes = {projectInfo.dataFileTypes.DataTypeName};
 
