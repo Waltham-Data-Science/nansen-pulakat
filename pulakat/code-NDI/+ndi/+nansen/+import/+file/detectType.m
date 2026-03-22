@@ -42,20 +42,17 @@ dataFileTypes = projectInfo.dataFileTypes;
 fileTypeNames = {projectInfo.dataFileTypes.DataTypeName};
 
 % Assign file type to each file
-[~, fileNames, fileExts] = cellfun(@fileparts, dataFiles, 'UniformOutput', false);
-fileNames = strcat(fileNames, fileExts);
-dataTable = table(fileNames, dataFiles, 'VariableNames', {'ElectronicFileName', 'FullPath'});
+dataTable = cell2table(dataFiles,'VariableNames',{'ElectronicFileName'});
 dataTable{:,'DataTypeName'} = {''};
 for i = 1:height(dataTable)
     for j = 1:numel(dataFileTypes)
         if any(contains(dataFiles{i}, projectInfo.dataFileTypes(j).contains, 'IgnoreCase', true)) && ...
                 isempty(dataTable.DataTypeName{i})
             if projectInfo.dataFileTypes(j).zip
-                [fileFolder, folderName] = fileparts(dataFiles{i});
-                ind = contains(dataFiles, fileFolder);
-                dataTable{ind, 'ElectronicFileName'} = {folderName};
-                dataTable{ind, 'FullPath'} = {fileFolder};
-                dataTable{ind, 'DataTypeName'} = fileTypeNames(j);
+                fileFolder = fileparts(dataFiles{i});
+                ind = contains(dataFiles,fileFolder);
+                dataTable{ind,'ElectronicFileName'} = {fileFolder};
+                dataTable{ind,'DataTypeName'} = fileTypeNames(j);
             else
                 dataTable.DataTypeName{i} = fileTypeNames{j};
             end
