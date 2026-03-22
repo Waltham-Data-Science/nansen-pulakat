@@ -44,8 +44,8 @@ The following methods are accessible through the "Methods" menu when a record is
 | :--- | :--- |
 | **Import > Subjects > Files** | Detects and imports subjects from lab-standard metadata files. |
 | **Import > Subjects > Manual** | Opens a dialog to manually enter subject details (ID, Cage, Label, etc.). |
-| **Import > Files > Auto** | Scans the session directory for files matching supported data types. |
-| **Import > Files > Manual** | Allows manual selection of files and assignment of data types and subjects. |
+| **Import > Data > Folder** | Scans the session directory for files matching supported data types. |
+| **Import > Data > Files** | Allows manual selection of files and assignment of data types and subjects. |
 | **Export > Metadata** | Exports session metadata to a file. |
 | **Export > Files** | Exports session files. |
 | **Remove** | Removes the selected session from the local metatable (only if not yet synced). |
