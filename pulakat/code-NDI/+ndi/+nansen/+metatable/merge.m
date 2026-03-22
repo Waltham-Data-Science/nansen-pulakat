@@ -49,10 +49,14 @@ end
 
 % If no meta table is retrieved, add new meta table to project
 if ~exist('metaTable','var')
+    idVarName = [dataName,'Identifier'];
+    if ~ismember(idVarName,dataTable.Properties.VariableNames)
+        dataTable.(idVarName) = ndi.nansen.fun.getIdentifier(dataTable,dataName);
+    end
     metaTable = nansen.metadata.MetaTable(dataTable, ...
         'MetaTableClass', dataName, ...
         'ItemClassName', 'table2struct', ...
-        'MetaTableIdVarname', [dataName,'Identifier']);
+        'MetaTableIdVarname', idVarName);
     project.addMetaTable(metaTable);
     metaTable.addMissingVarsToMetaTable(dataName);
     return
@@ -64,8 +68,12 @@ if isempty(dataTable)
 end
 
 % If meta table exists, identify rows of dataTable that are new
-existingIDs = metaTable.entries.(metaTable.MetaTableIdVarname);
-newIDs = dataTable.(metaTable.MetaTableIdVarname); % This will break for subjects/files! Need to test once uploaded some files
+idVarName = metaTable.MetaTableIdVarname;
+if ~ismember(idVarName,dataTable.Properties.VariableNames)
+    idVarName = replace(idVarName,'Identifier','DocumentIdentifier');
+end
+existingIDs = metaTable.entries.(idVarName);
+newIDs = dataTable.(idVarName); % This will break for subjects/files! Need to test once uploaded some files
 [~,indNew] = setdiff(newIDs,existingIDs);
 indExist = true(height(dataTable),1);
 indExist(indNew) = false; indNew = ~indExist;
