@@ -5,6 +5,12 @@ function [sessionTable] = session(session)
 %   sessions within a session directory or dataset and compiles it
 %   into a MATLAB table.
 %
+%   Inputs:
+%       session (ndi.session.dir or ndi.dataset.dir)
+%
+%   Outputs:
+%       sessionTable (table)
+%
 %   Examples:
 %       % Get session metadata for a dataset:
 %       sessionTable = ndi.nansen.metatable.update.session(dataset)
@@ -27,6 +33,7 @@ if isa(session,'ndi.dataset.dir')
     end
     datasetID = dataset.id;
 else
+    dataset = []; % Not a dataset
     sessions = {session};
     query = ndi.query('base.session_id','exact_string',session.id);
     doc = session.database_search(query);
@@ -81,7 +88,7 @@ try
         end
 
         % Get DateAdded from NDI
-        if exist('dataset','var')
+        if ~isempty(dataset)
             doc = dataset.database_search(ndi.query('base.id','exact_string',sessionDocIDs{i}));
             if ~isempty(doc)
                 datestamp = doc{1}.document_properties.base.datestamp;
@@ -92,7 +99,7 @@ try
     end
 
     % Add cloud sync status
-    if exist('dataset','var') && ~isempty(sessionTable)
+    if ~isempty(dataset) && ~isempty(sessionTable)
         statusTable = ndi.nansen.sync.status(dataset);
         [Lia, Locb] = ismember(sessionTable.SessionDocumentIdentifier, statusTable.DocumentIdentifier);
         sessionTable.Cloud = false(height(sessionTable), 1);

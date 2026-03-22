@@ -4,6 +4,17 @@ function [status,repoPath] = repo(repoReference, options)
 %   This function resolves a repository from a folder, function name,
 %   or URL, pulls updates, and updates the MATLAB path.
 %
+%   Inputs:
+%       repoReference (char or string)
+%
+%   Name-Value Pairs:
+%       options.Branch (char or string)
+%       options.ClonePath (char or string)
+%
+%   Outputs:
+%       status (double)
+%       repoPath (char)
+%
 %   Examples:
 %       % Update Nansen using a function name:
 %       ndi.nansen.sync.repo('nansen')

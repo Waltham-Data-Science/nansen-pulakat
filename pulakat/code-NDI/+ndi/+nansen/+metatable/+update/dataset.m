@@ -4,6 +4,12 @@ function [datasetTable] = dataset(dataset)
 %   This function retrieves information about an NDI dataset from
 %   both local and cloud sources and compiles it into a MATLAB table.
 %
+%   Inputs:
+%       dataset (ndi.dataset.dir)
+%
+%   Outputs:
+%       datasetTable (table)
+%
 %   Examples:
 %       % Get metadata table for an NDI dataset:
 %       datasetTable = ndi.nansen.metatable.update.dataset(dataset)

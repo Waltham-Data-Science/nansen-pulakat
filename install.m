@@ -6,6 +6,9 @@ function install(codePath)
 %   directory ([userpath]/ndi/tools). It then initializes the 'pulakat'
 %   project and launches the Nansen GUI.
 %
+%   Inputs:
+%       codePath (char or string)
+%
 %   Examples:
 %       % Install to default location:
 %       install()

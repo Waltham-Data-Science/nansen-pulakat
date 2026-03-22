@@ -6,6 +6,12 @@ function [fileTable] = file(session)
 %   This includes information about the electronic file name, the
 %   subject it belongs to, and its data type and ontology.
 %
+%   Inputs:
+%       session (ndi.session.dir or ndi.dataset.dir)
+%
+%   Outputs:
+%       fileTable (table)
+%
 %   Examples:
 %       % Get file metadata for a session:
 %       fileTable = ndi.nansen.metatable.update.file(session)
@@ -27,6 +33,7 @@ if isa(session,'ndi.dataset.dir')
         sessions{i} = dataset.open_session(sessionIDs{i});
     end
 else
+    dataset = []; % Not a dataset
     sessions = {session};
 end
 
@@ -39,17 +46,17 @@ end
 fileTables = cell(numel(sessions),1);
 for i = 1:numel(sessions)
 
-    session = sessions{i};
+    thisSession = sessions{i};
 
     % Get files
     query = ndi.query('','isa','generic_file');
-    generic_file_docs = session.database_search(query);
+    generic_file_docs = thisSession.database_search(query);
     generic_file_dependency = cellfun(@(d) d.dependency_value('document_id'), ...
         generic_file_docs,'UniformOutput',false);
 
     % Get file labels
     query = ndi.query('','isa','ontologyLabel');
-    ontologyLabel_docs = session.database_search(query);
+    ontologyLabel_docs = thisSession.database_search(query);
     ontologyLabel_dependency = cellfun(@(d) d.dependency_value('document_id'), ...
         ontologyLabel_docs,'UniformOutput',false);
 
@@ -68,17 +75,12 @@ for i = 1:numel(sessions)
         [ontologyNode,ontologyName] = ndi.ontology.lookup(ontologyID);
         dataTable(j).DataTypeOntology = {ontologyNode};
         dataTable(j).DataTypeName = {ontologyName};
-
-        % Add DateAdded
-        % datestamp = generic_file_docs{j}.document_properties.base.datestamp;
-        % dataTable(j).DateAdded = datetime(datestamp,'InputFormat', ...
-        %     'yyyy-MM-dd''T''HH:mm:ss.SSS''Z''','TimeZone','UTC');
     end
     dataTable = struct2table(dataTable);
 
     % Check for subject groups
     query = ndi.query('','isa','subject_group');
-    subject_group_docs = session.database_search(query);
+    subject_group_docs = thisSession.database_search(query);
 
     % Split subjects to individual rows
     for j = 1:numel(subject_group_docs)
@@ -116,7 +118,7 @@ if ~isempty(fileTable)
             subjectTable(:,subjectVariables)});
         fileTable.FileIdentifier = ndi.nansen.fun.getIdentifier(fileTable, 'File');
 
-        if exist('dataset','var') && isa(dataset,'ndi.dataset.dir')
+        if ~isempty(dataset)
             statusTable = ndi.nansen.sync.status(dataset);
             [Lia, Locb] = ismember(fileTable.FileDocumentIdentifier, statusTable.DocumentIdentifier);
             fileTable.Cloud = false(height(fileTable), 1);

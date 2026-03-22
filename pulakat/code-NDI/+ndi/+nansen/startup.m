@@ -5,6 +5,10 @@ function [ ] = startup(labName, dataPath)
 %   necessary repositories, synchronizing the dataset with the NDI
 %   cloud, generating metatables, and launching the Nansen GUI.
 %
+%   Inputs:
+%       labName (char or string)
+%       dataPath (char or string)
+%
 %   Examples:
 %       % Initialize current Nansen project:
 %       ndi.nansen.startup()
