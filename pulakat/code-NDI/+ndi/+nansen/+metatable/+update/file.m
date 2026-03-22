@@ -1,6 +1,24 @@
 function [fileTable] = file(session)
-%DATASET Summary of this function goes here
-%   Detailed explanation goes here
+%FILE Compiles a file metadata table for an NDI session or dataset.
+%
+%   This function retrieves metadata for all files in an NDI session
+%   (or all sessions in a dataset) and compiles it into a MATLAB table.
+%   This includes information about the electronic file name, the
+%   subject it belongs to, and its data type and ontology.
+%
+%   Inputs:
+%      session (ndi.session.dir or ndi.dataset.dir): The NDI session
+%         or dataset object.
+%
+%   Outputs:
+%      fileTable (table): A table containing file metadata.
+%
+%   Examples:
+%      % Get file metadata for a session:
+%      fileTable = ndi.nansen.metatable.update.file(session)
+%
+%   See also: NDI.NANSEN.METATABLE.SUBJECT, NDI.NANSEN.FUN.GETIDENTIFIER
+
 % Input argument validation
 arguments
     session {mustBeA(session,{'ndi.session.dir','ndi.dataset.dir'})}
@@ -45,27 +63,20 @@ for i = 1:numel(sessions)
         ontologyLabel_docs,'UniformOutput',false);
 
     % Construct data table
-    dataTable = struct('FileDocumentIdentifier',[],'ElectronicFileName',[],...
-        'SubjectDocumentIdentifier',[],'DataTypeName',[],'DataTypeOntology',[]);
+    dataTable = table();
     for j = 1:numel(generic_file_docs)
         % Add file information
-        dataTable(j).FileDocumentIdentifier = {generic_file_docs{j}.id};
-        dataTable(j).ElectronicFileName = {generic_file_docs{j}.document_properties.generic_file.filename};
-        dataTable(j).SubjectDocumentIdentifier = {generic_file_docs{j}.dependency_value('document_id')};
+        dataTable.FileDocumentIdentifier(j) = {generic_file_docs{j}.id};
+        dataTable.ElectronicFileName(j) = {generic_file_docs{j}.document_properties.generic_file.filename};
+        dataTable.SubjectDocumentIdentifier(j) = {generic_file_docs{j}.dependency_value('document_id')};
         
         % Add ontology label
         indOntologyLabel = strcmp(ontologyLabel_dependency,generic_file_docs{j}.id);
         ontologyID = ontologyLabel_docs{indOntologyLabel}.document_properties.ontologyLabel.ontologyNode;
         [ontologyNode,ontologyName] = ndi.ontology.lookup(ontologyID);
-        dataTable(j).DataTypeOntology = {ontologyNode};
-        dataTable(j).DataTypeName = {ontologyName};
-
-        % Add DateAdded
-        % datestamp = generic_file_docs{j}.document_properties.base.datestamp;
-        % dataTable(j).DateAdded = datetime(datestamp,'InputFormat', ...
-        %     'yyyy-MM-dd''T''HH:mm:ss.SSS''Z''','TimeZone','UTC');
+        dataTable.DataTypeName(j) = {ontologyName};
+        dataTable.DataTypeOntology(j) = {ontologyNode};
     end
-    dataTable = struct2table(dataTable);
 
     % Check for subject groups
     query = ndi.query('','isa','subject_group');
@@ -89,25 +100,4 @@ end
 % Stack tables
 fileTable = ndi.fun.table.vstack(fileTables);
 
-% Add subject, session, and dataset info to data table
-% if ~isempty(fileTable)
-%     subjectVariables = intersect(subjectTable.Properties.VariableNames,...
-%         {'SubjectDocumentIdentifier','SubjectLocalIdentifier', ...
-%         'SubjectEnumeratedIdentifier','SubjectTextIdentifier',...
-%         'SubjectCageIdentifier',...
-%         'SessionName','SessionIdentifier','SessionDocumentIdentifier', ...
-%         'SessionPath','DatasetDocumentIdentifier','DatasetIdentifier'});
-%     fileTable = ndi.fun.table.join({fileTable, ...
-%         subjectTable(:,subjectVariables)});
-%     fileTable.FileIdentifier = ndi.nansen.fun.getIdentifier(fileTable, 'File');
-% 
-%     if isa(dataset,'ndi.dataset.dir')
-%         statusTable = ndi.nansen.sync.status(dataset);
-%         [Lia, Locb] = ismember(fileTable.FileDocumentIdentifier, statusTable.DocumentIdentifier);
-%         fileTable.Cloud = false(height(fileTable), 1);
-%         fileTable.Cloud(Lia) = statusTable.Cloud(Locb(Lia));
-%     end
-% end
-
 end
-

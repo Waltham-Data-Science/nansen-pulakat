@@ -1,6 +1,25 @@
 function [] = updateAll(dataset,options)
-%UPDATEALL Summary of this function goes here
-%   Detailed explanation goes here
+%UPDATEALL Updates all Nansen metatables for a given NDI dataset.
+%
+%   This function synchronizes the local dataset with the NDI cloud,
+%   and updates the Dataset, File, Subject, and Session metatables for
+%   the current Nansen project.
+%
+%   Inputs:
+%      dataset (ndi.session.dir or ndi.dataset.dir): The NDI dataset
+%         or session object.
+%
+%   Name-Value Pairs:
+%      LabName (char or string): Optional. The name of the lab. Default
+%         is current Nansen project name.
+%      Project (nansen.config.project.Project): Optional. The Nansen
+%         project object. Default is current Nansen project.
+%
+%   Examples:
+%      % Update all metatables for the current dataset:
+%      ndi.nansen.metatable.updateAll(dataset)
+%
+%   See also: NDI.NANSEN.METATABLE.UPDATE, NDI.CLOUD.SYNC.DOWNLOADNEW
 
 % Input argument validation
 arguments
@@ -29,4 +48,3 @@ ndi.nansen.metatable.update(dataset,'Session','Project',options.Project,...
     'LabName',options.LabName);
 
 end
-
