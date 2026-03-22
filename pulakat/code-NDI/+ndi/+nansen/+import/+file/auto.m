@@ -104,8 +104,7 @@ for i = 1:numFiles
     funcHandle = str2func(funcString);
 
     % Pass full path to the detection function
-    fullPath = dataTable_files.FullPath{i};
-    detectedSubjects = funcHandle(string(fullPath));
+    detectedSubjects = funcHandle(string(dataTable_files.ElectronicFileName{i}));
 
     numSubjects = height(detectedSubjects);
     if isempty(detectedSubjects)
