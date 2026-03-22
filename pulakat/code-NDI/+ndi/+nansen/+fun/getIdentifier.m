@@ -26,16 +26,7 @@ for i = 1:numRows
     uuid = char(java.util.UUID.randomUUID().toString());
 
     % Format the identifier based on the type
-    switch type
-        case 'Subject'
-            identifier{i} = ['Subject-', uuid];
-        case 'File'
-            identifier{i} = ['File-', uuid];
-        case 'Session'
-            identifier{i} = ['Session-', uuid];
-        case 'Dataset'
-            identifier{i} = ['Dataset-', uuid];
-    end
+    identifier{i} = [char(type), '-', uuid];
 end
 
 end
