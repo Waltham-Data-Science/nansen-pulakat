@@ -1,4 +1,4 @@
-function [dataTable] = getCompleteUniqueRows(dataTable,identifiers)
+function [dataTable,indUnique] = getCompleteUniqueRows(dataTable,identifiers)
 %GETCOMPLETEUNIQUEROWS Consolidates duplicate rows by filling empty values.
 %
 %   This function identifies duplicate rows in a table (based on common
@@ -55,7 +55,7 @@ for i = 1:numel(indMatch)
         indResolved(indMatch{i}) = true;
     end
 end
-dataTable = unique(dataTable,'stable');
+[dataTable,~,indUnique] = unique(dataTable,'stable');
 
 end
 
