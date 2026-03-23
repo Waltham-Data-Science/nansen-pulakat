@@ -17,11 +17,16 @@ variableName = classParts{end};
 project = options.Project;
 metaTable = project.MetaTableCatalog.getMetaTable(tableName);
 
-% Identify rows to update
+% Get identifying variable name
 idVarName = [className,'Identifier'];
-ind = find(strcmp(metaTable.entries.(idVarName),obj.(idVarName)));
 
-% Update rows
-metaTable.updateTableVariable(variableName,ind);
+if ismember(idVarName,metaTable.VariableNames)
+    % Identify rows to update
+    ind = find(strcmp(metaTable.entries.(idVarName),obj.(idVarName)));
+    metaTable.updateTableVariable(variableName,ind);
+else
+    % Update all rows
+    metaTable.updateTableVariable(variableName);
+end
 
 end
