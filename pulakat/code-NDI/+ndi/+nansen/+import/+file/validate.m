@@ -82,6 +82,4 @@ for i = 1:numPending
     end
 end
 
-isValid = all(isValid);
-
 end
