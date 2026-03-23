@@ -75,11 +75,20 @@ for i = 1:numPending
         allIssues{end+1} = 'physical file missing';
     end
 
+    % 4c. Check if subject document identifier exists
+    subjectDocID = row.SubjectDocumentIdentifier;
+    if iscell(subjectDocID); subjectDocID = subjectDocID{1}; end
+    if isempty(subjectDocID) || strcmp(subjectDocID, 'N/A')
+        allIssues{end+1} = 'Subject documents need to be created first';
+    end
+
     % 5. Record Results
     if ~isempty(allIssues)
         isValid(i) = false;
         reportTable.ErrorMessage(i) = strjoin(allIssues, ', ');
     end
 end
+
+isValid = all(isValid);
 
 end

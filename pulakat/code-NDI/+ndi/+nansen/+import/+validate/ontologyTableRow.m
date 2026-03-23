@@ -34,7 +34,7 @@ ontologyVars = {projectInfo.subjectFileColumns(indOntology).name};
 ontologyVars = [ontologyVars, {'SubjectIdentifier', 'ElectronicFileName'}];
 
 % 4. Load Lab Mapping Dictionary
-dictFile = which(fullfile('+ndi','+setup','+conv',['+',labName],'tableDoc_dictionary.json'));
+dictFile = fullfile('+ndi','+setup','+conv',['+',labName],'tableDoc_dictionary.json');
 if ~isfile(dictFile)
     isValid(:) = false;
     errorMessages(:) = sprintf('Dictionary file not found: %s', dictFile);
