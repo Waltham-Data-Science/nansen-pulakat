@@ -35,18 +35,10 @@ function varargout = validate(fileObject, varargin)
     fileTable = struct2table(fileObject, 'AsArray', true);
 
     % Call validation function
-    [isValid, errorReport] = ndi.nansen.import.file.validate(fileTable);
+    [isValid, reportTable] = ndi.nansen.import.file.validate(fileTable);
 
-    if isValid
-        msgbox('All selected files are valid.', 'Validation Success');
-    else
-        if numel(errorReport) > 5
-             listdlg('PromptString', 'Validation Errors:', 'ListString', errorReport, ...
-                 'SelectionMode', 'none', 'ListSize', [600 300], 'Name', 'Validation Fail');
-        else
-             msgbox(errorReport, 'Validation Fail', 'warn');
-        end
-    end
+    % Show detailed report table using standard NDI viewer
+    ndi.nansen.fun.showValidationReport(isValid, reportTable);
 end
 
 function params = getDefaultParameters()

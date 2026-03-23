@@ -2,8 +2,7 @@ function [isValid, reportTable] = validate(subjectTable, options)
 % VALIDATE Validates subject metadata and returns a detailed report table.
 %
 %   [ISVALID, REPORTTABLE] = VALIDATE(SUBJECTTABLE) checks metadata rows 
-%   using the informationCreator. If ontology lookups fail, it verifies 
-%   the status of the EBI OLS4 website once and updates all relevant errors.
+%   using the informationCreator and verifies ontology lookups.
 %
 %   Inputs:
 %       subjectTable (table)  - A table containing subject metadata.
@@ -47,51 +46,21 @@ reportTable = pendingTable(:, idVarNames);
 isValid = true(numPending, 1);
 reportTable.ErrorMessage = repmat("", numPending, 1);
 
-% Define the specific warning IDs that must be treated as errors
-warnIDs = {...
-    'ndi:createSubjectInformation:SpeciesCreationFailed', ...
-    'ndi:createSubjectInformation:StrainCreationFailed', ...
-    'ndi:createSubjectInformation:BiologicalSexCreationFailed', ...
-    'ndi:createSubjectInformation:IdentifierCreationFailed'};
+% 4. Call Utility Validation Functions
+% 4a. informationCreator validation
+[isValid_IC, errorMsg_IC] = ndi.nansen.import.validate.subjectInformationCreator(pendingTable, labName);
 
-% 4. Validate each row
-creator = ndi.nansen.import.subject.informationCreator(); 
+% 4b. ontologyTableRow validation
+[isValid_OR, errorMsg_OR] = ndi.nansen.import.validate.ontologyTableRow(pendingTable, labName);
+
+% 5. Combine Reports
 for i = 1:numPending
-    currentRow = pendingTable(i, :);
-    currentRow.LabName = labName;
-
-    % Force warnings to behave as errors for the try/catch block
-    for j = 1:numel(warnIDs)
-        warning('error', warnIDs{j});
-    end
-
-    try
-        creator.create(currentRow);
-    catch ME
+    if ~isValid_IC(i)
         isValid(i) = false;
-        reportTable.ErrorMessage(i) = ME.message;
-    end
-
-    % Reset warning states to avoid affecting other MATLAB operations
-    for j = 1:numel(warnIDs)
-        warning('on', warnIDs{j});
-    end
-end
-
-% 5. Website Status Check
-% Only triggers if any caught errors involve the ndi.ontology system
-ontologyErrorIdx = contains(reportTable.ErrorMessage, 'ndi.ontology', 'IgnoreCase', true);
-
-if any(ontologyErrorIdx)
-    ontologyURL = 'https://www.ebi.ac.uk/ols4/ontologies';
-    try
-        % Attempt a single connection check
-        opts = weboptions('Timeout', 5);
-        webread(ontologyURL, opts);
-    catch
-        % Replace specific ontology errors with a general availability message
-        friendlyMsg = sprintf('Ontology lookup is temporarily unavailable for the URL %s', ontologyURL);
-        reportTable.ErrorMessage(ontologyErrorIdx) = friendlyMsg;
+        reportTable.ErrorMessage(i) = errorMsg_IC(i);
+    elseif ~isValid_OR(i)
+        isValid(i) = false;
+        reportTable.ErrorMessage(i) = errorMsg_OR(i);
     end
 end
 
