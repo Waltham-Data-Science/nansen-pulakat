@@ -31,6 +31,9 @@ arguments
         'Session title',[1 50],{'projectName_YYYY'});
 end
 
+% Convert session name to char
+sessionName = cellstr(sessionName); sessionName = sessionName{1};
+
 % Create session
 session = ndi.session.dir(sessionName, sessionPath);
 
