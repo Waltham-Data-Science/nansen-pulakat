@@ -23,7 +23,7 @@ function showValidationReport(isValid, reportTable)
 
 % --- Input Argument Validation ---
 arguments
-    isValid (1,1) logical
+    isValid (:,1) logical
     reportTable table
 end
 
@@ -31,14 +31,14 @@ end
 reportFig = uifigure('Name', 'Validation Status', 'Position', [100 100 900 500]);
 movegui(reportFig, 'center');
 
-if isValid
+if all(isValid)
     % Standard NDI Success Alert
     uialert(reportFig, 'All selected subjects are valid.', 'Validation Success', ...
         'Icon', 'success', 'CloseFcn', @(src, event) delete(reportFig));
 else
     % 2. Setup dynamic column widths
     % Define columns for display (hiding the logical IsValid switch)
-    displayNames = setdiff(reportTable.Properties.VariableNames, 'IsValid', 'stable');
+    displayNames = reportTable.Properties.VariableNames;
     colWidths = repmat({80}, 1, numel(displayNames)); 
     
     % Find the ErrorMessage column to make it the "stretchy" one
@@ -50,7 +50,7 @@ else
     % 3. Create the scaling Table
     % We remove 'IsValid' from the data but keep it in reportTable for indexing
     uit = uitable(reportFig, ...
-        'Data', removevars(reportTable, 'IsValid'), ...
+        'Data', reportTable, ...
         'Units', 'normalized', ...
         'Position', [0.05 0.18 0.9 0.69], ... 
         'ColumnName', displayNames, ...
@@ -74,8 +74,8 @@ else
 
     % 6. Add Row-Level Styling
     % Identify row indices based on the original reportTable logicals
-    errRows = find(~reportTable.IsValid);
-    validRows = find(reportTable.IsValid);
+    errRows = find(~isValid);
+    validRows = find(isValid);
     
     % Style for Failures (Entire Row Soft Red)
     if ~isempty(errRows)
