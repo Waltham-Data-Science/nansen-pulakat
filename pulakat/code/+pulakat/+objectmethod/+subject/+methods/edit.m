@@ -75,12 +75,13 @@ function varargout = edit(subjectObject, varargin)
     ndi.nansen.metatable.edit(subjectTable,'Subject');
     
     % Get dataset object
-    dataset = ndi.nansen.fun.datasetID2Object(subjectObject.DatasetIdentifier);
+    dataset = ndi.nansen.fun.datasetID2Object(subjectObject(1).DatasetIdentifier);
 
     % Update metatables
     ndi.nansen.metatable.update(dataset,'Subject');
     ndi.nansen.metatable.update(dataset,'File');
     ndi.nansen.metatable.update(dataset,'Session');
+    nansen.App.updateTable
 
     % Return session object (please do not remove):
     % if nargout; varargout = {subjectObject}; end

@@ -67,7 +67,7 @@
     "ColumnLabel": "Date Added",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 95,
+    "ColumnWidth": 115,
     "IsEditable": false,
     "ColumnOrder": 33
   },
@@ -148,7 +148,7 @@
     "ColumnLabel": "Species",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 67,
     "IsEditable": false,
     "ColumnOrder": 22
   },
@@ -274,7 +274,7 @@
     "ColumnLabel": "Data Type",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 257,
+    "ColumnWidth": 119,
     "IsEditable": false,
     "ColumnOrder": 28
   },

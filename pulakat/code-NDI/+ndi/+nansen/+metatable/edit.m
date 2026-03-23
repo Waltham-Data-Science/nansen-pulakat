@@ -56,6 +56,5 @@ for i = 1:height(dataTable)
         end
     end
 end
-metaTable.save();
 
 end

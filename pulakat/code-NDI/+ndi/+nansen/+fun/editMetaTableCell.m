@@ -55,8 +55,7 @@ if strcmp(obj.([tableName,'DocumentIdentifier']),defaultDocID)
         rowInd = metaTable.getIndexById(obj.(metaTable.MetaTableIdVarname));
         metaTable.editEntries(rowInd,variableName,newValue);
 
-        % Save and update table
-        metaTable.save();
+        % Update table
         nansen.App.updateTable;
     end
 else
@@ -64,4 +63,3 @@ else
     warndlg(message);
 end
 end
-

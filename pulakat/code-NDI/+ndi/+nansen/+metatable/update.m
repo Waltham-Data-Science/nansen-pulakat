@@ -56,6 +56,5 @@ end
 for i = 1:numel(updateVariableNames)
     metaTable.updateTableVariable(updateVariableNames{i});
 end
-metaTable.save();
 
 end
