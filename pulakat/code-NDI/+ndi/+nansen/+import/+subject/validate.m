@@ -1,26 +1,5 @@
-function [isValid, errorReport] = validate(subjectTable, options)
-%VALIDATE Validates subject metadata using the informationCreator.
-%
-%   This function checks if the provided subject metadata table can
-%   successfully be processed by the informationCreator to generate
-%   NDI documents and openMINDS objects.
-%
-%   Inputs:
-%      subjectTable (table): A table containing the subject records.
-%
-%   Name-Value Pairs:
-%      LabName (char or string): Optional. The name of the lab. Default
-%         is the current Nansen project name.
-%
-%   Outputs:
-%      isValid (logical): True if all records are valid.
-%      errorReport (cellstr): A list of error messages for invalid records.
-%
-%   Examples:
-%      % Validate a subject table:
-%      [ok, report] = ndi.nansen.import.subject.validate(mySubjectTable)
-%
-%   See also: NDI.NANSEN.IMPORT.SUBJECT.DOCUMENTS, NDI.NANSEN.IMPORT.SUBJECT.AUTO
+function [isValid, reportTable] = validate(subjectTable, options)
+% VALIDATE Validates subject metadata and returns a detailed report table.
 
 arguments
     subjectTable table
@@ -28,58 +7,60 @@ arguments
 end
 
 % 1. Initialization
-isValid = true;
-errorMessages = {};
 labName = char(options.LabName);
+projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
+projectInfo = jsondecode(fileread(projectFile));
+idVarNames = {projectInfo.subjectFileColumns.name};
+idShortNames = {projectInfo.subjectFileColumns.value};
 
-% 2. Filter rows that need validation: 
-% Look for truly empty cells OR cells containing 'N/A'
+% 2. Filter Pending Rows
 isNA = cellfun(@(x) isempty(x) || strcmp(x, 'N/A'), subjectTable.SubjectDocumentIdentifier);
 pendingTable = subjectTable(isNA, :);
 
 if isempty(pendingTable)
     isValid = true;
-    errorReport = {};
+    reportTable = table(); 
     return;
 end
 
-% 3. Instantiate the Creator
-% Assuming the class is accessible in your path
+% 3. Initialize Report Table
+% We create a table with ID columns + Status + Message
+numPending = height(pendingTable);
+reportTable = pendingTable(:, idVarNames); % Copy the ID columns directly
+reportTable.IsValid = true(numPending, 1);
+reportTable.ErrorMessage = repmat("", numPending, 1); % Use strings for easier manipulation
+
+% 4. Instantiate Creator
 creator = ndi.nansen.import.subject.informationCreator();
 
-% 4. Load Project Info for Row Description/ID Fields
-projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
-projectInfo = jsondecode(fileread(projectFile));
-idFields = projectInfo.subjectIdentifierFields;
-
-% 5. Iterate and Test Creator
-for i = 1:height(pendingTable)
+% 5. Validate each row
+for i = 1:numPending
     row = pendingTable(i, :);
+    row.LabName = labName;
     
-    % Generate a descriptor for the row for error reporting
-    try
-        idParts = cellfun(@(f) char(string(row.(f))), idFields, 'UniformOutput', false);
-        rowDesc = sprintf('Subject (Animal: %s, Cage: %s, Label: %s)', idParts{1}, idParts{2}, idParts{3});
-    catch
-        rowDesc = sprintf('Row %d', i);
-    end
+    % Tell MATLAB to treat these specific creator warnings as errors
+    warning('error', 'ndi:createSubjectInformation:SpeciesCreationFailed');
+    warning('error', 'ndi:createSubjectInformation:StrainCreationFailed');
+    warning('error', 'ndi:createSubjectInformation:BiologicalSexCreationFailed');
+    warning('error', 'ndi:createSubjectInformation:IdentifierCreationFailed');
 
     try
-        % Perform a "Dry Run" of the creator
-        % We don't need the outputs, just to see if it executes without error
         creator.create(row);
-        
     catch ME
-        % Capture the error thrown by the creator or its private methods
-        isValid = false;
-        
-        % Clean up the error message (remove stack trace info if present)
-        cleanMsg = regexprep(ME.message, '(?<=[\.\?]).*', '');
-        
-        errorMessages{end+1} = sprintf('%s: %s', rowDesc, cleanMsg);
+        reportTable.IsValid(i) = false;
+        reportTable.ErrorMessage(i) = string(ME.message);
     end
+    
+    % Reset them to normal warnings so you don't break the rest of MATLAB
+    warning('on', 'ndi:createSubjectInformation:SpeciesCreationFailed');
+    warning('on', 'ndi:createSubjectInformation:StrainCreationFailed');
+    warning('on', 'ndi:createSubjectInformation:BiologicalSexCreationFailed');
+    warning('on', 'ndi:createSubjectInformation:IdentifierCreationFailed');
 end
 
-% 6. Final Report
-errorReport = unique(errorMessages, 'stable'); 
+% Replace variable names for report
+reportTable = renamevars(reportTable,idVarNames,idShortNames);
+
+% The batch is valid only if EVERY row is valid
+isValid = all(reportTable.IsValid);
 end

@@ -15,7 +15,7 @@ classdef SubjectCageIdentifier < nansen.metadata.abstract.TableVariable
         end
     end
 
-     methods (Static)
+    methods (Static)
          function obj = onCellDoubleClick(obj)
             className = mfilename('class');
             obj = ndi.nansen.fun.editMetaTableCell(className,obj);

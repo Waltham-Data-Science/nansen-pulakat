@@ -35,18 +35,8 @@ function varargout = validate(subjectObject, varargin)
     subjectTable = struct2table(subjectObject, 'AsArray', true);
 
     % Call validation function
-    [isValid, errorReport] = ndi.nansen.import.subject.validate(subjectTable);
-
-    if isValid
-        msgbox('All selected subjects are valid.', 'Validation Success');
-    else
-        if numel(errorReport) > 5
-             listdlg('PromptString', 'Validation Errors:', 'ListString', errorReport, ...
-                 'SelectionMode', 'none', 'ListSize', [600 300], 'Name', 'Validation Fail');
-        else
-             msgbox(errorReport, 'Validation Fail', 'warn');
-        end
-    end
+    [isValid, reportTable] = ndi.nansen.import.subject.validate(subjectTable);
+    ndi.nansen.fun.showValidationReport(isValid,reportTable);
 end
 
 function params = getDefaultParameters()
