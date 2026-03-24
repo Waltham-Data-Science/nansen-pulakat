@@ -25,7 +25,6 @@ arguments
     className {mustBeTextScalar}
     obj struct
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
-    options.Propagate {mustBeText} = ''
 end
 
 % Get table type and variable name
@@ -58,15 +57,6 @@ if strcmp(obj.([tableName,'DocumentIdentifier']),defaultDocID)
 
         % Update table
         nansen.App.updateTable;
-
-        % Propagate changes to other tables if needed
-        if ~isequal(options.Propagate,'')
-            propagate = cellstr(options.Propagate);
-            for i = 1:numel(propagate)
-                ndi.nansen.fun.propagateMetaTableChange(className,obj,propagate{i});
-            end
-        end
-            
     end
 else
     message = sprintf('This %s has already been added to the database and cannot be edited.',tableName);

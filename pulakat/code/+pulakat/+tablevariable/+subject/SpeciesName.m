@@ -18,10 +18,17 @@ classdef SpeciesName < nansen.metadata.abstract.TableVariable & nansen.metadata.
             if strcmp(obj.Value,obj.DEFAULT_VALUE{1})
                 classParts = strsplit(class(obj),'.');
                 variableName = classParts{end};
-                value = sprintf('%s will be automatically filled in when NDI documents are created.',variableName);
+                value = sprintf('%s will be filled in when NDI documents are created.',variableName);
             else
                 value = '';
             end
+        end
+    end
+
+    methods (Static)
+        function obj = onCellDoubleClick(obj)
+            className = mfilename('class');
+            obj = ndi.nansen.fun.editMetaTableCell(className,obj);
         end
     end
 end

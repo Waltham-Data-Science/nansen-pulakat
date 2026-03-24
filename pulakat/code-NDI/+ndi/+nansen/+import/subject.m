@@ -75,42 +75,41 @@ else
     commonVars = intersect(subjectTable.Properties.VariableNames, ...
         subjectTable_session.Properties.VariableNames);
     for i = 1:height(subjectTable)
-        for k = 1:numMatch(i)
-            ind = indMatch{i}(k);
-            if isempty(ind)
-                continue
-            end
-            A = table2cell(subjectTable_session(ind, commonVars));
-            B = table2cell(subjectTable(i, commonVars));
+        ind = indMatch{i};
+        if isempty(ind)
+            continue
+        end
+        A = table2cell(subjectTable_session(ind, commonVars));
+        B = table2cell(subjectTable(i, commonVars));
 
-            % 1. Find where they are different
-            diffMask = ~cellfun(@isequaln, A, B);
+        % 1. Find where they are different
+        diffMask = ~cellfun(@isequaln, A, B);
 
-            % 2. Identify where A is empty but B has info
-            aIsEmpty = cellfun(@(x) isempty(x) || (ischar(x) && isempty(x)) || strcmp(x,'N/A'), A);
-            bHasData = cellfun(@(x) ~isempty(x), B);
+        % 2. Identify where A is empty but B has info
+        aIsEmpty = cellfun(@(x) isempty(x) || (ischar(x) && isempty(x)) || strcmp(x,'N/A'), A);
+        bHasData = cellfun(@(x) ~isempty(x), B);
 
-            % 4. Identify True Conflicts
-            % (Where they are different, but A was NOT empty)
-            conflictMask = diffMask & ~aIsEmpty & bHasData;
-            if any(conflictMask)
-                % Log conflict or handle here
-                warning('NDI:Nansen:SubjectConflict', ...
-                    'Conflict found for subject matching %s in variables: %s. Existing data will be preserved.', ...
-                    strjoin(cellstr(string(A(1, 1:min(3, end)))), ' '), strjoin(commonVars(conflictMask), ', '));
-            end
+        % 4. Identify True Conflicts
+        % (Where they are different, but A was NOT empty)
+        conflictMask = diffMask & ~aIsEmpty & bHasData;
+        if any(conflictMask)
+            % Log conflict or handle here
+            warning('NDI:Nansen:SubjectConflict', ...
+                'Conflict found for subject matching %s in variables: %s. Existing data will be preserved.', ...
+                strjoin(cellstr(string(A(1, 1:min(3, end)))), ' '), strjoin(commonVars(conflictMask), ', '));
+        end
 
-            % 3. Update A with B's data ONLY where A was empty
-            indUpdate = find(diffMask & aIsEmpty & bHasData);
+        % 3. Update A with B's data ONLY where A was empty
+        indUpdate = find(diffMask & aIsEmpty & bHasData);
 
-            % Update Nansen metatable
-            for j = 1:numel(indUpdate)
-                rowInd = subjectMetaTable.getIndexById(subjectTable_session.SubjectIdentifier{ind});
-                subjectMetaTable.editEntries(rowInd,commonVars{indUpdate(j)},...
-                    subjectTable{i,commonVars{indUpdate(j)}});
-            end
+        % Update Nansen metatable
+        for j = 1:numel(indUpdate)
+            rowInd = subjectMetaTable.getIndexById(subjectTable_session.SubjectIdentifier{ind});
+            subjectMetaTable.editEntries(rowInd,commonVars{indUpdate(j)},...
+                subjectTable{i,commonVars{indUpdate(j)}});
         end
     end
+    subjectMetaTable.save();
 
     subjectTable_new = subjectTable(numMatch == 0,:);
 end

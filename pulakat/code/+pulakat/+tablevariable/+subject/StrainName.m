@@ -18,7 +18,7 @@ classdef StrainName < nansen.metadata.abstract.TableVariable
     methods (Static)
          function obj = onCellDoubleClick(obj)
             className = mfilename('class');
-            obj = ndi.nansen.fun.editMetaTableCell(className,obj,'Propagate','Session');
+            obj = ndi.nansen.fun.editMetaTableCell(className,obj);
         end
     end
 end

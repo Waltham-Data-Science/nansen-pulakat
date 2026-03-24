@@ -34,14 +34,6 @@ arguments
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject
 end
 
-% Initialize output
-dataTable = table();
-
-% Return if no data files
-if isempty(dataFiles)
-    return
-end
-
 % Convert inputs to char arrays for internal processing
 dataFiles = cellstr(dataFiles);
 labName = char(options.LabName);
@@ -49,6 +41,9 @@ labName = char(options.LabName);
 % Get project info
 projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
 projectInfo = jsondecode(fileread(projectFile));
+
+% Initialize output
+dataTable = table();
 
 % Get current data table from project
 project = options.Project;

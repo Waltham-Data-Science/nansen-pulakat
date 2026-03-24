@@ -18,7 +18,8 @@ classdef SubjectTextIdentifier < nansen.metadata.abstract.TableVariable
      methods (Static)
          function obj = onCellDoubleClick(obj)
             className = mfilename('class');
-            obj = ndi.nansen.fun.editMetaTableCell(className,obj,'Propagate','File');
+            obj = ndi.nansen.fun.editMetaTableCell(className,obj);
+            ndi.nansen.fun.propagateMetaTableChange(className,obj,'File');
         end
     end
 end

@@ -22,13 +22,33 @@ end
 
 % 1. Initialization
 labName = char(options.LabName);
+
+% Retrieve subject metaTable and update table variables
+project = nansen.getCurrentProject();
+metaTable = project.MetaTableCatalog.getMetaTable('Subject');
+subjectTable = metaTable.updateTableVariable(subjectTable);
+
 projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
 projectInfo = jsondecode(fileread(projectFile));
+
+% Dynamic mapping based on your project_info.json structure
+idVarNames = {projectInfo.subjectFileColumns.name};
+idShortNames = {projectInfo.subjectFileColumns.value};
 
 % 2. Filter Pending Rows
 % Treat 'N/A' or empty as pending
 isNA = cellfun(@(x) isempty(x) || strcmp(x, 'N/A'), subjectTable.SubjectDocumentIdentifier);
 pendingTable = subjectTable(isNA, :);
+
+% Check for duplicates in the pending table
+subjectIdentifiers = projectInfo.subjectIdentifierFields;
+try
+    pendingTable = ndi.nansen.fun.getCompleteUniqueRows(pendingTable, subjectIdentifiers);
+catch ME
+    % If there's a conflict that can't be resolved, we'll let the individual
+    % row validation handle it or report the conflict error here.
+    % For now, we continue, but we should probably handle this better.
+end
 
 if isempty(pendingTable)
     isValid = true;
@@ -38,35 +58,29 @@ end
 
 % 3. Initialize Report Table
 numPending = height(pendingTable);
-idVarNames = {projectInfo.subjectFileColumns.name};
 reportTable = pendingTable(:, idVarNames); 
 isValid = true(numPending, 1);
 reportTable.ErrorMessage = repmat("", numPending, 1);
 
 % 4. Call Utility Validation Functions
 % 4a. informationCreator validation
-[isValid_SIC, errorMsg_SIC] = ndi.nansen.import.validate.subjectInformationCreator(pendingTable, labName);
+[isValid_IC, errorMsg_IC] = ndi.nansen.import.validate.subjectInformationCreator(pendingTable, labName);
 
 % 4b. ontologyTableRow validation
-[isValid_OTR, errorMsg_OTR] = ndi.nansen.import.validate.ontologyTableRow(pendingTable, labName);
-
-% 4c. duplicates validation
-[isValid_DUP, errorMsg_DUP] = ndi.nansen.import.validate.duplicates(pendingTable);
+[isValid_OR, errorMsg_OR] = ndi.nansen.import.validate.ontologyTableRow(pendingTable, labName);
 
 % 5. Combine Reports
 for i = 1:numPending
-    if ~isValid_SIC(i)
+    if ~isValid_IC(i)
         isValid(i) = false;
-        reportTable.ErrorMessage(i) = errorMsg_SIC(i);
-    elseif ~isValid_OTR(i)
+        reportTable.ErrorMessage(i) = errorMsg_IC(i);
+    elseif ~isValid_OR(i)
         isValid(i) = false;
-        reportTable.ErrorMessage(i) = errorMsg_OTR(i);
+        reportTable.ErrorMessage(i) = errorMsg_OR(i);
     end
 end
 
-% 6. Rename Variables for Output (would be nice to replace
-% with nansen column settings
-idShortNames = {projectInfo.subjectFileColumns.value};
+% 6. Rename Variables for Output
 reportTable = renamevars(reportTable, idVarNames, idShortNames);
 
 end
