@@ -35,7 +35,7 @@ end
 % 3. Initialize Report Table
 numPending = height(subjectTable);
 idVarNames = {projectInfo.subjectFileColumns.name};
-reportTable = subjectTable(:, ['SessionName';idVarNames]); 
+reportTable = subjectTable(:, ['SessionName',idVarNames]); 
 reportTable.ErrorMessage = repmat("", numPending, 1);
 
 % 4. Call Utility Validation Functions

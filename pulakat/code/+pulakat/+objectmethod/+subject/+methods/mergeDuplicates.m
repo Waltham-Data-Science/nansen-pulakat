@@ -51,6 +51,12 @@ function varargout = mergeDuplicates(subjectObject, varargin)
     % Merge duplicates
     ndi.nansen.fun.mergeMetaTableCells(subjectTable,'Subject');
 
+    % Get dataset object
+    dataset = ndi.nansen.fun.datasetID2Object(subjectObject(1).DatasetIdentifier);
+
+    % Update session table
+    ndi.nansen.metatable.update(dataset,'Session');
+
     % Update nansen viewer
     nansen.App.updateTable
     

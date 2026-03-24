@@ -81,7 +81,6 @@ indExist(indNew) = false; indNew = ~indExist;
 % Add new rows to metatable
 if any(indNew)
     metaTable.addTable(dataTable(indNew,:));
-    metaTable.save;
 end
 
 % Check if any existing rows have changes

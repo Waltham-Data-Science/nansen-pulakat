@@ -37,15 +37,8 @@ end
 metaTable = options.Project.MetaTableCatalog.getMetaTable(dataName);
 rowInd = cellfun(@(id) metaTable.getIndexById(id),dataTable.(metaTable.MetaTableIdVarname));
 
-% Check if row(s) already have an NDI document
-documentID = metaTable.entries.([dataName,'DocumentIdentifier'])(rowInd);
-hasDocument = cellfun(@(id) ~strcmp(id,'N/A'),documentID);
-
 % Update Nansen metatable values
 for i = 1:height(dataTable)
-    if hasDocument(i)
-        continue
-    end
     for j = 1:width(dataTable)
         varName = dataTable.Properties.VariableNames{j};
         newValue = dataTable{i, varName};

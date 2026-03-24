@@ -21,6 +21,12 @@
      "document": "ontologyTableRow"},
     {"value": "Treatment",
      "name": "Treatment",
+     "document": "ontologyTableRow"},
+    {"value": "SubjectIdentifier",
+     "name": "SubjectIdentifier",
+     "document": "ontologyTableRow"},
+    {"value": "ElectronicFileName",
+     "name": "ElectronicFileName",
      "document": "ontologyTableRow"}
     ],
   "subjectSuffix": "@pulakat-lab.tufts.edu",

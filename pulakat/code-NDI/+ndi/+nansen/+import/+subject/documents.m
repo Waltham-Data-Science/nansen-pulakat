@@ -43,34 +43,16 @@ subjectMaker = ndi.setup.NDIMaker.subjectMaker;
 subjectCreator = ndi.nansen.import.subject.informationCreator();
 tableDocMaker = ndi.setup.NDIMaker.tableDocMaker(session,labName);
 
-% Get subject metatable
-project = options.Project;
-subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
-subjectTable_session = subjectMetaTable.entries;
-
-% Identify new subjects
-indNew = cellfun(@(x) isempty(x) || strcmp(x, 'N/A'), subjectTable.SubjectDocumentIdentifier);
-subjectTable{:,'LabName'} = labName;
-subjectTable_new = subjectTable(indNew,:);
-
-% Only pass valid subjects
-
 % Create subject documents
-[~,subjectTable_new.SubjectLocalIdentifier,subjectTable_new.SubjectDocumentIdentifier] = ...
-    subjectMaker.addSubjectsFromTable(session,subjectTable_new,subjectCreator);
+subjectTable{:,'LabName'} = {'pulakat'};
+[~,subjectTable.SubjectLocalIdentifier,subjectTable.SubjectDocumentIdentifier] = ...
+    subjectMaker.addSubjectsFromTable(session,subjectTable,subjectCreator);
 
 % Create ontologyTableRow documents (and add to session)
-ind = strcmp({projectInfo.subjectFileColumns.document},'ontologyTableRow');
-tableRowVariables = [{projectInfo.subjectFileColumns(ind).name},...
-    'SubjectIdentifier','ElectronicFileName','SubjectDocumentIdentifier'];
-docs = tableDocMaker.table2ontologyTableRowDocs(subjectTable_new(:,tableRowVariables), ...
+indOTR = strcmp({projectInfo.subjectFileColumns.document},'ontologyTableRow');
+tableRowVariables = [{projectInfo.subjectFileColumns(indOTR).name},...
+    'SubjectDocumentIdentifier'];
+tableDocMaker.table2ontologyTableRowDocs(subjectTable(:,tableRowVariables), ...
     {'SubjectIdentifier'},'DependencyVariable','SubjectDocumentIdentifier');
-
-% Add subject identifiers to metatable
-for i = 1:height(subjectTable_new)
-    subjectTable = ndi.nansen.metatable.edit(subjectTable_new(i,{'SubjectIdentifier',...
-        'SubjectDocumentIdentifier','SubjectLocalIdentifier'}),'Subject',...
-        'LabName',labName);
-end
 
 end

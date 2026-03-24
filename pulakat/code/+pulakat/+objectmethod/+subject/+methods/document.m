@@ -65,9 +65,18 @@ function varargout = document(subjectObject, varargin)
     isDocument = isequal(subjectTable.SubjectDocumentIdentifier,{'N/A'});
 
     % Create documents
-    ndi.nansen.import.subject.document(subjectTable(isValid & ~isDocument,:));
+    subjectTable_valid = subjectTable(isValid & ~isDocument,:);
+    sessionPaths = unique(subjectTable_valid.SessionPath);
+    for i = 1:numel(sessionPaths)
+        indSession = strcmp(subjectTable_valid.SessionPath,sessionPaths{i});
+        session = ndi.session.dir(sessionPaths{i});
+        ndi.nansen.import.subject.documents(session,subjectTable_valid(indSession,:),...
+            'Project',project);
+    end
 
-    % Update table
+    % Update metatables
+    ndi.nansen.metatable.update(dataset,'Subject');
+    nansen.App.updateTable
     
     % Return session object (please do not remove):
     % if nargout; varargout = {subjectObject}; end

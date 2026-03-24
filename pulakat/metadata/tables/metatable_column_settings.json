@@ -78,7 +78,7 @@
     "SkipColumn": false,
     "ColumnWidth": 41,
     "IsEditable": false,
-    "ColumnOrder": 37
+    "ColumnOrder": 39
   },
   {
     "VariableName": "SessionIdentifier",
@@ -103,7 +103,7 @@
     "ColumnLabel": "Subject Identifier",
     "ShowColumn": false,
     "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 263,
     "IsEditable": false,
     "ColumnOrder": 10
   },
@@ -121,7 +121,7 @@
     "ColumnLabel": "Strain",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 47,
+    "ColumnWidth": 76,
     "IsEditable": false,
     "ColumnOrder": 21
   },
@@ -211,7 +211,7 @@
     "ColumnLabel": "Treatment",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 87,
+    "ColumnWidth": 125,
     "IsEditable": false,
     "ColumnOrder": 19
   },
@@ -274,7 +274,7 @@
     "ColumnLabel": "Data Type",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 119,
+    "ColumnWidth": 428,
     "IsEditable": false,
     "ColumnOrder": 28
   },
@@ -340,5 +340,14 @@
     "ColumnWidth": 76,
     "IsEditable": false,
     "ColumnOrder": 34
+  },
+  {
+    "VariableName": "Document",
+    "ColumnLabel": "Document",
+    "ShowColumn": true,
+    "SkipColumn": false,
+    "ColumnWidth": 57,
+    "IsEditable": false,
+    "ColumnOrder": 37
   }
 ]
