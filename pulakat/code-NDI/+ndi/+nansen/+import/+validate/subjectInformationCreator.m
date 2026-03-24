@@ -21,34 +21,17 @@ numRows = height(subjectTable);
 isValid = true(numRows, 1);
 errorMessages = repmat("", numRows, 1);
 
-% Define the specific warning IDs that must be treated as errors
-warnIDs = {...
-    'ndi:createSubjectInformation:SpeciesCreationFailed', ...
-    'ndi:createSubjectInformation:StrainCreationFailed', ...
-    'ndi:createSubjectInformation:BiologicalSexCreationFailed', ...
-    'ndi:createSubjectInformation:IdentifierCreationFailed'};
-
 % 2. Validate each row
 creator = ndi.nansen.import.subject.informationCreator();
 for i = 1:numRows
     currentRow = subjectTable(i, :);
     currentRow.LabName = labName;
 
-    % Force warnings to behave as errors for the try/catch block
-    for j = 1:numel(warnIDs)
-        warning('error', warnIDs{j});
-    end
-
     try
         creator.create(currentRow);
     catch ME
         isValid(i) = false;
         errorMessages(i) = ME.message;
-    end
-
-    % Reset warning states to avoid affecting other MATLAB operations
-    for j = 1:numel(warnIDs)
-        warning('on', warnIDs{j});
     end
 end
 

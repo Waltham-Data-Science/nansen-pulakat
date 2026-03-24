@@ -48,10 +48,27 @@ methods
                 'The tableRow is missing one or more required columns for the Pulakat subject creator.');
         end
 
+        % --- Populate openMINDS Objects by calling helper methods ---
+        selectedStrainInfo = obj.getStrainInfo(tableRow);
+        species = obj.createSpeciesObject(selectedStrainInfo);
+        strain = obj.createStrainObject(selectedStrainInfo,species);
+        biologicalSex = obj.createBiologicalSexObject(tableRow);
+        subjectIdentifier = obj.constructSubjectIdentifier(tableRow,projectInfo);
+    end
+end % methods
+
+methods (Access = private, Static)
+    function selectedStrainInfo = getStrainInfo(tableRow)
         % --- Load strains info ---
         [thisPath, ~, ~] = fileparts(mfilename('fullpath'));
         strainsFile = fullfile(thisPath, 'strains.json');
         strainsInfo = jsondecode(fileread(strainsFile));
+
+        % --- Check if strain name is missing ---
+        if isempty(tableRow.StrainName{1})
+            error('ndi:createSubjectInformation:MissingStrain', ...
+                'The strain name is missing.');
+        end
 
         % --- Find correct strain from name or alias ---
         strainNames = {strainsInfo.value};
@@ -65,22 +82,16 @@ methods
             end
         end
 
+        % --- Check that matching strain was found ---
         if ~any(indStrain)
-             error('ndi:validators:InvalidStrain',...
-                'The strain "%s" was not found in the strains configuration.', tableRow.StrainName{1});
+             error('ndi:createSubjectInformation:InvalidStrain',...
+                'The strain "%s" was not found in the strains configuration file.', tableRow.StrainName{1});
         end
         selectedStrainInfo = strainsInfo(indStrain);
 
-        % --- Populate openMINDS Objects by calling helper methods ---
-        species = obj.createSpeciesObject(tableRow,selectedStrainInfo);
-        strain = obj.createStrainObject(tableRow,species,selectedStrainInfo);
-        biologicalSex = obj.createBiologicalSexObject(tableRow);
-        subjectIdentifier = obj.constructSubjectIdentifier(tableRow,projectInfo);
     end
-end % methods
 
-methods (Access = private, Static)
-    function species = createSpeciesObject(tableRow,selectedStrainInfo)
+    function species = createSpeciesObject(selectedStrainInfo)
         % Creates an openMINDS species object
         species = openminds.controlledterms.Species;
         try
@@ -94,12 +105,12 @@ methods (Access = private, Static)
             species.description = definition;
             species.synonym = string(synonyms);
         catch ME
-            warning('ndi:createSubjectInformation:SpeciesCreationFailed',...
+            error('ndi:createSubjectInformation:SpeciesCreationFailed',...
                 'Could not create openMINDS Species object: %s', ME.message);
         end
     end
 
-    function strain = createStrainObject(tableRow,species,selectedStrainInfo)
+    function strain = createStrainObject(selectedStrainInfo,species)
         % Creates an openMINDS strain object based on the table row data.
         strain = openminds.core.research.Strain;
         try
@@ -115,7 +126,7 @@ methods (Access = private, Static)
             strain.geneticStrainType = selectedStrainInfo.geneticStrainType;
             strain.species = species;
         catch ME
-            warning('ndi:createSubjectInformation:StrainCreationFailed',...
+            error('ndi:createSubjectInformation:StrainCreationFailed',...
                 'Could not create openMINDS Strain object: %s', ME.message);
         end
     end
@@ -123,6 +134,10 @@ methods (Access = private, Static)
     function biologicalSex = createBiologicalSexObject(tableRow)
         % Creates an openMINDS biological sex object.
         biologicalSex = openminds.controlledterms.BiologicalSex;
+        if isempty(tableRow.BiologicalSexName{1})
+            error('ndi:createSubjectInformation:BiologicalSexMissing',...
+                'The biological sex name is missing.')
+        end
         try
             % Look up ontology information
             [ontologyID,name,~,definition,synonyms] = ...
@@ -133,7 +148,7 @@ methods (Access = private, Static)
             biologicalSex.description = definition;
             biologicalSex.synonym = string(synonyms);
         catch ME
-            warning('ndi:createSubjectInformation:BiologicalSexCreationFailed',...
+            error('ndi:createSubjectInformation:BiologicalSexCreationFailed',...
                 'Could not create openMINDS BiologicalSex object: %s', ME.message);
         end
     end
@@ -141,15 +156,24 @@ methods (Access = private, Static)
     function subjectIdentifier = constructSubjectIdentifier(tableRow,projectInfo)
         % Constructs the subject identifier string.
         subjectIdentifier = NaN;
-        try
-            % Get the subject identifier values
-            subjectParts = cellfun(@(f) char(tableRow.(f){1}), ...
-                projectInfo.subjectIdentifierFields, 'UniformOutput', false);
             
+        % Get the subject identifier values
+        subjectParts = cellfun(@(f) char(tableRow.(f){1}), ...
+            projectInfo.subjectIdentifierFields, 'UniformOutput', false);
+
+        % Check there are no missing parts
+        indEmpty = cellfun(@isempty, subjectParts);
+        if any(indEmpty)
+            error('ndi:createSubjectInformation:MissingSubjectIdentifier',...
+                'The following subject identifiers are missing: %s', ...
+                strjoin(projectInfo.subjectIdentifierFields(indEmpty),', '));
+        end
+
+        try
             % Combine and append the lab-specific suffix
             subjectIdentifier = [strjoin(subjectParts, '_'),projectInfo.subjectSuffix];
         catch ME
-            warning('ndi:createSubjectInformation:IdentifierCreationFailed',...
+            error('ndi:createSubjectInformation:IdentifierCreationFailed',...
                 'Could not construct the subject identifier string: %s', ME.message);
         end
     end

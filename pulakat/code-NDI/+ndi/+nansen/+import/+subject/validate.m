@@ -39,8 +39,7 @@ end
 % 3. Initialize Report Table
 numPending = height(pendingTable);
 idVarNames = {projectInfo.subjectFileColumns.name};
-reportTable = pendingTable(:, idVarNames); 
-isValid = true(numPending, 1);
+reportTable = pendingTable(:, ['SessionName';idVarNames]); 
 reportTable.ErrorMessage = repmat("", numPending, 1);
 
 % 4. Call Utility Validation Functions
@@ -51,18 +50,15 @@ reportTable.ErrorMessage = repmat("", numPending, 1);
 [isValid_OTR, errorMsg_OTR] = ndi.nansen.import.validate.ontologyTableRow(pendingTable, labName);
 
 % 4c. duplicates validation
-[isValid_DUP, errorMsg_DUP] = ndi.nansen.import.validate.duplicates(pendingTable);
+subjectIdentifiers = projectInfo.subjectIdentifierFields;
+[isValid_DUP, errorMsg_DUP] = ndi.nansen.import.validate.duplicates(...
+    pendingTable(:,[subjectIdentifiers','SessionIdentifier']),...
+    'Subject',subjectIdentifiers,'Logic','all');
 
 % 5. Combine Reports
-for i = 1:numPending
-    if ~isValid_SIC(i)
-        isValid(i) = false;
-        reportTable.ErrorMessage(i) = errorMsg_SIC(i);
-    elseif ~isValid_OTR(i)
-        isValid(i) = false;
-        reportTable.ErrorMessage(i) = errorMsg_OTR(i);
-    end
-end
+isValid = isValid_SIC & isValid_OTR & isValid_DUP;
+errorCombined = join([errorMsg_SIC, errorMsg_OTR, errorMsg_DUP], " ");
+reportTable.ErrorMessage = strtrim(errorCombined);
 
 % 6. Rename Variables for Output (would be nice to replace
 % with nansen column settings

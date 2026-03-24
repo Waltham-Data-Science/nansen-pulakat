@@ -49,46 +49,35 @@ end
 
 % 3. Initialize Report Table
 % Identification columns for files: SessionName, ElectronicFileName, DataTypeName
-idVarNames = {'SessionName', 'ElectronicFileName', 'DataTypeName'};
 numPending = height(pendingTable);
-reportTable = pendingTable(:, idVarNames);
-isValid = true(numPending, 1);
+idVarNames = {'ElectronicFileName', 'DataTypeName'};
+reportTable = pendingTable(:, ['SessionName',idVarNames]);
 reportTable.ErrorMessage = repmat("", numPending, 1);
 
 % 4. Validate each row
-for i = 1:numPending
-    row = pendingTable(i, :);
-    allIssues = {};
+% 4a. data type validation
+isValid_DT = ismember(pendingTable.DataTypeName,validDataTypes);
+errorMsg_DT = repmat("",numPending,1);
+errorMsg_DT(~isValid_DT) = cellfun(@(d) string(sprintf('Invalid data type %s.',d)), pendingTable.DataTypeName(~isValid_DT));
 
-    % 4a. Check data type
-    typeVal = row.DataTypeName;
-    if iscell(typeVal); typeVal = typeVal{1}; end
-    if ~any(strcmp(validDataTypes, typeVal))
-        allIssues{end+1} = sprintf('Invalid data type "%s"', typeVal);
-    end
+% 4b. Check existence of file
+isValid_F = cellfun(@exist,pendingTable.ElectronicFileName) > 0;
+errorMsg_F = repmat("",numPending,1);
+errorMsg_F(~isValid_F) = repmat("File/folder could not be found on the local machine.",sum(~isValid_F),1);
 
-    % 4b. Check physical file existence
-    fileName = row.ElectronicFileName;
-    if iscell(fileName); fileName = fileName{1}; end
-    filePath = fullfile(row.SessionPath{1}, fileName);
-    if ~exist(filePath, 'file')
-        allIssues{end+1} = 'physical file missing';
-    end
+% 4c. Check if subject document identifier exists
+isValid_SDI = ~cellfun(@(s) isempty(s) || strcmp(s,'N/A'),pendingTable.SubjectDocumentIdentifier);
+errorMsg_SDI = repmat("",numPending,1);
+errorMsg_SDI(~isValid_SDI) = repmat("Subject documents have not yet been created.",sum(~isValid_SDI),1);
 
-    % 4c. Check if subject document identifier exists
-    subjectDocID = row.SubjectDocumentIdentifier;
-    if iscell(subjectDocID); subjectDocID = subjectDocID{1}; end
-    if isempty(subjectDocID) || strcmp(subjectDocID, 'N/A')
-        allIssues{end+1} = 'Subject documents need to be created first';
-    end
+% 4d. Check for duplicates
+[isValid_DUP, errorMsg_DUP] = ndi.nansen.import.validate.duplicates(...
+    pendingTable(:,[idVarNames,'SessionIdentifier','SubjectIdentifier']),...
+    'File','Logic','any');
 
-    % 5. Record Results
-    if ~isempty(allIssues)
-        isValid(i) = false;
-        reportTable.ErrorMessage(i) = strjoin(allIssues, ', ');
-    end
-end
-
-isValid = all(isValid);
+% 5. Combine Reports
+isValid = isValid_DT & isValid_F & isValid_SDI & isValid_DUP;
+errorCombined = join([errorMsg_DT, errorMsg_F, errorMsg_SDI, errorMsg_DUP], " ");
+reportTable.ErrorMessage = strtrim(errorCombined);
 
 end

@@ -1,4 +1,4 @@
-function [isValid, errorMessages] = ontologyTableRow(subjectTable, labName)
+function [isValid, errorMessages] = ontologyTableRow(dataTable, labName)
 % ONTOLOGYTABLEROW Validates if ontologyTableRow documents can be created.
 %
 %   [ISVALID, ERRORMESSAGES] = ONTOLOGYTABLEROW(SUBJECTTABLE, LABNAME)
@@ -17,7 +17,7 @@ function [isValid, errorMessages] = ontologyTableRow(subjectTable, labName)
 %   See also: NDI.NANSEN.IMPORT.SUBJECT.VALIDATE, NDI.SETUP.NDIMAKER.TABLEDOCMAKER
 
 % 1. Initialization
-numRows = height(subjectTable);
+numRows = height(dataTable);
 isValid = true(numRows, 1);
 errorMessages = repmat("", numRows, 1);
 
@@ -34,7 +34,7 @@ ontologyVars = {projectInfo.subjectFileColumns(indOntology).name};
 ontologyVars = [ontologyVars, {'SubjectIdentifier', 'ElectronicFileName'}];
 
 % 4. Load Lab Mapping Dictionary
-dictFile = fullfile('+ndi','+setup','+conv',['+',labName],'tableDoc_dictionary.json');
+dictFile = which(fullfile('+ndi','+setup','+conv',['+',labName],'tableDoc_dictionary.json'));
 if ~isfile(dictFile)
     isValid(:) = false;
     errorMessages(:) = sprintf('Dictionary file not found: %s', dictFile);

@@ -33,8 +33,6 @@ function varargout = validate(fileObject, varargin)
 
     % Convert file object to table
     fileTable = struct2table(fileObject, 'AsArray', true);
-
-    % Call validation function
     [isValid, reportTable] = ndi.nansen.import.file.validate(fileTable);
 
     % Show detailed report table using standard NDI viewer
