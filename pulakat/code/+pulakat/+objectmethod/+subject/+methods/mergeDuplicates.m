@@ -48,8 +48,11 @@ function varargout = mergeDuplicates(subjectObject, varargin)
     % Convert subject object to table
     subjectTable = struct2table(subjectObject,'AsArray',true);
 
-    % Merge cells
+    % Merge duplicates
     ndi.nansen.fun.mergeMetaTableCells(subjectTable,'Subject');
+
+    % Update nansen viewer
+    nansen.App.updateTable
     
     % Return session object (please do not remove):
     % if nargout; varargout = {subjectObject}; end

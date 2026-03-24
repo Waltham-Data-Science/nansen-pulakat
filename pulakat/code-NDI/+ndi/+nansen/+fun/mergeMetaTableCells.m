@@ -78,7 +78,4 @@ for i = 1:height(uniqueRows)
 
 end
 
-nansen.App.updateTable
-
-
 end
