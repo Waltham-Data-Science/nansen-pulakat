@@ -48,13 +48,23 @@ for i = 1:numel(identifyingVariables)
     dataB = B.(identifyingVariables{i});
 
     % Get all matches
-    matches(:,i) = cellfun(@(s) find(strcmp(s, dataB)), dataA, 'UniformOutput', false);
+    if iscell(dataA)
+        matches(:,i) = cellfun(@(s) find(strcmp(s, dataB)), dataA, 'UniformOutput', false);
 
-    % Create a mask to ignore matches that are just empty strings
-    % This ensures {0x0 char} in A doesn't "match" {0x0 char} in B
-    if iscellstr(dataA) || isstring(dataA)
-        indEmpty = cellfun(@(x) isempty(x) || strcmp(x,'N/A'), dataA);
-        matches(indEmpty,i) = {[]};
+        % Create a mask to ignore matches that are just empty strings
+        % This ensures {0x0 char} in A doesn't "match" {0x0 char} in B
+        if iscellstr(dataA) || isstring(dataA)
+            indEmpty = cellfun(@(x) isempty(x) || strcmp(x,'N/A'), dataA);
+            matches(indEmpty,i) = {[]};
+        end
+    elseif islogical(dataA) || isnumeric(dataA)
+        matches(:,i) = arrayfun(@(val) find(val == dataB), dataA, 'UniformOutput', false);
+        
+        % Mask NaNs if numeric (since NaN == NaN is false in MATLAB)
+        if isnumeric(dataA)
+            indNaN = isnan(dataA);
+            matches(indNaN, i) = {[]};
+        end
     end
 end
 

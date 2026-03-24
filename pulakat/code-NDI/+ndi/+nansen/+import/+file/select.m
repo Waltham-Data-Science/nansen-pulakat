@@ -34,6 +34,9 @@ end
 % Ensure consistent processing
 fileExtensions = cellstr(options.FileExtensions);
 
+% Initialize output
+dataFiles = cell('');
+
 % Validate dataPath
 if isempty(dataPath)
     % Select file(s)
@@ -47,6 +50,9 @@ if isempty(dataPath)
         % Get file
         [fileName,fileDir] = uigetfile(fileFilter,'Select files to import.',...
             userpath,'MultiSelect','on');
+        if isequal(fileName,0)
+            return
+        end
         fileList = reshape(cellstr(fullfile(fileDir,fileName)),[],1);
         indDir = false(size(fileList));
 
