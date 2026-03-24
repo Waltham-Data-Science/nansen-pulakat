@@ -32,10 +32,12 @@ function varargout = validate(subjectObject, varargin)
     % --- Implementation of the method ---
 
     % Convert subject object to table
-    subjectTable = struct2table(subjectObject, 'AsArray', true);
+    subjectTable = struct2table(subjectObject,'AsArray',true);
 
     % Call validation function
     [isValid, reportTable] = ndi.nansen.import.subject.validate(subjectTable);
+
+    % Show detailed report table
     ndi.nansen.fun.showValidationReport(isValid,reportTable);
 end
 

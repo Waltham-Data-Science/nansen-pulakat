@@ -36,43 +36,39 @@ projectInfo = jsondecode(fileread(projectFile));
 % Get supported data types
 validDataTypes = {projectInfo.dataFileTypes.DataTypeName};
 
-% 2. Filter Pending Rows
-% Treat 'N/A' or empty as pending
-isNA = cellfun(@(x) isempty(x) || strcmp(x, 'N/A'), fileTable.FileDocumentIdentifier);
-pendingTable = fileTable(isNA, :);
-
-if isempty(pendingTable)
-    isValid = true;
-    reportTable = table();
+% 2. Check if empty
+if isempty(fileTable)
+    isValid = logical([]);
+    reportTable = table(); 
     return;
 end
 
 % 3. Initialize Report Table
 % Identification columns for files: SessionName, ElectronicFileName, DataTypeName
-numPending = height(pendingTable);
+numPending = height(fileTable);
 idVarNames = {'ElectronicFileName', 'DataTypeName'};
-reportTable = pendingTable(:, ['SessionName',idVarNames]);
+reportTable = fileTable(:, ['SessionName',idVarNames]);
 reportTable.ErrorMessage = repmat("", numPending, 1);
 
 % 4. Validate each row
 % 4a. data type validation
-isValid_DT = ismember(pendingTable.DataTypeName,validDataTypes);
+isValid_DT = ismember(fileTable.DataTypeName,validDataTypes);
 errorMsg_DT = repmat("",numPending,1);
-errorMsg_DT(~isValid_DT) = cellfun(@(d) string(sprintf('Invalid data type %s.',d)), pendingTable.DataTypeName(~isValid_DT));
+errorMsg_DT(~isValid_DT) = cellfun(@(d) string(sprintf('Invalid data type %s.',d)), fileTable.DataTypeName(~isValid_DT));
 
 % 4b. Check existence of file
-isValid_F = cellfun(@exist,pendingTable.ElectronicFileName) > 0;
+isValid_F = cellfun(@exist,fileTable.ElectronicFileName) > 0;
 errorMsg_F = repmat("",numPending,1);
 errorMsg_F(~isValid_F) = repmat("File/folder could not be found on the local machine.",sum(~isValid_F),1);
 
 % 4c. Check if subject document identifier exists
-isValid_SDI = ~cellfun(@(s) isempty(s) || strcmp(s,'N/A'),pendingTable.SubjectDocumentIdentifier);
+isValid_SDI = ~cellfun(@(s) isempty(s) || strcmp(s,'N/A'),fileTable.SubjectDocumentIdentifier);
 errorMsg_SDI = repmat("",numPending,1);
 errorMsg_SDI(~isValid_SDI) = repmat("Subject documents have not yet been created.",sum(~isValid_SDI),1);
 
 % 4d. Check for duplicates
 [isValid_DUP, errorMsg_DUP] = ndi.nansen.import.validate.duplicates(...
-    pendingTable(:,[idVarNames,'SessionIdentifier','SubjectIdentifier']),...
+    fileTable(:,[idVarNames,'SessionIdentifier','SubjectIdentifier']),...
     'File','Logic','any');
 
 % 5. Combine Reports

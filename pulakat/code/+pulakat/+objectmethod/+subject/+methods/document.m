@@ -45,8 +45,29 @@ function varargout = document(subjectObject, varargin)
 % % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
 % Implementation of the method : Add your code here:
 
-    % Convert subject object to table
-    subjectTable = struct2table(subjectObject,'AsArray',true);
+    % Get dataset object
+    dataset = ndi.nansen.fun.datasetID2Object(subjectObject(1).DatasetIdentifier);
+
+    % Update subject metatable
+    ndi.nansen.metatable.update(dataset,'Subject');
+
+    % Get updated subject object
+    project = nansen.getCurrentProject;
+    metaTable = project.MetaTableCatalog.getMetaTable('Subject');
+
+    % Get updated subject table
+    subjectTable = metaTable.getEntry({subjectObject.SubjectIdentifier});
+
+    % Call validation function
+    isValid = ndi.nansen.import.subject.validate(subjectTable);
+
+    % Check for already documented rows
+    isDocument = isequal(subjectTable.SubjectDocumentIdentifier,{'N/A'});
+
+    % Create documents
+    ndi.nansen.import.subject.document(subjectTable(isValid & ~isDocument,:));
+
+    % Update table
     
     % Return session object (please do not remove):
     % if nargout; varargout = {subjectObject}; end
