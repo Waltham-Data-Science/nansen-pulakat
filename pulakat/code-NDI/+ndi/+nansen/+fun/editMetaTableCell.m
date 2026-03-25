@@ -11,12 +11,16 @@ function [obj] = editMetaTableCell(className,obj,options)
 %         (e.g., 'nansen.metadata.type.Subject.Animal').
 %      obj (struct): A struct representation of the record row.
 %
-%   Name-Value Pairs:
+%   Name-Value Arguments:
 %      Project (nansen.config.project.Project): Optional. The Nansen
 %         project object. Default is current Nansen project.
 %
 %   Outputs:
 %      obj (struct): The updated record struct.
+%
+%   Examples:
+%      % Edit a subject's animal ID:
+%      updatedObj = ndi.nansen.fun.editMetaTableCell(cls, subjectStruct)
 %
 %   See also: NDI.NANSEN.METATABLE.EDIT, NDI.NANSEN.FUN.EDITIMPORTTABLEGUI
 

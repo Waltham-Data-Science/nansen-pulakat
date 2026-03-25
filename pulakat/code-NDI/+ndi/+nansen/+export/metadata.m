@@ -3,16 +3,29 @@ function [metadataTable] = metadata(options)
 %
 %   This function joins file and subject metadata tables from a Nansen
 %   project and allows filtering by session, subject, or file identifiers.
+%   It is used to prepare data for CSV export.
 %
-%   Inputs (Name-Value Pairs):
-%       Project (nansen.config.project.Project): The Nansen project object.
-%       SessionIdentifier (char or cell array): Session(s) to include.
-%       SubjectDocumentIdentifier (char or cell array): Subject(s) to include.
-%       FileDocumentIdentifier (char or cell array): File(s) to include.
-%       SubjectOnly (logical): If true, returns only subject metadata.
+%   Name-Value Arguments:
+%      Project (nansen.config.project.Project): Optional. The Nansen
+%         project object. Defaults to the current project.
+%      SessionIdentifier (char or cell array): Optional. Session(s) to
+%         include in the export.
+%      SubjectIdentifier (char or cell array): Optional. Subject(s) to
+%         include.
+%      FileIdentifier (char or cell array): Optional. File(s) to include.
+%      SubjectOnly (logical): Optional. If true, returns only subject
+%         metadata. Default is false.
+%      MetaDataOnly (logical): Optional. If true, ignores file physical
+%         data. Default is false.
 %
 %   Outputs:
-%       metadataTable (table): The filtered and joined metadata table.
+%      metadataTable (table): The filtered and joined metadata table.
+%
+%   Examples:
+%      % Get metadata for a specific session:
+%      t = ndi.nansen.export.metadata('SessionIdentifier', 'SESS-01')
+%
+%   See also: NDI.NANSEN.EXPORT.GENERICFILES
 
 arguments
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject
@@ -73,4 +86,3 @@ end
 metadataTable = metadataTable(:, indSort);
 
 end
-

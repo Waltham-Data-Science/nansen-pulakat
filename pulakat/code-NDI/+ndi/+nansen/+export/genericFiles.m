@@ -1,6 +1,33 @@
 function [success, errorMessage, report] = genericFiles(dataset, dataTable, exportFolder, options)
-%LOCALGENERICFILES Summary of this function goes here
-%   Detailed explanation goes here
+%GENERICFILES Downloads and exports generic data files from NDI.
+%
+%   This function manages the export of data files associated with NDI
+%   documents. It handles downloading files from the NDI cloud if they
+%   are not present locally, or copying them from the local database.
+%
+%   Inputs:
+%      dataset (ndi.dataset.dir): The NDI dataset object.
+%      dataTable (table): A table containing information about the files
+%         to export, including 'Cloud' status and identifiers.
+%      exportFolder (char or string): The local directory where files
+%         will be exported.
+%
+%   Name-Value Arguments:
+%      Verbose (logical): Optional. Whether to print progress messages.
+%         Default is true.
+%      Zip (logical): Optional. Whether to zip the exported files.
+%         Default is false.
+%      NamingStrategy (string): Optional. How to name exported files.
+%         Must be one of ["original", "id", "id_original"].
+%         Default is "original".
+%
+%   Outputs:
+%      success (logical): True if the export was successful.
+%      errorMessage (char): Contains error details if success is false.
+%      report (struct): Detailed report of the export process.
+%
+%   See also: NDI.CLOUD.DOWNLOAD.DOWNLOADGENERICFILES, COPYFILE
+
 arguments
     dataset (1,1)
     dataTable table
