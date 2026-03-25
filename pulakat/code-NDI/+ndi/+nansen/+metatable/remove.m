@@ -40,7 +40,6 @@ if ~isempty(metaTableCatalog.Table) & ~isempty(metaTableEntry) & ...
 
     % Remove entries
     metaTable.removeEntries(entryIDs);
-    metaTable.save;
 end
 
 end
