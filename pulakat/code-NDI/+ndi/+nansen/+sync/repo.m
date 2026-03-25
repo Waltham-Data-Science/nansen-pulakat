@@ -8,7 +8,7 @@ function [status,repoPath] = repo(repoReference, options)
 %      repoReference (char or string): The reference used to find the
 %         repository. Can be a local path, function name, or Git URL.
 %
-%   Name-Value Pairs:
+%   Name-Value Arguments:
 %      Branch (char or string): Optional. The name of the Git branch to
 %         switch to (e.g., 'development'). Default is ''.
 %      ClonePath (char or string): Optional. The parent directory for
