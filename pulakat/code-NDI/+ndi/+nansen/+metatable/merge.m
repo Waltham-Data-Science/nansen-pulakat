@@ -106,4 +106,7 @@ if any(indExist)
     end
 end
 
+% Reset cache
+metaTable.resetMetaObjectCache
+
 end

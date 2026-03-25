@@ -14,6 +14,10 @@ classdef SubjectLocalIdentifier < nansen.metadata.abstract.TableVariable & nanse
             obj@nansen.metadata.abstract.TableVariable(varargin{:});
         end
 
+        function value = getCellDisplayString(obj)
+            value = {obj.Value};
+        end
+
         function value = getCellTooltipString(obj)
             if strcmp(obj.Value,obj.DEFAULT_VALUE{1})
                 classParts = strsplit(class(obj),'.');

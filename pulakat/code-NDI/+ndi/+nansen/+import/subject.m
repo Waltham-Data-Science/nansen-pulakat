@@ -148,7 +148,6 @@ subjectTable_new = renamevars(subjectTable_new,idShortNames,subjectIdentifiers);
 subjectTable_new = unique(subjectTable_new);
 
 % Add session id to subject table
-numSubjects = height(subjectTable_new);
 subjectTable_new{:,'SessionIdentifier'} = {session.id};
 subjectTable_new{:,'SessionName'} = {session.reference};
 subjectTable_new{:,'SessionPath'} = {session.path};

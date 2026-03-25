@@ -119,6 +119,7 @@ for i = 1:numel(sessions)
     dataTable{:,'SessionIdentifier'} = {sessions{i}.identifier};
     dataTable{:,'SessionPath'} = {sessions{i}.path};
     dataTable{:,'DatasetIdentifier'} = {datasetID};
+    dataTable{:,'Document'} = true;
 
     fileTables{i} = dataTable;
 end

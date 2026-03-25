@@ -80,5 +80,6 @@ for i = 1:numel(sessions)
     subjectTable{:,'SessionPath'} = {sessions{i}.path};
     subjectTable{:,'DatasetIdentifier'} = {datasetID};
 end
+subjectTable{:,'Document'} = true;
 
 end

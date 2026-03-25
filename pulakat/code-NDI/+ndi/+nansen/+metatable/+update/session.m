@@ -63,6 +63,7 @@ for i = 1:numel(sessions)
     sessionTable.SessionDocumentIdentifier{i} = sessionDocIDs{i};
     sessionTable.SessionPath{i} = sessions{i}.path;
     sessionTable.DatasetIdentifier{i} = datasetID;
+    sessionTable.Document(i) = true;
 end
 
 end
