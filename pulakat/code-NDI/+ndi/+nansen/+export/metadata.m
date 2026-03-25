@@ -17,62 +17,60 @@ function [metadataTable] = metadata(options)
 arguments
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject
     options.SessionIdentifier {mustBeText} = '';
-    options.SubjectDocumentIdentifier {mustBeText} = '';
-    options.FileDocumentIdentifier {mustBeText} = '';
+    options.SubjectIdentifier {mustBeText} = '';
+    options.FileIdentifier {mustBeText} = '';
     options.SubjectOnly (1,1) logical = false;
+    options.MetaDataOnly (1,1) logical = false;
 end
 
 % Get project
 project = options.Project;
 
 % Get subject table
-subjectTable = project.MetaTableCatalog.getMetaTable('Subject');
-subjectTable = subjectTable.entries;
+subjectMetaTable = project.MetaTableCatalog.getMetaTable('Subject');
+subjectTable = subjectMetaTable.entries;
 
 % Add files metadata (if applicable)
 if ~options.SubjectOnly
-    fileTable = project.MetaTableCatalog.getMetaTable('File');
-    fileTable = fileTable.entries;
-
-    % Get project info
-    labName = char(project.Name);
-    projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
-    projectInfo = jsondecode(fileread(char(projectFile)));
-    subjectIdentifiers = projectInfo.subjectIdentifierFields;
+    fileMetaTable = project.MetaTableCatalog.getMetaTable('File');
+    fileTable = fileMetaTable.entries;
 
     % Use identifying fields and SessionIdentifier as join keys to support pending entries
     metadataTable = join(fileTable,subjectTable,...
-        'Keys',[{'SessionIdentifier'}, subjectIdentifiers'],...
-        'KeepOneCopy',{'ElectronicFileName','SubjectDocumentIdentifier',...
-        'SessionName','SessionDocumentIdentifier','DatasetDocumentIdentifier',...
-        'DatasetIdentifier','SessionPath','SubjectLocalIdentifier','Cloud'});
+        'Keys','SubjectIdentifier','KeepOneCopy',...
+        intersect(subjectMetaTable.VariableNames,fileMetaTable.VariableNames));
 else
     metadataTable = subjectTable;
 end
 
 % Filter results
-filters = {'SessionIdentifier','SubjectDocumentIdentifier','FileDocumentIdentifier'};
+filters = {'SessionIdentifier','SubjectIdentifier','FileIdentifier'};
 numFilters = numel(filters);
-ind = false(height(metadataTable),numFilters);
+indFilter = false(height(metadataTable),numFilters);
 for i = 1:numFilters
     if isempty(options.(filters{i}))
-        ind(:,i) = true(height(metadataTable),1);
+        indFilter(:,i) = true(height(metadataTable),1);
     else
-        ind(:,i) = ndi.fun.table.identifyMatchingRows(metadataTable, ...
+        indFilter(:,i) = ndi.fun.table.identifyMatchingRows(metadataTable, ...
             filters{i},cellstr(options.(filters{i})));        
     end
 end
-filteredTable = metadataTable(all(ind,2),:);
+filteredTable = metadataTable(all(indFilter,2),:);
 
 % Add back in all rows referring to exported files (if applicable)
-if any(ismember(filteredTable.Properties.VariableNames,'FileDocumentIdentifier'))
-    fileIDs = unique(filteredTable.FileDocumentIdentifier);
+if any(ismember(filteredTable.Properties.VariableNames,'FileIdentifier')) && ...
+        ~options.MetaDataOnly
+    fileIDs = unique(filteredTable.FileIdentifier);
     indFile = ndi.fun.table.identifyMatchingRows(metadataTable, ...
-            'FileDocumentIdentifier',{fileIDs});
-    metadataTable = metadataTable(all(ind,2) | indFile,:);
+            'FileIdentifier',{fileIDs});
+    metadataTable = metadataTable(all(indFilter,2) | indFile,:);
 else
     metadataTable = filteredTable;
 end
+
+% Sort by column name
+[~, indSort] = sort(metadataTable.Properties.VariableNames);
+metadataTable = metadataTable(:, indSort);
 
 end
 

@@ -47,8 +47,8 @@ function varargout = metadata(subjectObject, varargin)
     mkdir(exportFolder);
 
     % Download metadata table
-    exportTable = ndi.nansen.export.metadata('SubjectDocumentIdentifier',...
-        {subjectObject.SubjectDocumentIdentifier},'SubjectOnly',true);
+    exportTable = ndi.nansen.export.metadata('SubjectIdentifier',...
+        {subjectObject.SubjectIdentifier},'SubjectOnly',true,'MetaDataOnly',true);
     writetable(exportTable,fullfile(exportFolder,'metadata.csv'));
 
     % Open export folder on computer
