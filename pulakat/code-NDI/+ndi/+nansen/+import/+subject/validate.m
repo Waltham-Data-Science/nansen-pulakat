@@ -1,16 +1,25 @@
 function [isValid, reportTable] = validate(subjectTable, options)
-% VALIDATE Validates subject metadata and returns a detailed report table.
+%VALIDATE Validates subject metadata and returns a detailed report table.
 %
-%   [ISVALID, REPORTTABLE] = VALIDATE(SUBJECTTABLE) checks metadata rows 
-%   using the informationCreator and verifies ontology lookups.
+%   This function checks subject metadata rows using the informationCreator
+%   and verifies ontology lookups. It returns a detailed report table
+%   suitable for display in the validation GUI.
 %
 %   Inputs:
-%       subjectTable (table)  - A table containing subject metadata.
-%       options.LabName (char)- Name of the lab for project info lookup.
+%      subjectTable (table): A table containing subject metadata.
+%
+%   Name-Value Arguments:
+%      LabName (char or string): Optional. Name of the lab for project
+%         info lookup. Default is the current Nansen project name.
 %
 %   Outputs:
-%       isValid (logical)     - True if all pending rows are valid.
-%       reportTable (table)   - Table with ID fields, IsValid, and ErrorMessage.
+%      isValid (logical): Column vector; true if each row is valid.
+%      reportTable (table): Table with ID fields and an 'ErrorMessage'
+%         column describing any validation failures.
+%
+%   Examples:
+%      % Validate a subject table:
+%      [ok, report] = ndi.nansen.import.subject.validate(myTable)
 %
 %   See also: NDI.NANSEN.FUN.SHOWVALIDATIONREPORT, NDI.NANSEN.IMPORT.SUBJECT.INFORMATIONCREATOR
 

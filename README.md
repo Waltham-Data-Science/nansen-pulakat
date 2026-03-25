@@ -31,54 +31,47 @@ Run `pulakat.startup` to initialize the environment, sync with the NDI cloud, an
 
 The following methods are accessible through the "Methods" menu when a record is selected in the corresponding table.
 
+**Note on Selection:** Most table methods allow selecting multiple records for batch processing. However, methods under **Import** (specifically Session Methods) typically accept only a single session input at a time.
+
 ### Dataset Table
 
 | Method | Description |
 | :--- | :--- |
-| **Import > Session** | Select a session directory and give it a unique name. |
-| **Sync** | Creates NDI documents and performs a two-way sync with the cloud. |
+| **Import > Session** | Select a session directory and provide a unique session name to add it to the dataset. |
+| **Sync** | Performs a two-way synchronization with the NDI cloud, downloading remote updates and uploading new documents. |
 
 ### Session Table
 
 | Method | Description |
 | :--- | :--- |
-| **Import > Subjects > Files** | Detects and imports subjects from lab-standard metadata files. |
-| **Import > Subjects > Manual** | Opens a dialog to manually enter subject details (ID, Cage, Label, etc.). |
-| **Import > Data > Folder** | Scans the session directory for files matching supported data types. |
-| **Import > Data > Files** | Allows manual selection of files and assignment of data types and subjects. |
-| **Export > Metadata** | Exports session metadata to a file. |
-| **Export > Files** | Exports session files. |
-| **Remove** | Removes the selected session from the local metatable (only if not yet synced). |
+| **Import > Subjects > Files** | Automatically detects and imports subjects from lab-standard metadata files (e.g., `animal_mapping.csv`). |
+| **Import > Subjects > Manual** | Opens a dialog to manually enter subject details (ID, Cage, Label, etc.) for the selected session. |
+| **Import > Data > Folder** | Scans the session directory for files matching supported data types and imports them. |
+| **Import > Data > Files** | Allows manual selection of specific files and assignment of data types and subjects. |
+| **Export > Metadata** | Exports consolidated metadata for the selected session to a CSV file. |
+| **Export > Files** | Exports all data files associated with the selected session. |
+| **Remove** | Removes the selected session from the local metatable and unlinks it from the NDI dataset. |
 
 ### Subject Table
 
 | Method | Description |
 | :--- | :--- |
-| **Validate** | Performs a "dry run" validation of subject metadata. |
-| **Edit** | Allows editing of subject metadata (locked once synced). |
-| **Export > Metadata** | Exports subject metadata to a file. |
-| **Export > Files** | Exports subject files. |
-| **Remove** | Deletes the subject record from the local metatable. |
+| **Validate** | Performs a "dry run" validation of subject metadata against project requirements and ontology rules. |
+| **Edit** | Opens a GUI to edit subject metadata (locked once the record is synced to the cloud). |
+| **Document** | Creates the official NDI subject documents and establishes immutable UIDs in the database. |
+| **Merge Duplicates** | Identifies and merges duplicate subject records based on shared identification metadata. |
+| **Export > Metadata** | Exports metadata for the selected subjects to a CSV file. |
+| **Export > Files** | Exports all data files associated with the selected subjects. |
+| **Remove** | Deletes the subject record and its associated data files from the local metatable. |
 
 ### File Table
 
 | Method | Description |
 | :--- | :--- |
-| **Validate** | Checks for physical file existence and valid data type assignments. |
-| **Export** | Exports selected files. |
-| **Remove** | Removes the file record from the metatable. |
-
----
-
-## Identification & Synchronization
-
-### UUID Tethers
-Every record (Subject, File) is assigned an immutable `UUID` (e.g., `Subject-xxxx...`). This identifier tethers the record to the corresponding NDI document, ensuring links survive metadata renames.
-
-### The Commitment Phase
-The **Sync** process implements a 4-Tier Hierarchical Ownership model:
-- **Dataset -> Session -> Subject -> Files**
-NDI documents are created with strict referential integrity (children depend on parent UIDs).
+| **Validate** | Checks for physical file existence, valid data type assignments, and proper subject links. |
+| **Document** | Creates the official NDI file documents and establishes immutable UIDs in the database. |
+| **Export** | Exports selected data files and their associated metadata. |
+| **Remove** | Removes the file record from the metatable (only if not yet synced to the cloud). |
 
 ---
 

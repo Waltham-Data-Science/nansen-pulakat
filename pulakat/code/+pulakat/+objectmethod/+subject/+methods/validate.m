@@ -1,8 +1,9 @@
 function varargout = validate(subjectObject, varargin)
-%CHECK Validates metadata for selected subjects.
+%VALIDATE Validates metadata for selected subjects.
 %
 %   This object method checks if the metadata for the selected subjects
-%   is valid for creating NDI documents and syncing to the cloud.
+%   is valid for creating NDI documents and syncing to the cloud. It
+%   displays a validation report in a GUI.
 %
 %   Inputs:
 %       subjectObject (struct): A structure or array of structures

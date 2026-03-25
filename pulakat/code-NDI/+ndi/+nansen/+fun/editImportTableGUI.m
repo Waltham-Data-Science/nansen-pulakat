@@ -7,13 +7,17 @@ function dataTable = editImportTableGUI(dataTable, dataName, options)
 %
 %   Inputs:
 %      dataTable (table): The input table to edit.
-%      dataName (char or string): Name of the data type ('Subject').
+%      dataName (char or string): Name of the data type (e.g., 'Subject').
 %
-%   Name-Value Pairs:
-%      Prompt (char or string): Instruction text at top.
-%      DropDown (struct): A struct with 'VariableName' and 'Values'
-%         for dropdown columns.
-%      AddRow (logical): Whether to allow adding new rows. Default is true.
+%   Name-Value Arguments:
+%      Prompt (char or string): Optional. Instruction text displayed at
+%         the top of the window.
+%      DropDown (struct): Optional. A struct with 'VariableName' and
+%         'Values' fields for specifying dropdown columns.
+%      AddRow (logical): Optional. Whether to allow adding new rows.
+%         Default is true.
+%      Delete (logical): Optional. Whether to allow deleting rows.
+%         Default is true.
 %
 %   Outputs:
 %      dataTable (table): The updated table after user confirmation.

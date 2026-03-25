@@ -2,8 +2,8 @@ function varargout = remove(sessionObject, varargin)
 %REMOVE Deletes a local session and removes it from the metatable.
 %
 %   This session method checks if a session is synchronized to the cloud.
-%   If it is not, it deletes the session from the local disk and removes
-%   its entry from the session metatable.
+%   If it is not, it unlinks the session from the NDI dataset and
+%   optionally deletes the session directory from the local disk.
 %
 %   Inputs:
 %       sessionObject (nansen.session.Session): The Nansen session object.

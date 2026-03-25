@@ -6,15 +6,21 @@ function [statusTable] = status(dataset, options)
 %   cloud and which are pending.
 %
 %   Inputs:
-%       dataset (ndi.dataset.dir): The NDI dataset object.
+%      dataset (ndi.dataset.dir): The NDI dataset object.
 %
-%   Name-Value Pairs:
-%       Verbose (logical): Optional. Whether to print status messages.
-%           Defaults to false.
+%   Name-Value Arguments:
+%      Verbose (logical): Optional. Whether to print status messages.
+%         Defaults to false.
 %
 %   Outputs:
-%       statusTable (table): A table containing document identifiers and
-%           their cloud status (true if on cloud, false otherwise).
+%      statusTable (table): A table containing 'DocumentIdentifier' and
+%         'Cloud' (logical) status.
+%
+%   Examples:
+%      % Get cloud status for all documents:
+%      s = ndi.nansen.sync.status(dataset)
+%
+%   See also: NDI.NANSEN.FUN.GETCLOUDSTATUS, NDI.CLOUD.SYNC.INTERNAL.INDEX.READSYNCINDEX
 
 % Input argument validation
 arguments

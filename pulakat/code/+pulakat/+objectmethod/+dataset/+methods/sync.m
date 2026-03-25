@@ -1,8 +1,9 @@
 function varargout = sync(datasetObject, varargin)
 %SYNC Synchronizes the local dataset with the NDI cloud.
 %
-%   This object method attempts to upload new local documents to the cloud.
-%   It also updates the local dataset metatable.
+%   This object method attempts to upload new local documents to the cloud
+%   and download any new documents from the cloud. It also updates all
+%   local Nansen metatables.
 %
 %   Inputs:
 %       datasetObject (struct): A structure representing the dataset.
@@ -37,11 +38,11 @@ function varargout = sync(datasetObject, varargin)
     ndi.cloud.sync.downloadNew(dataset);
 
     % Upload new documents to cloud (if applicable)
-    success = ndi.cloud.sync.uploadNew(dataset);
+    [success, errorMessage, report] = ndi.cloud.sync.uploadNew(dataset);
     if ~success
         warning('Error encountered syncing dataset to cloud. Try logging in again.')
         ndi.cloud.uilogin(true);
-        success = ndi.cloud.sync.uploadNew(dataset);
+        [success, errorMessage, report] = ndi.cloud.sync.uploadNew(dataset);
         if ~success
             error('Could not sync dataset to cloud.');
         end

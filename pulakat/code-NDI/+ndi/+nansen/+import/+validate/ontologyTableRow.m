@@ -1,18 +1,17 @@
 function [isValid, errorMessages] = ontologyTableRow(dataTable, labName)
-% ONTOLOGYTABLEROW Validates if ontologyTableRow documents can be created.
+%ONTOLOGYTABLEROW Validates if ontologyTableRow documents can be created.
 %
-%   [ISVALID, ERRORMESSAGES] = ONTOLOGYTABLEROW(SUBJECTTABLE, LABNAME)
-%   verifies that all columns in the subjectTable intended for
-%   'ontologyTableRow' documents are correctly mapped in the lab's
-%   tableDoc_dictionary.json file.
+%   This function verifies that all columns in a metadata table
+%   intended for NDI 'ontologyTableRow' documents are correctly
+%   mapped in the lab-specific 'tableDoc_dictionary.json' file.
 %
 %   Inputs:
-%       subjectTable (table) - A table containing subject metadata.
-%       labName (char)       - Name of the lab for project info lookup.
+%      dataTable (table): A table containing metadata rows.
+%      labName (char or string): Name of the lab/project for dictionary lookup.
 %
 %   Outputs:
-%       isValid (logical)    - Column vector indicating if each row is valid.
-%       errorMessages (string)- Column vector of error messages.
+%      isValid (logical): Column vector indicating if each row's schema is valid.
+%      errorMessages (string): Detailed error messages for missing mappings.
 %
 %   See also: NDI.NANSEN.IMPORT.SUBJECT.VALIDATE, NDI.SETUP.NDIMAKER.TABLEDOCMAKER
 

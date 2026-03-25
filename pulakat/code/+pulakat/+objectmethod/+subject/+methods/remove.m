@@ -3,7 +3,8 @@ function varargout = remove(subjectObject, varargin)
 %
 %   This object method checks if subjects are synchronized to the cloud.
 %   If they are not, it deletes them from their respective NDI sessions
-%   and removes their entries from the subject metatable.
+%   and removes their entries from the subject metatable. Deleting a
+%   subject also deletes its associated data files.
 %
 %   Inputs:
 %       subjectObject (struct): A structure or array of structures

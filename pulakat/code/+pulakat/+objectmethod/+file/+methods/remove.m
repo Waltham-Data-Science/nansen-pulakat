@@ -2,8 +2,9 @@ function varargout = remove(filesObject, varargin)
 %REMOVE Deletes local files and removes them from the metatable.
 %
 %   This object method checks if files are synchronized to the cloud.
-%   If they are not, it deletes them from their respective NDI sessions
-%   and removes their entries from the file metatable.
+%   If they are not, it deletes their entries from the file metatable.
+%   Files that are already documented in NDI cannot be deleted via
+%   this method.
 %
 %   Inputs:
 %       filesObject (struct): A structure or array of structures
