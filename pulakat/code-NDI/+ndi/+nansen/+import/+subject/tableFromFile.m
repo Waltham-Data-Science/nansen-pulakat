@@ -1,22 +1,23 @@
 function [subjectTable] = tableFromFile(subjectFiles,labName)
-%TABLEFROMFILES Imports and validates subject metadata from CSV or Excel files.
-%   This function is designed to read subject information from structured
-%   files (e.g., .csv, .xls, .xlsx). It validates that the files contain
-%   required columns, reads the data, consolidates it into a single
-%   MATLAB table, and renames columns to match the NDI schema.
+%TABLEFROMFILE Imports subject metadata from CSV or Excel files.
+%
+%   This function reads subject information from structured files,
+%   validates required columns, and renames them to match the NDI
+%   schema.
 %
 %   Inputs:
-%       subjectFiles (Optional): A string array, character vector, or cell
-%           array of character vectors where each element is a full path to 
-%           a subject data file. If empty or not provided, a file selection
-%           dialog opens.
+%      subjectFiles (cell array): Optional. List of file paths.
+%         If empty, a selection dialog opens.
+%      labName (char or string): Optional. The name of the lab.
 %
 %   Outputs:
-%       subjectTable (table): A MATLAB table containing the vertically 
-%           stacked data from all imported files. The table includes 
-%           columns such as: 'SubjectEnumeratedIdentifier', 
-%           'SubjectCageIdentifier', 'SubjectTextIdentifier', 'Species', 
-%           'Strain', 'BiologicalSex', 'Treatment', and 'ElectronicFileName'.
+%      subjectTable (table): A table containing the consolidated data.
+%
+%   Examples:
+%      % Import subjects from a CSV:
+%      subjects = ndi.nansen.import.subject.tableFromFile('animals.csv')
+%
+%   See also: NDI.NANSEN.IMPORT.SUBJECT.AUTO, NDI.NANSEN.IMPORT.FILE.VALIDATETABLE
 
 % Input argument validation
 arguments
@@ -41,7 +42,8 @@ end
 
 % Check that there are subject files selected
 if isempty(subjectFiles)
-    error('import.subject.tableFromFiles: No file(s) selected.');
+    subjectTable = table();
+    return;
 end
 
 subjectTables = cell(size(subjectFiles));
@@ -60,7 +62,7 @@ for i = 1:numel(subjectFiles)
     importOptions = setvartype(importOptions,requiredVariableNames,'char');
     importOptions.SelectedVariableNames = requiredVariableNames;
     subjectTables{i} = readtable(subjectFile,importOptions);
-    subjectTables{i}{:,'ElectronicFileName'} = subjectFile;
+    subjectTables{i}{:,'ElectronicFileName'} = {subjectFile};
 end
 
 % Stack subject tables

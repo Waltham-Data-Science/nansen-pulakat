@@ -14,4 +14,12 @@ classdef StrainName < nansen.metadata.abstract.TableVariable
             obj@nansen.metadata.abstract.TableVariable(varargin{:});
         end
     end
+
+    methods (Static)
+        function value = update(varargin)
+            className = mfilename('class');
+            dataName = 'Subject';
+            value = ndi.nansen.fun.listUniqueMetaTableValues(className,dataName,varargin{:});
+        end
+    end
 end

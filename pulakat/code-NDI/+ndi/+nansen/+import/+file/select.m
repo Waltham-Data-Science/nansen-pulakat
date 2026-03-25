@@ -1,26 +1,27 @@
 function [dataFiles] = select(dataPath,options)
-%SELECT Selects files based on specified criteria.
-%   This function finds and returns a list of file paths based on the
-%   provided path, file name, and extensions. It can operate in interactive
-%   mode (opening a file/directory selection dialog) or non-interactively
-%   by searching a specified path.
+%SELECT Selects files or directories for import via GUI or search.
+%
+%   This function retrieves a list of file paths. If no path is given,
+%   it opens a MATLAB file/folder selection dialog. It includes
+%   filtering by name and extension.
 %
 %   Inputs:
-%       dataPath (char or string): Optional. The path to the directory to 
-%           search for files. If empty, a user interface dialog will open 
-%           to select files or a directory.
+%      dataPath (char or string): Optional. Local path to search.
+%         If empty, a GUI selection dialog will open.
 %
-%   Optional Name-Value Arguments:
-%       FileName (char or string): A string to filter files by name. Only 
-%           files containing this string (case-insensitive) will be returned.
-%       FileExtensions (char, string, or cell array): File extensions to 
-%           filter by. Use '*' for all extensions. Defaults to '*'.
-%       GetType ('file' or 'dir'): Specifies whether the user dialog should
-%           select files or a directory. Defaults to 'file'.
+%   Name-Value Pairs:
+%      FileName (char or string): Filter files by name. Default is ''.
+%      FileExtensions (cell array): Filter by extensions. Default is '*'.
+%      GetType ('file' or 'dir'): Select files or a directory. Default is 'file'.
 %
 %   Outputs:
-%       dataFiles (cell array of strings): A cell array containing the full 
-%           paths of the selected files that match the filter criteria.
+%      dataFiles (cell array): Full paths of the selected files.
+%
+%   Examples:
+%      % Select .csv files interactively:
+%      files = ndi.nansen.import.file.select('', 'FileExtensions', {'csv'})
+%
+%   See also: NDI.NANSEN.IMPORT.FILE.AUTO, UIGETFILE
 
 % Input argument validation
 arguments
@@ -32,6 +33,9 @@ end
 
 % Ensure consistent processing
 fileExtensions = cellstr(options.FileExtensions);
+
+% Initialize output
+dataFiles = cell('');
 
 % Validate dataPath
 if isempty(dataPath)
@@ -46,6 +50,9 @@ if isempty(dataPath)
         % Get file
         [fileName,fileDir] = uigetfile(fileFilter,'Select files to import.',...
             userpath,'MultiSelect','on');
+        if isequal(fileName,0)
+            return
+        end
         fileList = reshape(cellstr(fullfile(fileDir,fileName)),[],1);
         indDir = false(size(fileList));
 

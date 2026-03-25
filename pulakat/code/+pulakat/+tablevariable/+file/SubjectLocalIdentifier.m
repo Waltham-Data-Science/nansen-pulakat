@@ -14,4 +14,20 @@ classdef SubjectLocalIdentifier < nansen.metadata.abstract.TableVariable
             obj@nansen.metadata.abstract.TableVariable(varargin{:});
         end
     end
+
+    methods (Static)
+        function value = update(varargin)
+            className = mfilename('class');
+            if nargin < 1
+                value = eval([className,'.DEFAULT_VALUE']);
+                return
+            else
+                classParts = strsplit(className,'.');
+                dataName = 'Subject';
+                variableName = classParts{end};
+                obj = varargin{1};
+                value = ndi.nansen.fun.getMetaTableValue(dataName,variableName,obj.([dataName,'Identifier']));
+            end
+        end
+    end
 end

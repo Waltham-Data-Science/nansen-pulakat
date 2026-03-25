@@ -60,19 +60,18 @@ function varargout = files(subjectObject, varargin)
     mkdir(exportFolder);
 
     % Download metadata table
-    exportTable = ndi.nansen.export.metadata('SubjectDocumentIdentifier',...
-        {subjectObject.SubjectDocumentIdentifier});
+    exportTable = ndi.nansen.export.metadata('SubjectIdentifier',...
+        {subjectObject.SubjectIdentifier});
     writetable(exportTable,fullfile(exportFolder,'metadata.csv'));
     
     % Get dataset and session objects
     datasetID = unique({subjectObject.DatasetIdentifier});
     dataset = ndi.nansen.fun.datasetID2Object(datasetID{1});
 
-    % Download files
-    documentIDs = unique(exportTable.FileDocumentIdentifier);
-    ndi.cloud.download.downloadGenericFiles(dataset,documentIDs,...
-        exportFolder,'NamingStrategy','id');
-    
+    % Download cloud (and local) generic_files
+    ndi.nansen.export.genericFiles(dataset,exportTable,exportFolder,...
+        'NamingStrategy','id');
+
     % Open export folder on computer
     if ispc
         winopen(exportFolder);

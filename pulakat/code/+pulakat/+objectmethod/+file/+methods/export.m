@@ -1,35 +1,23 @@
-function varargout = export(filesObject, varargin)
-%EXPORT Summary of this function goes here
-%   Detailed explanation goes here
-
-% % % % % % % % % % % % % % % INSTRUCTIONS % % % % % % % % % % % % % % %
-% - - - - - - - - - - You can remove this part - - - - - - - - - - -
-% Instructions on how to use this template:
-%   1) If the session method should have parameters, these should be
-%      defined in the local function getDefaultParameters at the bottom of
-%      this script.
-%   2) Scroll down to the custom code block below and write code to do
-%   operations on the filesObjects and it's data.
-%   3) Add documentation (summary and explanation) for the session method
-%      above. PS: Don't change the function definition (inputs/outputs)
+function varargout = export(fileObject, varargin)
+%EXPORT Exports selected data files and their metadata.
 %
-%   For examples: Press e on the keyboard while browsing the session
-%   methods. (e) should appear after the name in the menu, and when you
-%   select a session method, the m-file will open.
+%   This object method allows the user to select a download directory,
+%   exports the metadata for the selected files to a CSV, and
+%   downloads the actual data files from the NDI cloud.
+%
+%   Inputs:
+%       fileObject (struct): A structure or array of structures
+%           representing files.
+%       varargin: Optional name-value pairs for parameters.
+%
+%   Outputs:
+%       varargout: If called without inputs, returns the method's attributes.
 
-% % % % % % % % % % % % CONFIGURATION CODE BLOCK % % % % % % % % % % % %
-% Create a struct of default parameters (if applicable) and specify one or
-% more attributes (see nansen.session.SessionMethod.setAttributes) for
-% details.
-    
     % Get struct of parameters from local function
     params = getDefaultParameters();
     
     % Create a cell array with attribute keywords
     ATTRIBUTES = {'batch', 'queueable'};
-    
-% % % % % % % % % % % % % DEFAULT CODE BLOCK % % % % % % % % % % % % % %
-% - - - - - - - - - - Please do not edit this part - - - - - - - - - - -
     
     % Create a struct with "attributes" using a predefined pattern
     import nansen.session.SessionMethod
@@ -42,10 +30,44 @@ function varargout = export(filesObject, varargin)
     % Parse name-value pairs from function input and update parameters
     params = utility.parsenvpairs(params, [], varargin);
     
-% % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
-% Implementation of the method : Add your code here:
+    % --- Implementation of the method ---
     
-    % Return session object (please do not remove):
+    % Choose directory for download
+    if ispc
+        userDir = getenv('USERPROFILE'); % Windows
+    else
+        userDir = getenv('HOME'); % Mac/Linux
+    end
+    downloadsDir = fullfile(userDir, 'Downloads');
+    downloadFolder = uigetdir(downloadsDir,'Select directory for download.');
+    if downloadFolder == 0; return; end
+
+    % Create export folder
+    dateString = char(datetime('now','Format','yyyyMMdd_HHmmss'));
+    exportFolder = fullfile(downloadFolder,['export_',dateString]);
+    mkdir(exportFolder);
+
+    % Download metadata table
+    exportTable = ndi.nansen.export.metadata('FileIdentifier',...
+        {fileObject.FileIdentifier});
+    writetable(exportTable,fullfile(exportFolder,'metadata.csv'));
+
+    % Get dataset object
+    datasetID = unique({fileObject.DatasetIdentifier});
+    dataset = ndi.nansen.fun.datasetID2Object(datasetID{1});
+
+    % Download cloud (and local) generic_files
+    ndi.nansen.export.genericFiles(dataset,exportTable,exportFolder,...
+        'NamingStrategy','id');
+
+    % Open export folder on computer
+    if ispc
+        winopen(exportFolder);
+    else
+        system(['open "' exportFolder '"']);
+    end
+
+    % Return files object (please do not remove):
     % if nargout; varargout = {filesObject}; end
 end
 

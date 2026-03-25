@@ -1,61 +1,80 @@
-function [indMatch,numMatch] = matchTables(A,B,excludeVariables)
-%MATCHDATA2SUBJECTS Matches rows from a data table to a subject metadata table.
-%   This function identifies which subject(s) in a subject metadata table
-%   (`subjectTable`) correspond to each data entry in a data table
-%   (`dataTable`). The matching is performed by finding common values across
-%   one or more shared columns, such as subject IDs or cage numbers.
-%   For each row in `dataTable`, the function returns a list of all unique
-%   `subjectTable` row indices that were matched, along with a count of
-%   those unique matches.
+function [indMatch, numMatch] = matchTables(A, B, excludeVariables)
+%MATCHTABLES Matches rows between two tables based on common variables.
+%
+%   This function identifies which row(s) in table B correspond to each
+%   entry in table A by finding common values across shared columns.
+%   It returns the indices of matches in table B for each row in table A.
 %
 %   Inputs:
-%       dataTable (table): A MATLAB table where each row represents a data
-%           point (e.g., from a file) to be linked to a subject. It must 
-%           contain the columns specified by `identifyingVariableNames`.
-%       subjectTable (table): A MATLAB table where each row represents a
-%           unique subject. It must also contain the columns specified by 
-%           `identifyingVariableNames`.
+%       A (table): The first MATLAB table.
+%       B (table): The second MATLAB table to match against.
+%       excludeVariables (char or cell array): Optional. Variable names to
+%           exclude from the matching process.
 %
 %   Outputs:
-%       indSubjects (cell array): A cell array with the same number of rows 
-%           as `dataTable`. Each cell `indSubjects{i}` contains a numeric
-%           vector of unique row indices from `subjectTable` that match the 
-%           i-th row of `dataTable`. The cell is empty if no match is found.
-%       numSubjects (vector): A numeric column vector where each element
-%           `numSubjects(i)` is the number of unique subjects matched to 
-%           the i-th row of `dataTable`.
+%      indMatch (cell array): Row indices from table B that match each
+%         row in table A.
+%      numMatch (vector): Count of matches in table B for each row in table A.
+%
+%   Examples:
+%      % Find matches between two subject tables:
+%      [ind, num] = ndi.nansen.fun.matchTables(newTable, existingTable)
+%
+%   See also: NDI.NANSEN.FUN.GETCOMPLETEUNIQUEROWS
 
 % Input argument validation
 arguments
     A table
-    B
+    B table
     excludeVariables {mustBeText} = '';
 end
 
 % If no rows in table B, return empty
 if isempty(B)
-    indMatch = cell(height(A),1);
+    matches = cell(height(A),1);
     numMatch = zeros(height(A),1);
     return
 end
 
 % Get overlapping variable names
 identifyingVariables = intersect(B.Properties.VariableNames,...
-    A.Properties.VariableNames);
-identifyingVariables = setdiff(identifyingVariables,cellstr(excludeVariables));
+    A.Properties.VariableNames, 'stable');
+identifyingVariables = setdiff(identifyingVariables,cellstr(excludeVariables), 'stable');
 
 % Get the indices of each variable name
-indMatch = zeros(height(A),numel(identifyingVariables));
+matches = cell(height(A),numel(identifyingVariables));
 for i = 1:numel(identifyingVariables)
-    [~,indSubject] = ismember(A(:,identifyingVariables{i}),...
-        B(:,identifyingVariables{i}));
-    indData = indSubject > 0;
-    indMatch(indData,i) = indSubject(indData);
+    dataA = A.(identifyingVariables{i});
+    dataB = B.(identifyingVariables{i});
+
+    % Get all matches
+    if iscell(dataA)
+        matches(:,i) = cellfun(@(s) find(strcmp(s, dataB)), dataA, 'UniformOutput', false);
+
+        % Create a mask to ignore matches that are just empty strings
+        % This ensures {0x0 char} in A doesn't "match" {0x0 char} in B
+        if iscellstr(dataA) || isstring(dataA)
+            indEmpty = cellfun(@(x) isempty(x) || strcmp(x,'N/A'), dataA);
+            matches(indEmpty,i) = {[]};
+        end
+    elseif islogical(dataA) || isnumeric(dataA)
+        matches(:,i) = arrayfun(@(val) find(val == dataB), dataA, 'UniformOutput', false);
+        
+        % Mask NaNs if numeric (since NaN == NaN is false in MATLAB)
+        if isnumeric(dataA)
+            indNaN = isnan(dataA);
+            matches(indNaN, i) = {[]};
+        end
+    end
 end
 
 % Get unique indices of table B matching each row in table A
-indMatch = num2cell(indMatch,2);
-indMatch = cellfun(@(x) unique(x(x > 0)),indMatch,'UniformOutput',false);
+indMatch = cell(height(matches), 1);
+for i = 1:height(matches)
+    rowCells = matches(i, :);
+    combined = vertcat(rowCells{:});
+    indMatch{i} = unique(combined);
+end
 
 % Get count of unique table B matches per row in table A
 numMatch = cellfun(@numel,indMatch);

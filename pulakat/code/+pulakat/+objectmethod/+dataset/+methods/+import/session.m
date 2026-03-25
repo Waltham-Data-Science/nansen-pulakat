@@ -48,22 +48,13 @@ function varargout = session(datasetObject, varargin)
     % Get dataset and project
     dataset = ndi.dataset.dir(datasetObject.DatasetPath);
 
-    % Create new session object
-    session = ndi.nansen.import.session(dataset);
-    sessionTable = ndi.nansen.metatable.session(dataset);
-    ndi.nansen.metatable.add(sessionTable,'Session');
-
-    autoImport = questdlg('Would you like to automatically import subjects and files from the session directory?', ...
-        'Import Subjects and Files','Yes', 'No', 'Yes');
-    if strcmp(autoImport,'yes')
-        % Add subjects to session
-        subjectTable = ndi.nansen.import.subject(session,session.path);
-        ndi.nansen.metatable.add(subjectTable,'Subject');
-
-        % Add data to session
-        dataTable = ndi.nansen.import.data(session,session.path);
-        ndi.nansen.metatable.add(dataTable,'File');
-    end
+    % Create new session entry in metatable
+    sessionPath = uigetdir(userpath, ...
+        'Select directory where session data is located.');
+    sessionName = inputdlg('What is the name of the new session?', ...
+        'Session title',[1 50],{'projectName_YYYY'});
+    ndi.nansen.import.session(dataset,sessionPath,sessionName);
+    ndi.nansen.metatable.update(dataset,'Session');
 
     % Return session object (please do not remove):
     % if nargout; varargout = {datasetObject}; end

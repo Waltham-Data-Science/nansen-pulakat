@@ -1,4 +1,27 @@
-function [ ] = startup(labName,dataPath)
+function [ ] = startup(labName, dataPath)
+%STARTUP Initializes the NDI-Nansen environment for a specific lab.
+%
+%   This function initializes the NDI-Nansen environment by updating
+%   necessary repositories, synchronizing the dataset with the NDI
+%   cloud, generating metatables, and launching the Nansen GUI.
+%
+%   Inputs:
+%      labName (char or string): Optional. The name of the lab/project to
+%         start. Defaults to the current Nansen project name.
+%      dataPath (char or string): Optional. The local directory path where
+%         NDI datasets are stored. Defaults to '~/ndi/data'.
+%
+%   Examples:
+%      % Initialize current Nansen project:
+%      ndi.nansen.startup()
+%
+%      % Initialize 'pulakat' project:
+%      ndi.nansen.startup('pulakat')
+%
+%      % Initialize with specific data path:
+%      ndi.nansen.startup('pulakat', 'C:\NDI\Data')
+%
+%   See also: NDI.NANSEN.METATABLE.UPDATEALL, NDI.NANSEN.SYNC.REPO, NANSEN
 
 % Input argument validation
 arguments
@@ -11,7 +34,7 @@ labName = char(labName);
 
 % 1. Get project info
 projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
-projectInfo = jsondecode(fileread(projectFile));
+projectInfo = jsondecode(fileread(char(projectFile)));
 
 % 2. Update required repos
 [~,repoPath] = ndi.nansen.sync.repo(projectInfo.URL);
@@ -40,7 +63,10 @@ if isfolder(datasetPath)
         % Update login token
         setenv('CLOUD_API_ENVIRONMENT','prod');
         ndi.cloud.uilogin(true);
-        ndi.cloud.sync.downloadNew(dataset);
+        [success,errorMessage] = ndi.cloud.sync.downloadNew(dataset);
+        if ~success
+            disp(errorMessage)
+        end
     end
 else
     % Download from cloud
@@ -57,13 +83,7 @@ end
 % Add to path
 addpath(genpath(datasetPath));
 
-% 4. Generate tables from dataset
-datasetTable = ndi.nansen.metatable.dataset(dataset);
-sessionTable = ndi.nansen.metatable.session(dataset);
-subjectTable = ndi.nansen.metatable.subject(dataset);
-dataTable = ndi.nansen.metatable.file(dataset);
-
-% 5. Load project from nansen project manager
+% 4. Load project from nansen project manager
 projectName = projectInfo.name;
 projectPath = fullfile(repoPath,projectName);
 projectManager = nansen.ProjectManager; 
@@ -80,19 +100,12 @@ end
 
 % Ensure the current project is set correctly
 project = projectManager.getCurrentProject;
-if ~strcmp(project.Name,projectName)
+if isempty(project) || ~strcmp(project.Name,projectName)
     projectManager.changeProject(projectName)
 end
 
-% 6. Add metatables to project and launch nansen viewer
-
-% Create (or replace) metatables
-ndi.nansen.metatable.add(datasetTable,'Dataset');
-ndi.nansen.metatable.add(sessionTable,'Session');
-ndi.nansen.metatable.add(subjectTable,'Subject');
-ndi.nansen.metatable.add(dataTable,'File');
-
-% Launch nansen
+% 5. Update Nansen metatables and launch
+ndi.nansen.metatable.updateAll(dataset);
 nansen
 
 end
