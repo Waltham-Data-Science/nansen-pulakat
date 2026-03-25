@@ -33,14 +33,14 @@ The following methods are accessible through the "Methods" menu when a record is
 
 **Note on Selection:** Most table methods allow selecting multiple records for batch processing. However, methods under **Import** (specifically Session Methods) typically accept only a single session input at a time.
 
-### Dataset Table (Object Methods)
+### Dataset Table
 
 | Method | Description |
 | :--- | :--- |
 | **Import > Session** | Select a session directory and provide a unique session name to add it to the dataset. |
-| **Sync** | Performs a two-way synchronization with the NDI cloud, uploading new documents and downloading remote updates. |
+| **Sync** | Performs a two-way synchronization with the NDI cloud, downloading remote updates and uploading new documents. |
 
-### Session Table (Session Methods)
+### Session Table
 
 | Method | Description |
 | :--- | :--- |
@@ -52,7 +52,7 @@ The following methods are accessible through the "Methods" menu when a record is
 | **Export > Files** | Exports all data files associated with the selected session. |
 | **Remove** | Removes the selected session from the local metatable and unlinks it from the NDI dataset. |
 
-### Subject Table (Object Methods)
+### Subject Table
 
 | Method | Description |
 | :--- | :--- |
@@ -64,7 +64,7 @@ The following methods are accessible through the "Methods" menu when a record is
 | **Export > Files** | Exports all data files associated with the selected subjects. |
 | **Remove** | Deletes the subject record and its associated data files from the local metatable. |
 
-### File Table (Object Methods)
+### File Table
 
 | Method | Description |
 | :--- | :--- |
@@ -72,18 +72,6 @@ The following methods are accessible through the "Methods" menu when a record is
 | **Document** | Creates the official NDI file documents and establishes immutable UIDs in the database. |
 | **Export** | Exports selected data files and their associated metadata. |
 | **Remove** | Removes the file record from the metatable (only if not yet synced to the cloud). |
-
----
-
-## Identification & Synchronization
-
-### UUID Tethers
-Every record (Subject, File) is assigned an immutable `UUID` (e.g., `Subject-xxxx...`). This identifier tethers the record to the corresponding NDI document, ensuring links survive metadata renames.
-
-### The Commitment Phase
-The **Sync** process implements a 4-Tier Hierarchical Ownership model:
-- **Dataset -> Session -> Subject -> Files**
-NDI documents are created with strict referential integrity (children depend on parent UIDs).
 
 ---
 
