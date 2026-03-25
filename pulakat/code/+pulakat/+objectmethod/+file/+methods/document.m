@@ -1,5 +1,5 @@
-function varargout = document(subjectObject, varargin)
-%CONFIRM Summary of this function goes here
+function varargout = document(fileObject, varargin)
+%DOCUMENT Summary of this function goes here
 %   Detailed explanation goes here
 
 % % % % % % % % % % % % % % % INSTRUCTIONS % % % % % % % % % % % % % % %
@@ -9,7 +9,7 @@ function varargout = document(subjectObject, varargin)
 %      defined in the local function getDefaultParameters at the bottom of
 %      this script.
 %   2) Scroll down to the custom code block below and write code to do
-%   operations on the subjectObjects and it's data.
+%   operations on the fileObjects and it's data.
 %   3) Add documentation (summary and explanation) for the session method
 %      above. PS: Don't change the function definition (inputs/outputs)
 %
@@ -46,35 +46,35 @@ function varargout = document(subjectObject, varargin)
 % Implementation of the method : Add your code here:
 
     % Get dataset object
-    dataset = ndi.nansen.fun.datasetID2Object(subjectObject(1).DatasetIdentifier);
+    dataset = ndi.nansen.fun.datasetID2Object(fileObject(1).DatasetIdentifier);
 
-    % Update subject metatable
-    ndi.nansen.metatable.update(dataset,'Subject');
+    % Update file metatable
+    % ndi.nansen.metatable.update(dataset,'File');
 
     % Get updated subject object
     project = nansen.getCurrentProject;
-    metaTable = project.MetaTableCatalog.getMetaTable('Subject');
+    metaTable = project.MetaTableCatalog.getMetaTable('File');
 
     % Get updated subject table
-    subjectTable = metaTable.getEntry({subjectObject.SubjectIdentifier});
+    fileTable = metaTable.getEntry({fileObject.FileIdentifier});
 
     % Call validation function
-    [isValid,reportTable] = ndi.nansen.import.subject.validate(subjectTable);
+    [isValid,reportTable] = ndi.nansen.import.file.validate(fileTable);
 
     % Check for already documented rows
-    isDocument = isequal(subjectTable.SubjectDocumentIdentifier,{'N/A'});
+    isDocument = isequal(fileTable.FileDocumentIdentifier,{'N/A'});
 
     % Create documents
-    subjectTable_valid = subjectTable(isValid & ~isDocument,:);
-    sessionPaths = unique(subjectTable_valid.SessionPath);
+    fileTable_valid = fileTable(isValid & ~isDocument,:);
+    sessionPaths = unique(fileTable_valid.SessionPath);
     for i = 1:numel(sessionPaths)
-        indSession = strcmp(subjectTable_valid.SessionPath,sessionPaths{i});
+        indSession = strcmp(fileTable_valid.SessionPath,sessionPaths{i});
         session = ndi.session.dir(sessionPaths{i});
-        ndi.nansen.import.subject.documents(session,subjectTable_valid(indSession,:));
+        ndi.nansen.import.file.documents(session,fileTable_valid(indSession,:));
     end
 
     % Update metatables
-    ndi.nansen.metatable.update(dataset,'Subject');
+    ndi.nansen.metatable.update(dataset,'File');
     ndi.nansen.metatable.update(dataset,'Dataset');
     nansen.App.updateTable
 
@@ -82,7 +82,7 @@ function varargout = document(subjectObject, varargin)
     ndi.nansen.fun.showValidationReport(isValid, reportTable);
     
     % Return session object (please do not remove):
-    % if nargout; varargout = {subjectObject}; end
+    % if nargout; varargout = {fileObject}; end
 end
 
 function params = getDefaultParameters()

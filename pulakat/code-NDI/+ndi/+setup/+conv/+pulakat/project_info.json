@@ -55,5 +55,10 @@
         "format": "EDAM:3987",
         "delete": true,
         "zip": true}
-       ]
+       ],
+  "dataFileColumns": [
+    {"value": "FileIdentifier",
+     "name": "FileIdentifier",
+     "document": "ontologyTableRow"}
+    ]
 }

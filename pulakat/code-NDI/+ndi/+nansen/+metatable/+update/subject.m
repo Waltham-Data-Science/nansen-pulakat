@@ -36,9 +36,19 @@ if isa(session,'ndi.dataset.dir')
         sessions{i} = dataset.open_session(sessionIDs{i});
     end
     subjectTable = ndi.fun.docTable.subject(dataset);
+    datasetID = dataset.id;
 else
     subjectTable = ndi.fun.docTable.subject(session);
     sessions = {session};
+
+    % Asssume only one dataset and get id
+    project = nansen.getCurrentProject();
+    datasetTable = project.MetaTableCatalog.getMetaTable('Dataset');
+    if ~isscalar(datasetTable.members)
+        error('More than one dataset not supported.')
+    else 
+        datasetID = datasetTable.members{1};
+    end
 end
 
 % Return if empty
@@ -62,6 +72,13 @@ if ~isempty(docs)
     ontologyTable.SessionIdentifier = sessionID{1}';
     ontologyTable.SubjectDocumentIdentifier = subjectDocID{1}';
     subjectTable = ndi.fun.table.join({subjectTable,ontologyTable});
+end
+
+% Get basic session metadata
+for i = 1:numel(sessions)
+    subjectTable{:,'SessionName'} = {sessions{i}.reference};
+    subjectTable{:,'SessionPath'} = {sessions{i}.path};
+    subjectTable{:,'DatasetIdentifier'} = {datasetID};
 end
 
 end

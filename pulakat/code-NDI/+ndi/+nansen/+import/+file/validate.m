@@ -64,16 +64,20 @@ errorMsg_F(~isValid_F) = repmat("File/folder could not be found on the local mac
 % 4c. Check if subject document identifier exists
 isValid_SDI = ~cellfun(@(s) isempty(s) || strcmp(s,'N/A'),fileTable.SubjectDocumentIdentifier);
 errorMsg_SDI = repmat("",numPending,1);
-errorMsg_SDI(~isValid_SDI) = repmat("Subject documents have not yet been created.",sum(~isValid_SDI),1);
+errorMsg_SDI(~isValid_SDI) = repmat("This subject must first be documented.",sum(~isValid_SDI),1);
 
 % 4d. Check for duplicates
 [isValid_DUP, errorMsg_DUP] = ndi.nansen.import.validate.duplicates(...
     fileTable(:,[idVarNames,'SessionIdentifier','SubjectIdentifier']),...
     'File','Logic','any');
 
+% 4e. Check that all subject's matching the file have documents
+[isValid_SUB, errorMsg_SUB] = ndi.nansen.import.validate.fileHasAllSubjects(...
+    fileTable(:,[idVarNames,'SessionIdentifier','SubjectDocumentIdentifier']));
+
 % 5. Combine Reports
-isValid = isValid_DT & isValid_F & isValid_SDI & isValid_DUP;
-errorCombined = join([errorMsg_DT, errorMsg_F, errorMsg_SDI, errorMsg_DUP], " ");
+isValid = isValid_DT & isValid_F & isValid_SDI & isValid_DUP & isValid_SUB;
+errorCombined = join([errorMsg_DT, errorMsg_F, errorMsg_SDI, errorMsg_DUP, errorMsg_SUB], " ");
 reportTable.ErrorMessage = strtrim(errorCombined);
 
 end

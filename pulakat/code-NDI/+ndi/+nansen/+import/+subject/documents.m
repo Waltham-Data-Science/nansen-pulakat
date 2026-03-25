@@ -30,7 +30,6 @@ arguments
     session {mustBeA(session,{'ndi.session.dir'})}
     subjectTable table
     options.LabName {mustBeText} = nansen.getCurrentProject().Name;
-    options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
 end
 
 % Get project info

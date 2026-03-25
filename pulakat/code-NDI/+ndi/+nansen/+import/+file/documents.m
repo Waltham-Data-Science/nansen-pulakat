@@ -1,4 +1,4 @@
-function [dataTable] = createDocuments(session, dataTable, labName)
+function [dataTable] = documents(session, dataTable, options)
 %CREATEDOCUMENTS Creates NDI file documents tethered to Subject UIDs.
 %
 %   This function implements the Tier 3 -> Tier 4 hierarchical sync.
@@ -20,31 +20,32 @@ function [dataTable] = createDocuments(session, dataTable, labName)
 %
 %   See also: NDI.NANSEN.IMPORT.SUBJECT.DOCUMENTS
 
+% Input argument validation
+arguments
+    session {mustBeA(session,{'ndi.session.dir'})}
+    dataTable table
+    options.LabName {mustBeText} = nansen.getCurrentProject().Name;
+end
+
 % Get project info
+labName = char(options.LabName);
 projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
 projectInfo = jsondecode(fileread(projectFile));
 fileTypes = {projectInfo.dataFileTypes.DataTypeName};
 
-% VALIDATION GATE: Ensure all columns are mapped or skipped
-% (Logic discussed in ARCHITECTURE_REDESIGN.md)
-% Here we focus on the Hierarchical Tethering for Tier 4
+% Framework object
+tableDocMaker = ndi.setup.NDIMaker.tableDocMaker(session,labName);
 
-% Filter rows that need new documents (no FileDocumentIdentifier)
-indPending = cellfun(@(x) isempty(x) || strcmp(x, 'N/A'), dataTable.FileDocumentIdentifier);
-if ~any(indPending)
-    return;
-end
-dataTable_pending = dataTable(indPending, :);
-
-[dataFiles_unique,~,indUnique] = unique(dataTable_pending(:,{'ElectronicFileName','DataTypeName'}),'stable');
+% Get unique files
+[dataFiles_unique,~,indUnique] = unique(dataTable(:,{'ElectronicFileName','DataTypeName'}),'stable');
+numFiles = height(dataFiles_unique);
 
 % Create data documents
-[generic_file_docs,ontologyLabel_docs] = deal(cell(height(dataFiles_unique),1));
+[generic_file_docs,ontologyLabel_docs] = deal(cell(numFiles,1));
 
-for i = 1:height(dataFiles_unique)
+for i = 1:numFiles
 
-    % 1. HIERARCHICAL TETHERING (Tier 4)
-    % Get subject document id (Tier 3 Parent)
+    % Get subject document id
     subject_id = dataTable.SubjectDocumentIdentifier(indUnique == i);
     if isscalar(subject_id)
         parent_uid = subject_id{1};
@@ -79,7 +80,7 @@ for i = 1:height(dataFiles_unique)
     dateCreated = convertTo(ndi.fun.file.dateCreated(fileName),'datenum');
     dateUpdated = convertTo(ndi.fun.file.dateUpdated(fileName),'datenum');
 
-    % 2. CREATE NDI DOCUMENT (Standardized)
+    % 2. Create generic_data document
     generic_file = struct('filename',fileName,'formatOntology',fileFormat, ...
         'checksum',checksum,'dateCreated',dateCreated,'dateUpdated',dateUpdated);
 
@@ -89,11 +90,10 @@ for i = 1:height(dataFiles_unique)
     generic_file_doc = generic_file_doc.add_file('generic_file.ext',filePath,...
         'delete_original',fileDelete);
 
-    % 3. ENFORCE TETHER: Link File to Subject UID (Primary Dependency)
-    generic_file_doc = generic_file_doc.set_dependency_value('subject_id', parent_uid);
+    generic_file_doc = generic_file_doc.set_dependency_value('document_id', parent_uid);
     generic_file_docs{i} = generic_file_doc;
 
-    % Create ontologyLabel document
+    % 3. Create ontologyLabel document
     ontologyID = ndi.ontology.lookup(['EMPTY:',dataFiles_unique.DataTypeName{i}]);
     ontologyLabel = struct('ontologyNode',ontologyID);
     ontologyLabel_doc = ndi.document('ontologyLabel', ...
@@ -104,14 +104,18 @@ for i = 1:height(dataFiles_unique)
 
     % Update dataTable_pending with new FileDocumentIdentifier
     indRows = (indUnique == i);
-    dataTable_pending.FileDocumentIdentifier(indRows) = {generic_file_doc.id};
+    dataTable.FileDocumentIdentifier(indRows) = {generic_file_doc.id};
 end
-
-% Update original dataTable
-dataTable.FileDocumentIdentifier(indPending) = dataTable_pending.FileDocumentIdentifier;
 
 % Add files to database
 session.database_add(generic_file_docs);
 session.database_add(ontologyLabel_docs);
+
+% 4. Create ontologyTableRow document
+indOTR = strcmp({projectInfo.dataFileColumns.document},'ontologyTableRow');
+tableRowVariables = [{projectInfo.dataFileColumns(indOTR).name},...
+    'FileDocumentIdentifier','SubjectDocumentIdentifier'];
+tableDocMaker.table2ontologyTableRowDocs(dataTable(:,tableRowVariables), ...
+    {'FileIdentifier'},'DependencyVariable',{'FileDocumentIdentifier','SubjectDocumentIdentifier'});
 
 end

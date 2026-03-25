@@ -35,8 +35,18 @@ if isa(session,'ndi.dataset.dir')
     for i = 1:numel(sessionIDs)
         sessions{i} = dataset.open_session(sessionIDs{i});
     end
+    datasetID = dataset.id;
 else
     sessions = {session};
+    
+    % Asssume only one dataset and get id
+    project = nansen.getCurrentProject();
+    datasetTable = project.MetaTableCatalog.getMetaTable('Dataset');
+    if ~isscalar(datasetTable.members)
+        error('More than one dataset not supported.')
+    else 
+        datasetID = datasetTable.members{1};
+    end
 end
 
 % Return if empty
@@ -53,6 +63,7 @@ for i = 1:numel(sessions)
     % Get files
     query = ndi.query('','isa','generic_file');
     generic_file_docs = session.database_search(query);
+    generic_file_docIDs = cellfun(@(d) d.id,generic_file_docs,'UniformOutput',false);
     generic_file_dependency = cellfun(@(d) d.dependency_value('document_id'), ...
         generic_file_docs,'UniformOutput',false);
 
@@ -68,7 +79,6 @@ for i = 1:numel(sessions)
         % Add file information
         dataTable.FileDocumentIdentifier(j) = {generic_file_docs{j}.id};
         dataTable.ElectronicFileName(j) = {generic_file_docs{j}.document_properties.generic_file.filename};
-        dataTable.SubjectDocumentIdentifier(j) = {generic_file_docs{j}.dependency_value('document_id')};
         
         % Add ontology label
         indOntologyLabel = strcmp(ontologyLabel_dependency,generic_file_docs{j}.id);
@@ -78,21 +88,37 @@ for i = 1:numel(sessions)
         dataTable.DataTypeOntology(j) = {ontologyNode};
     end
 
-    % Check for subject groups
-    query = ndi.query('','isa','subject_group');
-    subject_group_docs = session.database_search(query);
-
-    % Split subjects to individual rows
-    for j = 1:numel(subject_group_docs)
-        ind = strcmp(dataTable.SubjectDocumentIdentifier,subject_group_docs{j}.id);
-        if ~any(ind)
-            continue
+    % Get file tables
+    query = ndi.query('','isa','ontologyTableRow');
+    ontologyTableRow_docs = session.database_search(query);
+    [ontologyTable,~,sessionID,dependencyDocID] = ndi.fun.doc.ontologyTableRowDoc2Table(ontologyTableRow_docs);
+    indOntology = cellfun(@(d) any(ismember([d{:}],generic_file_docIDs)),dependencyDocID);
+    ontologyTable = ndi.fun.table.vstack(ontologyTable(indOntology));
+    ontologyTable = renamevars(ontologyTable,'UniversallyUniqueIdentifier','FileIdentifier');
+    ontologyTable.SessionIdentifier = [sessionID{indOntology}]';
+    ontologyTableRow_dependency = dependencyDocID{indOntology};
+    for j = 1:numel(ontologyTableRow_dependency)
+        for k = 1:numel(ontologyTableRow_dependency{j})
+            query = ndi.query('base.id','exact_string',ontologyTableRow_dependency{j}{k});
+            doc = session.database_search(query);
+            dependencyType = doc{1}.document_properties.document_class.class_name;
+            if strcmp(dependencyType,'generic_file')
+                ontologyTable.FileDocumentIdentifier(j) = ontologyTableRow_dependency{j}(k);
+            elseif strcmp(dependencyType,'subject') | strcmp(dependencyType,'subject_group')
+                ontologyTable.SubjectDocumentIdentifier(j) = ontologyTableRow_dependency{j}(k);
+            else
+                error('Dependency type of %s is not yet supported.',dependencyType)
+            end
         end
-        subject_ids = {subject_group_docs{j}.document_properties.depends_on.value}';
-        duplicateRow = repmat(dataTable(ind,:),numel(subject_ids),1);
-        duplicateRow.SubjectDocumentIdentifier = subject_ids;
-        dataTable = [dataTable(~ind,:);duplicateRow];
     end
+
+    dataTable = join(ontologyTable,dataTable,'Keys','FileDocumentIdentifier');
+
+    % Get basic session metadata
+    dataTable{:,'SessionName'} = {sessions{i}.reference};
+    dataTable{:,'SessionIdentifier'} = {sessions{i}.identifier};
+    dataTable{:,'SessionPath'} = {sessions{i}.path};
+    dataTable{:,'DatasetIdentifier'} = {datasetID};
 
     fileTables{i} = dataTable;
 end
