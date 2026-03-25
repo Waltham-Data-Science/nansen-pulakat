@@ -79,13 +79,13 @@ else
     
     % Style for Failures (Entire Row Soft Red)
     if ~isempty(errRows)
-        s_err = uistyle('BackgroundColor', [1 0.93 0.93], 'FontColor', [1 1 1]);
+        s_err = uistyle('BackgroundColor', [1 0.93 0.93], 'FontColor', 'k');
         addStyle(uit, s_err, 'row', errRows);
     end
     
     % Style for Success (Entire Row Soft Green)
     if ~isempty(validRows)
-        s_ok = uistyle('BackgroundColor', [0.93 1 0.93], 'FontColor', [1 1 1]);
+        s_ok = uistyle('BackgroundColor', [0.93 1 0.93], 'FontColor', 'k');
         addStyle(uit, s_ok, 'row', validRows);
     end
 
