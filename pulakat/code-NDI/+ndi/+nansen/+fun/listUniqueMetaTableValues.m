@@ -9,10 +9,10 @@ function [value] = listUniqueMetaTableValues(className,dataName,obj,options)
 %      className (char or string): Full name of the class and variable
 %         (e.g., 'nansen.metadata.type.Session.DataTypes').
 %      dataName (char or string): The metatable class name ('Dataset',
-%         'Session', 'Subject', 'File').
+%         'Session', 'Subject', or 'File').
 %      obj (struct): A struct representation of the record.
 %
-%   Name-Value Pairs:
+%   Name-Value Arguments:
 %      Project (nansen.config.project.Project): Optional. The Nansen
 %         project object. Default is current Nansen project.
 %

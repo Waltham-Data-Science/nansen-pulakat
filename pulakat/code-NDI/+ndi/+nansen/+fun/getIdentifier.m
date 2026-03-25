@@ -2,14 +2,22 @@ function [identifier] = getIdentifier(dataTable, type)
 %GETIDENTIFIER Generates a unique identifier for a Nansen record.
 %
 %   This function creates a robust, unique identifier based on the record's
-%   type (e.g., 'Subject', 'File', 'Session') using Java's UUID generator.
+%   type (e.g., 'Subject', 'File', 'Session', 'Dataset') using Java's
+%   UUID generator.
 %
 %   Inputs:
-%       dataTable (table): A MATLAB table containing records to identify.
-%       type (char or string): The type of identifier to generate.
+%      dataTable (table): A MATLAB table containing records to identify.
+%      type (char or string): The type of identifier to generate.
+%         Must be one of: 'Subject', 'File', 'Session', 'Dataset'.
 %
 %   Outputs:
-%       identifier (cell array): A cell array of unique identifiers (UUIDs).
+%      identifier (cell array): A cell array of unique identifiers (UUIDs).
+%
+%   Examples:
+%      % Generate subject identifiers:
+%      ids = ndi.nansen.fun.getIdentifier(subjectTable, 'Subject')
+%
+%   See also: NDI.NANSEN.IMPORT.SUBJECT, NDI.NANSEN.IMPORT.FILE
 
 % Input argument validation
 arguments

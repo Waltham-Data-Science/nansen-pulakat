@@ -1,7 +1,28 @@
 function [isValid, errorMessages] = duplicates(dataTable,dataName,identifiers,options)
-%DUPLICATES Summary of this function goes here
-%   Detailed explanation goes here
-
+%DUPLICATES Validates if a table contains duplicate records.
+%
+%   This function checks for duplicate rows in the provided data table
+%   relative to the existing Nansen metatable. It uses specific
+%   identification columns and can use 'any' or 'all' logic for
+%   determining uniqueness.
+%
+%   Inputs:
+%      dataTable (table): The input table to check for duplicates.
+%      dataName (char or string): The name of the metatable class
+%         ('Dataset', 'Session', 'Subject', or 'File').
+%      identifiers (char or cell array): Column names to use for
+%         uniqueness checks.
+%
+%   Name-Value Arguments:
+%      Logic (char): Uniqueness logic ('any' or 'all'). Default is 'all'.
+%      Project (nansen.config.project.Project): Optional. The Nansen
+%         project object. Defaults to the current project.
+%
+%   Outputs:
+%      isValid (logical): Column vector indicating if each row is unique.
+%      errorMessages (string): Descriptive messages for duplicate rows.
+%
+%   See also: NDI.NANSEN.FUN.GETCOMPLETEUNIQUEROWS
 
 % Input argument validation
 arguments

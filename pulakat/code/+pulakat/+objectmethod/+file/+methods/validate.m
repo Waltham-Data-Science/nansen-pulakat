@@ -1,8 +1,9 @@
 function varargout = validate(fileObject, varargin)
-%CHECK Validates metadata for selected files.
+%VALIDATE Validates metadata for selected files.
 %
 %   This object method checks if the metadata for the selected files
-%   is valid for creating NDI documents and syncing to the cloud.
+%   is valid for creating NDI documents and syncing to the cloud. It
+%   displays a validation report in a GUI.
 %
 %   Inputs:
 %       fileObject (struct): A structure or array of structures

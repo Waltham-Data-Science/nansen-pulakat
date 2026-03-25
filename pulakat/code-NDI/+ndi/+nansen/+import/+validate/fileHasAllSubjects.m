@@ -1,9 +1,25 @@
 function [isValid, errorMessages] = fileHasAllSubjects(dataTable, options)
-% FILEHASALLSUBJECTS Validates if files are missing subject identifier links.
+%FILEHASALLSUBJECTS Validates if files are missing subject identifiers.
 %
-%   [ISVALID, ERRORMESSAGES] = FILEHASALLSUBJECTS(DATATABLE, OPTIONS) 
-%   checks if any file in the DATATABLE matches an entry (in itself or the 
-%   Project's File MetaTable) that has an 'N/A' SubjectDocumentIdentifier.
+%   This function checks if any file in the provided table matches an
+%   entry in the Nansen File metatable that has an 'N/A' SubjectDocumentIdentifier.
+%   It is used to ensure all subjects for a file have been documented
+%   before the file itself can be processed.
+%
+%   Inputs:
+%      dataTable (table): A table containing file and subject metadata.
+%
+%   Name-Value Arguments:
+%      Project (nansen.config.project.Project): Optional. The Nansen
+%         project object. Defaults to the current project.
+%
+%   Outputs:
+%      isValid (logical): A column vector indicating if each file group
+%         is complete.
+%      errorMessages (string): Descriptive error messages for rows with
+%         missing subject identifiers.
+%
+%   See also: NDI.NANSEN.IMPORT.FILE.VALIDATE, NDI.NANSEN.IMPORT.SUBJECT.DOCUMENTS
 
 arguments
     dataTable table

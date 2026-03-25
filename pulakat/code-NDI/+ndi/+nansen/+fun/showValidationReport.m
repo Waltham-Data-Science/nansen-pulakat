@@ -1,23 +1,25 @@
 function showValidationReport(isValid, reportTable)
-% SHOWVALIDATIONREPORT Displays a modern, scaling UI table of validation results.
+%SHOWVALIDATIONREPORT Displays a modern, scaling UI table of validation results.
 %
-%   SHOWVALIDATIONREPORT(ISVALID, REPORTTABLE) creates a uifigure containing 
-%   a uitable. If ISVALID is true, it shows a success alert. If false, it 
-%   displays the REPORTTABLE with entire rows highlighted: Red for errors 
-%   and Green for valid entries.
+%   This function creates a UI figure containing a table of validation
+%   results. If all records are valid, it shows a success alert. If there
+%   are errors, it displays the report table with color-coded rows:
+%   Red for errors and Green for valid entries.
 %
-%   The 'IsValid' column is used for styling but is hidden from the final 
-%   display to keep the report clean. The 'ErrorMessage' column automatically 
-%   stretches to fill the window width.
+%   The 'ErrorMessage' column automatically stretches to fill the window
+%   width, and a note is included to explain that only the first
+%   identified error per row is displayed.
 %
 %   Inputs:
-%       isValid (logical)     - Scalar boolean; true if the entire batch passed.
-%       reportTable (table)   - Table containing identification columns, 
-%                               'IsValid' (logical), and 'ErrorMessage' (string).
+%      isValid (logical): A column vector indicating if each row in the
+%         report table is valid.
+%      reportTable (table): A table containing identification columns
+%         and an 'ErrorMessage' column.
 %
-%   Example:
-%       [ok, report] = ndi.nansen.import.subject.validate(myTable);
-%       ndi.nansen.fun.showValidationReport(ok, report);
+%   Examples:
+%      % Show a validation report:
+%      [ok, report] = ndi.nansen.import.subject.validate(myTable);
+%      ndi.nansen.fun.showValidationReport(ok, report);
 %
 %   See also: NDI.NANSEN.IMPORT.SUBJECT.VALIDATE, NDI.NANSEN.FUN.SELECTIONPICKERGUI
 
