@@ -45,29 +45,32 @@ function varargout = metadata(sessionObject, varargin)
 % % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
 % Implementation of the method : Add your code here:
 
-    % Choose download folder
+    % Choose directory for download
+    if ispc
+        userDir = getenv('USERPROFILE'); % Windows
+    else
+        userDir = getenv('HOME'); % Mac/Linux
+    end
     downloadsDir = fullfile(userDir, 'Downloads');
     downloadFolder = uigetdir(downloadsDir,'Select directory for download.');
+    if downloadFolder == 0; return; end
+
+    % Create export folder
     dateString = char(datetime('now','Format','yyyyMMdd_HHmmss'));
     exportFolder = fullfile(downloadFolder,['export_',dateString]);
     mkdir(exportFolder);
 
     % Download metadata table
-    project = nansen.getCurrentProject;
-    fileTable = project.MetaTableCatalog.getMetaTable('File');
-    subjectTable = project.MetaTableCatalog.getMetaTable('Subject');
-    fileTable = fileTable.entries;
-    subjectTable = subjectTable.entries;
-    indFiles = ndi.fun.table.identifyMatchingRows(fileTable, ...
-        'SessionIdentifier',sessionObject.SessionIdentifier);
-    indSubjects = ndi.fun.table.identifyMatchingRows(subjectTable, ...
-        'SessionIdentifier',sessionObject.SessionIdentifier);
-    exportTable = join(fileTable(indFiles,:),subjectTable(indSubjects,:),...
-        'Keys',{'SubjectDocumentIdentifier'},...
-        'KeepOneCopy',{'ElectronicFileName','SessionDocumentIdentifier',...
-        'SessionIdentifier','SessionName','DatasetDocumentIdentifier',...
-        'DatasetIdentifier','SessionPath','SubjectLocalIdentifier','Cloud'});
+    exportTable = ndi.nansen.export.metadata('SessionIdentifier',...
+        {sessionObject.SessionIdentifier},'MetaDataOnly',true);
     writetable(exportTable,fullfile(exportFolder,'metadata.csv'));
+
+    % Open export folder on computer
+    if ispc
+        winopen(exportFolder);
+    else
+        system(['open "' exportFolder '"']);
+    end
     
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionObject}; end

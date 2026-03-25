@@ -67,11 +67,12 @@ docs = cat(2,docs{:});
 
 % Add ontologyTableRow data to subjectTable
 if ~isempty(docs)
-    [ontologyTable,~,sessionID,subjectDocID] = ndi.fun.doc.ontologyTableRowDoc2Table(docs,'StackAll',true);
-    ontologyTable = renamevars(ontologyTable{1},'UniversallyUniqueIdentifier','SubjectIdentifier');
-    ontologyTable.SessionIdentifier = sessionID{1}';
-    ontologyTable.SubjectDocumentIdentifier = subjectDocID{1}';
-    subjectTable = ndi.fun.table.join({subjectTable,ontologyTable});
+    [ontologyTable,~,sessionID,subjectDocID] = ndi.fun.doc.ontologyTableRowDoc2Table(docs);
+    indOntology = cellfun(@(t) any(ismember(t.Properties.VariableNames,'SubjectEnumeratedIdentifier')),ontologyTable);
+    ontologyTable = renamevars(ontologyTable{indOntology},'UniversallyUniqueIdentifier','SubjectIdentifier');
+    ontologyTable.SessionIdentifier = sessionID{indOntology}';
+    ontologyTable.SubjectDocumentIdentifier = [subjectDocID{indOntology}{:}]';
+    subjectTable = join(ontologyTable,subjectTable,'Keys','SubjectDocumentIdentifier');
 end
 
 % Get basic session metadata

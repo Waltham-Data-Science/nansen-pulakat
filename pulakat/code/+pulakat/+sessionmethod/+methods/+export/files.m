@@ -54,10 +54,9 @@ function varargout = files(sessionObject, varargin)
     % Get dataset object
     dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
 
-    % Download files
-    documentIDs = unique(exportTable.FileDocumentIdentifier);
-    ndi.cloud.download.downloadGenericFiles(dataset,documentIDs,...
-        exportFolder,'NamingStrategy','id');
+    % Download cloud (and local) generic_files
+    ndi.nansen.export.genericFiles(dataset,exportTable,exportFolder,...
+        'NamingStrategy','id');
 
     % Open export folder on computer
     if ispc

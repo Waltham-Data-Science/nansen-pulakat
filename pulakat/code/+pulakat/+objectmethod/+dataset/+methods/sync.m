@@ -41,15 +41,15 @@ function varargout = sync(datasetObject, varargin)
     if ~success
         warning('Error encountered syncing dataset to cloud. Try logging in again.')
         ndi.cloud.uilogin(true);
-        [success,errorMessage,report] = ndi.cloud.sync.uploadNew(dataset);
+        success = ndi.cloud.sync.uploadNew(dataset);
         if ~success
             error('Could not sync dataset to cloud.');
         end
     end
 
-    % Update metatable
-    ndi.nansen.metatable.update(dataset,'Dataset');
-    
+    % Update metatables
+    ndi.nansen.metatable.updateAll(dataset);
+
     % Return session object (please do not remove):
     % if nargout; varargout = {datasetObject}; end
 end
