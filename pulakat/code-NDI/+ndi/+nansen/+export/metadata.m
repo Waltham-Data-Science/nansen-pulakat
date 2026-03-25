@@ -58,11 +58,11 @@ end
 filteredTable = metadataTable(all(indFilter,2),:);
 
 % Add back in all rows referring to exported files (if applicable)
-if any(ismember(filteredTable.Properties.VariableNames,'FileIdentifier')) && ...
+if any(ismember(filteredTable.Properties.VariableNames,'FileDocumentIdentifier')) && ...
         ~options.MetaDataOnly
-    fileIDs = unique(filteredTable.FileIdentifier);
+    fileIDs = unique(filteredTable.FileDocumentIdentifier);
     indFile = ndi.fun.table.identifyMatchingRows(metadataTable, ...
-            'FileIdentifier',{fileIDs});
+            'FileDocumentIdentifier',{fileIDs});
     metadataTable = metadataTable(all(indFilter,2) | indFile,:);
 else
     metadataTable = filteredTable;
