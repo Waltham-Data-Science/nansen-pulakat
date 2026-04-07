@@ -53,31 +53,24 @@ end
 cloudDatasetID = projectInfo.cloudDatasetID;
 datasetPath = fullfile(dataPath,cloudDatasetID);
 
+% Test NDI-Cloud connection
+setenv('CLOUD_API_ENVIRONMENT','prod');
+connected = ndi.cloud.testLogin();
+if ~connected
+    ndi.cloud.uilogin(true);
+end
+
 % Load/download dataset
 if isfolder(datasetPath)
     % Load if already downloaded and sync with cloud
     dataset = ndi.dataset.dir(datasetPath);
-    try
-        ndi.cloud.sync.downloadNew(dataset);
-    catch
-        % Update login token
-        setenv('CLOUD_API_ENVIRONMENT','prod');
-        ndi.cloud.uilogin(true);
-        [success,errorMessage] = ndi.cloud.sync.downloadNew(dataset);
-        if ~success
-            disp(errorMessage)
-        end
+    [success,errorMessage] = ndi.cloud.sync.downloadNew(dataset);
+    if ~success
+        disp(errorMessage)
     end
 else
     % Download from cloud
-    try
-        dataset = ndi.cloud.downloadDataset(cloudDatasetID,dataPath);
-    catch
-        % Update login token
-        setenv('CLOUD_API_ENVIRONMENT','prod');
-        ndi.cloud.uilogin(true);
-        dataset = ndi.cloud.downloadDataset(cloudDatasetID,dataPath);
-    end
+    dataset = ndi.cloud.downloadDataset(cloudDatasetID,dataPath);
 end
 
 % Add to path

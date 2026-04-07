@@ -34,18 +34,20 @@ function varargout = sync(datasetObject, varargin)
     % Get dataset object
     dataset = ndi.dataset.dir(datasetObject.DatasetPath);
 
+    % Test NDI-Cloud connection
+    setenv('CLOUD_API_ENVIRONMENT','prod');
+    connected = ndi.cloud.testLogin();
+    if ~connected
+        ndi.cloud.uilogin(true);
+    end
+
     % Download new documents from cloud (if applicable)
     ndi.cloud.sync.downloadNew(dataset);
 
     % Upload new documents to cloud (if applicable)
-    [success, errorMessage, report] = ndi.cloud.sync.uploadNew(dataset);
+    [success, errorMessage] = ndi.cloud.sync.uploadNew(dataset);
     if ~success
-        warning('Error encountered syncing dataset to cloud. Try logging in again.')
-        ndi.cloud.uilogin(true);
-        [success, errorMessage, report] = ndi.cloud.sync.uploadNew(dataset);
-        if ~success
-            error('Could not sync dataset to cloud.');
-        end
+        error('Could not sync dataset to cloud: %s.',errorMessage);
     end
 
     % Update metatables

@@ -23,15 +23,17 @@ classdef DateSynced < nansen.metadata.abstract.TableVariable
             % Return default value if no input is given (used during config).
             if nargin < 1; return; end
 
+            % Test NDI-Cloud connection
+            setenv('CLOUD_API_ENVIRONMENT','prod');
+            connected = ndi.cloud.testLogin();
+            if ~connected
+                ndi.cloud.uilogin(true);
+            end
+
             % Get dataset metadata
             [success,datasetInfo] = ndi.cloud.api.datasets.getDataset(datasetObject.DatasetCloudIdentifier);
             if ~success
-                warning('Error encountered retrieving dataset information from cloud. Try logging in again.')
-                ndi.cloud.uilogin(true);
-                [success,datasetInfo] = ndi.cloud.api.datasets.getDataset(cloudDatasetID);
-                if ~success
-                    error('Could not retrieve dataset information from cloud: %s',datasetInfo.error);
-                end
+                error('Could not retrieve dataset information from cloud: %s',datasetInfo.error);
             end
 
             % Get last updated status
