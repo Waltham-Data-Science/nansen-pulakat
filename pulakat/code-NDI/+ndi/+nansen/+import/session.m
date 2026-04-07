@@ -38,7 +38,7 @@ sessionName = cellstr(sessionName); sessionName = sessionName{1};
 session = ndi.session.dir(sessionName, sessionPath);
 
 % Add session to dataset
-dataset.add_linked_session(session);
+dataset.add_ingested_session(session);
 
 end
 
