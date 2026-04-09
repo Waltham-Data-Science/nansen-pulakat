@@ -72,7 +72,8 @@ if ~isempty(docs)
     ontologyTable = renamevars(ontologyTable{indOntology},'UniversallyUniqueIdentifier','SubjectIdentifier');
     ontologyTable.SessionIdentifier = sessionID{indOntology}';
     ontologyTable.SubjectDocumentIdentifier = [subjectDocID{indOntology}{:}]';
-    subjectTable = join(ontologyTable,subjectTable,'Keys','SubjectDocumentIdentifier');
+    subjectTable = join(ontologyTable,subjectTable,'Keys',...
+        intersect(subjectTable.Properties.VariableNames,ontologyTable.Properties.VariableNames));
 end
 
 % Get basic session metadata
