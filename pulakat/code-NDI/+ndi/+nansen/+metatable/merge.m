@@ -67,13 +67,34 @@ if isempty(dataTable)
     return
 end
 
-% If meta table exists, identify rows of dataTable that are new
+% Identify rows in dataTable that are new relative to the existing
+% metatable. The metatable's primary key (SubjectIdentifier, FileIdentifier,
+% etc.) is the canonical match key; fall back to DocumentIdentifier only
+% when every row carries a real NDI document id. Pre-documentation rows
+% have DocumentIdentifier == 'N/A', which would otherwise collapse onto
+% one another under setdiff and silently merge unrelated rows.
 idVarName = metaTable.MetaTableIdVarname;
 if ~ismember(idVarName,dataTable.Properties.VariableNames)
-    idVarName = replace(idVarName,'Identifier','DocumentIdentifier');
+    docIdVarName = replace(idVarName,'Identifier','DocumentIdentifier');
+    if ~ismember(docIdVarName,dataTable.Properties.VariableNames)
+        error('NDI:Nansen:Metatable:Merge:MissingIdentifier', ...
+            ['dataTable for ''%s'' metatable must contain column ''%s'' ' ...
+             '(or ''%s'' once every row is documented). Populate it with ' ...
+             'ndi.nansen.fun.getIdentifier before merging.'], ...
+            dataName, idVarName, docIdVarName);
+    end
+    docIds = dataTable.(docIdVarName);
+    if any(cellfun(@(s) isempty(s) || strcmp(s,'N/A'), docIds))
+        error('NDI:Nansen:Metatable:Merge:IndeterminateIdentifier', ...
+            ['dataTable for ''%s'' metatable is missing column ''%s'' and ' ...
+             'some rows of ''%s'' are still ''N/A''. Populate ''%s'' with ' ...
+             'ndi.nansen.fun.getIdentifier before merging.'], ...
+            dataName, idVarName, docIdVarName, idVarName);
+    end
+    idVarName = docIdVarName;
 end
 existingIDs = metaTable.entries.(idVarName);
-newIDs = dataTable.(idVarName); % This will break for subjects/files! Need to test once uploaded some files
+newIDs = dataTable.(idVarName);
 [~,indNew] = setdiff(newIDs,existingIDs);
 indExist = true(height(dataTable),1);
 indExist(indNew) = false; indNew = ~indExist;
