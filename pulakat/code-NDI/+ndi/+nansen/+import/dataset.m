@@ -39,19 +39,22 @@ end
 % Create dataset
 dataset = ndi.dataset.dir(datasetName,datasetDir);
 
-% Add dataset to cloud
 if cloud
+    % Upload to cloud; only remove the local copy after a successful upload
+    % so we never destroy the only surviving copy of the dataset.
     [success, cloudDatasetID, message] = ndi.cloud.uploadDataset(dataset, ...
         'skipMetadataEditorMetadata',true, ...
         'remoteDatasetName',datasetName,'Verbose',true);
     if ~success
-        warning('Dataset failed to upload: %s:',message);
-    else
-        sprintf('Dataset %s added to the cloud as %s',datasetName,cloudDatasetID);
+        error('NDI:Nansen:Import:Dataset:UploadFailed', ...
+            ['Dataset failed to upload to NDI cloud: %s\n' ...
+             'Local copy preserved at: %s'], message, datasetDir);
     end
-end
+    fprintf('Dataset %s added to the cloud as %s\n', datasetName, cloudDatasetID);
 
-% Remove temporary local dataset
-rmdir(datasetDir,'s');
+    rmdir(datasetDir,'s');
+else
+    cloudDatasetID = '';
+end
 
 end
