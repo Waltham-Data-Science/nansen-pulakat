@@ -65,8 +65,7 @@ if isempty(dataPath)
 end
 
 % 1. Get project info
-projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
-projectInfo = jsondecode(fileread(char(projectFile)));
+projectInfo = ndi.nansen.fun.readProjectInfo(labName);
 
 % 2. Update required repos
 [~,repoPath] = ndi.nansen.sync.repo(projectInfo.URL);
@@ -85,8 +84,12 @@ end
 cloudDatasetID = projectInfo.cloudDatasetID;
 datasetPath = fullfile(dataPath,cloudDatasetID);
 
-% Test NDI-Cloud connection
-setenv('CLOUD_API_ENVIRONMENT','prod');
+% Test NDI-Cloud connection. Default to production; allow the caller to
+% pre-set CLOUD_API_ENVIRONMENT (e.g. to 'dev' or 'staging') before startup
+% to point at a non-production cloud without editing source.
+if isempty(getenv('CLOUD_API_ENVIRONMENT'))
+    setenv('CLOUD_API_ENVIRONMENT','prod');
+end
 connected = ndi.cloud.testLogin();
 if ~connected
     ndi.cloud.uilogin(true);

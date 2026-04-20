@@ -34,8 +34,7 @@ function varargout = sync(datasetObject, varargin)
     % Get dataset object
     dataset = ndi.dataset.dir(datasetObject.DatasetPath);
 
-    % Test NDI-Cloud connection
-    setenv('CLOUD_API_ENVIRONMENT','prod');
+    % Test NDI-Cloud connection (CLOUD_API_ENVIRONMENT is set in startup)
     connected = ndi.cloud.testLogin();
     if ~connected
         ndi.cloud.uilogin(true);

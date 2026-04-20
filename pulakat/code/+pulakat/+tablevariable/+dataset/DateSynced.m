@@ -24,7 +24,6 @@ classdef DateSynced < nansen.metadata.abstract.TableVariable
             if nargin < 1; return; end
 
             % Test NDI-Cloud connection
-            setenv('CLOUD_API_ENVIRONMENT','prod');
             connected = ndi.cloud.testLogin();
             if ~connected
                 ndi.cloud.uilogin(true);
