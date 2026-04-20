@@ -55,5 +55,44 @@ classdef (SharedTestFixtures = { ...
                 testCase.verifyNotEmpty(repoPath);
             end
         end
+
+        function testPathdefWrittenToUserpath(testCase)
+            % Verify that a successful sync writes pathdef.m to userpath
+            % so paths persist across MATLAB sessions. Preserve any
+            % existing user pathdef.m so the test does not clobber it.
+            userPathdef = fullfile(userpath, 'pathdef.m');
+            if isfile(userPathdef)
+                savedContent = fileread(userPathdef);
+                testCase.addTeardown(@() ...
+                    ndi.unittest.nansen.SyncRepo.writeFile( ...
+                        userPathdef, savedContent));
+            else
+                testCase.addTeardown(@() ...
+                    ndi.unittest.nansen.SyncRepo.safeDelete(userPathdef));
+            end
+
+            [status, ~] = ndi.nansen.sync.repo(testCase.TestRepoURL, ...
+                'ClonePath', testCase.TestClonePath);
+            testCase.verifyEqual(status, 0, 'Repo sync failed.');
+            testCase.verifyTrue(isfile(userPathdef), ...
+                sprintf('Expected pathdef.m at %s after sync.', userPathdef));
+        end
+    end
+
+    methods (Static, Access = private)
+        function safeDelete(filePath)
+            if isfile(filePath)
+                delete(filePath);
+            end
+        end
+
+        function writeFile(filePath, content)
+            fid = fopen(filePath, 'w');
+            if fid < 0
+                return;
+            end
+            fwrite(fid, content);
+            fclose(fid);
+        end
     end
 end

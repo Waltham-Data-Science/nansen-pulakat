@@ -28,31 +28,40 @@ function dataset = startup(labName, dataPath)
 
 % Input argument validation
 arguments
-    labName {mustBeText} = nansen.getCurrentProject().Name;
-    dataPath {mustBeFolder} = fullfile(userpath,'ndi','data');
+    labName {mustBeText} = ""
+    dataPath {mustBeText} = ""
 end
 
 % Convert inputs to char arrays for internal processing
 labName = char(labName);
+dataPath = char(dataPath);
 
 % Load the user-saved MATLAB path definition if present. Paths are
 % written to userpath/pathdef.m by install and ndi.nansen.sync.repo so
 % that savepath does not fail on MATLAB installs where matlabroot is
-% read-only; MATLAB does not auto-load pathdef.m from userpath, so
-% reload it here to restore paths added in prior sessions.
+% read-only; MATLAB does not auto-load pathdef.m from userpath in all
+% configurations, so reload it here before resolving defaults that
+% depend on code from other repos (e.g. nansen.getCurrentProject).
 userPathdef = fullfile(userpath, 'pathdef.m');
 if isfile(userPathdef)
     origDir = pwd;
-    cleanupObj = onCleanup(@() cd(origDir));
-    cd(fileparts(userPathdef));
     try
+        cd(fileparts(userPathdef));
         addpath(pathdef);
     catch ME
         warning('NDI:Nansen:Startup:LoadPathFailed', ...
             'Could not load saved MATLAB path from %s: %s', ...
             userPathdef, ME.message);
     end
-    clear cleanupObj;
+    cd(origDir);
+end
+
+% Resolve deferred defaults now that paths are loaded
+if isempty(labName)
+    labName = char(nansen.getCurrentProject().Name);
+end
+if isempty(dataPath)
+    dataPath = fullfile(userpath, 'ndi', 'data');
 end
 
 % 1. Get project info
