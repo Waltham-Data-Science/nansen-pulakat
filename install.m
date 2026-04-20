@@ -86,7 +86,11 @@ end
 
 % 10. Initialize 'pulakat' project and launch
 if ~isempty(which('ndi.nansen.startup'))
-    ndi.nansen.startup('pulakat');
+    dataPath = fullfile(userpath,'ndi','data');
+    if ~isfolder(dataPath)
+        mkdir(dataPath);
+    end
+    ndi.nansen.startup('pulakat', dataPath);
 else
     warning('ndi.nansen.startup not found. Please ensure all repositories are on the MATLAB path.');
 end
