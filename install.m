@@ -73,7 +73,18 @@ ndi_install(fileparts(ndiRepoPath));
 
 % 8. Set up MATLAB Paths
 addpath(genpath(codePath));
-savepath; % Saves the path for future sessions
+% Save path to a user-writable location so future MATLAB sessions
+% pick up the saved path definition even when matlabroot is read-only.
+userPathdef = fullfile(userpath, 'pathdef.m');
+if savepath(userPathdef) ~= 0
+    warning('install:SavePathFailed', ...
+        'Could not save MATLAB path to %s.', userPathdef);
+end
+
+% Ensure userpath/startup.m loads the saved pathdef on MATLAB launch.
+% MATLAB runs userpath/startup.m automatically at startup, and this is
+% more robust than relying on pathdef.m being auto-discovered.
+install_ensureStartupLoadsPathdef();
 
 fprintf('--- Installation Successful! ---\n');
 
@@ -102,4 +113,46 @@ if status ~= 0
     delete([mfilename('fullpath'), '.m']);
 end
 
+end
+
+function install_ensureStartupLoadsPathdef()
+% Append an idempotent pathdef loader to userpath/startup.m so that
+% paths saved to userpath/pathdef.m are restored on every MATLAB launch
+% regardless of the user's Initial Working Folder setting.
+userStartup = fullfile(userpath, 'startup.m');
+marker = '% --- NDI-Nansen pathdef loader (auto-generated) ---';
+snippet = sprintf([ ...
+    '\n%s\n', ...
+    'ndiNansenPathdef__ = fullfile(userpath, ''pathdef.m'');\n', ...
+    'if exist(ndiNansenPathdef__, ''file'') == 2\n', ...
+    '    ndiNansenOrigDir__ = pwd;\n', ...
+    '    try\n', ...
+    '        cd(fileparts(ndiNansenPathdef__));\n', ...
+    '        addpath(pathdef);\n', ...
+    '    catch\n', ...
+    '    end\n', ...
+    '    cd(ndiNansenOrigDir__);\n', ...
+    '    clear ndiNansenOrigDir__;\n', ...
+    'end\n', ...
+    'clear ndiNansenPathdef__;\n', ...
+    '%% --- end NDI-Nansen pathdef loader ---\n'], marker);
+
+existing = '';
+if isfile(userStartup)
+    existing = fileread(userStartup);
+end
+if contains(existing, marker)
+    return;
+end
+
+fid = fopen(userStartup, 'a');
+if fid < 0
+    warning('install:StartupWriteFailed', ...
+        'Could not write to %s; paths may not auto-load at MATLAB launch.', ...
+        userStartup);
+    return;
+end
+fprintf(fid, '%s', snippet);
+fclose(fid);
+fprintf('Added pathdef loader to %s.\n', userStartup);
 end
