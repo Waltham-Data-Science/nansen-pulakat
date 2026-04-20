@@ -70,7 +70,9 @@ subjectTable = ndi.nansen.import.subject(session,dataTable(:,subjectIdentifiers)
 for i = 1:height(dataTable)
     ind = indMatch{i};
     if numMatch(i) > 1
-        warning('More than one match found. Skipping second match. Consult NDI to discuss resolutions.')
+        warning('NDI:Nansen:Import:File:AmbiguousSubject', ...
+            'More than one subject matches file ''%s''. Using first match; consult NDI to resolve.', ...
+            dataTable.ElectronicFileName{i});
         ind = ind(1);
     elseif numMatch(i) == 0
         continue
@@ -78,6 +80,16 @@ for i = 1:height(dataTable)
     dataTable.SubjectIdentifier(i) = subjectTable.SubjectIdentifier(ind);
 end
 dataTable = removevars(dataTable,subjectIdentifiers);
+
+% Warn about files dropped for lack of a matching subject, so the user knows
+% why rows they expected to import did not appear in the metatable.
+if any(numMatch == 0)
+    droppedFiles = dataTable.ElectronicFileName(numMatch == 0);
+    warning('NDI:Nansen:Import:File:NoSubjectMatch', ...
+        ['%d file(s) skipped because no subject matched. Import the missing ' ...
+         'subjects first and retry:\n  %s'], ...
+        numel(droppedFiles), strjoin(droppedFiles, sprintf('\n  ')));
+end
 dataTable(numMatch == 0,:) = [];
 
 % Identify new and unique files
