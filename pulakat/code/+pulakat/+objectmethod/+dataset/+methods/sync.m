@@ -41,12 +41,17 @@ function varargout = sync(datasetObject, varargin)
     end
 
     % Download new documents from cloud (if applicable)
-    ndi.cloud.sync.downloadNew(dataset);
+    [success, errorMessage] = ndi.cloud.sync.downloadNew(dataset);
+    if ~success
+        error('NDI:Nansen:Sync:DownloadFailed', ...
+            'Could not download new documents from cloud: %s', errorMessage);
+    end
 
     % Upload new documents to cloud (if applicable)
     [success, errorMessage] = ndi.cloud.sync.uploadNew(dataset);
     if ~success
-        error('Could not sync dataset to cloud: %s.',errorMessage);
+        error('NDI:Nansen:Sync:UploadFailed', ...
+            'Could not upload new documents to cloud: %s', errorMessage);
     end
 
     % Update metatables

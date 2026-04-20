@@ -101,7 +101,8 @@ if isfolder(datasetPath)
     dataset = ndi.dataset.dir(datasetPath);
     [success,errorMessage] = ndi.cloud.sync.downloadNew(dataset);
     if ~success
-        disp(errorMessage)
+        error('NDI:Nansen:Startup:CloudSyncFailed', ...
+            'Cloud sync failed; local dataset may be stale: %s', errorMessage);
     end
 else
     % Download from cloud
