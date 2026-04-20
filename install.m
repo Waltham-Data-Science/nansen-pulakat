@@ -73,7 +73,13 @@ ndi_install(fileparts(ndiRepoPath));
 
 % 8. Set up MATLAB Paths
 addpath(genpath(codePath));
-savepath; % Saves the path for future sessions
+% Save path to a user-writable location so future MATLAB sessions
+% pick up the saved path definition even when matlabroot is read-only.
+userPathdef = fullfile(userpath, 'pathdef.m');
+if savepath(userPathdef) ~= 0
+    warning('install:SavePathFailed', ...
+        'Could not save MATLAB path to %s.', userPathdef);
+end
 
 fprintf('--- Installation Successful! ---\n');
 

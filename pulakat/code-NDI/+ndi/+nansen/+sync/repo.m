@@ -160,9 +160,13 @@ if status == 0
     fprintf('[%s] Updating MATLAB path for %s...\n', funcId, repoName);
     addpath(genpath(repoPath));
     
-    saveStatus = savepath;
+    % Save to a user-writable location so savepath does not fail on
+    % MATLAB installs where matlabroot is read-only.
+    userPathdef = fullfile(userpath, 'pathdef.m');
+    saveStatus = savepath(userPathdef);
     if saveStatus ~= 0
-        warning([funcId, ':SavePathFailed'], '[%s] Could not save MATLAB path.', funcId);
+        warning([funcId, ':SavePathFailed'], ...
+            '[%s] Could not save MATLAB path to %s.', funcId, userPathdef);
     end
 
     if contains(pullOut, 'Already up to date')

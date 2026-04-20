@@ -35,6 +35,26 @@ end
 % Convert inputs to char arrays for internal processing
 labName = char(labName);
 
+% Load the user-saved MATLAB path definition if present. Paths are
+% written to userpath/pathdef.m by install and ndi.nansen.sync.repo so
+% that savepath does not fail on MATLAB installs where matlabroot is
+% read-only; MATLAB does not auto-load pathdef.m from userpath, so
+% reload it here to restore paths added in prior sessions.
+userPathdef = fullfile(userpath, 'pathdef.m');
+if isfile(userPathdef)
+    origDir = pwd;
+    cleanupObj = onCleanup(@() cd(origDir));
+    cd(fileparts(userPathdef));
+    try
+        addpath(pathdef);
+    catch ME
+        warning('NDI:Nansen:Startup:LoadPathFailed', ...
+            'Could not load saved MATLAB path from %s: %s', ...
+            userPathdef, ME.message);
+    end
+    clear cleanupObj;
+end
+
 % 1. Get project info
 projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
 projectInfo = jsondecode(fileread(char(projectFile)));
