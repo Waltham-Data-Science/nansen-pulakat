@@ -127,4 +127,32 @@ end
 % Stack tables
 fileTable = ndi.fun.table.vstack(fileTables);
 
+% Populate SubjectIdentifier by joining against the Subject metatable.
+% The File tablevariable update functions use obj.SubjectIdentifier to
+% look up subject-derived fields (SubjectLocalIdentifier, SessionName,
+% etc.). update/file.m only captures SubjectDocumentIdentifier from NDI
+% dependencies, so SubjectIdentifier must be resolved via the already-
+% merged Subject metatable (see updateAll for the enforced order).
+if ~isempty(fileTable)
+    project = nansen.getCurrentProject();
+    metaTableCatalog = project.MetaTableCatalog;
+    if ~isempty(metaTableCatalog.Table) && ...
+            ismember('Subject',metaTableCatalog.Table.MetaTableName)
+        subjectEntries = metaTableCatalog.getMetaTable('Subject').entries;
+        if ~isempty(subjectEntries) && ...
+                all(ismember({'SubjectDocumentIdentifier','SubjectIdentifier'}, ...
+                    subjectEntries.Properties.VariableNames))
+            fileTable.SubjectIdentifier = repmat({'N/A'},height(fileTable),1);
+            for i = 1:height(fileTable)
+                ind = find(strcmp(subjectEntries.SubjectDocumentIdentifier, ...
+                    fileTable.SubjectDocumentIdentifier{i}),1);
+                if ~isempty(ind)
+                    fileTable.SubjectIdentifier{i} = ...
+                        subjectEntries.SubjectIdentifier{ind};
+                end
+            end
+        end
+    end
+end
+
 end
