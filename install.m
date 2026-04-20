@@ -46,8 +46,10 @@ else
     if ~exist(tempSyncFolder, 'dir'); mkdir(tempSyncFolder); end
     
     bootstrapFile = fullfile(tempSyncFolder, 'repo.m');
-    websave(bootstrapFile, syncUrl);
-    
+    % Explicit timeout so a slow or stalled network doesn't hang MATLAB
+    % indefinitely at first-time install.
+    websave(bootstrapFile, syncUrl, weboptions('Timeout', 30));
+
     addpath(tempSyncFolder);
     repoSync = @repo;
 end
@@ -75,10 +77,13 @@ ndi_install(fileparts(ndiRepoPath));
 addpath(genpath(codePath));
 % Save path to a user-writable location so future MATLAB sessions
 % pick up the saved path definition even when matlabroot is read-only.
+% Hard-fail here: if the path cannot persist, "Installation Successful!"
+% would be misleading — nothing would work on the next MATLAB launch.
 userPathdef = fullfile(userpath, 'pathdef.m');
 if savepath(userPathdef) ~= 0
-    warning('install:SavePathFailed', ...
-        'Could not save MATLAB path to %s.', userPathdef);
+    error('install:SavePathFailed', ...
+        ['Could not save MATLAB path to %s. Check that userpath is ' ...
+         'writable, then re-run install.'], userPathdef);
 end
 
 % Ensure userpath/startup.m loads the saved pathdef on MATLAB launch.
