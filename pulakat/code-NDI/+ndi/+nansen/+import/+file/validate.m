@@ -30,8 +30,7 @@ end
 
 % 1. Initialization
 labName = char(options.LabName);
-projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
-projectInfo = jsondecode(fileread(projectFile));
+projectInfo = ndi.nansen.fun.readProjectInfo(labName);
 
 % Get supported data types
 validDataTypes = {projectInfo.dataFileTypes.DataTypeName};

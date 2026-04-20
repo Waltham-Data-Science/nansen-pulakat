@@ -59,8 +59,7 @@ function varargout = edit(subjectObject, varargin)
 
     % Get project info
     labName = char(nansen.getCurrentProject().Name);
-    projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
-    projectInfo = jsondecode(fileread(projectFile));
+    projectInfo = ndi.nansen.fun.readProjectInfo(labName);
 
     % Query user for subject edits
     subjectIdentifiers = {projectInfo.subjectFileColumns.name}';

@@ -34,8 +34,7 @@ dataFiles = cellstr(dataFiles);
 labName = char(options.LabName);
 
 % Get project info
-projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
-projectInfo = jsondecode(fileread(projectFile));
+projectInfo = ndi.nansen.fun.readProjectInfo(labName);
 
 % Get possible file types
 dataFileTypes = projectInfo.dataFileTypes;

@@ -21,8 +21,7 @@ isValid = true(numRows, 1);
 errorMessages = repmat("", numRows, 1);
 
 % 2. Load Project Information
-projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
-projectInfo = jsondecode(fileread(projectFile));
+projectInfo = ndi.nansen.fun.readProjectInfo(labName);
 
 % 3. Identify Ontology Table Row Variables
 % Based on project_info.json 'document': 'ontologyTableRow'

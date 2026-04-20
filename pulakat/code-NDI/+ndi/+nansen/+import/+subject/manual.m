@@ -35,8 +35,7 @@ labName = char(options.LabName);
 subjectTable = table();
 
 % Get project info
-projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
-projectInfo = jsondecode(fileread(projectFile));
+projectInfo = ndi.nansen.fun.readProjectInfo(labName);
 
 % Get column names and labels for dialog
 subjectColumns = projectInfo.subjectFileColumns;

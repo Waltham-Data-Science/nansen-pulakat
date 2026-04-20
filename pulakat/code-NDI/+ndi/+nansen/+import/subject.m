@@ -39,8 +39,7 @@ end
 labName = char(options.LabName);
 
 % Get project info
-projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
-projectInfo = jsondecode(fileread(projectFile));
+projectInfo = ndi.nansen.fun.readProjectInfo(labName);
 
 % Remove spaces from subject identifiers (if applicable)
 subjectIdentifiers = intersect(subjectTable.Properties.VariableNames,...

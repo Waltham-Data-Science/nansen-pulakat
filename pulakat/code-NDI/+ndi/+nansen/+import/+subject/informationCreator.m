@@ -39,8 +39,7 @@ methods
 
         % Get project info
         labName = tableRow.LabName; if iscell(labName), labName = labName{1}; end
-        projectFile = which(fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json'));
-        projectInfo = jsondecode(fileread(projectFile));
+        projectInfo = ndi.nansen.fun.readProjectInfo(labName);
 
         % --- Validate required columns ---
         requiredVariableNames = {projectInfo.subjectFileColumns.name};

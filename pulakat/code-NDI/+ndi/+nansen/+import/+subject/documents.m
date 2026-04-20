@@ -34,8 +34,7 @@ end
 
 % Get project info
 labName = char(options.LabName);
-projectFile = fullfile('+ndi','+setup','+conv',['+',labName],'project_info.json');
-projectInfo = jsondecode(fileread(projectFile));
+projectInfo = ndi.nansen.fun.readProjectInfo(labName);
 
 % Framework objects
 subjectMaker = ndi.setup.NDIMaker.subjectMaker;
