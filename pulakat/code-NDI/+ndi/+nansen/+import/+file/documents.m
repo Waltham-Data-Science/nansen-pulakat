@@ -39,8 +39,13 @@ tableDocMaker = ndi.setup.NDIMaker.tableDocMaker(session,labName);
 [dataFiles_unique,~,indUnique] = unique(dataTable(:,{'ElectronicFileName','DataTypeName'}),'stable');
 numFiles = height(dataFiles_unique);
 
-% Create data documents
+% Build all documents in memory first, then commit as a single batch at
+% the end so a failure partway through does not leave the database with
+% orphaned subject_group / generic_file docs (whose FileDocumentIdentifier
+% entries in dataTable would also be stale).
 [generic_file_docs,ontologyLabel_docs] = deal(cell(numFiles,1));
+subject_group_docs = cell(numFiles,1);     % empty slots stay empty
+pending_file_doc_ids = cell(numFiles,1);   % committed to dataTable after batch-add
 
 for i = 1:numFiles
 
@@ -56,7 +61,7 @@ for i = 1:numFiles
                 'subject_id',subject_id{j});
         end
         parent_uid = subject_group_doc.id;
-        session.database_add(subject_group_doc);
+        subject_group_docs{i} = subject_group_doc;
     end
 
     % Define file format and label
@@ -67,9 +72,13 @@ for i = 1:numFiles
 
     if projectInfo.dataFileTypes(indFileType).zip
         filePath = [fileName,'.zip'];
-        if ~exist(filePath,'file')
-            zip(filePath, fileName);
+        % Always rebuild the archive. Reusing a leftover zip from a
+        % previous failed run risks uploading a stale copy that no longer
+        % matches the current source tree.
+        if exist(filePath,'file')
+            delete(filePath);
         end
+        zip(filePath, fileName);
     else
         filePath = fileName;
     end
@@ -101,14 +110,19 @@ for i = 1:numFiles
         'document_id',generic_file_doc.id);
     ontologyLabel_docs{i} = ontologyLabel_doc;
 
-    % Update dataTable_pending with new FileDocumentIdentifier
-    indRows = (indUnique == i);
-    dataTable.FileDocumentIdentifier(indRows) = {generic_file_doc.id};
+    pending_file_doc_ids{i} = generic_file_doc.id;
 end
 
-% Add files to database
-session.database_add(generic_file_docs);
-session.database_add(ontologyLabel_docs);
+% Commit every document in a single batch, then propagate the new
+% FileDocumentIdentifier values into dataTable. If database_add throws,
+% dataTable is left untouched so the caller sees a consistent rollback.
+all_docs = [subject_group_docs(~cellfun('isempty',subject_group_docs)); ...
+            generic_file_docs; ontologyLabel_docs];
+session.database_add(all_docs);
+
+for i = 1:numFiles
+    dataTable.FileDocumentIdentifier(indUnique == i) = pending_file_doc_ids(i);
+end
 
 % 4. Create ontologyTableRow document
 indOTR = strcmp({projectInfo.dataFileColumns.document},'ontologyTableRow');
