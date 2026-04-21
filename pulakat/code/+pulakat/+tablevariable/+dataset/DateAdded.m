@@ -22,7 +22,7 @@ classdef DateAdded < nansen.metadata.abstract.TableVariable
             className = mfilename('class');
             classParts = strsplit(className,'.');
             tableName = classParts{end-1}; tableName(1) = upper(tableName(1));
-            value = eval([className,'.DEFAULT_VALUE']);
+            value = pulakat.tablevariable.dataset.DateAdded.DEFAULT_VALUE;
 
             % Return default value if no input is given (used during config).
             if nargin < 1 || ~isfield(obj,[tableName,'DocumentIdentifier'])

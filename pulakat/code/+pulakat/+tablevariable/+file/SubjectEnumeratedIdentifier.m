@@ -19,7 +19,7 @@ classdef SubjectEnumeratedIdentifier < nansen.metadata.abstract.TableVariable
         function value = update(varargin)
             className = mfilename('class');
             if nargin < 1
-                value = eval([className,'.DEFAULT_VALUE']);
+                value = pulakat.tablevariable.file.SubjectEnumeratedIdentifier.DEFAULT_VALUE;
                 return
             else
                 classParts = strsplit(className,'.');

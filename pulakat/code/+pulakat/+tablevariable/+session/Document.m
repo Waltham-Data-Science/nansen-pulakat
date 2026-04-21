@@ -18,7 +18,7 @@ classdef Document < nansen.metadata.abstract.TableVariable
     methods (Static)
         function value = update(varargin)
             className = mfilename('class');
-            value = eval([className,'.DEFAULT_VALUE']);
+            value = pulakat.tablevariable.session.Document.DEFAULT_VALUE;
             if nargin < 1
                 return
             end
