@@ -68,30 +68,16 @@ if isempty(dataTable)
 end
 
 % Identify rows in dataTable that are new relative to the existing
-% metatable. The metatable's primary key (SubjectIdentifier, FileIdentifier,
-% etc.) is the canonical match key; fall back to DocumentIdentifier only
-% when every row carries a real NDI document id. Pre-documentation rows
-% have DocumentIdentifier == 'N/A', which would otherwise collapse onto
-% one another under setdiff and silently merge unrelated rows.
+% metatable, keyed on the metatable's primary identifier (e.g.
+% SubjectIdentifier, FileIdentifier). Callers are expected to populate
+% this column before merging — see ndi.nansen.fun.getIdentifier and the
+% +update/*.m functions that derive it from NDI documents.
 idVarName = metaTable.MetaTableIdVarname;
 if ~ismember(idVarName,dataTable.Properties.VariableNames)
-    docIdVarName = replace(idVarName,'Identifier','DocumentIdentifier');
-    if ~ismember(docIdVarName,dataTable.Properties.VariableNames)
-        error('NDI:Nansen:Metatable:Merge:MissingIdentifier', ...
-            ['dataTable for ''%s'' metatable must contain column ''%s'' ' ...
-             '(or ''%s'' once every row is documented). Populate it with ' ...
-             'ndi.nansen.fun.getIdentifier before merging.'], ...
-            dataName, idVarName, docIdVarName);
-    end
-    docIds = dataTable.(docIdVarName);
-    if any(cellfun(@(s) isempty(s) || strcmp(s,'N/A'), docIds))
-        error('NDI:Nansen:Metatable:Merge:IndeterminateIdentifier', ...
-            ['dataTable for ''%s'' metatable is missing column ''%s'' and ' ...
-             'some rows of ''%s'' are still ''N/A''. Populate ''%s'' with ' ...
-             'ndi.nansen.fun.getIdentifier before merging.'], ...
-            dataName, idVarName, docIdVarName, idVarName);
-    end
-    idVarName = docIdVarName;
+    error('NDI:Nansen:Metatable:Merge:MissingIdentifier', ...
+        ['dataTable for ''%s'' metatable must contain column ''%s''. ' ...
+         'Populate it with ndi.nansen.fun.getIdentifier before merging.'], ...
+        dataName, idVarName);
 end
 existingIDs = metaTable.entries.(idVarName);
 newIDs = dataTable.(idVarName);
