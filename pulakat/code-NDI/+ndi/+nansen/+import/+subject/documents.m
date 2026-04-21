@@ -42,7 +42,7 @@ subjectCreator = ndi.nansen.import.subject.informationCreator();
 tableDocMaker = ndi.setup.NDIMaker.tableDocMaker(session,labName);
 
 % Create subject documents
-subjectTable{:,'LabName'} = {'pulakat'};
+subjectTable{:,'LabName'} = {labName};
 [~,subjectTable.SubjectLocalIdentifier,subjectTable.SubjectDocumentIdentifier] = ...
     subjectMaker.addSubjectsFromTable(session,subjectTable,subjectCreator);
 

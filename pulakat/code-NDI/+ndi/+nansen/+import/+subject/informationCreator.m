@@ -45,7 +45,8 @@ methods
         requiredVariableNames = {projectInfo.subjectFileColumns.name};
         if ~all(ismember(requiredVariableNames, tableRow.Properties.VariableNames))
             error('ndi:validators:MissingRequiredColumns',...
-                'The tableRow is missing one or more required columns for the Pulakat subject creator.');
+                'The tableRow is missing one or more required columns for the %s subject creator.', ...
+                labName);
         end
 
         % --- Populate openMINDS Objects by calling helper methods ---
