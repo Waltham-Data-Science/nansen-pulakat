@@ -36,16 +36,16 @@ function varargout = remove(filesObject, varargin)
     % Convert files object to table
     fileTable = struct2table(filesObject);
 
-     % Check the subject status
+    % Check the file status
     indDocument = ~strcmp(fileTable.FileDocumentIdentifier,'N/A');
     if all(indDocument)
-        error('Subjects that are already documents cannot be deleted.')
+        error('Files that are already documents cannot be deleted.')
     elseif any(indDocument)
-        warning('Only subjects that are not already documents were deleted.')
-        fileTable(indDocument,:) = []; % remove document subjects from table
+        warning('Only files that are not already documents were deleted.')
+        fileTable(indDocument,:) = []; % remove documented files from table
     end
 
-    % Remove subject(s) from metatable
+    % Remove file(s) from metatable
     ndi.nansen.metatable.remove(fileTable,'File');
 
     % Return session object (please do not remove):
