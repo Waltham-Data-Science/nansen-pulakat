@@ -36,6 +36,19 @@ function varargout = remove(sessionObject, varargin)
         error('Sessions that are already synced to the cloud cannot be deleted.')
     end
 
+    % Confirm destructive action with the user before touching disk. The
+    % downstream dataset.unlink_session call is passed 'areYouSure',true to
+    % suppress its own prompt, so nothing else gates this on a human.
+    prompt = sprintf(['Delete session "%s" and its local data from disk?\n' ...
+        '\nSession path: %s\n\nThis cannot be undone.'], ...
+        sessionObject.SessionName, sessionObject.SessionPath);
+    choice = questdlg(prompt, 'Confirm session removal', ...
+        'Delete', 'Cancel', 'Cancel');
+    if ~strcmp(choice, 'Delete')
+        fprintf('Session removal cancelled for "%s".\n', sessionObject.SessionName);
+        return
+    end
+
     % Get dataset and session objects
     dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
 
