@@ -1,0 +1,63 @@
+name: MATLAB Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# To enable this workflow, configure a MathWorks account token in the repo's
+# Actions secrets (MATHWORKS_ACCOUNT) or use matlab-actions' batch license
+# if the repo is public. Without a MATLAB license the setup-matlab step will
+# fail.
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          path: nansen-pulakat
+
+      - name: Check out NANSEN (dev)
+        uses: actions/checkout@v4
+        with:
+          repository: VervaekeLab/NANSEN
+          ref: dev
+          path: NANSEN
+
+      - name: Check out NDI-matlab
+        uses: actions/checkout@v4
+        with:
+          repository: VH-Lab/NDI-matlab
+          path: NDI-matlab
+
+      - name: Check out openMINDS
+        uses: actions/checkout@v4
+        with:
+          repository: openMetadataInitiative/openMINDS_MATLAB
+          path: openMINDS_MATLAB
+
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          cache: true
+
+      - name: Run smoke tests
+        uses: matlab-actions/run-command@v2
+        env:
+          # Cloud tests under +unittest/+nansen require credentials; leaving
+          # them unset skips the cloud-dependent tests while still exercising
+          # the non-cloud code paths (project creation, repo sync, etc.).
+          NDI_CLOUD_USERNAME: ${{ secrets.NDI_CLOUD_USERNAME }}
+          NDI_CLOUD_PASSWORD: ${{ secrets.NDI_CLOUD_PASSWORD }}
+          CLOUD_API_ENVIRONMENT: prod
+        with:
+          command: |
+            addpath(genpath('NANSEN'));
+            addpath(genpath('NDI-matlab'));
+            addpath(genpath('openMINDS_MATLAB'));
+            addpath(genpath('nansen-pulakat'));
+            results = runtests('ndi.unittest.nansen.CreateProject');
+            assertSuccess(results);
