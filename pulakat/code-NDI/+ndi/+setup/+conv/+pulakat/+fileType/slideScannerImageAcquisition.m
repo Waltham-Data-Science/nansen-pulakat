@@ -1,6 +1,15 @@
 function [dataTable] = slideScannerImageAcquisition(dataFile)
-%SLIDESCANNERIMAGEACQUISITION Summary of this function goes here
-%   Detailed explanation goes here
+%SLIDESCANNERIMAGEACQUISITION Extract subject ids from a slide-scanner filename.
+%
+%   Parses a filename that contains cage/animal identifiers like
+%   '85B-113' and returns a per-match table with SubjectCageIdentifier
+%   and SubjectEnumeratedIdentifier columns.
+%
+%   Inputs:
+%      dataFile (char or string): Absolute path to the .svs or related file.
+%
+%   Outputs:
+%      dataTable (table): Unique cage/animal identifier pairs.
 
 % Input argument validation
 arguments

@@ -1,6 +1,15 @@
 function [dataTable] = experimentMetadataFile(dataFile)
-%EXPERIMENTMETADATAFILE Summary of this function goes here
-%   Detailed explanation goes here
+%EXPERIMENTMETADATAFILE Extract cage identifiers from an experiment schedule.
+%
+%   Reads the first sheet of the experiment-schedule spreadsheet and
+%   returns the union of the x18Rats / x32Rats / x25Rats columns as
+%   SubjectCageIdentifier values. Spaces are stripped from cage names.
+%
+%   Inputs:
+%      dataFile (char or string): Absolute path to the schedule spreadsheet.
+%
+%   Outputs:
+%      dataTable (table): Unique SubjectCageIdentifier values.
 
 % Input argument validation
 arguments
