@@ -29,30 +29,6 @@ pulakat.startup('Headless', true)
 Headless mode requires you to already be authenticated with NDI cloud
 (e.g. via a prior interactive `ndi.cloud.uilogin` run).
 
-### Client / Lab Configuration
-
-Deployment-specific fields (the cloud dataset ID, the email suffix used for
-subject identifiers, etc.) are read from
-`+ndi/+setup/+conv/+<labName>/project_info.json` but can be overridden
-per-machine without editing source by creating:
-
-```
-<userpath>/ndi/<labName>_overrides.json
-```
-
-The override file is a flat JSON object whose top-level keys replace the
-corresponding keys in the shipped `project_info.json`. For example, to point
-a client at their own cloud dataset:
-
-```json
-{
-  "cloudDatasetID": "66abc123deadbeefcafef00d",
-  "subjectSuffix": "@my-lab.example.edu"
-}
-```
-
-Override files are `.gitignore`d; keep them outside the repository.
-
 ---
 
 ## Workflow Overview
