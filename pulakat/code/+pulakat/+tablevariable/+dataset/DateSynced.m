@@ -18,7 +18,7 @@ classdef DateSynced < nansen.metadata.abstract.TableVariable
     methods (Static)
         function value = update(datasetObject)
             % Initialize output value with the default value.
-            value = eval([mfilename('class'),'.DEFAULT_VALUE']);
+            value = pulakat.tablevariable.dataset.DateSynced.DEFAULT_VALUE;
 
             % Return default value if no input is given (used during config).
             if nargin < 1; return; end
