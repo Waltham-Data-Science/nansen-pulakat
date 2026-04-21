@@ -47,7 +47,7 @@ classdef GetIdentifier < matlab.unittest.TestCase
             tbl = table({'x'},'VariableNames',{'Col'});
             testCase.verifyError( ...
                 @() ndi.nansen.fun.getIdentifier(tbl, 'NotAType'), ...
-                '?MATLAB:validators:mustBeMember');
+                'MATLAB:validators:mustBeMember');
         end
 
         function emptyTableReturnsEmptyCell(testCase)

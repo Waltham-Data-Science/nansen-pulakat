@@ -36,12 +36,14 @@ classdef GetCompleteUniqueRows < matlab.unittest.TestCase
         function errorsOnConflictingValues(testCase)
             % Two rows with the same Id but contradictory non-empty
             % Strain values: the function cannot resolve the conflict and
-            % should error rather than silently pick one.
+            % should error rather than silently pick one. The current
+            % implementation throws a generic error with no identifier,
+            % so match any MException.
             tbl = table({'a';'a'}, {'StrainA';'StrainB'}, ...
                 'VariableNames', {'Id','Strain'});
             testCase.verifyError( ...
                 @() ndi.nansen.fun.getCompleteUniqueRows(tbl, 'Id'), ...
-                '?');
+                ?MException);
         end
 
         function identifierArgLimitsColumnsUsedForMatching(testCase)

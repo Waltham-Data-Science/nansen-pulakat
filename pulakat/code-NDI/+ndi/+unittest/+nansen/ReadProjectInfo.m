@@ -56,7 +56,7 @@ classdef ReadProjectInfo < matlab.unittest.TestCase
             % mustBeTextScalar should reject string arrays and cell arrays
             testCase.verifyError( ...
                 @() ndi.nansen.fun.readProjectInfo({'foo','bar'}), ...
-                '?');
+                ?MException);
         end
 
         function cwdIndependent(testCase)
