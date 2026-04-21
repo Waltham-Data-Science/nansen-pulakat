@@ -1,9 +1,10 @@
 function varargout = file(sessionObject, varargin)
-%MANUAL Manually adds data files for a session into NDI and updates the metatable.
+%FILE Manually add data files for a session and update the metatable.
 %
-%   This session method allows the user to manually select files and
-%   specify their metadata, imports them into the NDI database, checks
-%   their cloud synchronization status, and updates the session's file metatable.
+%   Session method backing the GUI's 'Import > Data > Files' action. Lets
+%   the user pick files from a dialog, imports them into NDI, and
+%   refreshes the Subject, File, and Session metatables so the new files
+%   appear in the GUI and the per-subject aggregates are up to date.
 %
 %   Inputs:
 %       sessionObject (nansen.session.Session): The Nansen session object.
@@ -40,10 +41,16 @@ function varargout = file(sessionObject, varargin)
 
     if isempty(dataTable); return; end
 
-    % Update metatables
-    ndi.nansen.metatable.update(dataset,'Subject'); % file needs to inheret info from new subjects
+    % Update metatables. Order matters: refresh Subject first (so new
+    % subjects show up for File to inherit from), then File, then refresh
+    % the per-subject aggregates (NumFiles, DataTypeName) without rebuilding
+    % the Subject table again, and finally Session. Skipping UpdateTable on
+    % the second Subject pass avoids an unnecessary full rebuild.
+    ndi.nansen.metatable.update(dataset,'Subject');
     ndi.nansen.metatable.update(dataset,'File');
-    ndi.nansen.metatable.update(dataset,'Subject','UpdateVariableNames',{'NumFiles','DataTypeName'}); % subject needs # files & datatypes
+    ndi.nansen.metatable.update(dataset,'Subject', ...
+        'UpdateTable',false, ...
+        'UpdateVariableNames',{'NumFiles','DataTypeName'});
     ndi.nansen.metatable.update(dataset,'Session');
 
     % Return session object (please do not remove):

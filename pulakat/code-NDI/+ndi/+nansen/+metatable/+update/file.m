@@ -142,13 +142,16 @@ if ~isempty(fileTable)
         if ~isempty(subjectEntries) && ...
                 all(ismember({'SubjectDocumentIdentifier','SubjectIdentifier'}, ...
                     subjectEntries.Properties.VariableNames))
+            % Use containers.Map for an O(N) lookup instead of a nested
+            % strcmp search per file row (was O(numFiles * numSubjects)).
+            subjectMap = containers.Map( ...
+                subjectEntries.SubjectDocumentIdentifier, ...
+                subjectEntries.SubjectIdentifier);
             fileTable.SubjectIdentifier = repmat({'N/A'},height(fileTable),1);
             for i = 1:height(fileTable)
-                ind = find(strcmp(subjectEntries.SubjectDocumentIdentifier, ...
-                    fileTable.SubjectDocumentIdentifier{i}),1);
-                if ~isempty(ind)
-                    fileTable.SubjectIdentifier{i} = ...
-                        subjectEntries.SubjectIdentifier{ind};
+                docId = fileTable.SubjectDocumentIdentifier{i};
+                if isKey(subjectMap, docId)
+                    fileTable.SubjectIdentifier{i} = subjectMap(docId);
                 end
             end
         end

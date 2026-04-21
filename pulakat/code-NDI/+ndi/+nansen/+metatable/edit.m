@@ -37,16 +37,27 @@ end
 metaTable = options.Project.MetaTableCatalog.getMetaTable(dataName);
 rowInd = cellfun(@(id) metaTable.getIndexById(id),dataTable.(metaTable.MetaTableIdVarname));
 
-% Update Nansen metatable values
-for i = 1:height(dataTable)
-    for j = 1:width(dataTable)
-        varName = dataTable.Properties.VariableNames{j};
+% Update Nansen metatable values one column at a time, batching the per-row
+% updates into a single editEntries call per column. The previous
+% implementation called editEntries for every (row, column) cell, which is
+% O(rows * cols) individual writes and grows painful past a few thousand
+% rows of metatable data.
+nRows = height(dataTable);
+for j = 1:width(dataTable)
+    varName = dataTable.Properties.VariableNames{j};
+    updateMask = false(nRows,1);
+    for i = 1:nRows
         newValue = dataTable{i, varName};
         oldValue = metaTable.entries{rowInd(i),varName};
-        if ~isequaln(newValue,oldValue) && ... % old and new are not equal
-                ~isempty(newValue) && ~isequal(newValue,{''}) && ~isequal(newValue,{'N/A'}) % new is not empty
-            metaTable.editEntries(rowInd(i),varName,newValue);
+        if ~isequaln(newValue,oldValue) && ...
+                ~isempty(newValue) && ~isequal(newValue,{''}) && ~isequal(newValue,{'N/A'})
+            updateMask(i) = true;
         end
+    end
+    if any(updateMask)
+        updateIdx = rowInd(updateMask);
+        newValues = dataTable{updateMask, varName};
+        metaTable.editEntries(updateIdx, varName, newValues);
     end
 end
 

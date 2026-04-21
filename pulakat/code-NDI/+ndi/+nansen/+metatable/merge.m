@@ -110,21 +110,30 @@ if any(indExist)
     commonvars = intersect(dataTable_exist.Properties.VariableNames,...
         metaTable.VariableNames);
 
-    % Find rows that are different
-    [~,indDiff] = setdiff(dataTable_exist(:,commonvars),...
-        metaTable.entries(:,commonvars));
-    dataTable_change = dataTable_exist(indDiff,:);
+    % Pair each existing row with its matching metatable row by id, then
+    % compare just those pairs column by column. Previously this used
+    % setdiff over the full metatable width, which grows quadratic-ish on
+    % row and column count; the paired comparison is strictly O(rows*cols).
+    [~, matchRows] = ismember(dataTable_exist.(idVarName), ...
+        metaTable.entries.(idVarName));
+    pairedMeta = metaTable.entries(matchRows, commonvars);
+    newRows = dataTable_exist(:, commonvars);
+    rowChanged = false(height(dataTable_exist),1);
+    for i = 1:height(dataTable_exist)
+        rowChanged(i) = ~isequaln(newRows(i,:), pairedMeta(i,:));
+    end
+    dataTable_change = dataTable_exist(rowChanged,:);
 
     % Continue if no lines to edit
     if isempty(dataTable_change)
         return
     end
 
-    % Edit existing rows
-    for i = 1:height(dataTable_change)
-        metaTable = ndi.nansen.metatable.edit(dataTable_change(i,:),dataName,...
-            'Project',options.Project);
-    end
+    % Edit existing rows in a single metatable.edit call (it now batches
+    % writes per column internally, so passing every row at once is faster
+    % than looping one row at a time).
+    metaTable = ndi.nansen.metatable.edit(dataTable_change, dataName, ...
+        'Project', options.Project);
 end
 
 % Reset cache
