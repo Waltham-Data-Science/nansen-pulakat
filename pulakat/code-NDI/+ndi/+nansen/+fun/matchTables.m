@@ -29,9 +29,11 @@ arguments
     excludeVariables {mustBeText} = '';
 end
 
-% If no rows in table B, return empty
+% If no rows in table B, return empty matches. Note: must assign the
+% declared output `indMatch` (not the local `matches`) or callers hit
+% "Output argument not assigned" when they destructure the result.
 if isempty(B)
-    matches = cell(height(A),1);
+    indMatch = cell(height(A),1);
     numMatch = zeros(height(A),1);
     return
 end

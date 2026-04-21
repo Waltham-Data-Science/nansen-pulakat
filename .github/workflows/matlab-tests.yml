@@ -51,12 +51,25 @@ jobs:
       - name: Run offline tests
         uses: matlab-actions/run-command@v2
         with:
+          # Run every offline-capable test class. The cloud-dependent
+          # classes (CreateDataset, Startup, ImportSession) are executed
+          # separately in the cloud-tests job.
           command: |
             addpath(genpath('NANSEN'));
             addpath(genpath('NDI-matlab'));
             addpath(genpath('openMINDS_MATLAB'));
             addpath(genpath('nansen-pulakat'));
-            results = runtests('ndi.unittest.nansen.CreateProject');
+            offlineTests = { ...
+                'ndi.unittest.nansen.CreateProject', ...
+                'ndi.unittest.nansen.ReadProjectInfo', ...
+                'ndi.unittest.nansen.GetIdentifier', ...
+                'ndi.unittest.nansen.MatchTables', ...
+                'ndi.unittest.nansen.GetCompleteUniqueRows', ...
+                'ndi.unittest.nansen.MetatableMerge', ...
+                'ndi.unittest.nansen.MetatableEdit', ...
+                'ndi.unittest.nansen.ImportSubjectTableFromFile', ...
+                'ndi.unittest.nansen.SyncRepo'};
+            results = runtests(offlineTests);
             assertSuccess(results);
 
   cloud-tests:
@@ -121,10 +134,16 @@ jobs:
           NDI_CLOUD_PASSWORD: ${{ secrets.NDI_CLOUD_PASSWORD }}
           CLOUD_API_ENVIRONMENT: prod
         with:
+          # Run only the classes that actually exercise cloud APIs.
+          # The rest were already covered in the offline job above.
           command: |
             addpath(genpath('NANSEN'));
             addpath(genpath('NDI-matlab'));
             addpath(genpath('openMINDS_MATLAB'));
             addpath(genpath('nansen-pulakat'));
-            results = runtests('ndi.unittest.nansen');
+            cloudTests = { ...
+                'ndi.unittest.nansen.CreateDataset', ...
+                'ndi.unittest.nansen.Startup', ...
+                'ndi.unittest.nansen.ImportSession'};
+            results = runtests(cloudTests);
             assertSuccess(results);
