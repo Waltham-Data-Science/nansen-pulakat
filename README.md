@@ -13,7 +13,21 @@ This repository provides a database system that enables the organization and clo
 3.  **Run in MATLAB:** Execute `install.m` in the MATLAB Command Window.
 
 ### Subsequent Uses
-Run `pulakat.startup` to initialize the environment, sync with the NDI cloud, and open the GUI.
+
+The installer adds a pathdef loader to `<userpath>/startup.m`, so the NDI,
+NANSEN, and pulakat packages are on the MATLAB path automatically every
+time MATLAB starts. Running `pulakat.startup` is what you use to **sync
+with the NDI cloud and open the Nansen GUI** — a plain MATLAB restart
+will have the code available but won't pull any cloud updates.
+
+For scripted / CI contexts where the GUI must not open, pass `Headless`:
+
+```matlab
+pulakat.startup('Headless', true)
+```
+
+Headless mode requires you to already be authenticated with NDI cloud
+(e.g. via a prior interactive `ndi.cloud.uilogin` run).
 
 ### Client / Lab Configuration
 
