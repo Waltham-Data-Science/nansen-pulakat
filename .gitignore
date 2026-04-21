@@ -3,3 +3,12 @@
 *.DS_Store
 *.asv
 *_overrides.json
+
+# Credentials / secrets — make sure these never get accidentally committed
+.env
+.env.*
+credentials.json
+*.key
+*.pem
+secrets.*
+~$*.xlsx
