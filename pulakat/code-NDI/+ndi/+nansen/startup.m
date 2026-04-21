@@ -1,9 +1,10 @@
-function dataset = startup(labName, dataPath)
+function dataset = startup(labName, dataPath, options)
 %STARTUP Initializes the NDI-Nansen environment for a specific lab.
 %
 %   This function initializes the NDI-Nansen environment by updating
 %   necessary repositories, synchronizing the dataset with the NDI
-%   cloud, generating metatables, and launching the Nansen GUI.
+%   cloud, generating metatables, and (by default) launching the Nansen
+%   GUI.
 %
 %   Inputs:
 %      labName (char or string): Optional. The name of the lab/project to
@@ -11,11 +12,17 @@ function dataset = startup(labName, dataPath)
 %      dataPath (char or string): Optional. The local directory path where
 %         NDI datasets are stored. Defaults to '~/ndi/data'.
 %
+%   Name-Value Pairs:
+%      Headless (logical): Optional. If true, skip the interactive cloud
+%         login dialog and the final Nansen GUI launch. Useful for batch
+%         processing and CI. The caller must already be authenticated
+%         against NDI cloud. Default: false.
+%
 %   Outputs:
 %       dataset (ndi.dataset.dir): The NDI dataset object.
 %
 %   Examples:
-%      % Initialize current Nansen project:
+%      % Initialize current Nansen project and launch the GUI:
 %      ndi.nansen.startup()
 %
 %      % Initialize 'pulakat' project:
@@ -24,12 +31,15 @@ function dataset = startup(labName, dataPath)
 %      % Initialize with specific data path:
 %      ndi.nansen.startup('pulakat', 'C:\NDI\Data')
 %
+%      % Scripted / CI use:
+%      dataset = ndi.nansen.startup('pulakat', '', 'Headless', true);
+%
 %   See also: NDI.NANSEN.METATABLE.UPDATEALL, NDI.NANSEN.SYNC.REPO, NANSEN
 
-% Input argument validation
 arguments
     labName {mustBeText} = ""
     dataPath {mustBeText} = ""
+    options.Headless (1,1) logical = false
 end
 
 % Convert inputs to char arrays for internal processing
@@ -92,6 +102,12 @@ if isempty(getenv('CLOUD_API_ENVIRONMENT'))
 end
 connected = ndi.cloud.testLogin();
 if ~connected
+    if options.Headless
+        error('NDI:Nansen:Startup:NotAuthenticated', ...
+            ['Headless startup requested but not authenticated against ' ...
+             'NDI cloud. Authenticate interactively first (e.g. ' ...
+             'ndi.cloud.uilogin) before calling with Headless=true.']);
+    end
     ndi.cloud.uilogin(true);
 end
 
@@ -133,8 +149,10 @@ if isempty(project) || ~strcmp(project.Name,projectName)
     projectManager.changeProject(projectName)
 end
 
-% 5. Update Nansen metatables and launch
+% 5. Update Nansen metatables and (unless headless) launch the GUI
 ndi.nansen.metatable.updateAll(dataset);
-nansen
+if ~options.Headless
+    nansen
+end
 
 end

@@ -1,17 +1,27 @@
-function [] = startup()
+function [] = startup(options)
 %STARTUP Initializes the Pulakat lab environment.
 %
-%   This function initializes the Pulakat lab environment by calling
-%   the general NDI-Nansen startup with 'pulakat' as the lab name. It
-%   ensures all relevant repositories are synchronized, the cloud
-%   dataset is updated, and the Nansen GUI is launched.
+%   Thin wrapper around ndi.nansen.startup('pulakat', ...) that
+%   synchronises relevant repositories, updates the cloud dataset, and
+%   (by default) launches the Nansen GUI.
+%
+%   Name-Value Pairs:
+%      Headless (logical): Optional. If true, skip the interactive
+%         cloud login and the final GUI launch. Default: false.
 %
 %   Examples:
-%      % Initialize the Pulakat lab:
+%      % Initialize the Pulakat lab and launch the GUI:
 %      pulakat.startup()
+%
+%      % Scripted / CI use:
+%      pulakat.startup('Headless', true)
 %
 %   See also: NDI.NANSEN.STARTUP, NANSEN.PROJECTMANAGER
 
-ndi.nansen.startup('pulakat');
+arguments
+    options.Headless (1,1) logical = false
+end
+
+ndi.nansen.startup('pulakat', '', 'Headless', options.Headless);
 
 end
