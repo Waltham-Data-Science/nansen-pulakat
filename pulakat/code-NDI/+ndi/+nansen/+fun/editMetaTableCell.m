@@ -61,7 +61,7 @@ if strcmp(obj.([tableName,'DocumentIdentifier']),defaultDocID)
         metaTable.editEntries(rowInd,variableName,newValue);
 
         % Update table
-        nansen.App.updateTable;
+        ndi.nansen.fun.refreshAppTable();
 
         % Propagate changes to other tables if needed
         if ~isequal(options.Propagate,'')

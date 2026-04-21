@@ -1,49 +1,29 @@
 function varargout = edit(subjectObject, varargin)
-%EDIT Summary of this function goes here
-%   Detailed explanation goes here
-
-% % % % % % % % % % % % % % % INSTRUCTIONS % % % % % % % % % % % % % % %
-% - - - - - - - - - - You can remove this part - - - - - - - - - - -
-% Instructions on how to use this template:
-%   1) If the session method should have parameters, these should be
-%      defined in the local function getDefaultParameters at the bottom of
-%      this script.
-%   2) Scroll down to the custom code block below and write code to do
-%   operations on the subjectObjects and it's data.
-%   3) Add documentation (summary and explanation) for the session method
-%      above. PS: Don't change the function definition (inputs/outputs)
+%EDIT Open a GUI to edit identifying metadata for selected subjects.
 %
-%   For examples: Press e on the keyboard while browsing the session
-%   methods. (e) should appear after the name in the menu, and when you
-%   select a session method, the m-file will open.
+%   Object method backing the Subject table's 'Edit' action. Converts the
+%   selected subject records to a table, opens the import-table GUI so
+%   the user can correct identifiers, writes changes back through
+%   ndi.nansen.metatable.edit, and refreshes the Nansen GUI.
+%
+%   Subjects that already have NDI documents (SubjectDocumentIdentifier
+%   != 'N/A') are protected and cannot be edited.
+%
+%   Inputs:
+%       subjectObject (struct array): The selected Nansen subject records.
+%       varargin: Optional name-value pairs (currently unused).
 
-% % % % % % % % % % % % CONFIGURATION CODE BLOCK % % % % % % % % % % % %
-% Create a struct of default parameters (if applicable) and specify one or
-% more attributes (see nansen.session.SessionMethod.setAttributes) for
-% details.
-    
-    % Get struct of parameters from local function
     params = getDefaultParameters();
-    
-    % Create a cell array with attribute keywords
     ATTRIBUTES = {'batch', 'queueable'};
-    
-% % % % % % % % % % % % % DEFAULT CODE BLOCK % % % % % % % % % % % % % %
-% - - - - - - - - - - Please do not edit this part - - - - - - - - - - -
-    
-    % Create a struct with "attributes" using a predefined pattern
+
     import nansen.session.SessionMethod
     fcnAttributes = SessionMethod.setAttributes(params, ATTRIBUTES{:});
-    
+
     if ~nargin && nargout > 0
         varargout = {fcnAttributes};   return
     end
-    
-    % Parse name-value pairs from function input and update parameters
-    params = utility.parsenvpairs(params, [], varargin);
-    
-% % % % % % % % % % % % % % CUSTOM CODE BLOCK % % % % % % % % % % % % % %
-% Implementation of the method : Add your code here:
+
+    params = utility.parsenvpairs(params, [], varargin); %#ok<NASGU>
 
     % Convert subject object to table
     subjectTable = struct2table(subjectObject,'AsArray',true);
@@ -80,7 +60,7 @@ function varargout = edit(subjectObject, varargin)
     ndi.nansen.metatable.update(dataset,'Subject');
     ndi.nansen.metatable.update(dataset,'File');
     ndi.nansen.metatable.update(dataset,'Session');
-    nansen.App.updateTable
+    ndi.nansen.fun.refreshAppTable();
 
     % Return session object (please do not remove):
     % if nargout; varargout = {subjectObject}; end

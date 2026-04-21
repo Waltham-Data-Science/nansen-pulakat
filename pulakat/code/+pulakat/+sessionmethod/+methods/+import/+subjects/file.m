@@ -43,7 +43,7 @@ function varargout = file(sessionObject, varargin)
     % Update subject and session metatables
     ndi.nansen.metatable.update(dataset,'Subject');
     ndi.nansen.metatable.update(dataset,'Session');
-    nansen.App.updateTable
+    ndi.nansen.fun.refreshAppTable();
     
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionObject}; end
