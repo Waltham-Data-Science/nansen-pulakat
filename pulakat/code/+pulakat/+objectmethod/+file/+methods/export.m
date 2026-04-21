@@ -61,11 +61,7 @@ function varargout = export(fileObject, varargin)
         'NamingStrategy','id');
 
     % Open export folder on computer
-    if ispc
-        winopen(exportFolder);
-    else
-        system(['open "' exportFolder '"']);
-    end
+    ndi.nansen.fun.openFolder(exportFolder);
 
     % Return files object (please do not remove):
     % if nargout; varargout = {filesObject}; end

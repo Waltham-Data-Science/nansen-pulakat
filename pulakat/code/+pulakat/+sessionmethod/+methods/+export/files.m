@@ -59,11 +59,7 @@ function varargout = files(sessionObject, varargin)
         'NamingStrategy','id');
 
     % Open export folder on computer
-    if ispc
-        winopen(exportFolder);
-    else
-        system(['open "' exportFolder '"']);
-    end
+    ndi.nansen.fun.openFolder(exportFolder);
 
     % Return session object (please do not remove):
     % if nargout; varargout = {sessionObject}; end

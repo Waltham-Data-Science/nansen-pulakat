@@ -52,11 +52,7 @@ function varargout = metadata(subjectObject, varargin)
     writetable(exportTable,fullfile(exportFolder,'metadata.csv'));
 
     % Open export folder on computer
-    if ispc
-        winopen(exportFolder);
-    else
-        system(['open "' exportFolder '"']);
-    end
+    ndi.nansen.fun.openFolder(exportFolder);
     
     % Return subjects object (please do not remove):
     % if nargout; varargout = {subjectObject}; end
