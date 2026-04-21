@@ -42,6 +42,14 @@ rowInd = cellfun(@(id) metaTable.getIndexById(id),dataTable.(metaTable.MetaTable
 % implementation called editEntries for every (row, column) cell, which is
 % O(rows * cols) individual writes and grows painful past a few thousand
 % rows of metatable data.
+%
+% nansen.metadata.MetaTable.editEntries supports vector rowInd + vector
+% newValue across column types: for cell columns it does direct
+% assignment (broadcasts a 1xN cell into N slots), for typed columns
+% (datetime, numeric, logical) it hits the plain-assign branch. Because
+% dataTable is read from the same metatable by row index, the types
+% already match column-by-column — we are not passing a cell array into a
+% non-cell column or vice versa.
 nRows = height(dataTable);
 for j = 1:width(dataTable)
     varName = dataTable.Properties.VariableNames{j};

@@ -43,10 +43,13 @@ methods
 
         % --- Validate required columns ---
         requiredVariableNames = {projectInfo.subjectFileColumns.name};
-        if ~all(ismember(requiredVariableNames, tableRow.Properties.VariableNames))
+        missingColumns = setdiff(requiredVariableNames, tableRow.Properties.VariableNames);
+        if ~isempty(missingColumns)
             error('ndi:validators:MissingRequiredColumns',...
-                'The tableRow is missing one or more required columns for the %s subject creator.', ...
-                labName);
+                ['The subject table for the %s lab is missing required ' ...
+                 'column(s): %s.\nExpected columns: %s.'], ...
+                labName, strjoin(missingColumns, ', '), ...
+                strjoin(requiredVariableNames, ', '));
         end
 
         % --- Populate openMINDS Objects by calling helper methods ---

@@ -125,13 +125,10 @@ else
     dataset = ndi.cloud.downloadDataset(cloudDatasetID,dataPath);
 end
 
-% Add to path
-addpath(genpath(datasetPath));
-
 % 4. Load project from nansen project manager
 projectName = projectInfo.name;
 projectPath = fullfile(repoPath,projectName);
-projectManager = nansen.ProjectManager; 
+projectManager = nansen.ProjectManager;
 
 % Import the project from the repo if that hasn't already been done
 if ~projectManager.containsProject(projectName)
@@ -149,8 +146,19 @@ if isempty(project) || ~strcmp(project.Name,projectName)
     projectManager.changeProject(projectName)
 end
 
-% 5. Update Nansen metatables and (unless headless) launch the GUI
-ndi.nansen.metatable.updateAll(dataset);
+% 5. Update Nansen metatables, then (unless headless) launch the GUI.
+% If the metatable update fails, warn and skip the GUI launch rather than
+% opening Nansen onto an empty / inconsistent table view that the user
+% would mistake for a successful start.
+try
+    ndi.nansen.metatable.updateAll(dataset);
+catch ME
+    warning('NDI:Nansen:Startup:MetatableUpdateFailed', ...
+        ['Metatable update failed; not launching the Nansen GUI. ' ...
+         'Fix the underlying issue and re-run pulakat.startup.\n%s'], ...
+        ME.message);
+    return
+end
 if ~options.Headless
     nansen
 end

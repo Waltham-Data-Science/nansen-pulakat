@@ -7,12 +7,16 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# To enable this workflow, configure a MathWorks account token in the repo's
-# Actions secrets (MATHWORKS_ACCOUNT) or use matlab-actions' batch license
-# if the repo is public. Without a MATLAB license the setup-matlab step will
-# fail.
+# Requires matlab-actions/setup-matlab. For private repos configure a
+# MathWorks account token in Actions secrets (MATHWORKS_ACCOUNT). Public
+# repos get a free batch license.
+#
+# The cloud integration tests additionally need NDI cloud credentials as
+# repo secrets (NDI_CLOUD_USERNAME, NDI_CLOUD_PASSWORD). The cloud job
+# is skipped automatically when those secrets aren't present.
 jobs:
-  test:
+  offline-tests:
+    name: Offline integration tests
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -44,12 +48,75 @@ jobs:
         with:
           cache: true
 
-      - name: Run smoke tests
+      - name: Run offline tests
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            addpath(genpath('NANSEN'));
+            addpath(genpath('NDI-matlab'));
+            addpath(genpath('openMINDS_MATLAB'));
+            addpath(genpath('nansen-pulakat'));
+            results = runtests('ndi.unittest.nansen.CreateProject');
+            assertSuccess(results);
+
+  cloud-tests:
+    name: Cloud integration tests
+    runs-on: ubuntu-latest
+    needs: offline-tests
+    # Only run if cloud credentials are configured; otherwise skip cleanly
+    # rather than fail the whole workflow.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
+    steps:
+      - name: Verify cloud secrets are present
+        id: check_secrets
+        env:
+          NDI_CLOUD_USERNAME: ${{ secrets.NDI_CLOUD_USERNAME }}
+        run: |
+          if [ -z "${NDI_CLOUD_USERNAME}" ]; then
+            echo "cloud_credentials_set=false" >> "$GITHUB_OUTPUT"
+            echo "::notice ::NDI_CLOUD_USERNAME secret not set; skipping cloud tests."
+          else
+            echo "cloud_credentials_set=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check out code
+        if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
+        uses: actions/checkout@v4
+        with:
+          path: nansen-pulakat
+
+      - name: Check out NANSEN (dev)
+        if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: VervaekeLab/NANSEN
+          ref: dev
+          path: NANSEN
+
+      - name: Check out NDI-matlab
+        if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: VH-Lab/NDI-matlab
+          path: NDI-matlab
+
+      - name: Check out openMINDS
+        if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: openMetadataInitiative/openMINDS_MATLAB
+          path: openMINDS_MATLAB
+
+      - name: Set up MATLAB
+        if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          cache: true
+
+      - name: Run cloud tests
+        if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
         uses: matlab-actions/run-command@v2
         env:
-          # Cloud tests under +unittest/+nansen require credentials; leaving
-          # them unset skips the cloud-dependent tests while still exercising
-          # the non-cloud code paths (project creation, repo sync, etc.).
           NDI_CLOUD_USERNAME: ${{ secrets.NDI_CLOUD_USERNAME }}
           NDI_CLOUD_PASSWORD: ${{ secrets.NDI_CLOUD_PASSWORD }}
           CLOUD_API_ENVIRONMENT: prod
@@ -59,5 +126,5 @@ jobs:
             addpath(genpath('NDI-matlab'));
             addpath(genpath('openMINDS_MATLAB'));
             addpath(genpath('nansen-pulakat'));
-            results = runtests('ndi.unittest.nansen.CreateProject');
+            results = runtests('ndi.unittest.nansen');
             assertSuccess(results);
