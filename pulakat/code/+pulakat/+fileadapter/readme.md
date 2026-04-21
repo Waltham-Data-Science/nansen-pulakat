@@ -1,1 +1,0 @@
-A package to hold module specific file adapters.
