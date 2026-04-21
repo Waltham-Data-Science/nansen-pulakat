@@ -39,8 +39,8 @@ classdef ImportFile < ndi.unittest.nansen.ImportSession
             ndi.nansen.metatable.edit(sessionTable,'Session','LabName',testCase.LabName);
             
             dataFile2 = which('+ndi/+unittest/+nansen/data/PSR 85B-113 86A-118 38725.svs');
-            fileTable = ndi.nansen.import.file.auto(session,dataFile1,...
-                'LabName',testCase.LabName);
+            fileTable = ndi.nansen.import.file.auto(session,dataFile2,...
+                'LabName',testCase.LabName); %#ok<NASGU>
         end
     end
     
