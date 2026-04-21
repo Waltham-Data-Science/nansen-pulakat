@@ -1,7 +1,12 @@
-classdef (SharedTestFixtures = { ...
-    matlab.unittest.fixtures.PathFixture(fullfile(userpath, 'ndi', 'tools'))}) ...
-    SyncRepo < matlab.unittest.TestCase
+classdef SyncRepo < matlab.unittest.TestCase
     %SYNCREPO Unit tests for the ndi.nansen.sync.repo function.
+    %
+    %   Previously declared a SharedTestFixtures PathFixture pointing at
+    %   '<userpath>/ndi/tools'. That folder does not exist on a fresh CI
+    %   runner, which caused the classdef itself to fail to parse (error:
+    %   "Unable to find folder 'ndi/tools'"). None of the test methods
+    %   actually depend on having that directory on the path, so the
+    %   fixture has been removed.
 
     properties
         TestRepoURL = 'https://github.com/VH-Lab/NDI-matlab';
