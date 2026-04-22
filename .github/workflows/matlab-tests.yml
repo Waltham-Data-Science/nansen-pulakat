@@ -56,6 +56,12 @@ jobs:
           repository: VH-Lab/vhlab-toolbox-matlab
           path: vhlab-toolbox-matlab
 
+      - name: Check out mksqlite
+        uses: actions/checkout@v4
+        with:
+          repository: a-ma72/mksqlite
+          path: mksqlite
+
       - name: Check out openMINDS
         uses: actions/checkout@v4
         with:
@@ -76,6 +82,20 @@ jobs:
       - name: Install MatBox
         uses: ehennestad/matbox-actions/install-matbox@v1
 
+      - name: Build mksqlite MEX
+        uses: matlab-actions/run-command@v2
+        with:
+          # mksqlite ships a buildit.m that compiles the MEX against
+          # MATLAB's configured C compiler. Required because did.*
+          # (NDI's database backend) dispatches through did.implementations.sqlitedb
+          # which looks up mksqlite on the path. Without the MEX the
+          # table's db stays empty and ndi.session.dir's opendatabase
+          # call fails.
+          command: |
+            addpath('mksqlite');
+            cd mksqlite;
+            try; buildit; catch ME; warning('mksqlite buildit failed: %s', ME.message); end
+
       - name: Run offline tests
         uses: matlab-actions/run-command@v2
         with:
@@ -91,6 +111,7 @@ jobs:
             addpath(genpath('NDI-matlab/src'));
             addpath(genpath('DID-matlab'));
             addpath(genpath('vhlab-toolbox-matlab'));
+            addpath(genpath('mksqlite'));
             addpath(genpath('openMINDS_MATLAB/code'));
             addpath(genpath('nansen-pulakat/src'));
             addpath(genpath('nansen-pulakat/tests'));
@@ -188,6 +209,13 @@ jobs:
           repository: VH-Lab/vhlab-toolbox-matlab
           path: vhlab-toolbox-matlab
 
+      - name: Check out mksqlite
+        if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: a-ma72/mksqlite
+          path: mksqlite
+
       - name: Check out openMINDS
         if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
         uses: actions/checkout@v4
@@ -212,6 +240,15 @@ jobs:
         if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
         uses: ehennestad/matbox-actions/install-matbox@v1
 
+      - name: Build mksqlite MEX
+        if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            addpath('mksqlite');
+            cd mksqlite;
+            try; buildit; catch ME; warning('mksqlite buildit failed: %s', ME.message); end
+
       - name: Run cloud tests
         if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
         uses: matlab-actions/run-command@v2
@@ -228,6 +265,7 @@ jobs:
             addpath(genpath('NDI-matlab/src'));
             addpath(genpath('DID-matlab'));
             addpath(genpath('vhlab-toolbox-matlab'));
+            addpath(genpath('mksqlite'));
             addpath(genpath('openMINDS_MATLAB/code'));
             addpath(genpath('nansen-pulakat/src'));
             addpath(genpath('nansen-pulakat/tests'));
