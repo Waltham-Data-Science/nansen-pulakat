@@ -38,9 +38,13 @@ classdef FunHelpers < ndi.unittest.nansen.ProjectTestCase
         function datasetID2ObjectLooksUpPath(testCase)
             % datasetID2Object reads DatasetPath from the Dataset
             % metatable and constructs an ndi.dataset.dir from it.
-            % Seed with a temp directory so the constructor succeeds.
+            % ndi.dataset.dir(path) (the single-arg form) opens an
+            % existing dataset, so the path must already be a valid
+            % NDI dataset on disk — create one here first with the
+            % 2-arg constructor, then look it up via datasetID2Object.
             datasetDir = [tempname, '_ds']; mkdir(datasetDir);
             testCase.addTeardown(@rmdir, datasetDir, 's');
+            seeded = ndi.dataset.dir('datasetid2object_test', datasetDir); %#ok<NASGU>
 
             id = 'Dataset-zzz-999';
             tbl = table({id}, {'unit-test-dataset'}, {datasetDir}, ...

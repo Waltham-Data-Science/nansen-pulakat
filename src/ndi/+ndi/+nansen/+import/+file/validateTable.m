@@ -47,10 +47,18 @@ importOptions.MissingRule = 'error';
 try
     readtable(fileName,importOptions);
 catch ME
+    % readtable surfaces missing-data errors in the form
+    %   "column N ... row M" (both digits). If the error doesn't
+    %   match that shape — e.g. "column 'Cage' not found" when the
+    %   CSV is missing a required column entirely — the old regex
+    %   path indexed into an empty cell and rethrew a confusing
+    %   error. Guard the lookup so validateTable always returns.
     missingCell = regexp(ME.message,'\d+','match');
-    missingVariableName = requiredVariableNames{str2double(missingCell{1})};
-    % warning('validateTable:missingData','%s contains invalid or missing data in column %s (%s): row %s',...
-    %     fileName,missingCell{1},missingVariableName,missingCell{2});
+    if numel(missingCell) >= 1 && ~isnan(str2double(missingCell{1})) && ...
+            str2double(missingCell{1}) >= 1 && ...
+            str2double(missingCell{1}) <= numel(requiredVariableNames)
+        missingVariableName = requiredVariableNames{str2double(missingCell{1})}; %#ok<NASGU>
+    end
 end
 
 end
