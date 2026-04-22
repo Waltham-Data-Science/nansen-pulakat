@@ -71,9 +71,11 @@ classdef ImportSubjectTableFromFile < matlab.unittest.TestCase
             testCase.verifyEqual(tbl.ElectronicFileName{1}, csv);
         end
 
-        function emptyInputReturnsEmptyTable(testCase)
-            tbl = ndi.nansen.import.subject.tableFromFile({}, 'testlab');
-            testCase.verifyEqual(height(tbl), 0);
-        end
+        % Note: the "empty-files input returns empty table" path can't be
+        % unit-tested headlessly — tableFromFile calls uigetfile when
+        % given an empty files argument, which errors with
+        % 'MATLAB:hg:NonInteractiveFunctionSupport' on CI runners without
+        % a display. The behaviour is exercised interactively in the GUI
+        % Import > Subjects > Files path.
     end
 end
