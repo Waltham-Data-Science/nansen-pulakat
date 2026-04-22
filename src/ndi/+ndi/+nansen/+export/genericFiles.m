@@ -37,6 +37,13 @@ arguments
     options.NamingStrategy (1,1) string {mustBeMember(options.NamingStrategy, ["original", "id", "id_original"])} = "original"
 end
 
+% Initialise outputs so a local-only export (no cloud files) still returns
+% something meaningful — otherwise callers that request [success, ...]
+% hit "Output argument not assigned" when indCloud is all false.
+success = true;
+errorMessage = '';
+report = struct();
+
 % Download cloud files
 indCloud = dataTable.Cloud;
 cloudDocumentIDs = unique(dataTable.FileDocumentIdentifier(indCloud));
@@ -64,7 +71,7 @@ for i = 1:numel(localDocumentIDs)
             if isempty(name_part)
                 [~, name_part, ext_part] = fileparts(fileInfo(j).name);
             end
-            if contains(fileInfo(j).locations.location,'.zip') & isempty(ext_part)
+            if contains(fileInfo(j).locations.location,'.zip') && isempty(ext_part)
                 ext_part = '.zip';
             end
             switch options.NamingStrategy

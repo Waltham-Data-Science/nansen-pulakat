@@ -54,23 +54,45 @@ else
     repoSync = @repo;
 end
 
+% 4-7. Install repos. ndi.nansen.sync.repo only issues a warning on
+% clone/pull failure (it returns a nonzero status code instead of
+% throwing), so we must check the status explicitly — otherwise a
+% failed clone would fall through and the installer would proudly
+% report success even though half the dependencies are missing.
+
 % 4. Install nansen-pulakat
 pulakatURL = 'https://github.com/Waltham-Data-Science/nansen-pulakat';
-repoSync(pulakatURL,'ClonePath',codePath,'Branch','main');
+status = repoSync(pulakatURL,'ClonePath',codePath,'Branch','main');
+if status ~= 0
+    error('install:RepoSyncFailed', ...
+        'Could not clone/update nansen-pulakat. See warnings above for details.');
+end
 
 % 5. Install NANSEN
 nansenURL = 'https://github.com/VervaekeLab/NANSEN';
-repoSync(nansenURL,'ClonePath',codePath,'Branch','dev');
+status = repoSync(nansenURL,'ClonePath',codePath,'Branch','dev');
+if status ~= 0
+    error('install:RepoSyncFailed', ...
+        'Could not clone/update NANSEN.');
+end
 nansen_install;
 
 % 6. Install openMINDS
 openMindsURL = 'https://github.com/openMetadataInitiative/openMINDS_MATLAB';
-[~,openMindsRepoPath] = repoSync(openMindsURL,'ClonePath',codePath);
+[status, openMindsRepoPath] = repoSync(openMindsURL,'ClonePath',codePath);
+if status ~= 0
+    error('install:RepoSyncFailed', ...
+        'Could not clone/update openMINDS_MATLAB.');
+end
 run(fullfile(openMindsRepoPath, 'code', 'setup.m'));
 
 % 7. Install NDI-Matlab
 ndiURL = 'https://github.com/VH-Lab/NDI-matlab';
-[~,ndiRepoPath] = repoSync(ndiURL,'ClonePath',codePath);
+[status, ndiRepoPath] = repoSync(ndiURL,'ClonePath',codePath);
+if status ~= 0
+    error('install:RepoSyncFailed', ...
+        'Could not clone/update NDI-matlab.');
+end
 ndi_install(fileparts(ndiRepoPath));
 
 % 8. Set up MATLAB Paths

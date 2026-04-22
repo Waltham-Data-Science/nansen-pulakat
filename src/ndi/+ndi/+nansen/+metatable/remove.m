@@ -24,7 +24,7 @@ project = options.Project;
 metaTableCatalog = project.MetaTableCatalog;
 metaTableEntry = metaTableCatalog.getEntry(dataName);
 
-if ~isempty(metaTableCatalog.Table) & ~isempty(metaTableEntry) & ...
+if ~isempty(metaTableCatalog.Table) && ~isempty(metaTableEntry) && ...
         exist(fullfile(metaTableEntry.SavePath,metaTableEntry.FileName),'file')
     
     % Get meta table
