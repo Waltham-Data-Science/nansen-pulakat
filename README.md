@@ -1,5 +1,8 @@
 # nansen-pulakat: Data Management System
 
+[![MATLAB Tests](https://github.com/Waltham-Data-Science/nansen-pulakat/actions/workflows/matlab-tests.yml/badge.svg)](https://github.com/Waltham-Data-Science/nansen-pulakat/actions/workflows/matlab-tests.yml)
+[![codecov](https://codecov.io/gh/Waltham-Data-Science/nansen-pulakat/branch/main/graph/badge.svg)](https://codecov.io/gh/Waltham-Data-Science/nansen-pulakat)
+
 This repository provides a database system that enables the organization and cloud syncing of experimental sessions, subjects, and files. It provides a graphical user interface (GUI) for managing research data and ensuring it is securely backed up and accessible.
 
 ## Getting Started
