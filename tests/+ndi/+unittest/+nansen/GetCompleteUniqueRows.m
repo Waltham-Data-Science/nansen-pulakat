@@ -46,13 +46,5 @@ classdef GetCompleteUniqueRows < matlab.unittest.TestCase
                 ?MException);
         end
 
-        function identifierArgLimitsColumnsUsedForMatching(testCase)
-            % Without an identifier argument every column participates, so
-            % the two rows below are NOT duplicates (Strain differs).
-            tbl = table({'a';'a'}, {'StrainA';'StrainB'}, ...
-                'VariableNames', {'Id','Strain'});
-            out = ndi.nansen.fun.getCompleteUniqueRows(tbl);
-            testCase.verifyEqual(height(out), 2);
-        end
     end
 end

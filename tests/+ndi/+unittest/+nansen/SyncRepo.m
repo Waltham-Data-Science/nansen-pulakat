@@ -10,18 +10,22 @@ classdef SyncRepo < matlab.unittest.TestCase
 
     properties
         TestRepoURL = 'https://github.com/VH-Lab/NDI-matlab';
-        TestClonePath = fullfile(tempdir, 'ndi_test_tools');
+        TestClonePath
     end
 
-    methods (TestClassSetup)
+    methods (TestMethodSetup)
         function setupTestData(testCase)
-            if ~exist(testCase.TestClonePath, 'dir')
-                mkdir(testCase.TestClonePath);
-            end
+            % Per-method tempdir so each test starts with an empty clone
+            % directory. Previously a per-class tempdir meant testCloneRepo
+            % left /tmp/ndi_test_tools/NDI-matlab in place, which caused
+            % subsequent methods' clone attempts to fail with
+            % "destination path already exists".
+            testCase.TestClonePath = [tempname, '_ndi_test_tools'];
+            mkdir(testCase.TestClonePath);
         end
     end
 
-    methods (TestClassTeardown)
+    methods (TestMethodTeardown)
         function cleanupTestData(testCase)
             if exist(testCase.TestClonePath, 'dir')
                 rmdir(testCase.TestClonePath, 's');
