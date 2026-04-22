@@ -44,6 +44,12 @@ jobs:
           repository: VH-Lab/NDI-matlab
           path: NDI-matlab
 
+      - name: Check out DID-matlab
+        uses: actions/checkout@v4
+        with:
+          repository: VH-Lab/DID-matlab
+          path: DID-matlab
+
       - name: Check out openMINDS
         uses: actions/checkout@v4
         with:
@@ -77,6 +83,7 @@ jobs:
             import matlab.unittest.plugins.codecoverage.CoberturaFormat
             addpath(genpath('NANSEN/code'));
             addpath(genpath('NDI-matlab/src'));
+            addpath(genpath('DID-matlab'));
             addpath(genpath('openMINDS_MATLAB/code'));
             addpath(genpath('nansen-pulakat/src'));
             addpath(genpath('nansen-pulakat/tests'));
@@ -160,6 +167,13 @@ jobs:
           repository: VH-Lab/NDI-matlab
           path: NDI-matlab
 
+      - name: Check out DID-matlab
+        if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: VH-Lab/DID-matlab
+          path: DID-matlab
+
       - name: Check out openMINDS
         if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
         uses: actions/checkout@v4
@@ -198,6 +212,7 @@ jobs:
             import matlab.unittest.plugins.codecoverage.CoberturaFormat
             addpath(genpath('NANSEN/code'));
             addpath(genpath('NDI-matlab/src'));
+            addpath(genpath('DID-matlab'));
             addpath(genpath('openMINDS_MATLAB/code'));
             addpath(genpath('nansen-pulakat/src'));
             addpath(genpath('nansen-pulakat/tests'));
