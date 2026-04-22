@@ -3,23 +3,30 @@ name: MATLAB Tests
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '.github/**'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '**.md'
   workflow_dispatch:
 
-# Requires matlab-actions/setup-matlab. For private repos configure a
-# MathWorks account token in Actions secrets (MATHWORKS_ACCOUNT). Public
-# repos get a free batch license.
-#
-# The cloud integration tests additionally need NDI cloud credentials as
-# repo secrets (NDI_CLOUD_USERNAME, NDI_CLOUD_PASSWORD). The cloud job
-# is skipped automatically when those secrets aren't present.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Based on the patterns used by NDI-matlab (.github/workflows/run-tests.yml)
+# and NANSEN (.github/workflows/test-code.yml). Uses xvfb so MATLAB's
+# headless addon-install dialogs can be satisfied, and delegates matbox
+# setup to ehennestad/matbox-actions/install-matbox so we don't re-run
+# the interactive nansen_install path that failed in earlier attempts.
 jobs:
   offline-tests:
-    name: Offline integration tests
+    name: Offline tests
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
+      - name: Check out nansen-pulakat
         uses: actions/checkout@v4
         with:
           path: nansen-pulakat
@@ -43,48 +50,31 @@ jobs:
           repository: openMetadataInitiative/openMINDS_MATLAB
           path: openMINDS_MATLAB
 
+      - name: Start virtual display server
+        run: |
+          sudo apt-get install -y xvfb
+          Xvfb :99 &
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+
       - name: Set up MATLAB
         uses: matlab-actions/setup-matlab@v2
         with:
           cache: true
 
-      - name: Ensure userpath is set (nansen_install prompts otherwise)
-        run: |
-          mkdir -p "$HOME/matlab-userpath"
+      - name: Install MatBox
+        uses: ehennestad/matbox-actions/install-matbox@v1
 
       - name: Run offline tests
         uses: matlab-actions/run-command@v2
         with:
-          # Dependency bootstrap, in order of what does and does not work
-          # in a headless CI session:
-          #
-          #   * nansen_install() refuses to run with an empty userpath
-          #     (it wants to prompt). Pre-set userpath, then call it
-          #     to pick up matbox and the rest of nansen's runtime deps.
-          #   * openMINDS setup.m works out of the box.
-          #   * ndi_install is intentionally skipped: it pulls 10+
-          #     vhlab-* toolboxes the offline suite does not use, and
-          #     on recent MATLAB versions it trips over a parse error
-          #     inside openMINDS's own startup.m that blanks the path
-          #     mid-install. addpath(genpath('NDI-matlab')) is enough
-          #     to resolve the ndi.* classes these tests touch.
           command: |
-            userPathDir = fullfile(getenv('HOME'), 'matlab-userpath');
-            userpath(userPathDir);
-            addpath(genpath('NANSEN'));
-            addpath(genpath('NDI-matlab'));
-            addpath(genpath('openMINDS_MATLAB'));
-            addpath(genpath('nansen-pulakat'));
-            try; nansen_install('SavePath', false); catch ME; ...
-                warning('nansen_install failed: %s', ME.message); end
+            addpath(genpath('NANSEN/code'));
+            addpath(genpath('NDI-matlab/src'));
+            addpath(genpath('openMINDS_MATLAB/code'));
+            addpath(genpath('nansen-pulakat/pulakat'));
+            addpath(genpath('nansen-pulakat/tests'));
             try; run(fullfile('openMINDS_MATLAB','code','setup.m')); catch ME; ...
                 warning('openMINDS setup failed: %s', ME.message); end
-            % Re-addpath in case nansen_install / openMINDS setup
-            % disturbed path ordering.
-            addpath(genpath('NANSEN'));
-            addpath(genpath('NDI-matlab'));
-            addpath(genpath('openMINDS_MATLAB'));
-            addpath(genpath('nansen-pulakat'));
             offlineTests = { ...
                 'ndi.unittest.nansen.CreateProject', ...
                 'ndi.unittest.nansen.ReadProjectInfo', ...
@@ -102,8 +92,6 @@ jobs:
     name: Cloud integration tests
     runs-on: ubuntu-latest
     needs: offline-tests
-    # Only run if cloud credentials are configured; otherwise skip cleanly
-    # rather than fail the whole workflow.
     if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
     steps:
       - name: Verify cloud secrets are present
@@ -118,7 +106,7 @@ jobs:
             echo "cloud_credentials_set=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Check out code
+      - name: Check out nansen-pulakat
         if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
         uses: actions/checkout@v4
         with:
@@ -146,16 +134,22 @@ jobs:
           repository: openMetadataInitiative/openMINDS_MATLAB
           path: openMINDS_MATLAB
 
+      - name: Start virtual display server
+        if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
+        run: |
+          sudo apt-get install -y xvfb
+          Xvfb :99 &
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+
       - name: Set up MATLAB
         if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
         uses: matlab-actions/setup-matlab@v2
         with:
           cache: true
 
-      - name: Ensure userpath is set
+      - name: Install MatBox
         if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
-        run: |
-          mkdir -p "$HOME/matlab-userpath"
+        uses: ehennestad/matbox-actions/install-matbox@v1
 
       - name: Run cloud tests
         if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
@@ -165,24 +159,15 @@ jobs:
           NDI_CLOUD_PASSWORD: ${{ secrets.NDI_CLOUD_PASSWORD }}
           CLOUD_API_ENVIRONMENT: prod
         with:
-          # See the offline job for why ndi_install is skipped.
-          # The cloud tests still need nansen + NDI-matlab + openMINDS
-          # on the path, and an authenticated cloud session.
           command: |
-            userPathDir = fullfile(getenv('HOME'), 'matlab-userpath');
-            userpath(userPathDir);
-            addpath(genpath('NANSEN'));
-            addpath(genpath('NDI-matlab'));
-            addpath(genpath('openMINDS_MATLAB'));
-            addpath(genpath('nansen-pulakat'));
-            try; nansen_install('SavePath', false); catch ME; ...
-                warning('nansen_install failed: %s', ME.message); end
+            addpath(genpath('NANSEN/code'));
+            addpath(genpath('NDI-matlab/src'));
+            addpath(genpath('openMINDS_MATLAB/code'));
+            addpath(genpath('nansen-pulakat/pulakat'));
+            addpath(genpath('nansen-pulakat/tests'));
             try; run(fullfile('openMINDS_MATLAB','code','setup.m')); catch ME; ...
                 warning('openMINDS setup failed: %s', ME.message); end
-            addpath(genpath('NANSEN'));
-            addpath(genpath('NDI-matlab'));
-            addpath(genpath('openMINDS_MATLAB'));
-            addpath(genpath('nansen-pulakat'));
+            ndi.cloud.authenticate("InteractionEnabled", "off");
             cloudTests = { ...
                 'ndi.unittest.nansen.CreateDataset', ...
                 'ndi.unittest.nansen.Startup', ...
