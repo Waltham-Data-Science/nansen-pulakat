@@ -71,7 +71,7 @@ jobs:
             addpath(genpath('NANSEN/code'));
             addpath(genpath('NDI-matlab/src'));
             addpath(genpath('openMINDS_MATLAB/code'));
-            addpath(genpath('nansen-pulakat/pulakat'));
+            addpath(genpath('nansen-pulakat/src'));
             addpath(genpath('nansen-pulakat/tests'));
             try; run(fullfile('openMINDS_MATLAB','code','setup.m')); catch ME; ...
                 warning('openMINDS setup failed: %s', ME.message); end
@@ -163,7 +163,7 @@ jobs:
             addpath(genpath('NANSEN/code'));
             addpath(genpath('NDI-matlab/src'));
             addpath(genpath('openMINDS_MATLAB/code'));
-            addpath(genpath('nansen-pulakat/pulakat'));
+            addpath(genpath('nansen-pulakat/src'));
             addpath(genpath('nansen-pulakat/tests'));
             try; run(fullfile('openMINDS_MATLAB','code','setup.m')); catch ME; ...
                 warning('openMINDS setup failed: %s', ME.message); end

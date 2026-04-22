@@ -125,9 +125,18 @@ else
     dataset = ndi.cloud.downloadDataset(cloudDatasetID,dataPath);
 end
 
-% 4. Load project from nansen project manager
+% 4. Load project from nansen project manager. The Nansen project
+% directory (the one containing code/+<projectName>/module.nansen.json)
+% is given by projectInfo.projectRelativePath. Older project_info.json
+% files without that field fall back to <repoPath>/<projectName> to
+% match the pre-restructure layout.
 projectName = projectInfo.name;
-projectPath = fullfile(repoPath,projectName);
+if isfield(projectInfo,'projectRelativePath') && ...
+        ~isempty(projectInfo.projectRelativePath)
+    projectPath = fullfile(repoPath, projectInfo.projectRelativePath);
+else
+    projectPath = fullfile(repoPath, projectName);
+end
 projectManager = nansen.ProjectManager;
 
 % Import the project from the repo if that hasn't already been done

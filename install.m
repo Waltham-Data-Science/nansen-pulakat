@@ -41,7 +41,7 @@ if ~isempty(which('ndi.nansen.sync.repo'))
 else
     fprintf('Sync tools not found. Downloading bootstrap helper...\n');
     
-    syncUrl = 'https://raw.githubusercontent.com/Waltham-Data-Science/nansen-pulakat/main/pulakat/code-NDI/%2Bndi/%2Bnansen/%2Bsync/repo.m';
+    syncUrl = 'https://raw.githubusercontent.com/Waltham-Data-Science/nansen-pulakat/main/src/ndi/%2Bndi/%2Bnansen/%2Bsync/repo.m';
     tempSyncFolder = fullfile(tempdir, 'ndi_sync_bootstrap');
     if ~exist(tempSyncFolder, 'dir'); mkdir(tempSyncFolder); end
     

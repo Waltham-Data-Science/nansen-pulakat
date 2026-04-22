@@ -1,5 +1,6 @@
 {
   "name": "pulakat",
+  "projectRelativePath": "src/pulakat",
   "cloudDatasetID": "69b1a69696e7e078981434b5",
   "URL": "https://github.com/Waltham-Data-Science/nansen-pulakat",
   "subjectFileName": "animal_mapping",
