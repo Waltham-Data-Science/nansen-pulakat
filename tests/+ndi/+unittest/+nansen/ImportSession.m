@@ -12,20 +12,30 @@ classdef ImportSession < ndi.unittest.nansen.Startup
 
     methods (TestClassSetup)
         function importSession(testCase)
-            dataset = ndi.dataset.dir(testCase.DatasetPath);
-            testCase.SessionPath = tempname;
-            mkdir(testCase.SessionPath);
-            session = ndi.nansen.import.session(dataset, ...
-                testCase.SessionPath, testCase.SessionName);
-            testCase.fatalAssertClass(session, 'ndi.session.dir', ...
-                'Session could not be created.');
+            try
+                dataset = ndi.dataset.dir(testCase.DatasetPath);
+                testCase.SessionPath = tempname;
+                mkdir(testCase.SessionPath);
+                session = ndi.nansen.import.session(dataset, ...
+                    testCase.SessionPath, testCase.SessionName);
+                testCase.fatalAssertClass(session, 'ndi.session.dir', ...
+                    'Session could not be created.');
+            catch ME
+                testCase.fatalAssertFail(sprintf( ...
+                    'importSession threw:\n%s', getReport(ME)));
+            end
         end
 
         function refreshMetatables(testCase)
-            dataset = ndi.dataset.dir(testCase.DatasetPath);
-            testCase.fatalAssertClass(dataset, 'ndi.dataset.dir', ...
-                'Dataset could not be retrieved.');
-            ndi.nansen.metatable.updateAll(dataset, 'LabName', testCase.LabName);
+            try
+                dataset = ndi.dataset.dir(testCase.DatasetPath);
+                testCase.fatalAssertClass(dataset, 'ndi.dataset.dir', ...
+                    'Dataset could not be retrieved.');
+                ndi.nansen.metatable.updateAll(dataset, 'LabName', testCase.LabName);
+            catch ME
+                testCase.fatalAssertFail(sprintf( ...
+                    'refreshMetatables threw:\n%s', getReport(ME)));
+            end
         end
     end
 

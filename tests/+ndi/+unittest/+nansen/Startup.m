@@ -12,19 +12,29 @@ classdef Startup < ndi.unittest.nansen.CreateDataset & ndi.unittest.nansen.Creat
 
     methods (TestClassSetup)
         function installTestlabConfig(testCase)
-            testCase.FixtureRoot = [tempname, '_testlab'];
-            mkdir(testCase.FixtureRoot);
-            ndi.unittest.nansen.TestFixtures.installTestlab(testCase.FixtureRoot);
-            addpath(testCase.FixtureRoot);
-            testCase.addTeardown(@rmpath, testCase.FixtureRoot);
-            testCase.addTeardown(@rmdir, testCase.FixtureRoot, 's');
+            try
+                testCase.FixtureRoot = [tempname, '_testlab'];
+                mkdir(testCase.FixtureRoot);
+                ndi.unittest.nansen.TestFixtures.installTestlab(testCase.FixtureRoot);
+                addpath(testCase.FixtureRoot);
+                testCase.addTeardown(@rmpath, testCase.FixtureRoot);
+                testCase.addTeardown(@rmdir, testCase.FixtureRoot, 's');
+            catch ME
+                testCase.fatalAssertFail(sprintf( ...
+                    'installTestlabConfig threw:\n%s', getReport(ME)));
+            end
         end
 
         function initializeProjectMetatables(testCase)
-            dataset = ndi.dataset.dir(testCase.DatasetPath);
-            testCase.fatalAssertClass(dataset,'ndi.dataset.dir', ...
-                'Dataset could not be retrieved.');
-            ndi.nansen.metatable.updateAll(dataset, 'LabName', testCase.LabName);
+            try
+                dataset = ndi.dataset.dir(testCase.DatasetPath);
+                testCase.fatalAssertClass(dataset,'ndi.dataset.dir', ...
+                    'Dataset could not be retrieved.');
+                ndi.nansen.metatable.updateAll(dataset, 'LabName', testCase.LabName);
+            catch ME
+                testCase.fatalAssertFail(sprintf( ...
+                    'initializeProjectMetatables threw:\n%s', getReport(ME)));
+            end
         end
     end
 
