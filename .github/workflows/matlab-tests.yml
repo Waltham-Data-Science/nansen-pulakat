@@ -67,7 +67,14 @@ jobs:
       - name: Run offline tests
         uses: matlab-actions/run-command@v2
         with:
+          # Builds a TestRunner with the CodeCoveragePlugin so we can
+          # produce a Cobertura XML report for codecov, scoped to the
+          # repo's src/ tree. assertSuccess runs after the runner so
+          # the coverage file is already on disk even if tests failed.
           command: |
+            import matlab.unittest.TestRunner
+            import matlab.unittest.plugins.CodeCoveragePlugin
+            import matlab.unittest.plugins.codecoverage.CoberturaFormat
             addpath(genpath('NANSEN/code'));
             addpath(genpath('NDI-matlab/src'));
             addpath(genpath('openMINDS_MATLAB/code'));
@@ -85,8 +92,23 @@ jobs:
                 'ndi.unittest.nansen.MetatableEdit', ...
                 'ndi.unittest.nansen.ImportSubjectTableFromFile', ...
                 'ndi.unittest.nansen.SyncRepo'};
-            results = runtests(offlineTests);
+            suite = testsuite(offlineTests);
+            runner = TestRunner.withTextOutput();
+            runner.addPlugin(CodeCoveragePlugin.forFolder( ...
+                {'nansen-pulakat/src/pulakat','nansen-pulakat/src/ndi'}, ...
+                'IncludingSubfolders', true, ...
+                'Producing', CoberturaFormat('coverage-offline.xml')));
+            results = runner.run(suite);
             assertSuccess(results);
+
+      - name: Upload offline coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage-offline.xml
+          flags: offline
+          fail_ci_if_error: false
 
   cloud-tests:
     name: Cloud integration tests
@@ -163,6 +185,9 @@ jobs:
           CLOUD_API_ENVIRONMENT: prod
         with:
           command: |
+            import matlab.unittest.TestRunner
+            import matlab.unittest.plugins.CodeCoveragePlugin
+            import matlab.unittest.plugins.codecoverage.CoberturaFormat
             addpath(genpath('NANSEN/code'));
             addpath(genpath('NDI-matlab/src'));
             addpath(genpath('openMINDS_MATLAB/code'));
@@ -175,5 +200,20 @@ jobs:
                 'ndi.unittest.nansen.CreateDataset', ...
                 'ndi.unittest.nansen.Startup', ...
                 'ndi.unittest.nansen.ImportSession'};
-            results = runtests(cloudTests);
+            suite = testsuite(cloudTests);
+            runner = TestRunner.withTextOutput();
+            runner.addPlugin(CodeCoveragePlugin.forFolder( ...
+                {'nansen-pulakat/src/pulakat','nansen-pulakat/src/ndi'}, ...
+                'IncludingSubfolders', true, ...
+                'Producing', CoberturaFormat('coverage-cloud.xml')));
+            results = runner.run(suite);
             assertSuccess(results);
+
+      - name: Upload cloud coverage to Codecov
+        if: always() && steps.check_secrets.outputs.cloud_credentials_set == 'true'
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage-cloud.xml
+          flags: cloud
+          fail_ci_if_error: false
