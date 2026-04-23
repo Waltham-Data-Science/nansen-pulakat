@@ -49,9 +49,17 @@ end
 % Convert to cellstr for consistent processing
 options.UpdateVariableNames = cellstr(options.UpdateVariableNames);
 
-% Update dynamic table variables
+% Update dynamic table variables. If the merge above short-circuited
+% on an empty dataTable (or if this dataName has never been merged),
+% the metatable won't exist in the catalog yet — there's nothing to
+% update either, so skip cleanly.
 if ~isequal(options.UpdateVariableNames,{''})
-    metaTable = options.Project.MetaTableCatalog.getMetaTable(dataName);
+    catalog = options.Project.MetaTableCatalog;
+    if isempty(catalog.Table) || ...
+            ~ismember(dataName, catalog.Table.MetaTableName)
+        return
+    end
+    metaTable = catalog.getMetaTable(dataName);
     TVA = options.Project.getTable('TableVariable');
     TVA = TVA(TVA.TableType == lower(dataName), :);
     updateVariableNames = TVA{TVA.HasUpdateFunction, 'Name'};
