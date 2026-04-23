@@ -136,7 +136,22 @@ if status == 0
     currentBranch = strtrim(cmdOut);
     if ~isempty(options.Branch) && ~strcmpi(currentBranch, options.Branch)
         fprintf('[%s] Switching %s to branch: %s...\n', funcId, repoName, options.Branch);
-        system(sprintf('git -C "%s" switch %s', repoPath, options.Branch));
+        [switchStatus, switchOut] = system(sprintf('git -C "%s" switch %s', ...
+            repoPath, options.Branch));
+        if switchStatus ~= 0
+            % Switch failed (branch deleted locally on a re-run, merge
+            % conflict blocking checkout, etc.). The subsequent `git
+            % pull` would overwrite `status` and return 0 on whatever
+            % branch is currently checked out, so callers would see a
+            % successful return while the repo is on the wrong branch.
+            % Pop the stash from line 131 and return the switch status.
+            warning([funcId, ':SwitchFailed'], ...
+                '[%s] Could not switch %s to branch %s: %s', ...
+                funcId, repoName, options.Branch, strtrim(switchOut));
+            system(sprintf('git -C "%s" stash pop', repoPath));
+            status = switchStatus;
+            return;
+        end
     end
 else
     error([funcId, ':GitError'], '[%s] Could not determine branch for %s.', funcId, repoName);
