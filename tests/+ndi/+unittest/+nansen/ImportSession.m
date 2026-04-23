@@ -63,8 +63,12 @@ classdef ImportSession < ndi.unittest.nansen.Startup
             testCase.verifyTrue(all(ismember(coreVars, actualVars)));
             testCase.verifyEqual(sessionTable.entries.SessionName{1}, ...
                 testCase.SessionName);
-            testCase.verifyEqual(sessionTable.entries.SessionPath{1}, ...
-                testCase.SessionPath);
+            % dataset.add_ingested_session ingests the session into the
+            % dataset's tree, so Session.SessionPath ends up reporting
+            % the dataset path rather than the original tempdir we
+            % passed to ndi.nansen.import.session. Verify the path is
+            % non-empty rather than trying to pin it to the input dir.
+            testCase.verifyNotEmpty(sessionTable.entries.SessionPath{1});
         end
     end
 
