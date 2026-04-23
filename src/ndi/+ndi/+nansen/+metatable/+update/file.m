@@ -63,9 +63,20 @@ for i = 1:numel(sessions)
     % Get files
     query = ndi.query('','isa','generic_file');
     generic_file_docs = session.database_search(query);
+
+    % Sessions with no generic_file docs yet have nothing to turn
+    % into File-metatable rows. The enrichment block below assumes
+    % at least one file doc (and matching ontologyTableRow doc) —
+    % without them ndi.fun.table.vstack chokes on empty input.
+    % Skip cleanly and let the final vstack filter this session out.
+    if isempty(generic_file_docs)
+        fileTables{i} = table();
+        continue
+    end
+
     generic_file_docIDs = cellfun(@(d) d.id,generic_file_docs,'UniformOutput',false);
     generic_file_dependency = cellfun(@(d) d.dependency_value('document_id'), ...
-        generic_file_docs,'UniformOutput',false);
+        generic_file_docs,'UniformOutput',false); %#ok<NASGU>
 
     % Get file labels
     query = ndi.query('','isa','ontologyLabel');
@@ -124,8 +135,14 @@ for i = 1:numel(sessions)
     fileTables{i} = dataTable;
 end
 
-% Stack tables
-fileTable = ndi.fun.table.vstack(fileTables);
+% Stack tables. Drop empty entries first so ndi.fun.table.vstack
+% doesn't error if every session in the dataset has no files yet.
+fileTables = fileTables(~cellfun(@(t) isempty(t), fileTables));
+if isempty(fileTables)
+    fileTable = table();
+else
+    fileTable = ndi.fun.table.vstack(fileTables);
+end
 
 % Populate SubjectIdentifier by joining against the Subject metatable.
 % The File tablevariable update functions use obj.SubjectIdentifier to
