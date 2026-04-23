@@ -38,6 +38,20 @@ end
 project = options.Project;
 metaTableCatalog = project.MetaTableCatalog;
 
+% Short-circuit on empty input. An empty dataTable produced from
+% update.(dataName) running against a dataset that has no sessions /
+% subjects / files is bare table() — zero rows AND zero columns.
+% Continuing past this point either:
+%   (a) creates a new metatable from the 0x0 table (below), which then
+%       fails on the next merge because it has no idVarName column, or
+%   (b) in the existing-metatable branch, tries to read
+%       metaTable.entries.(idVarName) from a saved-columnless metatable
+%       and errors with "Unrecognized table variable name '...'".
+% Returning early makes a merge of empty data a true no-op.
+if isempty(dataTable)
+    return
+end
+
 % Check if meta table exists and retrieve it
 if ~isempty(metaTableCatalog.Table) && ...
         ismember(dataName,metaTableCatalog.Table.MetaTableName)
@@ -59,11 +73,6 @@ if ~exist('metaTable','var')
         'MetaTableIdVarname', idVarName);
     project.addMetaTable(metaTable);
     metaTable.addMissingVarsToMetaTable(dataName);
-    return
-end
-
-% If no new data, skip
-if isempty(dataTable)
     return
 end
 
