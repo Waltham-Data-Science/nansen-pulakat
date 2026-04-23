@@ -47,8 +47,20 @@ metaTableCatalog = project.MetaTableCatalog;
 %   (b) in the existing-metatable branch, tries to read
 %       metaTable.entries.(idVarName) from a saved-columnless metatable
 %       and errors with "Unrecognized table variable name '...'".
-% Returning early makes a merge of empty data a true no-op.
+% Returning early makes a merge of empty data a true no-op. If a
+% metatable for this dataName already exists, return it so callers
+% that capture the output (mt = merge(...)) get something sensible;
+% otherwise return an empty MetaTable array.
 if isempty(dataTable)
+    if ~isempty(metaTableCatalog.Table) && ...
+            ismember(dataName,metaTableCatalog.Table.MetaTableName)
+        metaTableEntry = metaTableCatalog.getEntry(dataName);
+        if exist(fullfile(metaTableEntry.SavePath,metaTableEntry.FileName),'file')
+            metaTable = metaTableCatalog.getMetaTable(dataName);
+            return
+        end
+    end
+    metaTable = nansen.metadata.MetaTable.empty;
     return
 end
 
