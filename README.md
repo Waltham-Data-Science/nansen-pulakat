@@ -34,8 +34,6 @@ This repository provides a database system that enables the organization and clo
     install
     ```
 
-    > Note: don't click the older "raw" link in plain markdown — GitHub serves `.m` files as plain text, so most browsers will display the file's contents in-page rather than offering to download it. Either of the two options above avoids that.
-
 ### Subsequent Uses
 
 The installer adds a pathdef loader to `<userpath>/startup.m`, so the NDI,
