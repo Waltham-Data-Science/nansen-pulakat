@@ -159,6 +159,22 @@ if status ~= 0
     delete([mfilename('fullpath'), '.m']);
 end
 
+% 12. If the user followed the README's MATLAB-paste snippet they
+% cd'd into tempdir before calling install. Leave them there and the
+% next thing they type runs from a system temp folder that just lost
+% install.m. Move back to userpath when (and only when) the current
+% directory is somewhere under tempdir, so users who ran install from
+% an intentional cwd (~/Downloads, a project folder, etc.) are not
+% bounced out of it.
+tempRoot = char(tempdir);
+if endsWith(tempRoot, filesep)
+    tempRoot = tempRoot(1:end-1);
+end
+if startsWith(pwd, tempRoot)
+    cd(userpath);
+    fprintf('[%s] Returned to MATLAB userpath: %s\n', funcId, userpath);
+end
+
 end
 
 function install_ensureStartupLoadsPathdef(funcId)
