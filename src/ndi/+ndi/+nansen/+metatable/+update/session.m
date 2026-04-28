@@ -45,8 +45,10 @@ else
     project = nansen.getCurrentProject();
     datasetTable = project.MetaTableCatalog.getMetaTable('Dataset');
     if ~isscalar(datasetTable.members)
-        error('More than one dataset not supported.')
-    else 
+        error('NDI:Nansen:Metatable:Update:Session:MultipleDatasets', ...
+            ['[NDI:Nansen:Metatable:Update:Session:MultipleDatasets] ' ...
+             'More than one dataset is not supported.'])
+    else
         datasetID = datasetTable.members{1};
     end
 end

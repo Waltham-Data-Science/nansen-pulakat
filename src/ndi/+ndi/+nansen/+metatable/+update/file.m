@@ -43,8 +43,10 @@ else
     project = nansen.getCurrentProject();
     datasetTable = project.MetaTableCatalog.getMetaTable('Dataset');
     if ~isscalar(datasetTable.members)
-        error('More than one dataset not supported.')
-    else 
+        error('NDI:Nansen:Metatable:Update:File:MultipleDatasets', ...
+            ['[NDI:Nansen:Metatable:Update:File:MultipleDatasets] More ' ...
+             'than one dataset is not supported.'])
+    else
         datasetID = datasetTable.members{1};
     end
 end
@@ -126,7 +128,9 @@ for i = 1:numel(sessions)
             elseif strcmp(dependencyType,'subject') | strcmp(dependencyType,'subject_group')
                 ontologyTable.SubjectDocumentIdentifier(j) = ontologyTableRow_dependency{j}(k);
             else
-                error('Dependency type of %s is not yet supported.',dependencyType)
+                error('NDI:Nansen:Metatable:Update:File:UnsupportedDependency', ...
+                    ['[NDI:Nansen:Metatable:Update:File:UnsupportedDependency] ' ...
+                     'Dependency type of %s is not yet supported.'], dependencyType)
             end
         end
     end

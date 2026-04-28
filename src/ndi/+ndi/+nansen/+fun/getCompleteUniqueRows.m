@@ -49,7 +49,9 @@ for i = 1:numel(indMatch)
                 dataTable(indMatch{i},j) = thisCol;
             else
                 disp(theseRows)
-                error('Data table conflict could not be resolved.')
+                error('NDI:Nansen:Fun:GetCompleteUniqueRows:Conflict', ...
+                    ['[NDI:Nansen:Fun:GetCompleteUniqueRows:Conflict] ' ...
+                     'Data table conflict could not be resolved.'])
             end
         end
         indResolved(indMatch{i}) = true;

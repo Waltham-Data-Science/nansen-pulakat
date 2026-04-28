@@ -31,7 +31,7 @@ end
 
 [status, ~] = system(cmd);
 if status ~= 0
-    fprintf('Exported to: %s\n', folderPath);
+    fprintf('[NDI Export] Exported to: %s\n', folderPath);
 end
 
 end

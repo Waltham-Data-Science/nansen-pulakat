@@ -98,7 +98,8 @@ elseif contains(repoReference, 'http') || endsWith(repoReference, '.git')
         fprintf('[%s] Cloning %s into %s...\n', funcId, repoName, repoPath);
         [status, cmdOut] = system(sprintf('git clone %s "%s"', repoURL, repoPath));
         if status ~= 0
-            warning([funcId, ':CloneFailed'], '[%s] Clone failed: %s', funcId, cmdOut);
+            warning([funcId, ':CloneFailed'], ...
+                '[%s:CloneFailed] Clone failed: %s', funcId, cmdOut);
             return;
         end
     end
@@ -118,7 +119,8 @@ if isempty(repoPath) && ~isempty(cmd)
     if status == 0
         repoPath = strtrim(cmdOut);
     else
-        warning([funcId, ':NotFound'], '[%s] Could not find a Git repo for: %s', funcId, repoReference);
+        warning([funcId, ':NotFound'], ...
+            '[%s:NotFound] Could not find a Git repo for: %s', funcId, repoReference);
         return;
     end
 end
@@ -146,7 +148,7 @@ if status == 0
             % successful return while the repo is on the wrong branch.
             % Pop the stash from line 131 and return the switch status.
             warning([funcId, ':SwitchFailed'], ...
-                '[%s] Could not switch %s to branch %s: %s', ...
+                '[%s:SwitchFailed] Could not switch %s to branch %s: %s', ...
                 funcId, repoName, options.Branch, strtrim(switchOut));
             system(sprintf('git -C "%s" stash pop', repoPath));
             status = switchStatus;
@@ -154,7 +156,8 @@ if status == 0
         end
     end
 else
-    error([funcId, ':GitError'], '[%s] Could not determine branch for %s.', funcId, repoName);
+    error([funcId, ':GitError'], ...
+        '[%s:GitError] Could not determine branch for %s.', funcId, repoName);
 end
 
 % Pull updates
@@ -165,7 +168,9 @@ fprintf('[%s] Updating %s...\n', funcId, repoName);
 
 [sStash, stashOut] = system(sprintf('git -C "%s" stash pop', repoPath));
 if sStash ~= 0 && ~contains(stashOut, 'No stash entries found')
-    warning([funcId, ':StashConflict'], '[%s] Merge conflict in %s while restoring stashed changes.', funcId, repoName);
+    warning([funcId, ':StashConflict'], ...
+        '[%s:StashConflict] Merge conflict in %s while restoring stashed changes.', ...
+        funcId, repoName);
 end
 
 % --- 5. Path Management & Reporting ---
@@ -185,7 +190,8 @@ if status == 0
         saveStatus = savepath(userPathdef);
         if saveStatus ~= 0
             warning([funcId, ':SavePathFailed'], ...
-                '[%s] Could not save MATLAB path to %s.', funcId, userPathdef);
+                '[%s:SavePathFailed] Could not save MATLAB path to %s.', ...
+                funcId, userPathdef);
         end
     end
 
@@ -195,7 +201,8 @@ if status == 0
         fprintf('[%s] %s updated successfully.\n', funcId, repoName);
     end
 else
-    warning([funcId, ':PullFailed'], '[%s] Update failed for %s:\n%s', funcId, repoName, pullOut);
+    warning([funcId, ':PullFailed'], ...
+        '[%s:PullFailed] Update failed for %s:\n%s', funcId, repoName, pullOut);
 end
 
 end

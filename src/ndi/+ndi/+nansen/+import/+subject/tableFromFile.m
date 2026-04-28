@@ -53,7 +53,9 @@ for i = 1:numel(subjectFiles)
     % Validate that subject files contain necessary variables
     valid = ndi.nansen.import.file.validateTable(subjectFile,requiredVariableNames);
     if ~valid
-        warning('importSubjectFiles: %s is not a valid subject file. Skipping.',subjectFile);
+        warning('NDI:Nansen:Import:Subject:InvalidFile', ...
+            ['[NDI:Nansen:Import:Subject:InvalidFile] %s is not a valid ' ...
+             'subject file. Skipping.'], subjectFile);
     end
 
     % Import subject table from file

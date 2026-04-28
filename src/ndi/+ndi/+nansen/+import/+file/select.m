@@ -75,7 +75,9 @@ else
         else
             fullFile = which(dataPath{i});
             if isempty(fullFile)
-                warning('ndi.nansen.import.file.select: %s is not found on the MATLAB path. Skipping.',dataPath{i});
+                warning('NDI:Nansen:Import:File:PathNotFound', ...
+                    ['[NDI:Nansen:Import:File:PathNotFound] %s is not ' ...
+                     'found on the MATLAB path. Skipping.'], dataPath{i});
                 validPath(i) = false;
             else
                 fileList{i} = fullFile;
@@ -104,7 +106,8 @@ dataFiles = dataFiles(indNameMatch);
 
 % Check if any files are returned
 if isempty(dataFiles)
-    warning('ndi.nansen.import.file.select: No files found for import.');
+    warning('NDI:Nansen:Import:File:NoFilesFound', ...
+        '[NDI:Nansen:Import:File:NoFilesFound] No files found for import.');
 end
 
 end

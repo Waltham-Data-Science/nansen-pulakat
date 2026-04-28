@@ -10,9 +10,13 @@ end
 % Check the document status of the rows
 indDocument = ~strcmp(dataTable.([dataName,'DocumentIdentifier']),'N/A');
 if all(indDocument)
-    error('%s that are already documents cannot be edited.',dataName)
+    error('NDI:Nansen:Fun:MergeMetaTableCells:AllDocumented', ...
+        ['[NDI:Nansen:Fun:MergeMetaTableCells:AllDocumented] %s that ' ...
+         'are already documents cannot be edited.'], dataName)
 elseif any(indDocument)
-    warning('Only %s that are not already documents can be edited.',lower(dataName))
+    warning('NDI:Nansen:Fun:MergeMetaTableCells:SomeDocumented', ...
+        ['[NDI:Nansen:Fun:MergeMetaTableCells:SomeDocumented] Only %s ' ...
+         'that are not already documents can be edited.'], lower(dataName))
     dataTable(indDocument,:) = []; % remove documented rows from table
 end
 

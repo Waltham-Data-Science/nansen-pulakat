@@ -25,7 +25,9 @@ end
 % Get cloud dataset id
 cloudDatasetID = ndi.cloud.internal.getCloudDatasetIdForLocalDataset(dataset);
 if isempty(cloudDatasetID)
-    error('Could not find a matching cloud dataset for the local dataset')
+    error('NDI:Nansen:Metatable:Update:Dataset:NoCloudMatch', ...
+        ['[NDI:Nansen:Metatable:Update:Dataset:NoCloudMatch] Could not ' ...
+         'find a matching cloud dataset for the local dataset.'])
 end
 
 % Get dataset document id

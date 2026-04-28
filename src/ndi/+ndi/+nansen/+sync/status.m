@@ -36,19 +36,21 @@ else
     remoteIdsLastSync = string(syncIndex.remoteDocumentIdsLastSync); % Ensure string array
 end
 if options.Verbose
-    fprintf('Read sync index. Last sync recorded %d remote documents.\n', numel(remoteIdsLastSync));
+    fprintf('[NDI Sync Status] Read sync index. Last sync recorded %d remote documents.\n', ...
+        numel(remoteIdsLastSync));
 end
 
 % 2. Get current local state
 [~, localDocumentIds] = ndi.cloud.sync.internal.listLocalDocuments(dataset);
 if options.Verbose
-    fprintf('Found %d documents locally.\n', numel(localDocumentIds));
+    fprintf('[NDI Sync Status] Found %d documents locally.\n', numel(localDocumentIds));
 end
 
 % 3. Calculate differences: documents added locally since last sync
 [ndiIdsToUpload, ~] = setdiff(localDocumentIds, remoteIdsLastSync, 'stable');
 if options.Verbose
-    fprintf('Found %d documents added locally since last sync.\n', numel(ndiIdsToUpload));
+    fprintf('[NDI Sync Status] Found %d documents added locally since last sync.\n', ...
+        numel(ndiIdsToUpload));
 end
 
 % 4. Create status table
