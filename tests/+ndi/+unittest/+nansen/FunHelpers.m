@@ -35,6 +35,34 @@ classdef FunHelpers < ndi.unittest.nansen.ProjectTestCase
             testCase.verifyEqual(value, {'Female'});
         end
 
+        function getMetaTableValueReturnsEmptyOnMissingTable(testCase)
+            % addMissingVarsToMetaTable triggers each variable's update
+            % during the first merge of a new metatable, so a Session
+            % var that looks up Subject data fires before the Subject
+            % metatable exists. Silently returning '' keeps the
+            % cell-typed assignment well-formed and avoids the warning
+            % storm; a later updateAll pass fills in real values.
+            value = ndi.nansen.fun.getMetaTableValue( ...
+                'Subject', 'BiologicalSex', 'no-such-id');
+            testCase.verifyEqual(value, '');
+        end
+
+        function listUniqueReturnsDefaultOnMissingTable(testCase)
+            value = ndi.nansen.fun.listUniqueMetaTableValues( ...
+                'pulakat.tablevariable.session.BiologicalSexName', ...
+                'Subject', struct('SubjectIdentifier', 'no-such-id'));
+            testCase.verifyEqual(value, ...
+                pulakat.tablevariable.session.BiologicalSexName.DEFAULT_VALUE);
+        end
+
+        function countUniqueReturnsDefaultOnMissingTable(testCase)
+            value = ndi.nansen.fun.countUniqueMetaTableValues( ...
+                'pulakat.tablevariable.session.NumFiles', ...
+                'File', struct('SessionIdentifier', 'no-such-id'));
+            testCase.verifyEqual(value, ...
+                pulakat.tablevariable.session.NumFiles.DEFAULT_VALUE);
+        end
+
         % Note: datasetID2Object requires ndi.dataset.dir to open a
         % valid NDI dataset on disk, which in turn depends on ndi_install
         % having run to register internal dependencies. That's not

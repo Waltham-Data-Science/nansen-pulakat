@@ -37,8 +37,19 @@ end
 variableName = char(variableName);
 entryIdentifier = char(entryIdentifier);
 
+% Return empty char if the metatable hasn't been created yet (e.g.
+% during addMissingVarsToMetaTable on the first merge of a sibling
+% table). Callers store the result in a cell-typed column, so '' keeps
+% the assignment well-formed and a later updateAll pass fills in the
+% real value once every metatable exists.
+catalog = options.Project.MetaTableCatalog;
+if isempty(catalog.Table) || ~ismember(dataName, catalog.Table.MetaTableName)
+    value = '';
+    return
+end
+
 % Get metatable
-metaTable = options.Project.MetaTableCatalog.getMetaTable(dataName);
+metaTable = catalog.getMetaTable(dataName);
 
 % Get entry
 entry = metaTable.getEntry(entryIdentifier);

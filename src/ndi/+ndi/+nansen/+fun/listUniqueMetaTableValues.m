@@ -42,8 +42,18 @@ value = eval([className,'.DEFAULT_VALUE']);
 % Return default value if no input is given (used during config).
 if isempty(obj); return; end
 
+% Return default if the dependency metatable hasn't been created yet.
+% addMissingVarsToMetaTable runs each variable's update() during the
+% first merge of a new metatable, so a Session var that looks up
+% Subject data fires before the Subject metatable exists. Silently
+% returning the default avoids the "No MetaTable found" warning storm.
+catalog = options.Project.MetaTableCatalog;
+if isempty(catalog.Table) || ~ismember(dataName, catalog.Table.MetaTableName)
+    return
+end
+
 % Get metaTable entries
-metaTable = options.Project.MetaTableCatalog.getMetaTable(dataName);
+metaTable = catalog.getMetaTable(dataName);
 entries = metaTable.entries;
 
 % Return if no entries

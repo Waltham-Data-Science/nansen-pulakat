@@ -17,6 +17,10 @@ function dataset = startup(labName, dataPath, options)
 %         login dialog and the final Nansen GUI launch. Useful for batch
 %         processing and CI. The caller must already be authenticated
 %         against NDI cloud. Default: false.
+%      SkipRepoSync (logical): Optional. If true, skip the per-repo
+%         clone/pull pass in step 2. Used by install.m, which has just
+%         finished cloning every repo and would otherwise re-walk them.
+%         Default: false.
 %
 %   Outputs:
 %       dataset (ndi.dataset.dir): The NDI dataset object.
@@ -40,6 +44,7 @@ arguments
     labName {mustBeText} = ""
     dataPath {mustBeText} = ""
     options.Headless (1,1) logical = false
+    options.SkipRepoSync (1,1) logical = false
 end
 
 % Convert inputs to char arrays for internal processing
@@ -77,11 +82,19 @@ end
 % 1. Get project info
 projectInfo = ndi.nansen.fun.readProjectInfo(labName);
 
-% 2. Update required repos
-[~,repoPath] = ndi.nansen.sync.repo(projectInfo.URL);
-ndi.nansen.sync.repo('https://github.com/VervaekeLab/NANSEN','Branch','dev');
-ndi.nansen.sync.repo('https://github.com/openMetadataInitiative/openMINDS_MATLAB');
-ndi.nansen.sync.repo('https://github.com/VH-Lab/NDI-matlab');
+% 2. Update required repos. Skipped when called immediately after
+% install.m, which has just cloned every repo at HEAD; the pull pass
+% would only add a few seconds of redundant network chatter and dirty
+% the command window with per-repo "Updating..." output.
+if options.SkipRepoSync
+    repoPath = fileparts(fileparts(fileparts(fileparts(fileparts( ...
+        mfilename('fullpath'))))));
+else
+    [~,repoPath] = ndi.nansen.sync.repo(projectInfo.URL);
+    ndi.nansen.sync.repo('https://github.com/VervaekeLab/NANSEN','Branch','dev');
+    ndi.nansen.sync.repo('https://github.com/openMetadataInitiative/openMINDS_MATLAB');
+    ndi.nansen.sync.repo('https://github.com/VH-Lab/NDI-matlab');
+end
 
 % 3. Download or sync local dataset with NDI Cloud
 

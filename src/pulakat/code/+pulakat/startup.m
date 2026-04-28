@@ -8,6 +8,9 @@ function [] = startup(options)
 %   Name-Value Pairs:
 %      Headless (logical): Optional. If true, skip the interactive
 %         cloud login and the final GUI launch. Default: false.
+%      SkipRepoSync (logical): Optional. If true, skip the per-repo
+%         clone/pull pass. Used by install.m, which has just finished
+%         cloning every repo. Default: false.
 %
 %   Examples:
 %      % Initialize the Pulakat lab and launch the GUI:
@@ -20,8 +23,11 @@ function [] = startup(options)
 
 arguments
     options.Headless (1,1) logical = false
+    options.SkipRepoSync (1,1) logical = false
 end
 
-ndi.nansen.startup('pulakat', '', 'Headless', options.Headless);
+ndi.nansen.startup('pulakat', '', ...
+    'Headless', options.Headless, ...
+    'SkipRepoSync', options.SkipRepoSync);
 
 end

@@ -84,20 +84,28 @@ for i = 1:numel(sessions)
     ontologyLabel_dependency = cellfun(@(d) d.dependency_value('document_id'), ...
         ontologyLabel_docs,'UniformOutput',false);
 
-    % Construct data table
-    dataTable = table();
-    for j = 1:numel(generic_file_docs)
-        % Add file information
-        dataTable.FileDocumentIdentifier(j) = {generic_file_docs{j}.id};
-        dataTable.ElectronicFileName(j) = {generic_file_docs{j}.document_properties.generic_file.filename};
-        
-        % Add ontology label
+    % Construct data table. Build the column cells first, then assemble
+    % the table in one shot — assigning column-by-column inside the loop
+    % triggers MATLAB's "assignment added rows ... extended with default
+    % values" warning every time a new row is appended before the other
+    % columns catch up.
+    nFiles = numel(generic_file_docs);
+    fileDocIDs = cell(nFiles,1);
+    filenames = cell(nFiles,1);
+    typeNames = cell(nFiles,1);
+    typeOntologies = cell(nFiles,1);
+    for j = 1:nFiles
+        fileDocIDs{j} = generic_file_docs{j}.id;
+        filenames{j} = generic_file_docs{j}.document_properties.generic_file.filename;
         indOntologyLabel = strcmp(ontologyLabel_dependency,generic_file_docs{j}.id);
         ontologyID = ontologyLabel_docs{indOntologyLabel}.document_properties.ontologyLabel.ontologyNode;
         [ontologyNode,ontologyName] = ndi.ontology.lookup(ontologyID);
-        dataTable.DataTypeName(j) = {ontologyName};
-        dataTable.DataTypeOntology(j) = {ontologyNode};
+        typeNames{j} = ontologyName;
+        typeOntologies{j} = ontologyNode;
     end
+    dataTable = table(fileDocIDs, filenames, typeNames, typeOntologies, ...
+        'VariableNames', {'FileDocumentIdentifier','ElectronicFileName', ...
+                          'DataTypeName','DataTypeOntology'});
 
     % Get file tables
     query = ndi.query('','isa','ontologyTableRow');
