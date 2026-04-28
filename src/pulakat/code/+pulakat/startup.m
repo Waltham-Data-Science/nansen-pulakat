@@ -26,6 +26,7 @@ arguments
     options.SkipRepoSync (1,1) logical = false
 end
 
+fprintf('[Pulakat] Starting pulakat lab project.\n');
 ndi.nansen.startup('pulakat', '', ...
     'Headless', options.Headless, ...
     'SkipRepoSync', options.SkipRepoSync);

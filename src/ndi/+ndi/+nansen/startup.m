@@ -51,6 +51,12 @@ end
 labName = char(labName);
 dataPath = char(dataPath);
 
+% Status, warning, and error identifiers all share this base. Info
+% lines use the short tag "[NDI Startup]"; warnings/errors use the
+% full MException ID, e.g. "[NDI:Nansen:Startup:CloudSyncFailed]".
+funcId = 'NDI:Nansen:Startup';
+infoTag = 'NDI Startup';
+
 % Load the user-saved MATLAB path definition if present. Paths are
 % written to userpath/pathdef.m by install and ndi.nansen.sync.repo so
 % that savepath does not fail on MATLAB installs where matlabroot is
@@ -64,9 +70,9 @@ if isfile(userPathdef)
         cd(fileparts(userPathdef));
         addpath(pathdef);
     catch ME
-        warning('NDI:Nansen:Startup:LoadPathFailed', ...
-            'Could not load saved MATLAB path from %s: %s', ...
-            userPathdef, ME.message);
+        warning([funcId, ':LoadPathFailed'], ...
+            '[%s:LoadPathFailed] Could not load saved MATLAB path from %s: %s', ...
+            funcId, userPathdef, ME.message);
     end
     cd(origDir);
 end
@@ -90,6 +96,7 @@ if options.SkipRepoSync
     repoPath = fileparts(fileparts(fileparts(fileparts(fileparts( ...
         mfilename('fullpath'))))));
 else
+    fprintf('[%s] Synchronizing repositories.\n', infoTag);
     [~,repoPath] = ndi.nansen.sync.repo(projectInfo.URL);
     ndi.nansen.sync.repo('https://github.com/VervaekeLab/NANSEN','Branch','dev');
     ndi.nansen.sync.repo('https://github.com/openMetadataInitiative/openMINDS_MATLAB');
@@ -113,29 +120,37 @@ datasetPath = fullfile(dataPath,cloudDatasetID);
 if isempty(getenv('CLOUD_API_ENVIRONMENT'))
     setenv('CLOUD_API_ENVIRONMENT','prod');
 end
-connected = ndi.cloud.testLogin();
+fprintf('[%s] Verifying NDI cloud connection.\n', infoTag);
+connected = ndi.nansen.fun.runTagged('NDI Cloud', @() ndi.cloud.testLogin());
 if ~connected
     if options.Headless
-        error('NDI:Nansen:Startup:NotAuthenticated', ...
-            ['Headless startup requested but not authenticated against ' ...
-             'NDI cloud. Authenticate interactively first (e.g. ' ...
-             'ndi.cloud.uilogin) before calling with Headless=true.']);
+        error([funcId, ':NotAuthenticated'], ...
+            ['[%s:NotAuthenticated] Headless startup requested but not ' ...
+             'authenticated against NDI cloud. Authenticate interactively ' ...
+             'first (e.g. ndi.cloud.uilogin) before calling with ' ...
+             'Headless=true.'], funcId);
     end
-    ndi.cloud.uilogin(true);
+    ndi.nansen.fun.runTagged('NDI Cloud Login', @() ndi.cloud.uilogin(true));
 end
 
 % Load/download dataset
 if isfolder(datasetPath)
     % Load if already downloaded and sync with cloud
+    fprintf('[%s] Loading local dataset from %s.\n', infoTag, datasetPath);
     dataset = ndi.dataset.dir(datasetPath);
-    [success,errorMessage] = ndi.cloud.sync.downloadNew(dataset);
+    [success,errorMessage] = ndi.nansen.fun.runTagged('NDI Cloud Sync', ...
+        @() ndi.cloud.sync.downloadNew(dataset));
     if ~success
-        error('NDI:Nansen:Startup:CloudSyncFailed', ...
-            'Cloud sync failed; local dataset may be stale: %s', errorMessage);
+        error([funcId, ':CloudSyncFailed'], ...
+            ['[%s:CloudSyncFailed] Cloud sync failed; local dataset may ' ...
+             'be stale: %s'], funcId, errorMessage);
     end
 else
     % Download from cloud
-    dataset = ndi.cloud.downloadDataset(cloudDatasetID,dataPath);
+    fprintf('[%s] Downloading dataset %s from NDI cloud.\n', ...
+        infoTag, cloudDatasetID);
+    dataset = ndi.nansen.fun.runTagged('NDI Cloud', ...
+        @() ndi.cloud.downloadDataset(cloudDatasetID,dataPath));
 end
 
 % 4. Load project from nansen project manager. The Nansen project
@@ -172,16 +187,18 @@ end
 % If the metatable update fails, warn and skip the GUI launch rather than
 % opening Nansen onto an empty / inconsistent table view that the user
 % would mistake for a successful start.
+fprintf('[%s] Updating Nansen metatables.\n', infoTag);
 try
-    ndi.nansen.metatable.updateAll(dataset);
+    ndi.nansen.fun.runTagged('Nansen', @() ndi.nansen.metatable.updateAll(dataset));
 catch ME
-    warning('NDI:Nansen:Startup:MetatableUpdateFailed', ...
-        ['Metatable update failed; not launching the Nansen GUI. ' ...
-         'Fix the underlying issue and re-run pulakat.startup.\n%s'], ...
-        ME.message);
+    warning([funcId, ':MetatableUpdateFailed'], ...
+        ['[%s:MetatableUpdateFailed] Metatable update failed; not ' ...
+         'launching the Nansen GUI. Fix the underlying issue and re-run ' ...
+         'pulakat.startup.\n%s'], funcId, ME.message);
     return
 end
 if ~options.Headless
+    fprintf('[%s] Launching Nansen GUI.\n', infoTag);
     nansen
 end
 
