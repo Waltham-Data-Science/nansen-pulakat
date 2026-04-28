@@ -93,15 +93,28 @@ if status ~= 0
 end
 install_runTagged('Nansen Install', @() nansen_install());
 
-% 6. Install openMINDS
+% 6. Install openMINDS. openMINDS_MATLAB ships overlapping class
+% definitions across its v1.0/v2.0/v3.0/latest type folders, so
+% MATLAB emits a "cannot be used as an alias" warning for ~30
+% classes every time those folders go on the path. The aliasing
+% is benign — the upstream package is aware and resolves through
+% its version selector — so suppress the noise wherever those
+% addpath calls happen (here, in setup.m, and again inside
+% ndi_install below).
+openMindsAliasWarnings = [ ...
+    "cannot be used as an alias for more than one class", ...
+    "Unable to define an alias for class"];
 openMindsURL = 'https://github.com/openMetadataInitiative/openMINDS_MATLAB';
-[status, openMindsRepoPath] = repoSync(openMindsURL,'ClonePath',codePath);
+[status, openMindsRepoPath] = install_runTagged('NDI Sync', ...
+    @() repoSync(openMindsURL,'ClonePath',codePath), ...
+    'HidePatterns', openMindsAliasWarnings);
 if status ~= 0
     error([funcId, ':RepoSyncFailed'], ...
         '[%s:RepoSyncFailed] Could not clone/update openMINDS_MATLAB.', funcId);
 end
 install_runTagged('openMINDS Setup', ...
-    @() run(fullfile(openMindsRepoPath, 'code', 'setup.m')));
+    @() run(fullfile(openMindsRepoPath, 'code', 'setup.m')), ...
+    'HidePatterns', openMindsAliasWarnings);
 
 % 6b. Strip stale pre-restructure entries from userpath/pathdef.m so
 % ndi_install's path-reset (next step) doesn't re-apply addpath calls
@@ -117,7 +130,9 @@ if status ~= 0
     error([funcId, ':RepoSyncFailed'], ...
         '[%s:RepoSyncFailed] Could not clone/update NDI-matlab.', funcId);
 end
-install_runTagged('NDI Install', @() ndi_install(fileparts(ndiRepoPath)));
+install_runTagged('NDI Install', ...
+    @() ndi_install(fileparts(ndiRepoPath)), ...
+    'HidePatterns', openMindsAliasWarnings);
 
 % 8. Set up MATLAB Paths
 addpath(genpath(codePath));
@@ -231,32 +246,63 @@ fclose(fid);
 fprintf('[%s] Added pathdef loader to %s.\n', funcId, userStartup);
 end
 
-function varargout = install_runTagged(tag, fcn)
+function varargout = install_runTagged(tag, fcn, options)
 % Run fcn(), capture its command-window output via evalc, and re-emit
-% each non-empty line prefixed with "[<tag>] ". Lines that already
-% start with "[" are passed through unchanged so a wrapped call that
-% has its own structured tag (e.g. "[NDI:Nansen:Sync:Repo] ...") keeps
-% it. Errors propagate normally; if fcn() throws the captured prefix
-% is lost but the error message itself is unaffected.
+% it as a single tagged block: the first non-empty line carries
+% "[<tag>] " and subsequent lines are indented to align with the
+% post-tag column so banners (mksqlite license, openMINDS class
+% warnings, etc.) read as one grouped message instead of N tagged
+% copies of the same identifier. Lines that already start with "["
+% pass through unchanged and reset the tag state. Lines matching
+% any HidePatterns entry (and the stack lines that follow them) are
+% dropped — used to silence the openMINDS class-alias warning family
+% without altering global warning state.
 %
 % Mirror of ndi.nansen.fun.runTagged. Local copy kept here because
 % install.m may run before any of the cloned repos are on the path.
+arguments
+    tag {mustBeText}
+    fcn (1,1) function_handle
+    options.HidePatterns (1,:) string = string.empty
+end
+tag = char(tag);
+hidePatterns = options.HidePatterns;
+
 if nargout == 0
-    captured = evalc('fcn()');
+    captured = evalc('fcn();');
 else
     outs = cell(1, nargout);
     [captured, outs{:}] = evalc('fcn()');
     varargout = outs;
 end
+
 if isempty(strtrim(captured)); return; end
+
 lines = splitlines(string(captured));
+indent = repmat(' ', 1, strlength(tag) + 3);
+isFirst = true;
+suppressStack = false;
 for i = 1:numel(lines)
     line = strtrim(lines(i));
-    if strlength(line) == 0; continue; end
+    if strlength(line) == 0
+        continue
+    end
+    if suppressStack && (startsWith(line, '> In ') || startsWith(line, 'In '))
+        continue
+    end
+    suppressStack = false;
+    if ~isempty(hidePatterns) && any(contains(line, hidePatterns))
+        suppressStack = true;
+        continue
+    end
     if startsWith(line, '[')
         fprintf('%s\n', line);
-    else
+        isFirst = true;
+    elseif isFirst
         fprintf('[%s] %s\n', tag, line);
+        isFirst = false;
+    else
+        fprintf('%s%s\n', indent, line);
     end
 end
 end
