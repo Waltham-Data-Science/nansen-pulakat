@@ -44,10 +44,15 @@ value = eval([className,'.DEFAULT_VALUE']);
 % Return default value if no input is given (used during config).
 if isempty(obj); return; end
 
-% Return default if the dependency metatable hasn't been created yet.
+% Return default if the dependency metatable hasn't been created yet
+% (or its .mat file has not been saved yet on a re-install).
 % See listUniqueMetaTableValues for the addMissingVarsToMetaTable race.
 catalog = options.Project.MetaTableCatalog;
 if isempty(catalog.Table) || ~ismember(dataName, catalog.Table.MetaTableName)
+    return
+end
+entry = catalog.getEntry(dataName);
+if ~exist(fullfile(entry.SavePath, entry.FileName), 'file')
     return
 end
 

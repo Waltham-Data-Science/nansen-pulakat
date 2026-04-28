@@ -46,9 +46,16 @@ if isempty(obj); return; end
 % addMissingVarsToMetaTable runs each variable's update() during the
 % first merge of a new metatable, so a Session var that looks up
 % Subject data fires before the Subject metatable exists. Silently
-% returning the default avoids the "No MetaTable found" warning storm.
+% returning the default avoids the "No MetaTable found" warning
+% storm. Also handle the re-install case where the project already
+% has every metatable registered from a prior run, even though the
+% .mat files have not yet been re-saved on disk.
 catalog = options.Project.MetaTableCatalog;
 if isempty(catalog.Table) || ~ismember(dataName, catalog.Table.MetaTableName)
+    return
+end
+entry = catalog.getEntry(dataName);
+if ~exist(fullfile(entry.SavePath, entry.FileName), 'file')
     return
 end
 
