@@ -9,23 +9,32 @@ This repository provides a database system that enables the organization and clo
 
 ### First Time Setup
 
-1.  **Git Installation:** Make sure `git` is installed.
+1.  **Install Git** if you don't already have it.
     - **Windows:** Download from [git-scm.com](https://git-scm.com/download/win).
-    - **Mac:** Open terminal and run `xcode-select --install`.
+    - **Mac:** Open Terminal and run `xcode-select --install`.
     - **Linux:** Use your distribution's package manager.
 
-2.  **Run the installer in MATLAB.** Open MATLAB and paste the following two lines into the Command Window (they download `install.m` to a temp folder and run it):
+2.  **Download and run `install.m`.** There are two equivalent ways — pick whichever is more convenient. The installer will clone the dependencies, set up your MATLAB paths, sync with the NDI cloud, and open the Nansen GUI.
+
+    **Option A — From MATLAB (recommended).** Open MATLAB and paste this snippet into the Command Window:
 
     ```matlab
-    cd(tempdir);
-    websave('install.m', 'https://raw.githubusercontent.com/Waltham-Data-Science/nansen-pulakat/main/install.m'); install
+    cd(tempdir)
+    url = 'https://raw.githubusercontent.com/Waltham-Data-Science/nansen-pulakat/main/install.m';
+    websave('install.m', url);
+    install
     ```
 
-    The installer will clone the dependencies, set up your MATLAB paths, sync with the NDI cloud, and open the Nansen GUI.
+    This downloads `install.m` to MATLAB's temp folder and runs it — no browser steps required.
 
-    > Why not click the link? GitHub serves `.m` files as plain text, so browsers display them in-page instead of triggering a download. Pasting the snippet above lets MATLAB do the download itself and is the same one-step experience whether you're on Mac, Windows, or Linux.
+    **Option B — From your browser.** Visit the [install.m page on GitHub](https://github.com/Waltham-Data-Science/nansen-pulakat/blob/main/install.m), click the **Download raw file** button on the right side of the file's toolbar, then in MATLAB:
 
-    > Alternative if you'd rather use a browser: visit [install.m on GitHub](https://github.com/Waltham-Data-Science/nansen-pulakat/blob/main/install.m), click the **Download raw file** button on the right side of the toolbar, and run the saved file from MATLAB with `cd` to that folder followed by `install`.
+    ```matlab
+    cd('~/Downloads')   % or wherever the file was saved
+    install
+    ```
+
+    > Note: don't click the older "raw" link in plain markdown — GitHub serves `.m` files as plain text, so most browsers will display the file's contents in-page rather than offering to download it. Either of the two options above avoids that.
 
 ### Subsequent Uses
 
