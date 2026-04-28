@@ -40,8 +40,11 @@ repoReference = char(repoReference);
 options.Branch = char(options.Branch);
 options.ClonePath = char(options.ClonePath);
 
-% Set the specific function identifier for messaging and error IDs
+% Set the specific function identifier for messaging and error IDs.
+% Info lines use the short module tag "[NDI Sync]"; warnings/errors
+% use the full MException-style ID, e.g. "[NDI:Nansen:Sync:Repo:CloneFailed]".
 funcId = 'NDI:Nansen:Sync:Repo';
+infoTag = 'NDI Sync';
 
 repoPath = '';
 cmd = '';
@@ -54,7 +57,7 @@ if isfolder(repoReference)
         
 elseif contains(repoReference, 'http') || endsWith(repoReference, '.git')
     % Search local userpath for matching remote URL
-    fprintf('[%s] Scanning local paths for: %s...\n', funcId, repoReference);
+    fprintf('[%s] Scanning local paths for: %s...\n', infoTag, repoReference);
     gitDirs = dir(fullfile(userpath, '**', '.git'));
     gitPaths = unique({gitDirs.folder});
     
@@ -95,7 +98,7 @@ elseif contains(repoReference, 'http') || endsWith(repoReference, '.git')
             repoURL = [repoURL,'.git'];
         end
         
-        fprintf('[%s] Cloning %s into %s...\n', funcId, repoName, repoPath);
+        fprintf('[%s] Cloning %s into %s...\n', infoTag, repoName, repoPath);
         [status, cmdOut] = system(sprintf('git clone %s "%s"', repoURL, repoPath));
         if status ~= 0
             warning([funcId, ':CloneFailed'], ...
@@ -137,7 +140,7 @@ end
 if status == 0
     currentBranch = strtrim(cmdOut);
     if ~isempty(options.Branch) && ~strcmpi(currentBranch, options.Branch)
-        fprintf('[%s] Switching %s to branch: %s...\n', funcId, repoName, options.Branch);
+        fprintf('[%s] Switching %s to branch: %s...\n', infoTag, repoName, options.Branch);
         [switchStatus, switchOut] = system(sprintf('git -C "%s" switch %s', ...
             repoPath, options.Branch));
         if switchStatus ~= 0
@@ -161,7 +164,7 @@ else
 end
 
 % Pull updates
-fprintf('[%s] Updating %s...\n', funcId, repoName);
+fprintf('[%s] Updating %s...\n', infoTag, repoName);
 [status, pullOut] = system(sprintf('git -C "%s" pull', repoPath));
 
 % --- 4. Restore Stashed Changes ---
@@ -177,7 +180,7 @@ end
 
 if status == 0
     % Ensure the updated code is on the MATLAB path
-    fprintf('[%s] Updating MATLAB path for %s...\n', funcId, repoName);
+    fprintf('[%s] Updating MATLAB path for %s...\n', infoTag, repoName);
     pathBefore = path;
     addpath(genpath(repoPath));
 
@@ -196,9 +199,9 @@ if status == 0
     end
 
     if contains(pullOut, 'Already up to date')
-        fprintf('[%s] %s is current.\n', funcId, repoName);
+        fprintf('[%s] %s is current.\n', infoTag, repoName);
     else
-        fprintf('[%s] %s updated successfully.\n', funcId, repoName);
+        fprintf('[%s] %s updated successfully.\n', infoTag, repoName);
     end
 else
     warning([funcId, ':PullFailed'], ...

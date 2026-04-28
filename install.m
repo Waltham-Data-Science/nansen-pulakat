@@ -103,6 +103,13 @@ end
 install_runTagged('openMINDS Setup', ...
     @() run(fullfile(openMindsRepoPath, 'code', 'setup.m')));
 
+% 6b. Strip stale pre-restructure entries from userpath/pathdef.m so
+% ndi_install's path-reset (next step) doesn't re-apply addpath calls
+% to directories that no longer exist after the src/ restructure
+% (nansen-pulakat/pulakat/code, /code-NDI, etc.). Idempotent: a fresh
+% install has no pathdef.m, and a clean one passes through unchanged.
+install_cleanStalePathdef(funcId, codePath);
+
 % 7. Install NDI-Matlab
 ndiURL = 'https://github.com/VH-Lab/NDI-matlab';
 [status, ndiRepoPath] = repoSync(ndiURL,'ClonePath',codePath);
@@ -252,4 +259,34 @@ for i = 1:numel(lines)
         fprintf('[%s] %s\n', tag, line);
     end
 end
+end
+
+function install_cleanStalePathdef(funcId, codePath)
+% Strip pre-restructure pathdef entries before ndi_install's path
+% reset re-applies them. Pre-restructure clones lived under
+% nansen-pulakat/pulakat/* (code, code-NDI, configurations, metadata,
+% ...). After the src/ restructure those subfolders no longer exist,
+% so each `addpath` triggers a "Name is nonexistent" warning.
+% Filtering pathdef.m at this point silences the warning storm and
+% keeps the saved path coherent. Idempotent: a fresh install has no
+% pathdef.m yet, and a clean one passes through unchanged.
+userPathdef = fullfile(userpath, 'pathdef.m');
+if ~isfile(userPathdef); return; end
+contents = fileread(userPathdef);
+stalePrefix = fullfile(codePath, 'nansen-pulakat', 'pulakat');
+lines = splitlines(string(contents));
+stale = contains(lines, stalePrefix);
+if ~any(stale); return; end
+fprintf('[%s] Removing %d stale pre-restructure entries from %s.\n', ...
+    funcId, sum(stale), userPathdef);
+fid = fopen(userPathdef, 'w');
+if fid < 0
+    warning([funcId, ':PathdefCleanFailed'], ...
+        ['[%s:PathdefCleanFailed] Could not rewrite %s; stale path ' ...
+         'entries will continue to warn until pathdef.m is rebuilt.'], ...
+        funcId, userPathdef);
+    return;
+end
+fprintf(fid, '%s', char(strjoin(lines(~stale), newline)));
+fclose(fid);
 end
