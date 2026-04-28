@@ -59,41 +59,41 @@ end
 % throwing), so we must check the status explicitly — otherwise a
 % failed clone would fall through and the installer would proudly
 % report success even though half the dependencies are missing.
-% repoSync, nansen_install, and ndi_install are chatty (per-step
-% "Updating ...", openMINDS class-alias warnings, addon-install
-% banners), so route their output through install_quiet and only
-% surface progress on the milestones below.
-fprintf('Installing nansen-pulakat...\n');
+% repoSync's per-repo "[NDI:Nansen:Sync:Repo]" lines are kept (they
+% trace what was cloned vs. updated), but nansen_install, ndi_install,
+% and the openMINDS setup.m are routed through install_quiet — those
+% emit class-alias warnings and addon-install banners that don't help
+% diagnose anything.
+
+% 4. Install nansen-pulakat
 pulakatURL = 'https://github.com/Waltham-Data-Science/nansen-pulakat';
-status = install_quiet(@() repoSync(pulakatURL,'ClonePath',codePath,'Branch','main'));
+status = repoSync(pulakatURL,'ClonePath',codePath,'Branch','main');
 if status ~= 0
     error('install:RepoSyncFailed', ...
         'Could not clone/update nansen-pulakat. See warnings above for details.');
 end
 
-fprintf('Installing NANSEN...\n');
+% 5. Install NANSEN
 nansenURL = 'https://github.com/VervaekeLab/NANSEN';
-status = install_quiet(@() repoSync(nansenURL,'ClonePath',codePath,'Branch','dev'));
+status = repoSync(nansenURL,'ClonePath',codePath,'Branch','dev');
 if status ~= 0
     error('install:RepoSyncFailed', ...
         'Could not clone/update NANSEN.');
 end
 install_quiet(@() nansen_install());
 
-fprintf('Installing openMINDS...\n');
+% 6. Install openMINDS
 openMindsURL = 'https://github.com/openMetadataInitiative/openMINDS_MATLAB';
-[status, openMindsRepoPath] = install_quiet( ...
-    @() repoSync(openMindsURL,'ClonePath',codePath));
+[status, openMindsRepoPath] = repoSync(openMindsURL,'ClonePath',codePath);
 if status ~= 0
     error('install:RepoSyncFailed', ...
         'Could not clone/update openMINDS_MATLAB.');
 end
 install_quiet(@() run(fullfile(openMindsRepoPath, 'code', 'setup.m')));
 
-fprintf('Installing NDI-Matlab...\n');
+% 7. Install NDI-Matlab
 ndiURL = 'https://github.com/VH-Lab/NDI-matlab';
-[status, ndiRepoPath] = install_quiet( ...
-    @() repoSync(ndiURL,'ClonePath',codePath));
+[status, ndiRepoPath] = repoSync(ndiURL,'ClonePath',codePath);
 if status ~= 0
     error('install:RepoSyncFailed', ...
         'Could not clone/update NDI-matlab.');
