@@ -43,40 +43,28 @@ if status ~= 0
          'path. Please install Git first.'], funcId);
 end
 
-% 3. Bootstrap synchronization tools. On a fresh machine
-% ndi.nansen.sync.repo is not yet on the path, so we git-clone
-% nansen-pulakat directly here and add it to the path before the
-% rest of the installer runs. This is more robust than fetching a
-% single bootstrap .m file: a websave URL hard-codes one path inside
-% the repo and 404s the moment the repo is restructured, whereas a
-% plain `git clone` always works as long as the remote exists.
-pulakatURL = 'https://github.com/Waltham-Data-Science/nansen-pulakat';
-if isempty(which('ndi.nansen.sync.repo'))
-    fprintf('[%s] Cloning nansen-pulakat to bootstrap synchronization tools.\n', ...
-        funcId);
-    if ~isfolder(codePath); mkdir(codePath); end
-    pulakatPath = fullfile(codePath, 'nansen-pulakat');
-    if ~isfolder(pulakatPath)
-        [cloneStatus, cloneOut] = system( ...
-            sprintf('git clone "%s" "%s"', pulakatURL, pulakatPath));
-        if cloneStatus ~= 0
-            error([funcId, ':BootstrapFailed'], ...
-                ['[%s:BootstrapFailed] Could not clone nansen-pulakat ' ...
-                 'from %s. Check network access and Git credentials.\n%s'], ...
-                funcId, pulakatURL, cloneOut);
-        end
-    end
-    addpath(genpath(pulakatPath));
+% 3. Check for repo sync function. On a fresh machine the
+% ndi.nansen.sync.repo helper is not yet on the path, so we fetch
+% just that one .m file via websave and addpath the temp folder so
+% the rest of the installer can use it.
+if ~isempty(which('ndi.nansen.sync.repo'))
+    repoSync = @ndi.nansen.sync.repo;
+    fprintf('[%s] Using existing synchronization tools.\n', funcId);
+else
+    fprintf('[%s] Sync tools not found; downloading bootstrap helper.\n', funcId);
+
+    syncUrl = 'https://raw.githubusercontent.com/Waltham-Data-Science/nansen-pulakat/main/src/ndi/%2Bndi/%2Bnansen/%2Bsync/repo.m';
+    tempSyncFolder = fullfile(tempdir, 'ndi_sync_bootstrap');
+    if ~exist(tempSyncFolder, 'dir'); mkdir(tempSyncFolder); end
+
+    bootstrapFile = fullfile(tempSyncFolder, 'repo.m');
+    % Explicit timeout so a slow or stalled network doesn't hang MATLAB
+    % indefinitely at first-time install.
+    websave(bootstrapFile, syncUrl, weboptions('Timeout', 30));
+
+    addpath(tempSyncFolder);
+    repoSync = @repo;
 end
-if isempty(which('ndi.nansen.sync.repo'))
-    error([funcId, ':BootstrapFailed'], ...
-        ['[%s:BootstrapFailed] ndi.nansen.sync.repo is still not on the ' ...
-         'MATLAB path after cloning nansen-pulakat. Check %s for the ' ...
-         'expected layout.'], funcId, codePath);
-end
-repoSync = @ndi.nansen.sync.repo;
-fprintf('[%s] Using synchronization tools at %s.\n', funcId, ...
-    fileparts(which('ndi.nansen.sync.repo')));
 
 % 4-7. Clone repos. ndi.nansen.sync.repo only issues a warning on
 % clone/pull failure (returns a nonzero status code instead of
@@ -87,10 +75,8 @@ fprintf('[%s] Using synchronization tools at %s.\n', funcId, ...
 % land in the transcript with a "[Nansen Install]" / "[openMINDS
 % Setup]" / "[NDI Install]" prefix instead of bare upstream prose.
 
-% 4. Install nansen-pulakat. If the bootstrap above already cloned
-% nansen-pulakat fresh, this step is a no-op pull; if the repo was
-% already present from a prior install, this is the path that
-% updates it.
+% 4. Install nansen-pulakat
+pulakatURL = 'https://github.com/Waltham-Data-Science/nansen-pulakat';
 status = repoSync(pulakatURL,'ClonePath',codePath,'Branch','main');
 if status ~= 0
     error([funcId, ':RepoSyncFailed'], ...
@@ -147,7 +133,16 @@ install_ensureStartupLoadsPathdef(funcId);
 
 fprintf('[%s] Installation successful.\n', funcId);
 
-% 9. Initialize 'pulakat' project and launch. Repos were just cloned
+% 9. Delete the bootstrap temp folder, if one was used. The full
+% nansen-pulakat clone added in step 4 supersedes the single-file
+% helper we addpath'd in step 3.
+if exist('tempSyncFolder', 'var') && isfolder(tempSyncFolder)
+    clear repoSync;
+    rmpath(tempSyncFolder);
+    rmdir(tempSyncFolder,'s');
+end
+
+% 10. Initialize 'pulakat' project and launch. Repos were just cloned
 % above, so SkipRepoSync=true skips the redundant per-repo pull pass
 % inside startup.
 if ~isempty(which('ndi.nansen.startup'))
@@ -162,14 +157,14 @@ else
          'repositories are on the MATLAB path.'], funcId);
 end
 
-% 10. Delete this function (if not part of the repository)
+% 11. Delete this function (if not part of the repository)
 cmd = sprintf('git -C "%s" rev-parse --show-toplevel', downloadDir);
 [status,~] = system(cmd);
 if status ~= 0
     delete([mfilename('fullpath'), '.m']);
 end
 
-% 11. If the user followed the README's MATLAB-paste snippet they
+% 12. If the user followed the README's MATLAB-paste snippet they
 % cd'd into tempdir before calling install. Leave them there and the
 % next thing they type runs from a system temp folder that just lost
 % install.m. Move back to userpath when (and only when) the current
