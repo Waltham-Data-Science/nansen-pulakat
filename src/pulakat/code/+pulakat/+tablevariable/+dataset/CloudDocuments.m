@@ -33,7 +33,10 @@ classdef CloudDocuments < nansen.metadata.abstract.TableVariable
             % Get dataset metadata
             [success,datasetInfo] = ndi.cloud.api.datasets.getDataset(datasetObject.DatasetCloudIdentifier);
             if ~success
-                error('Could not retrieve dataset information from cloud: %s',datasetInfo.error);
+                error('Pulakat:TableVariable:Dataset:CloudFetchFailed', ...
+                    ['[Pulakat:TableVariable:Dataset:CloudFetchFailed] ' ...
+                     'Could not retrieve dataset information from cloud: %s'], ...
+                    datasetInfo.error);
             end
 
             % Get # of cloud documents

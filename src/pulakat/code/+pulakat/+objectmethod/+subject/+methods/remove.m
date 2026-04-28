@@ -39,9 +39,13 @@ function varargout = remove(subjectObject, varargin)
     % Check the subject status
     indDocument = ~strcmp(subjectTable.SubjectDocumentIdentifier,'N/A');
     if all(indDocument)
-        error('Subjects that are already documents cannot be deleted.')
+        error('Pulakat:ObjectMethod:Subject:Remove:AllDocumented', ...
+            ['[Pulakat:ObjectMethod:Subject:Remove:AllDocumented] ' ...
+             'Subjects that are already documents cannot be deleted.'])
     elseif any(indDocument)
-        warning('Only subjects that are not already documents were deleted.')
+        warning('Pulakat:ObjectMethod:Subject:Remove:SomeDocumented', ...
+            ['[Pulakat:ObjectMethod:Subject:Remove:SomeDocumented] Only ' ...
+             'subjects that are not already documents were deleted.'])
         subjectTable(indDocument,:) = []; % remove document subjects from table
     end
 

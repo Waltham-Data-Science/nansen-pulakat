@@ -31,9 +31,13 @@ function varargout = edit(subjectObject, varargin)
     % Check the subject status
     indDocument = ~strcmp(subjectTable.SubjectDocumentIdentifier,'N/A');
     if all(indDocument)
-        error('Subjects that are already documents cannot be edited.')
+        error('Pulakat:ObjectMethod:Subject:Edit:AllDocumented', ...
+            ['[Pulakat:ObjectMethod:Subject:Edit:AllDocumented] Subjects ' ...
+             'that are already documents cannot be edited.'])
     elseif any(indDocument)
-        warning('Only subjects that are not already documents can be edited.')
+        warning('Pulakat:ObjectMethod:Subject:Edit:SomeDocumented', ...
+            ['[Pulakat:ObjectMethod:Subject:Edit:SomeDocumented] Only ' ...
+             'subjects that are not already documents can be edited.'])
         subjectTable(indDocument,:) = []; % remove document subjects from table
     end
 

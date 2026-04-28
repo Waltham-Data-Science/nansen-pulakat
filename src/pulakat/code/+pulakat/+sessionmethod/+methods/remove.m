@@ -33,7 +33,9 @@ function varargout = remove(sessionObject, varargin)
 
     % Check that session status
     if sessionObject.Cloud
-        error('Sessions that are already synced to the cloud cannot be deleted.')
+        error('Pulakat:SessionMethod:Remove:AlreadySynced', ...
+            ['[Pulakat:SessionMethod:Remove:AlreadySynced] Sessions that ' ...
+             'are already synced to the cloud cannot be deleted.'])
     end
 
     % Confirm destructive action with the user before touching disk. The
@@ -45,7 +47,8 @@ function varargout = remove(sessionObject, varargin)
     choice = questdlg(prompt, 'Confirm session removal', ...
         'Delete', 'Cancel', 'Cancel');
     if ~strcmp(choice, 'Delete')
-        fprintf('Session removal cancelled for "%s".\n', sessionObject.SessionName);
+        fprintf('[Pulakat] Session removal cancelled for "%s".\n', ...
+            sessionObject.SessionName);
         return
     end
 
@@ -64,7 +67,9 @@ function varargout = remove(sessionObject, varargin)
     if ~any(strcmp(sessionIDs,sessionObject.SessionIdentifier))
         ndi.nansen.metatable.remove(struct2table(sessionObject),'Session');
     else
-        error('Session failed to be deleted from the database.')
+        error('Pulakat:SessionMethod:Remove:DeleteFailed', ...
+            ['[Pulakat:SessionMethod:Remove:DeleteFailed] Session failed ' ...
+             'to be deleted from the database.'])
     end
 
     % Return session object (please do not remove):

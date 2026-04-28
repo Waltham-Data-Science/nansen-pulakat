@@ -26,7 +26,7 @@ classdef FileValidateTable < matlab.unittest.TestCase
             writetable(table({'a'},'VariableNames',{'Animal'}), csv);
             testCase.verifyWarning( ...
                 @() ndi.nansen.import.file.validateTable(csv, {'Animal','Cage'}), ...
-                'validateTable:missingVariables');
+                'NDI:Nansen:Import:File:ValidateTable:MissingVariables');
         end
 
         function noRequiredColumnsIsNoop(testCase)

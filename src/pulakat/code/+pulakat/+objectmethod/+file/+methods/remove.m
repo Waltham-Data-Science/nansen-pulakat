@@ -39,9 +39,13 @@ function varargout = remove(filesObject, varargin)
     % Check the file status
     indDocument = ~strcmp(fileTable.FileDocumentIdentifier,'N/A');
     if all(indDocument)
-        error('Files that are already documents cannot be deleted.')
+        error('Pulakat:ObjectMethod:File:Remove:AllDocumented', ...
+            ['[Pulakat:ObjectMethod:File:Remove:AllDocumented] Files that ' ...
+             'are already documents cannot be deleted.'])
     elseif any(indDocument)
-        warning('Only files that are not already documents were deleted.')
+        warning('Pulakat:ObjectMethod:File:Remove:SomeDocumented', ...
+            ['[Pulakat:ObjectMethod:File:Remove:SomeDocumented] Only ' ...
+             'files that are not already documents were deleted.'])
         fileTable(indDocument,:) = []; % remove documented files from table
     end
 
