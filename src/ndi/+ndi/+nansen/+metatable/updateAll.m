@@ -28,8 +28,13 @@ arguments
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
 end
 
-% Download new documents from cloud (if applicable)
-ndi.cloud.sync.downloadNew(dataset);
+% Cloud sync is the responsibility of the caller. Both callers
+% (ndi.nansen.startup and pulakat.objectmethod.dataset.sync) run
+% ndi.cloud.sync.downloadNew themselves with proper error handling
+% before invoking updateAll, so doing it here too just produces a
+% redundant network round-trip. Repeated calls are harmless but
+% wasteful — downloadNew always fetches "documents added since the
+% last sync index", which is empty on the second consecutive call.
 
 % First pass: fetch fresh data from the dataset and merge into each
 % metatable, capturing whether anything actually moved. We skip the
