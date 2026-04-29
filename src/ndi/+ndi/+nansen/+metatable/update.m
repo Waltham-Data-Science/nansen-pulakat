@@ -15,8 +15,19 @@ function [] = update(dataset,dataName,options)
 %         is current Nansen project name.
 %      Project (nansen.config.project.Project): Optional. The Nansen
 %         project object. Default is current Nansen project.
+%      UpdateTable (logical): Optional. If true, fetch fresh data from
+%         the dataset and merge into the metatable. Default: true.
 %      UpdateVariableNames (char, string, or cell array): Optional.
-%         The variable names to update. Default is 'all'.
+%         The variable names to update. Default is 'all'. Pass {''}
+%         to skip the variable-update pass entirely.
+%      UpdateRowIdentifiers (cell, string, or empty): Optional. If
+%         non-empty, restricts the variable-update pass to rows whose
+%         primary identifier (<dataName>Identifier) appears in this
+%         list. Default [] = update every row, matching the
+%         pre-existing whole-table refresh behaviour. Use this from
+%         table methods that act on a small selection (Edit, Document,
+%         Remove) so a click that touches one row doesn't recompute
+%         every other row's HasUpdateFunction variables.
 %
 %   Examples:
 %      % Update the Subject metatable:
@@ -24,6 +35,10 @@ function [] = update(dataset,dataName,options)
 %
 %      % Update only specific variables in the File metatable:
 %      ndi.nansen.metatable.update(dataset, 'File', 'UpdateVariableNames', {'NumFiles'})
+%
+%      % Update only the rows matching specific identifiers:
+%      ndi.nansen.metatable.update(dataset, 'Subject', ...
+%          'UpdateRowIdentifiers', {'subj-001','subj-002'})
 %
 %   See also: NDI.NANSEN.METATABLE.MERGE, NANSEN.METADATA.METATABLE
 
@@ -35,6 +50,7 @@ arguments
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
     options.UpdateTable (1,1) logical = true;
     options.UpdateVariableNames {mustBeText} = 'all';
+    options.UpdateRowIdentifiers = [];
 end
 
 if options.UpdateTable
@@ -66,8 +82,32 @@ if ~isequal(options.UpdateVariableNames,{''})
     if ~strcmp(options.UpdateVariableNames,'all')
         updateVariableNames = intersect(options.UpdateVariableNames,updateVariableNames);
     end
+
+    % Resolve row indices once. updateTableVariable accepts a
+    % numeric tableRowIndices; passing only the rows the caller
+    % said changed avoids recomputing every row of a (potentially
+    % thousands-strong) metatable when a single click affects one
+    % row. An empty UpdateRowIdentifiers list means "all rows" —
+    % preserves the historical default.
+    if isempty(options.UpdateRowIdentifiers)
+        rowIndices = 1:height(metaTable.entries);
+    else
+        idVar = [dataName, 'Identifier'];
+        if ~ismember(idVar, metaTable.entries.Properties.VariableNames)
+            error('NDI:Nansen:Metatable:Update:MissingIdentifier', ...
+                ['[NDI:Nansen:Metatable:Update:MissingIdentifier] %s ' ...
+                 'metatable has no %s column; cannot resolve ' ...
+                 'UpdateRowIdentifiers to row indices.'], ...
+                dataName, idVar);
+        end
+        wantedIds = cellstr(options.UpdateRowIdentifiers);
+        rowIndices = find(ismember( ...
+            metaTable.entries.(idVar), wantedIds))';
+        if isempty(rowIndices); return; end
+    end
+
     for i = 1:numel(updateVariableNames)
-        metaTable.updateTableVariable(updateVariableNames{i});
+        metaTable.updateTableVariable(updateVariableNames{i}, rowIndices);
     end
 end
 

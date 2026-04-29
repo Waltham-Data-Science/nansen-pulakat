@@ -50,8 +50,12 @@ function varargout = document(fileObject, varargin)
         ndi.nansen.import.file.documents(session,fileTable_valid(indSession,:));
     end
 
-    % Update metatables
-    ndi.nansen.metatable.update(dataset,'File');
+    % Update metatables. File is restricted to the selected files'
+    % rows so a click on N files doesn't recompute every other
+    % file's HasUpdateFunction variables.
+    fileIDs = {fileObject.FileIdentifier};
+    ndi.nansen.metatable.update(dataset,'File', ...
+        'UpdateRowIdentifiers', fileIDs);
     ndi.nansen.metatable.update(dataset,'Dataset');
     ndi.nansen.fun.refreshAppTable();
 

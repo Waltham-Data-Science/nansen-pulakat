@@ -56,14 +56,31 @@ function varargout = edit(subjectObject, varargin)
 
     % Remove associated file(s) from metatable
     ndi.nansen.metatable.edit(subjectTable,'Subject');
-    
+
     % Get dataset object
     dataset = ndi.nansen.fun.datasetID2Object(subjectObject(1).DatasetIdentifier);
 
+    % Resolve which Subject / File / Session rows the edits affect
+    % so the variable-update pass for each metatable touches only
+    % those rows. Without this, editing one subject recomputes
+    % HasUpdateFunction variables for every row of the File and
+    % Session metatables (potentially thousands).
+    subjectIDs = subjectTable.SubjectIdentifier;
+    project = nansen.getCurrentProject;
+    fileMT = project.MetaTableCatalog.getMetaTable('File');
+    affectedFileIDs = fileMT.entries.FileIdentifier( ...
+        ismember(fileMT.entries.SubjectIdentifier, subjectIDs));
+    subjectMT = project.MetaTableCatalog.getMetaTable('Subject');
+    affectedSessionIDs = unique(subjectMT.entries.SessionIdentifier( ...
+        ismember(subjectMT.entries.SubjectIdentifier, subjectIDs)));
+
     % Update metatables
-    ndi.nansen.metatable.update(dataset,'Subject');
-    ndi.nansen.metatable.update(dataset,'File');
-    ndi.nansen.metatable.update(dataset,'Session');
+    ndi.nansen.metatable.update(dataset,'Subject', ...
+        'UpdateRowIdentifiers', subjectIDs);
+    ndi.nansen.metatable.update(dataset,'File', ...
+        'UpdateRowIdentifiers', affectedFileIDs);
+    ndi.nansen.metatable.update(dataset,'Session', ...
+        'UpdateRowIdentifiers', affectedSessionIDs);
     ndi.nansen.fun.refreshAppTable();
 
     % Return session object (please do not remove):

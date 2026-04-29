@@ -25,8 +25,12 @@ function varargout = document(subjectObject, varargin)
     % Get dataset object
     dataset = ndi.nansen.fun.datasetID2Object(subjectObject(1).DatasetIdentifier);
 
-    % Update subject metatable
-    ndi.nansen.metatable.update(dataset,'Subject');
+    % Update subject metatable, restricted to the selected subjects'
+    % rows so a click on N subjects doesn't recompute every other
+    % subject's HasUpdateFunction variables.
+    subjectIDs = {subjectObject.SubjectIdentifier};
+    ndi.nansen.metatable.update(dataset,'Subject', ...
+        'UpdateRowIdentifiers', subjectIDs);
 
     % Get updated subject object
     project = nansen.getCurrentProject;
@@ -50,8 +54,11 @@ function varargout = document(subjectObject, varargin)
         ndi.nansen.import.subject.documents(session,subjectTable_valid(indSession,:));
     end
 
-    % Update metatables
-    ndi.nansen.metatable.update(dataset,'Subject');
+    % Update metatables. Subject is restricted to the selected
+    % subjects again; Dataset is a single-row table so a full pass
+    % is the same as a targeted pass.
+    ndi.nansen.metatable.update(dataset,'Subject', ...
+        'UpdateRowIdentifiers', subjectIDs);
     ndi.nansen.metatable.update(dataset,'Dataset');
     ndi.nansen.fun.refreshAppTable();
 
