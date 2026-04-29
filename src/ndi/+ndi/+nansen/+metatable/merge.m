@@ -57,11 +57,13 @@ if isempty(dataTable)
         metaTableEntry = metaTableCatalog.getEntry(dataName);
         if exist(fullfile(metaTableEntry.SavePath,metaTableEntry.FileName),'file')
             metaTable = metaTableCatalog.getMetaTable(dataName);
-            % Ensure the existing metatable has every column the
-            % current project's TableVariable definitions declare —
-            % see comment at the equivalent call in the non-empty
-            % branch below.
-            metaTable.addMissingVarsToMetaTable(dataName);
+            % Reconcile columns against the current project's
+            % TableVariable definitions but skip the per-column
+            % update() pass — see comment at the equivalent call
+            % below; updateAll's second pass refreshes every
+            % HasUpdateFunction variable uniformly.
+            metaTable.addMissingVarsToMetaTable(dataName, ...
+                'AutoUpdateValues', false);
             return
         end
     end
@@ -81,9 +83,13 @@ if ~isempty(metaTableCatalog.Table) && ...
         % saved (e.g. Treatment, NumFiles, DataTypeName) never gets
         % a column in the user's metatable and never appears in the
         % GUI. addMissingVarsToMetaTable adds the column with its
-        % DEFAULT_VALUE and runs the class's update() method when
-        % HasUpdateFunction is set.
-        metaTable.addMissingVarsToMetaTable(dataName);
+        % DEFAULT_VALUE; pass AutoUpdateValues=false so the per-
+        % column update() pass is skipped here. updateAll's second
+        % pass (UpdateTable=false) refreshes every HasUpdateFunction
+        % variable uniformly, so doing it here too would just be
+        % redundant work for newly-added columns.
+        metaTable.addMissingVarsToMetaTable(dataName, ...
+            'AutoUpdateValues', false);
     end
 end
 
@@ -98,7 +104,11 @@ if ~exist('metaTable','var')
         'ItemClassName', 'table2struct', ...
         'MetaTableIdVarname', idVarName);
     project.addMetaTable(metaTable);
-    metaTable.addMissingVarsToMetaTable(dataName);
+    % AutoUpdateValues=false matches the existing-metatable branches
+    % above; updateAll's tail pass refreshes every HasUpdateFunction
+    % variable uniformly so we don't run update() per-column twice.
+    metaTable.addMissingVarsToMetaTable(dataName, ...
+        'AutoUpdateValues', false);
     return
 end
 
