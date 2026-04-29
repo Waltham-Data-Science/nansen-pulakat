@@ -103,7 +103,8 @@ install_runTagged('Nansen Install', @() nansen_install());
 % ndi_install below).
 openMindsAliasWarnings = [ ...
     "cannot be used as an alias for more than one class", ...
-    "Unable to define an alias for class"];
+    "Unable to define an alias for class", ...
+    "because there is no class definition with the name"];
 openMindsURL = 'https://github.com/openMetadataInitiative/openMINDS_MATLAB';
 [status, openMindsRepoPath] = install_runTagged('NDI Sync', ...
     @() repoSync(openMindsURL,'ClonePath',codePath), ...
@@ -134,7 +135,17 @@ install_runTagged('NDI Install', ...
     @() ndi_install(fileparts(ndiRepoPath)), ...
     'HidePatterns', openMindsAliasWarnings);
 
-% 8. Set up MATLAB Paths
+% 8. Delete the bootstrap temp folder, if one was used. The full
+% nansen-pulakat clone added in step 4 supersedes the single-file
+% helper we addpath'd in step 3. Done before savepath below so the
+% next pathdef reload doesn't warn about the missing temp folder.
+if exist('tempSyncFolder', 'var') && isfolder(tempSyncFolder)
+    clear repoSync;
+    rmpath(tempSyncFolder);
+    rmdir(tempSyncFolder,'s');
+end
+
+% 9. Set up MATLAB Paths
 addpath(genpath(codePath));
 % Save path to a user-writable location so future MATLAB sessions
 % pick up the saved path definition even when matlabroot is read-only.
@@ -154,15 +165,6 @@ end
 install_ensureStartupLoadsPathdef(funcId);
 
 fprintf('[%s] Installation successful.\n', funcId);
-
-% 9. Delete the bootstrap temp folder, if one was used. The full
-% nansen-pulakat clone added in step 4 supersedes the single-file
-% helper we addpath'd in step 3.
-if exist('tempSyncFolder', 'var') && isfolder(tempSyncFolder)
-    clear repoSync;
-    rmpath(tempSyncFolder);
-    rmdir(tempSyncFolder,'s');
-end
 
 % 10. Initialize 'pulakat' project and launch. Repos were just cloned
 % above, so SkipRepoSync=true skips the redundant per-repo pull pass
@@ -308,22 +310,45 @@ end
 end
 
 function install_cleanStalePathdef(funcId, codePath)
-% Strip pre-restructure pathdef entries before ndi_install's path
-% reset re-applies them. Pre-restructure clones lived under
-% nansen-pulakat/pulakat/* (code, code-NDI, configurations, metadata,
-% ...). After the src/ restructure those subfolders no longer exist,
-% so each `addpath` triggers a "Name is nonexistent" warning.
-% Filtering pathdef.m at this point silences the warning storm and
-% keeps the saved path coherent. Idempotent: a fresh install has no
-% pathdef.m yet, and a clean one passes through unchanged.
+% Strip stale pathdef entries before ndi_install's path reset
+% re-applies them. Three families of stale entry are filtered:
+%
+%   * Pre-restructure clones: pre-restructure layouts lived under
+%     nansen-pulakat/pulakat/* (code, code-NDI, configurations,
+%     metadata, ...). After the src/ restructure those subfolders no
+%     longer exist.
+%   * .git internals: a previous run of addpath(genpath(...)) rooted
+%     at a git checkout walked into .git/objects/<hash>/ subfolders
+%     before ignore-globs were tightened. Git GCs those folders on
+%     every fetch, so they go missing between sessions.
+%   * Temp bootstrap folder: install.m's step-3 bootstrap addpath'd a
+%     tempdir helper that we delete at the end of install. A previous
+%     interrupted run can leave that path entry pointing at a folder
+%     we no longer maintain.
+%
+% Each stale entry would otherwise trigger a "Name is nonexistent"
+% warning when MATLAB next loads pathdef. Filtering them here silences
+% the warning storm and keeps the saved path coherent. Idempotent: a
+% fresh install has no pathdef.m yet, and a clean one passes through
+% unchanged.
 userPathdef = fullfile(userpath, 'pathdef.m');
 if ~isfile(userPathdef); return; end
 contents = fileread(userPathdef);
-stalePrefix = fullfile(codePath, 'nansen-pulakat', 'pulakat');
 lines = splitlines(string(contents));
-stale = contains(lines, stalePrefix);
+
+stalePrefix = fullfile(codePath, 'nansen-pulakat', 'pulakat');
+% Match a literal path separator after .git so we don't sweep up a
+% legitimate folder that just happens to contain ".git" in its name
+% (e.g. .gitignore-handler/).
+gitInternals = [filesep, '.git', filesep];
+tempBootstrap = fullfile(tempdir, 'ndi_sync_bootstrap');
+
+stale = contains(lines, stalePrefix) ...
+      | contains(lines, gitInternals) ...
+      | contains(lines, tempBootstrap);
 if ~any(stale); return; end
-fprintf('[%s] Removing %d stale pre-restructure entries from %s.\n', ...
+
+fprintf('[%s] Removing %d stale entries from %s.\n', ...
     funcId, sum(stale), userPathdef);
 fid = fopen(userPathdef, 'w');
 if fid < 0
