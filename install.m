@@ -145,8 +145,14 @@ if exist('tempSyncFolder', 'var') && isfolder(tempSyncFolder)
     rmdir(tempSyncFolder,'s');
 end
 
-% 9. Set up MATLAB Paths
-addpath(genpath(codePath));
+% 9. Set up MATLAB Paths. Filter genpath's output so .git internals
+% don't end up on the path or in pathdef.m: git GCs the
+% .git/objects/<hash>/ subfolders between sessions, and addpath
+% warns "Name is nonexistent" on every later pathdef reload for
+% each one that has since been removed. .github/ and node_modules/
+% are excluded for the same reason — they only have non-MATLAB
+% content that doesn't belong on the path.
+addpath(install_genpathClean(codePath));
 % Save path to a user-writable location so future MATLAB sessions
 % pick up the saved path definition even when matlabroot is read-only.
 % Hard-fail here: if the path cannot persist, "Installation Successful"
@@ -257,8 +263,16 @@ function varargout = install_runTagged(tag, fcn, options)
 % copies of the same identifier. Lines that already start with "["
 % pass through unchanged and reset the tag state. Lines matching
 % any HidePatterns entry (and the stack lines that follow them) are
-% dropped — used to silence the openMINDS class-alias warning family
-% without altering global warning state.
+% dropped — used for non-warning noise families.
+%
+% SuppressWarnings (default true) disables warning display via
+% warning('off','all') for the duration of fcn(). MATLAB's warning()
+% writes the "Warning:" header and the first stack-trace line
+% directly to the terminal (bypassing evalc) but writes wrapped
+% continuations to stdout (which evalc captures), so leaving
+% warnings on produces fragments out of order. Disabling warning
+% display silences both halves; onCleanup restores the prior state
+% even on error.
 %
 % Mirror of ndi.nansen.fun.runTagged. Local copy kept here because
 % install.m may run before any of the cloned repos are on the path.
@@ -266,9 +280,15 @@ arguments
     tag {mustBeText}
     fcn (1,1) function_handle
     options.HidePatterns (1,:) string = string.empty
+    options.SuppressWarnings (1,1) logical = true
 end
 tag = char(tag);
 hidePatterns = options.HidePatterns;
+
+if options.SuppressWarnings
+    prevState = warning('off', 'all');
+    restoreWarn = onCleanup(@() warning(prevState)); %#ok<NASGU>
+end
 
 if nargout == 0
     captured = evalc('fcn();');
@@ -360,4 +380,30 @@ if fid < 0
 end
 fprintf(fid, '%s', char(strjoin(lines(~stale), newline)));
 fclose(fid);
+end
+
+function pathStr = install_genpathClean(root)
+% genpath(root) walks every subdirectory and returns them all
+% concatenated with pathsep. Adding the result to MATLAB's path
+% includes folders we don't want there: .git/objects/<hash>/
+% subdirectories that git rewrites between sessions, .github/
+% workflow definitions, and node_modules/ if a JS toolchain ever
+% appears. Filter by path component so the saved pathdef.m stays
+% stable across git GC and the in-memory path stays clean.
+parts = strsplit(genpath(root), pathsep);
+parts = parts(~cellfun('isempty', parts));
+excluded = {'.git', '.github', 'node_modules'};
+keep = true(1, numel(parts));
+for i = 1:numel(parts)
+    p = parts{i};
+    for j = 1:numel(excluded)
+        token = excluded{j};
+        if endsWith(p, [filesep, token]) || ...
+                contains(p, [filesep, token, filesep])
+            keep(i) = false;
+            break
+        end
+    end
+end
+pathStr = strjoin(parts(keep), pathsep);
 end

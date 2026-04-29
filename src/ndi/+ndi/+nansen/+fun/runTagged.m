@@ -22,28 +22,43 @@ function varargout = runTagged(tag, fcn, options)
 %         any pattern via `contains` are dropped before tagging,
 %         along with the immediately following stack-trace lines
 %         (those starting with "> In " or "In "). Use to silence
-%         a known noisy warning family without altering global
-%         warning state.
+%         a known noisy non-warning line family without altering
+%         global warning state.
+%      SuppressWarnings (logical): Optional, default true. Disables
+%         warning display for the duration of the wrapped call.
+%         MATLAB's warning() writes the "Warning:" header and the
+%         first stack-trace line directly to the terminal (bypassing
+%         evalc) but writes wrapped continuations to stdout (which
+%         evalc captures). With warnings on, the terminal-side
+%         halves arrive interleaved with our captured/tagged halves
+%         so the output reads as fragments out of order. Disabling
+%         warning display silences both halves so the captured
+%         stream stays well-formed. Restored via onCleanup so an
+%         error inside fcn() doesn't leak the suppressed state.
 %
 %   Outputs:
 %      varargout: Forwards up to nargout outputs from fcn().
 %
 %   Examples:
 %      ndi.nansen.fun.runTagged('Install', @() nansen_install());
-%      ndi.nansen.fun.runTagged('NDI Install', @() ndi_install(p), ...
-%          'HidePatterns', {'cannot be used as an alias', ...
-%                           'Unable to define an alias for class'});
+%      ndi.nansen.fun.runTagged('NDI Install', @() ndi_install(p));
 %
-%   See also: EVALC, FPRINTF
+%   See also: EVALC, FPRINTF, WARNING
 
 arguments
     tag {mustBeText}
     fcn (1,1) function_handle
     options.HidePatterns (1,:) string = string.empty
+    options.SuppressWarnings (1,1) logical = true
 end
 
 tag = char(tag);
 hidePatterns = options.HidePatterns;
+
+if options.SuppressWarnings
+    prevState = warning('off', 'all');
+    restoreWarn = onCleanup(@() warning(prevState)); %#ok<NASGU>
+end
 
 % Trailing semicolon suppresses MATLAB's auto-display of fcn()'s
 % return value in the no-LHS case (nargout==0). Without it, helpers
