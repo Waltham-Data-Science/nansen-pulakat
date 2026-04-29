@@ -57,6 +57,11 @@ if isempty(dataTable)
         metaTableEntry = metaTableCatalog.getEntry(dataName);
         if exist(fullfile(metaTableEntry.SavePath,metaTableEntry.FileName),'file')
             metaTable = metaTableCatalog.getMetaTable(dataName);
+            % Ensure the existing metatable has every column the
+            % current project's TableVariable definitions declare —
+            % see comment at the equivalent call in the non-empty
+            % branch below.
+            metaTable.addMissingVarsToMetaTable(dataName);
             return
         end
     end
@@ -70,6 +75,15 @@ if ~isempty(metaTableCatalog.Table) && ...
     metaTableEntry = metaTableCatalog.getEntry(dataName);
     if exist(fullfile(metaTableEntry.SavePath,metaTableEntry.FileName),'file')
         metaTable = metaTableCatalog.getMetaTable(dataName);
+        % Reconcile columns against the current project's
+        % TableVariable definitions. Without this, a custom
+        % tablevariable added after the local metatable was first
+        % saved (e.g. Treatment, NumFiles, DataTypeName) never gets
+        % a column in the user's metatable and never appears in the
+        % GUI. addMissingVarsToMetaTable adds the column with its
+        % DEFAULT_VALUE and runs the class's update() method when
+        % HasUpdateFunction is set.
+        metaTable.addMissingVarsToMetaTable(dataName);
     end
 end
 
