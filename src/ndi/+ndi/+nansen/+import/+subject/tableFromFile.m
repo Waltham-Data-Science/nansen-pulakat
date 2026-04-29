@@ -46,22 +46,49 @@ if isempty(subjectFiles)
 end
 
 subjectTables = cell(size(subjectFiles));
-requiredVariableNames = {projectInfo.subjectFileColumns.value};
+allCsvCols = {projectInfo.subjectFileColumns.value};
+allTargets = {projectInfo.subjectFileColumns.name};
+
+% Some entries in subjectFileColumns describe columns that later
+% import steps add by code rather than read from the CSV — the
+% project_info schema keeps them here so documents.m can include
+% them in ontologyTableRow document creation, but they are
+% intentionally absent from the source CSV. Treating them as
+% required CSV columns produces (a) a spurious "MissingVariables"
+% warning from validateTable and (b) an "Unknown variable name"
+% hard error from setvartype. Filter them out for the CSV-shape
+% checks; the columns themselves are still present in the
+% post-rename table because we add them below or in
+% ndi.nansen.import.subject.
+AUTO_ADDED = {'SubjectIdentifier', 'ElectronicFileName'};
+csvExpectedMask = ~ismember(allTargets, AUTO_ADDED);
+expectedCsvCols = allCsvCols(csvExpectedMask);
+
 for i = 1:numel(subjectFiles)
     subjectFile = subjectFiles{i};
 
-    % Validate that subject files contain necessary variables
-    valid = ndi.nansen.import.file.validateTable(subjectFile,requiredVariableNames);
+    % Validate that subject files contain the genuinely-expected
+    % CSV columns. validateTable issues a warning for any missing
+    % column; we keep the call inside the loop so per-file warnings
+    % carry the file path.
+    valid = ndi.nansen.import.file.validateTable(subjectFile,expectedCsvCols);
     if ~valid
         warning('NDI:Nansen:Import:Subject:InvalidFile', ...
             ['[NDI:Nansen:Import:Subject:InvalidFile] %s is not a valid ' ...
              'subject file. Skipping.'], subjectFile);
     end
 
-    % Import subject table from file
+    % Import subject table from file. setvartype and
+    % SelectedVariableNames both throw when given a name that
+    % isn't in the file's variable list, so restrict to columns
+    % the CSV actually carries. The auto-computed columns are
+    % added back below (ElectronicFileName here, SubjectIdentifier
+    % later by ndi.nansen.import.subject).
     importOptions = detectImportOptions(subjectFile);
-    importOptions = setvartype(importOptions,requiredVariableNames,'char');
-    importOptions.SelectedVariableNames = requiredVariableNames;
+    presentCsvCols = intersect(allCsvCols, ...
+        importOptions.VariableNames, 'stable');
+    importOptions = setvartype(importOptions,presentCsvCols,'char');
+    importOptions.SelectedVariableNames = presentCsvCols;
     subjectTables{i} = readtable(subjectFile,importOptions);
     subjectTables{i}{:,'ElectronicFileName'} = {subjectFile};
 end
@@ -69,8 +96,13 @@ end
 % Stack subject tables
 subjectTable = ndi.fun.table.vstack(subjectTables);
 
-% Rename relevant variables
-subjectTable = renamevars(subjectTable,requiredVariableNames, ...
-    {projectInfo.subjectFileColumns.name});
+% Rename relevant variables. Match present-in-table columns to
+% their target names — entries in subjectFileColumns whose `value`
+% wasn't in any source CSV pass through; their target column will
+% be populated by a later import step or stay empty.
+presentInTable = intersect(allCsvCols, ...
+    subjectTable.Properties.VariableNames, 'stable');
+[~, idx] = ismember(presentInTable, allCsvCols);
+subjectTable = renamevars(subjectTable, presentInTable, allTargets(idx));
 
 end
