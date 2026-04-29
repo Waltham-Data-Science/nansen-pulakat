@@ -26,15 +26,20 @@ function dataset = startup(labName, dataPath, options)
 %         "[Tag]" prefix. If false (default), drop the upstream chatter
 %         and emit a single "[Tag] complete." line per wrapped step.
 %         Pre-tagged "[ ... ]" status lines pass through in either mode.
-%      SkipCloudSync (logical): Optional. If true, skip the
-%         ndi.cloud.sync.downloadNew call against an already-downloaded
-%         local dataset. Use as an escape hatch when waitForAllBulkUploads
-%         is hanging (stuck cloud-side upload, network partition, etc.) —
-%         the local metatables stay current with what's on disk and the
-%         GUI launches. The Sync table-method action still does a full
-%         cloud round-trip when the user explicitly clicks it. Has no
-%         effect when the dataset hasn't been downloaded yet (the initial
-%         downloadDataset still has to happen). Default: false.
+%      SkipCloudSync (logical): Optional. If true, skip every
+%         cloud-side step at startup: ndi.cloud.testLogin /
+%         ndi.cloud.uilogin (the login verification + interactive
+%         login prompt) and ndi.cloud.sync.downloadNew (the
+%         incremental sync against an already-downloaded local
+%         dataset). Use as an escape hatch when testLogin or
+%         waitForAllBulkUploads is hanging (stuck cloud-side
+%         upload, network partition, flaky API, ...) — the local
+%         metatables stay current with what's on disk and the GUI
+%         launches. The Sync table-method action still does a
+%         full cloud round-trip when the user explicitly clicks
+%         it. Has no effect when the dataset hasn't been
+%         downloaded yet (the initial downloadDataset still has
+%         to happen). Default: false.
 %
 %   Outputs:
 %       dataset (ndi.dataset.dir): The NDI dataset object.
@@ -133,22 +138,32 @@ datasetPath = fullfile(dataPath,cloudDatasetID);
 % Test NDI-Cloud connection. Default to production; allow the caller to
 % pre-set CLOUD_API_ENVIRONMENT (e.g. to 'dev' or 'staging') before startup
 % to point at a non-production cloud without editing source.
+% SkipCloudSync also short-circuits the cloud login check — when
+% bypassing cloud interaction at startup, there's no value in
+% prompting the user to log in (and ndi.cloud.testLogin itself can
+% hang against a flaky API, which is the reason most callers reach
+% for this flag in the first place).
 if isempty(getenv('CLOUD_API_ENVIRONMENT'))
     setenv('CLOUD_API_ENVIRONMENT','prod');
 end
-fprintf('[%s] Verifying NDI cloud connection.\n', infoTag);
-connected = ndi.nansen.fun.runTagged('NDI Cloud', ...
-    @() ndi.cloud.testLogin(), 'Verbose', options.Verbose);
-if ~connected
-    if options.Headless
-        error([funcId, ':NotAuthenticated'], ...
-            ['[%s:NotAuthenticated] Headless startup requested but not ' ...
-             'authenticated against NDI cloud. Authenticate interactively ' ...
-             'first (e.g. ndi.cloud.uilogin) before calling with ' ...
-             'Headless=true.'], funcId);
+if options.SkipCloudSync
+    fprintf(['[%s] Skipping NDI cloud connection check ' ...
+             '(SkipCloudSync=true).\n'], infoTag);
+else
+    fprintf('[%s] Verifying NDI cloud connection.\n', infoTag);
+    connected = ndi.nansen.fun.runTagged('NDI Cloud', ...
+        @() ndi.cloud.testLogin(), 'Verbose', options.Verbose);
+    if ~connected
+        if options.Headless
+            error([funcId, ':NotAuthenticated'], ...
+                ['[%s:NotAuthenticated] Headless startup requested but not ' ...
+                 'authenticated against NDI cloud. Authenticate interactively ' ...
+                 'first (e.g. ndi.cloud.uilogin) before calling with ' ...
+                 'Headless=true.'], funcId);
+        end
+        ndi.nansen.fun.runTagged('NDI Cloud Login', ...
+            @() ndi.cloud.uilogin(true), 'Verbose', options.Verbose);
     end
-    ndi.nansen.fun.runTagged('NDI Cloud Login', ...
-        @() ndi.cloud.uilogin(true), 'Verbose', options.Verbose);
 end
 
 % Load/download dataset
