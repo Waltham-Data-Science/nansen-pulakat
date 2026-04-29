@@ -28,31 +28,50 @@ arguments
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
 end
 
-% Download new documents from cloud (if applicable)
-ndi.cloud.sync.downloadNew(dataset);
+% Cloud sync is the responsibility of the caller. Both callers
+% (ndi.nansen.startup and pulakat.objectmethod.dataset.sync) run
+% ndi.cloud.sync.downloadNew themselves with proper error handling
+% before invoking updateAll, so doing it here too just produces a
+% redundant network round-trip. Repeated calls are harmless but
+% wasteful — downloadNew always fetches "documents added since the
+% last sync index", which is empty on the second consecutive call.
 
-% Update dataset table
+% First pass: fetch fresh data from the dataset and merge into each
+% metatable, capturing whether anything actually moved. We skip the
+% per-variable update() calls here for Session and Subject because
+% those depend on File data that hasn't been merged yet — they're
+% deferred to the second pass below.
 ndi.nansen.metatable.update(dataset,'Dataset','Project',options.Project,...
     'LabName',options.LabName);
 
-% Update session metatable
-ndi.nansen.metatable.update(dataset,'Session','Project',options.Project,...
-    'LabName',options.LabName,'UpdateVariableNames',{''});
+[sessionChanged] = ndi.nansen.metatable.update(dataset,'Session', ...
+    'Project',options.Project,'LabName',options.LabName, ...
+    'UpdateVariableNames',{''});
 
-% Update subject metatable
-ndi.nansen.metatable.update(dataset,'Subject','Project',options.Project,...
-    'LabName',options.LabName,'UpdateVariableNames',{''});
+[subjectChanged] = ndi.nansen.metatable.update(dataset,'Subject', ...
+    'Project',options.Project,'LabName',options.LabName, ...
+    'UpdateVariableNames',{''});
 
-% Update file metatable
-ndi.nansen.metatable.update(dataset,'File','Project',options.Project,...
-    'LabName',options.LabName);
+[fileChanged] = ndi.nansen.metatable.update(dataset,'File', ...
+    'Project',options.Project,'LabName',options.LabName);
 
-% Update subject metatable
-ndi.nansen.metatable.update(dataset,'Subject','Project',options.Project,...
-    'LabName',options.LabName,'UpdateTable',false);
+% Second pass: refresh the HasUpdateFunction variables on Subject
+% and Session, but only when first-pass merges actually moved data
+% the second pass would consume. Subject's variables read from the
+% File metatable, and Session's variables read from both Subject
+% and File (and from Session itself, e.g. Treatment via
+% SessionIdentifier match). When nothing changed during the first
+% pass, recomputing every row of these tables produces identical
+% values to what's already on disk — pure waste at Pulakat scale,
+% where Subject.NumFiles alone iterates Subjects × Files row-pairs.
+if subjectChanged || fileChanged
+    ndi.nansen.metatable.update(dataset,'Subject','Project',options.Project,...
+        'LabName',options.LabName,'UpdateTable',false);
+end
 
-% Update session metatable
-ndi.nansen.metatable.update(dataset,'Session','Project',options.Project,...
-    'LabName',options.LabName,'UpdateTable',false);
+if sessionChanged || subjectChanged || fileChanged
+    ndi.nansen.metatable.update(dataset,'Session','Project',options.Project,...
+        'LabName',options.LabName,'UpdateTable',false);
+end
 
 end

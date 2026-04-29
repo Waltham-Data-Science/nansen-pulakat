@@ -30,8 +30,13 @@ function varargout = mergeDuplicates(subjectObject, varargin)
     % Get dataset object
     dataset = ndi.nansen.fun.datasetID2Object(subjectObject(1).DatasetIdentifier);
 
-    % Update session table
-    ndi.nansen.metatable.update(dataset,'Session');
+    % Update session table, restricted to the sessions whose subjects
+    % were merged. The merged subjects share SessionIdentifier with
+    % the original selection, so unique({selected.SessionIdentifier})
+    % covers the affected rows.
+    affectedSessionIDs = unique({subjectObject.SessionIdentifier});
+    ndi.nansen.metatable.update(dataset,'Session', ...
+        'UpdateRowIdentifiers', affectedSessionIDs);
 
     % Update nansen viewer
     ndi.nansen.fun.refreshAppTable();
