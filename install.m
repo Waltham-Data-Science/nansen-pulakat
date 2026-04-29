@@ -1,4 +1,4 @@
-function install(codePath)
+function install(codePath, options)
 %INSTALL Downloads and installs the NDI-Nansen environment and dependencies.
 %
 %   This function downloads the 'nansen-pulakat' repository and its
@@ -10,18 +10,30 @@ function install(codePath)
 %      codePath (char or string): Optional. The parent directory for
 %         installing the code repositories. Defaults to '~/ndi/tools'.
 %
+%   Name-Value Pairs:
+%      Verbose (logical): Optional. When true, print every line of
+%         output captured from the upstream installers
+%         (nansen_install, openMINDS setup, ndi_install) under the
+%         appropriate "[Tag]" prefix. When false (default), pass
+%         through only structured "[Tag] ..." status lines from our
+%         own helpers (e.g. [NDI Sync] cloning/updating) and drop
+%         the raw upstream chatter, then emit a single "[Tag]
+%         complete." line per wrapped call so progress is still
+%         visible.
+%
 %   Examples:
 %      % Install to default location:
 %      install()
 %
-%      % Install to a specific folder:
-%      install('C:\MyToolboxes')
+%      % Install to a specific folder, with full upstream output:
+%      install('C:\MyToolboxes', 'Verbose', true)
 %
 %   See also: NDI.NANSEN.STARTUP, NANSEN_INSTALL, NDI_INSTALL, NDI.NANSEN.SYNC.REPO
 
 % Input argument validation
 arguments
     codePath = fullfile(userpath,'ndi','tools');
+    options.Verbose (1,1) logical = false
 end
 
 % Status lines, warnings, and errors from this script all carry a
@@ -91,7 +103,8 @@ if status ~= 0
     error([funcId, ':RepoSyncFailed'], ...
         '[%s:RepoSyncFailed] Could not clone/update NANSEN.', funcId);
 end
-install_runTagged('Nansen Install', @() nansen_install());
+install_runTagged('Nansen Install', @() nansen_install(), ...
+    'Verbose', options.Verbose);
 
 % 6. Install openMINDS. openMINDS_MATLAB ships overlapping class
 % definitions across its v1.0/v2.0/v3.0/latest type folders, so
@@ -108,14 +121,16 @@ openMindsAliasWarnings = [ ...
 openMindsURL = 'https://github.com/openMetadataInitiative/openMINDS_MATLAB';
 [status, openMindsRepoPath] = install_runTagged('NDI Sync', ...
     @() repoSync(openMindsURL,'ClonePath',codePath), ...
-    'HidePatterns', openMindsAliasWarnings);
+    'HidePatterns', openMindsAliasWarnings, ...
+    'Verbose', options.Verbose);
 if status ~= 0
     error([funcId, ':RepoSyncFailed'], ...
         '[%s:RepoSyncFailed] Could not clone/update openMINDS_MATLAB.', funcId);
 end
 install_runTagged('openMINDS Setup', ...
     @() run(fullfile(openMindsRepoPath, 'code', 'setup.m')), ...
-    'HidePatterns', openMindsAliasWarnings);
+    'HidePatterns', openMindsAliasWarnings, ...
+    'Verbose', options.Verbose);
 
 % 6b. Strip stale pre-restructure entries from userpath/pathdef.m so
 % ndi_install's path-reset (next step) doesn't re-apply addpath calls
@@ -149,7 +164,8 @@ if status ~= 0
 end
 install_runTagged('NDI Install', ...
     @() ndi_install(fileparts(ndiRepoPath)), ...
-    'HidePatterns', openMindsAliasWarnings);
+    'HidePatterns', openMindsAliasWarnings, ...
+    'Verbose', options.Verbose);
 
 % 8. Delete the bootstrap temp folder, if one was used. The full
 % nansen-pulakat clone added in step 4 supersedes the single-file
@@ -272,14 +288,20 @@ end
 
 function varargout = install_runTagged(tag, fcn, options)
 % Run fcn(), capture its command-window output via evalc, and re-emit
-% it as a single tagged block: the first non-empty line carries
-% "[<tag>] " and subsequent lines are indented to align with the
+% it under "[<tag>]" prefixes. Lines already starting with "[" pass
+% through unchanged (so structured status output from helpers like
+% ndi.nansen.sync.repo keeps its own identifier), and lines matching
+% any HidePatterns entry (with the stack-trace lines that follow)
+% are dropped.
+%
+% Verbose (default false) controls how non-bracket lines are
+% handled. When true, the first non-bracket line is tagged with
+% "[<tag>] " and subsequent ones are indented to align with the
 % post-tag column so banners (mksqlite license, openMINDS class
-% warnings, etc.) read as one grouped message instead of N tagged
-% copies of the same identifier. Lines that already start with "["
-% pass through unchanged and reset the tag state. Lines matching
-% any HidePatterns entry (and the stack lines that follow them) are
-% dropped — used for non-warning noise families.
+% warnings, etc.) read as one grouped message. When false, all
+% non-bracket lines are dropped and a single "[<tag>] complete."
+% line is emitted on success so the user still sees that the
+% wrapped step ran.
 %
 % SuppressWarnings (default true) disables warning display via
 % warning('off','all') for the duration of fcn(). MATLAB's warning()
@@ -297,6 +319,7 @@ arguments
     fcn (1,1) function_handle
     options.HidePatterns (1,:) string = string.empty
     options.SuppressWarnings (1,1) logical = true
+    options.Verbose (1,1) logical = false
 end
 tag = char(tag);
 hidePatterns = options.HidePatterns;
@@ -313,8 +336,6 @@ else
     [captured, outs{:}] = evalc('fcn()');
     varargout = outs;
 end
-
-if isempty(strtrim(captured)); return; end
 
 lines = splitlines(string(captured));
 indent = repmat(' ', 1, strlength(tag) + 3);
@@ -334,14 +355,22 @@ for i = 1:numel(lines)
         continue
     end
     if startsWith(line, '[')
+        % Pre-tagged status line — always pass through.
         fprintf('%s\n', line);
         isFirst = true;
-    elseif isFirst
-        fprintf('[%s] %s\n', tag, line);
-        isFirst = false;
-    else
-        fprintf('%s%s\n', indent, line);
+    elseif options.Verbose
+        if isFirst
+            fprintf('[%s] %s\n', tag, line);
+            isFirst = false;
+        else
+            fprintf('%s%s\n', indent, line);
+        end
     end
+    % else: non-verbose, drop the line silently
+end
+
+if ~options.Verbose
+    fprintf('[%s] complete.\n', tag);
 end
 end
 

@@ -35,6 +35,16 @@ function varargout = runTagged(tag, fcn, options)
 %         warning display silences both halves so the captured
 %         stream stays well-formed. Restored via onCleanup so an
 %         error inside fcn() doesn't leak the suppressed state.
+%      Verbose (logical): Optional, default true. Controls how
+%         non-bracket lines from the captured stream are printed.
+%         When true, the first non-bracket line carries the
+%         "[<tag>] " prefix and subsequent ones are indented to
+%         align with the post-tag column. When false, all
+%         non-bracket lines are dropped silently and a single
+%         "[<tag>] complete." line is emitted on success so the
+%         user still sees that the wrapped step ran. Pre-tagged
+%         "[ ... ]" status lines pass through unchanged in either
+%         mode.
 %
 %   Outputs:
 %      varargout: Forwards up to nargout outputs from fcn().
@@ -50,6 +60,7 @@ arguments
     fcn (1,1) function_handle
     options.HidePatterns (1,:) string = string.empty
     options.SuppressWarnings (1,1) logical = true
+    options.Verbose (1,1) logical = true
 end
 
 tag = char(tag);
@@ -72,7 +83,7 @@ else
     varargout = outs;
 end
 
-if isempty(tag) || isempty(strtrim(captured))
+if isempty(tag)
     return
 end
 
@@ -97,14 +108,22 @@ for i = 1:numel(lines)
     end
 
     if startsWith(line, '[')
+        % Pre-tagged status line — always pass through.
         fprintf('%s\n', line);
         isFirst = true;
-    elseif isFirst
-        fprintf('[%s] %s\n', tag, line);
-        isFirst = false;
-    else
-        fprintf('%s%s\n', indent, line);
+    elseif options.Verbose
+        if isFirst
+            fprintf('[%s] %s\n', tag, line);
+            isFirst = false;
+        else
+            fprintf('%s%s\n', indent, line);
+        end
     end
+    % else: non-verbose, drop the line silently
+end
+
+if ~options.Verbose
+    fprintf('[%s] complete.\n', tag);
 end
 
 end
