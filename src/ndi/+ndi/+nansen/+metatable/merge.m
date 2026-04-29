@@ -1,4 +1,4 @@
-function [metaTable] = merge(dataTable,dataName,options)
+function [metaTable, changed] = merge(dataTable,dataName,options)
 %MERGE Merges a new metadata table into a Nansen metatable.
 %
 %   This function identifies new rows in the DATATABLE that are not
@@ -19,6 +19,10 @@ function [metaTable] = merge(dataTable,dataName,options)
 %   Outputs:
 %      metaTable (nansen.metadata.MetaTable): The updated Nansen
 %         metatable object.
+%      changed (logical): True if the merge added rows, edited rows,
+%         or added columns; false if the merge was a no-op. Used by
+%         updateAll to skip the variable-update pass when no
+%         dependency-table data has actually moved.
 %
 %   Examples:
 %      % Merge new subject data into the Subject metatable:
@@ -33,6 +37,10 @@ arguments
     options.LabName {mustBeText} = nansen.getCurrentProject().Name;
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
 end
+
+% Default change flag — flipped to true wherever we add rows, edit
+% rows, or grow the column set.
+changed = false;
 
 % Get meta table catalog
 project = options.Project;
@@ -62,8 +70,12 @@ if isempty(dataTable)
             % update() pass — see comment at the equivalent call
             % below; updateAll's second pass refreshes every
             % HasUpdateFunction variable uniformly.
+            oldVars = metaTable.entries.Properties.VariableNames;
             metaTable.addMissingVarsToMetaTable(dataName, ...
                 'AutoUpdateValues', false);
+            if ~isequal(metaTable.entries.Properties.VariableNames, oldVars)
+                changed = true;
+            end
             return
         end
     end
@@ -88,8 +100,12 @@ if ~isempty(metaTableCatalog.Table) && ...
         % pass (UpdateTable=false) refreshes every HasUpdateFunction
         % variable uniformly, so doing it here too would just be
         % redundant work for newly-added columns.
+        oldVars = metaTable.entries.Properties.VariableNames;
         metaTable.addMissingVarsToMetaTable(dataName, ...
             'AutoUpdateValues', false);
+        if ~isequal(metaTable.entries.Properties.VariableNames, oldVars)
+            changed = true;
+        end
     end
 end
 
@@ -109,6 +125,7 @@ if ~exist('metaTable','var')
     % variable uniformly so we don't run update() per-column twice.
     metaTable.addMissingVarsToMetaTable(dataName, ...
         'AutoUpdateValues', false);
+    changed = true;  % brand-new metatable always counts as a change
     return
 end
 
@@ -134,6 +151,7 @@ indExist(indNew) = false; indNew = ~indExist;
 % Add new rows to metatable
 if any(indNew)
     metaTable.addTable(dataTable(indNew,:));
+    changed = true;
 end
 
 % Check if any existing rows have changes
@@ -166,6 +184,7 @@ if any(indExist)
     % than looping one row at a time).
     metaTable = ndi.nansen.metatable.edit(dataTable_change, dataName, ...
         'Project', options.Project);
+    changed = true;
 end
 
 % Reset cache

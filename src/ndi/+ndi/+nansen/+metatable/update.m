@@ -1,4 +1,4 @@
-function [] = update(dataset,dataName,options)
+function [changed] = update(dataset,dataName,options)
 %UPDATE Updates a specific Nansen metatable from an NDI dataset.
 %
 %   This function updates the specified metatable (e.g., 'Subject')
@@ -29,6 +29,13 @@ function [] = update(dataset,dataName,options)
 %         Remove) so a click that touches one row doesn't recompute
 %         every other row's HasUpdateFunction variables.
 %
+%   Outputs:
+%      changed (logical): True if the merge added rows, edited rows,
+%         or added columns. False if the call was a no-op (or if
+%         UpdateTable=false). updateAll uses this to skip the
+%         variable-update second pass when no dependency-table data
+%         actually moved during the merge phase.
+%
 %   Examples:
 %      % Update the Subject metatable:
 %      ndi.nansen.metatable.update(dataset, 'Subject')
@@ -53,12 +60,15 @@ arguments
     options.UpdateRowIdentifiers = [];
 end
 
+changed = false;
+
 if options.UpdateTable
     % Get table from dataset
     dataTable = ndi.nansen.metatable.update.(lower(dataName))(dataset);
 
     % Merge dataset table into Nansen metatable
-    ndi.nansen.metatable.merge(dataTable,dataName,'LabName',options.LabName,...
+    [~, changed] = ndi.nansen.metatable.merge(dataTable,dataName, ...
+        'LabName',options.LabName, ...
         'Project',options.Project);
 end
 
