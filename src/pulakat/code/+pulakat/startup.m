@@ -15,6 +15,11 @@ function [] = startup(options)
 %         from cloud and metatable calls under the appropriate
 %         "[Tag]" prefix. If false (default), drop the chatter and
 %         emit a single "[Tag] complete." line per wrapped step.
+%      SkipCloudSync (logical): Optional. If true, skip the
+%         downloadNew sync against an already-downloaded local
+%         dataset. Use when waitForAllBulkUploads or similar
+%         cloud-side polling is hanging and you need to launch
+%         the GUI against the local state. Default: false.
 %
 %   Examples:
 %      % Initialize the Pulakat lab and launch the GUI:
@@ -26,18 +31,23 @@ function [] = startup(options)
 %      % See full upstream output:
 %      pulakat.startup('Verbose', true)
 %
+%      % Boot the GUI without waiting on cloud sync:
+%      pulakat.startup('SkipCloudSync', true)
+%
 %   See also: NDI.NANSEN.STARTUP, NANSEN.PROJECTMANAGER
 
 arguments
     options.Headless (1,1) logical = false
     options.SkipRepoSync (1,1) logical = false
     options.Verbose (1,1) logical = false
+    options.SkipCloudSync (1,1) logical = false
 end
 
 fprintf('[Pulakat] Starting pulakat lab project.\n');
 ndi.nansen.startup('pulakat', '', ...
     'Headless', options.Headless, ...
     'SkipRepoSync', options.SkipRepoSync, ...
-    'Verbose', options.Verbose);
+    'Verbose', options.Verbose, ...
+    'SkipCloudSync', options.SkipCloudSync);
 
 end
