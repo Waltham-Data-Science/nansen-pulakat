@@ -34,7 +34,7 @@ function varargout = file(sessionObject, varargin)
 
     % Get dataset and session objects
     dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
-    session = ndi.session.dir(sessionObject.SessionPath);
+    session = ndi.session.dir(sessionObject.SessionName, sessionObject.SessionPath);
 
     % Add files to session
     dataTable = ndi.nansen.import.file.auto(session);

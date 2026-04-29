@@ -41,12 +41,17 @@ function varargout = document(fileObject, varargin)
     % Check for already documented rows
     isDocument = isequal(fileTable.FileDocumentIdentifier,{'N/A'});
 
-    % Create documents
+    % Create documents. Pass the session reference name as well as
+    % the path to ndi.session.dir because dataset and session can
+    % share a directory; without the reference, ndi.session.dir
+    % creates a fresh session with a new identifier instead of
+    % opening the existing one.
     fileTable_valid = fileTable(isValid & ~isDocument,:);
     sessionPaths = unique(fileTable_valid.SessionPath);
     for i = 1:numel(sessionPaths)
         indSession = strcmp(fileTable_valid.SessionPath,sessionPaths{i});
-        session = ndi.session.dir(sessionPaths{i});
+        sessionName = fileTable_valid.SessionName{find(indSession,1)};
+        session = ndi.session.dir(sessionName, sessionPaths{i});
         ndi.nansen.import.file.documents(session,fileTable_valid(indSession,:));
     end
 

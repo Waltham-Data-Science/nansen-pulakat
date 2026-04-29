@@ -31,9 +31,13 @@ function varargout = file(sessionObject, varargin)
     
     % --- Implementation of the method ---
 
-    % Get dataset and session objects
+    % Get dataset and session objects. Pass the session reference
+    % name as well as the path because dataset and session can share
+    % a directory; ndi.session.dir(path) without a reference creates
+    % a fresh session object with a new identifier instead of
+    % opening the existing one.
     dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
-    session = ndi.session.dir(sessionObject.SessionPath);
+    session = ndi.session.dir(sessionObject.SessionName, sessionObject.SessionPath);
 
     % Add subjects to session
     subjectTable = ndi.nansen.import.subject.auto(session);
