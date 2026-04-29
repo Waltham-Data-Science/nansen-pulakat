@@ -21,6 +21,11 @@ function dataset = startup(labName, dataPath, options)
 %         clone/pull pass in step 2. Used by install.m, which has just
 %         finished cloning every repo and would otherwise re-walk them.
 %         Default: false.
+%      Verbose (logical): Optional. If true, print every line of output
+%         captured from cloud and metatable calls under the appropriate
+%         "[Tag]" prefix. If false (default), drop the upstream chatter
+%         and emit a single "[Tag] complete." line per wrapped step.
+%         Pre-tagged "[ ... ]" status lines pass through in either mode.
 %
 %   Outputs:
 %       dataset (ndi.dataset.dir): The NDI dataset object.
@@ -45,6 +50,7 @@ arguments
     dataPath {mustBeText} = ""
     options.Headless (1,1) logical = false
     options.SkipRepoSync (1,1) logical = false
+    options.Verbose (1,1) logical = false
 end
 
 % Convert inputs to char arrays for internal processing
@@ -121,7 +127,8 @@ if isempty(getenv('CLOUD_API_ENVIRONMENT'))
     setenv('CLOUD_API_ENVIRONMENT','prod');
 end
 fprintf('[%s] Verifying NDI cloud connection.\n', infoTag);
-connected = ndi.nansen.fun.runTagged('NDI Cloud', @() ndi.cloud.testLogin());
+connected = ndi.nansen.fun.runTagged('NDI Cloud', ...
+    @() ndi.cloud.testLogin(), 'Verbose', options.Verbose);
 if ~connected
     if options.Headless
         error([funcId, ':NotAuthenticated'], ...
@@ -130,7 +137,8 @@ if ~connected
              'first (e.g. ndi.cloud.uilogin) before calling with ' ...
              'Headless=true.'], funcId);
     end
-    ndi.nansen.fun.runTagged('NDI Cloud Login', @() ndi.cloud.uilogin(true));
+    ndi.nansen.fun.runTagged('NDI Cloud Login', ...
+        @() ndi.cloud.uilogin(true), 'Verbose', options.Verbose);
 end
 
 % Load/download dataset
@@ -139,7 +147,8 @@ if isfolder(datasetPath)
     fprintf('[%s] Loading local dataset from %s.\n', infoTag, datasetPath);
     dataset = ndi.dataset.dir(datasetPath);
     [success,errorMessage] = ndi.nansen.fun.runTagged('NDI Cloud Sync', ...
-        @() ndi.cloud.sync.downloadNew(dataset));
+        @() ndi.cloud.sync.downloadNew(dataset), ...
+        'Verbose', options.Verbose);
     if ~success
         error([funcId, ':CloudSyncFailed'], ...
             ['[%s:CloudSyncFailed] Cloud sync failed; local dataset may ' ...
@@ -150,7 +159,8 @@ else
     fprintf('[%s] Downloading dataset %s from NDI cloud.\n', ...
         infoTag, cloudDatasetID);
     dataset = ndi.nansen.fun.runTagged('NDI Cloud', ...
-        @() ndi.cloud.downloadDataset(cloudDatasetID,dataPath));
+        @() ndi.cloud.downloadDataset(cloudDatasetID,dataPath), ...
+        'Verbose', options.Verbose);
 end
 
 % 4. Load project from nansen project manager. The Nansen project
@@ -189,7 +199,9 @@ end
 % would mistake for a successful start.
 fprintf('[%s] Updating Nansen metatables.\n', infoTag);
 try
-    ndi.nansen.fun.runTagged('Nansen', @() ndi.nansen.metatable.updateAll(dataset));
+    ndi.nansen.fun.runTagged('Nansen', ...
+        @() ndi.nansen.metatable.updateAll(dataset), ...
+        'Verbose', options.Verbose);
 catch ME
     warning([funcId, ':MetatableUpdateFailed'], ...
         ['[%s:MetatableUpdateFailed] Metatable update failed; not ' ...
