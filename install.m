@@ -305,14 +305,13 @@ function varargout = install_runTagged(tag, fcn, options)
 % line is emitted on success so the user still sees that the
 % wrapped step ran.
 %
-% SuppressWarnings (default true) disables warning display via
-% warning('off','all') for the duration of fcn(). MATLAB's warning()
-% writes the "Warning:" header and the first stack-trace line
-% directly to the terminal (bypassing evalc) but writes wrapped
-% continuations to stdout (which evalc captures), so leaving
-% warnings on produces fragments out of order. Disabling warning
-% display silences both halves; onCleanup restores the prior state
-% even on error.
+% SuppressWarnings disables warning display via warning('off','all')
+% for the duration of fcn(). Defaults to ~Verbose: warnings show
+% through in verbose mode (the user wants to see them) and are
+% silenced in non-verbose mode (their terminal-side header
+% interleaves out of order with our captured/tagged stream because
+% MATLAB's warning() bypasses evalc for the header but not for the
+% wrapped continuation lines). Restored via onCleanup even on error.
 %
 % Mirror of ndi.nansen.fun.runTagged. Local copy kept here because
 % install.m may run before any of the cloned repos are on the path.
@@ -320,11 +319,15 @@ arguments
     tag {mustBeText}
     fcn (1,1) function_handle
     options.HidePatterns (1,:) string = string.empty
-    options.SuppressWarnings (1,1) logical = true
     options.Verbose (1,1) logical = false
+    options.SuppressWarnings = []     % sentinel: defaults to ~Verbose
 end
 tag = char(tag);
 hidePatterns = options.HidePatterns;
+
+if isempty(options.SuppressWarnings)
+    options.SuppressWarnings = ~options.Verbose;
+end
 
 if options.SuppressWarnings
     prevState = warning('off', 'all');

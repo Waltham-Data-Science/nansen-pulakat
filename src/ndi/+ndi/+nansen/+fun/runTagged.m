@@ -24,17 +24,6 @@ function varargout = runTagged(tag, fcn, options)
 %         (those starting with "> In " or "In "). Use to silence
 %         a known noisy non-warning line family without altering
 %         global warning state.
-%      SuppressWarnings (logical): Optional, default true. Disables
-%         warning display for the duration of the wrapped call.
-%         MATLAB's warning() writes the "Warning:" header and the
-%         first stack-trace line directly to the terminal (bypassing
-%         evalc) but writes wrapped continuations to stdout (which
-%         evalc captures). With warnings on, the terminal-side
-%         halves arrive interleaved with our captured/tagged halves
-%         so the output reads as fragments out of order. Disabling
-%         warning display silences both halves so the captured
-%         stream stays well-formed. Restored via onCleanup so an
-%         error inside fcn() doesn't leak the suppressed state.
 %      Verbose (logical): Optional, default true. Controls how
 %         non-bracket lines from the captured stream are printed.
 %         When true, the first non-bracket line carries the
@@ -45,6 +34,18 @@ function varargout = runTagged(tag, fcn, options)
 %         user still sees that the wrapped step ran. Pre-tagged
 %         "[ ... ]" status lines pass through unchanged in either
 %         mode.
+%      SuppressWarnings (logical): Optional. Disables warning
+%         display for the duration of the wrapped call. Defaults
+%         to ~Verbose: when Verbose=true, warnings show through;
+%         when Verbose=false, warnings are silenced because their
+%         display interleaves badly with the captured stream
+%         (MATLAB's warning() writes the "Warning:" header and the
+%         first stack-trace line directly to the terminal,
+%         bypassing evalc, but writes wrapped continuations to
+%         stdout which evalc captures — so warnings on + non-
+%         verbose produces fragments tagged out of order).
+%         Restored via onCleanup so an error inside fcn() doesn't
+%         leak the suppressed state.
 %
 %   Outputs:
 %      varargout: Forwards up to nargout outputs from fcn().
@@ -59,12 +60,19 @@ arguments
     tag {mustBeText}
     fcn (1,1) function_handle
     options.HidePatterns (1,:) string = string.empty
-    options.SuppressWarnings (1,1) logical = true
     options.Verbose (1,1) logical = true
+    options.SuppressWarnings = []     % sentinel: defaults to ~Verbose
 end
 
 tag = char(tag);
 hidePatterns = options.HidePatterns;
+
+% Resolve SuppressWarnings against the Verbose flag when the caller
+% didn't pin it explicitly. Verbose users want to see warnings;
+% non-verbose users want a clean tagged transcript.
+if isempty(options.SuppressWarnings)
+    options.SuppressWarnings = ~options.Verbose;
+end
 
 if options.SuppressWarnings
     prevState = warning('off', 'all');
