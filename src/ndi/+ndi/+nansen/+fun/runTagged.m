@@ -22,28 +22,54 @@ function varargout = runTagged(tag, fcn, options)
 %         any pattern via `contains` are dropped before tagging,
 %         along with the immediately following stack-trace lines
 %         (those starting with "> In " or "In "). Use to silence
-%         a known noisy warning family without altering global
-%         warning state.
+%         a known noisy non-warning line family without altering
+%         global warning state.
+%      SuppressWarnings (logical): Optional, default true. Disables
+%         warning display for the duration of the wrapped call.
+%         MATLAB's warning() writes the "Warning:" header and the
+%         first stack-trace line directly to the terminal (bypassing
+%         evalc) but writes wrapped continuations to stdout (which
+%         evalc captures). With warnings on, the terminal-side
+%         halves arrive interleaved with our captured/tagged halves
+%         so the output reads as fragments out of order. Disabling
+%         warning display silences both halves so the captured
+%         stream stays well-formed. Restored via onCleanup so an
+%         error inside fcn() doesn't leak the suppressed state.
+%      Verbose (logical): Optional, default true. Controls how
+%         non-bracket lines from the captured stream are printed.
+%         When true, the first non-bracket line carries the
+%         "[<tag>] " prefix and subsequent ones are indented to
+%         align with the post-tag column. When false, all
+%         non-bracket lines are dropped silently and a single
+%         "[<tag>] complete." line is emitted on success so the
+%         user still sees that the wrapped step ran. Pre-tagged
+%         "[ ... ]" status lines pass through unchanged in either
+%         mode.
 %
 %   Outputs:
 %      varargout: Forwards up to nargout outputs from fcn().
 %
 %   Examples:
 %      ndi.nansen.fun.runTagged('Install', @() nansen_install());
-%      ndi.nansen.fun.runTagged('NDI Install', @() ndi_install(p), ...
-%          'HidePatterns', {'cannot be used as an alias', ...
-%                           'Unable to define an alias for class'});
+%      ndi.nansen.fun.runTagged('NDI Install', @() ndi_install(p));
 %
-%   See also: EVALC, FPRINTF
+%   See also: EVALC, FPRINTF, WARNING
 
 arguments
     tag {mustBeText}
     fcn (1,1) function_handle
     options.HidePatterns (1,:) string = string.empty
+    options.SuppressWarnings (1,1) logical = true
+    options.Verbose (1,1) logical = true
 end
 
 tag = char(tag);
 hidePatterns = options.HidePatterns;
+
+if options.SuppressWarnings
+    prevState = warning('off', 'all');
+    restoreWarn = onCleanup(@() warning(prevState)); %#ok<NASGU>
+end
 
 % Trailing semicolon suppresses MATLAB's auto-display of fcn()'s
 % return value in the no-LHS case (nargout==0). Without it, helpers
@@ -57,7 +83,7 @@ else
     varargout = outs;
 end
 
-if isempty(tag) || isempty(strtrim(captured))
+if isempty(tag)
     return
 end
 
@@ -82,14 +108,22 @@ for i = 1:numel(lines)
     end
 
     if startsWith(line, '[')
+        % Pre-tagged status line — always pass through.
         fprintf('%s\n', line);
         isFirst = true;
-    elseif isFirst
-        fprintf('[%s] %s\n', tag, line);
-        isFirst = false;
-    else
-        fprintf('%s%s\n', indent, line);
+    elseif options.Verbose
+        if isFirst
+            fprintf('[%s] %s\n', tag, line);
+            isFirst = false;
+        else
+            fprintf('%s%s\n', indent, line);
+        end
     end
+    % else: non-verbose, drop the line silently
+end
+
+if ~options.Verbose
+    fprintf('[%s] complete.\n', tag);
 end
 
 end

@@ -1,4 +1,4 @@
-function install(codePath)
+function install(codePath, options)
 %INSTALL Downloads and installs the NDI-Nansen environment and dependencies.
 %
 %   This function downloads the 'nansen-pulakat' repository and its
@@ -10,18 +10,30 @@ function install(codePath)
 %      codePath (char or string): Optional. The parent directory for
 %         installing the code repositories. Defaults to '~/ndi/tools'.
 %
+%   Name-Value Pairs:
+%      Verbose (logical): Optional. When true, print every line of
+%         output captured from the upstream installers
+%         (nansen_install, openMINDS setup, ndi_install) under the
+%         appropriate "[Tag]" prefix. When false (default), pass
+%         through only structured "[Tag] ..." status lines from our
+%         own helpers (e.g. [NDI Sync] cloning/updating) and drop
+%         the raw upstream chatter, then emit a single "[Tag]
+%         complete." line per wrapped call so progress is still
+%         visible.
+%
 %   Examples:
 %      % Install to default location:
 %      install()
 %
-%      % Install to a specific folder:
-%      install('C:\MyToolboxes')
+%      % Install to a specific folder, with full upstream output:
+%      install('C:\MyToolboxes', 'Verbose', true)
 %
 %   See also: NDI.NANSEN.STARTUP, NANSEN_INSTALL, NDI_INSTALL, NDI.NANSEN.SYNC.REPO
 
 % Input argument validation
 arguments
     codePath = fullfile(userpath,'ndi','tools');
+    options.Verbose (1,1) logical = false
 end
 
 % Status lines, warnings, and errors from this script all carry a
@@ -91,7 +103,8 @@ if status ~= 0
     error([funcId, ':RepoSyncFailed'], ...
         '[%s:RepoSyncFailed] Could not clone/update NANSEN.', funcId);
 end
-install_runTagged('Nansen Install', @() nansen_install());
+install_runTagged('Nansen Install', @() nansen_install(), ...
+    'Verbose', options.Verbose);
 
 % 6. Install openMINDS. openMINDS_MATLAB ships overlapping class
 % definitions across its v1.0/v2.0/v3.0/latest type folders, so
@@ -103,18 +116,21 @@ install_runTagged('Nansen Install', @() nansen_install());
 % ndi_install below).
 openMindsAliasWarnings = [ ...
     "cannot be used as an alias for more than one class", ...
-    "Unable to define an alias for class"];
+    "Unable to define an alias for class", ...
+    "because there is no class definition with the name"];
 openMindsURL = 'https://github.com/openMetadataInitiative/openMINDS_MATLAB';
 [status, openMindsRepoPath] = install_runTagged('NDI Sync', ...
     @() repoSync(openMindsURL,'ClonePath',codePath), ...
-    'HidePatterns', openMindsAliasWarnings);
+    'HidePatterns', openMindsAliasWarnings, ...
+    'Verbose', options.Verbose);
 if status ~= 0
     error([funcId, ':RepoSyncFailed'], ...
         '[%s:RepoSyncFailed] Could not clone/update openMINDS_MATLAB.', funcId);
 end
 install_runTagged('openMINDS Setup', ...
     @() run(fullfile(openMindsRepoPath, 'code', 'setup.m')), ...
-    'HidePatterns', openMindsAliasWarnings);
+    'HidePatterns', openMindsAliasWarnings, ...
+    'Verbose', options.Verbose);
 
 % 6b. Strip stale pre-restructure entries from userpath/pathdef.m so
 % ndi_install's path-reset (next step) doesn't re-apply addpath calls
@@ -123,7 +139,23 @@ install_runTagged('openMINDS Setup', ...
 % install has no pathdef.m, and a clean one passes through unchanged.
 install_cleanStalePathdef(funcId, codePath);
 
-% 7. Install NDI-Matlab
+% 7. Install NDI-Matlab. ndi_install resets the MATLAB path with
+% `path(pathdef)`, and during that window any timer whose TimerFcn
+% lives in the temporarily-removed packages errors out. NANSEN's
+% DiskConnectionMonitorTimer (a 5-second poll started by nansen.App)
+% is the common offender: if a user had the GUI open in this MATLAB
+% session before re-running install, its timer fires during the
+% reset and prints "Error while evaluating TimerFcn ... Method
+% 'checkDiskMac' is not defined for class
+% nansen.internal.system.DiskConnectionMonitor". This isn't a
+% warning so install_runTagged's SuppressWarnings doesn't catch it;
+% stop the timers up front instead. nansen.App spins up a fresh
+% monitor when the GUI is next opened.
+nansenTimers = timerfindall('Name', 'DiskConnectionMonitorTimer');
+if ~isempty(nansenTimers)
+    stop(nansenTimers);
+end
+
 ndiURL = 'https://github.com/VH-Lab/NDI-matlab';
 [status, ndiRepoPath] = repoSync(ndiURL,'ClonePath',codePath);
 if status ~= 0
@@ -132,10 +164,27 @@ if status ~= 0
 end
 install_runTagged('NDI Install', ...
     @() ndi_install(fileparts(ndiRepoPath)), ...
-    'HidePatterns', openMindsAliasWarnings);
+    'HidePatterns', openMindsAliasWarnings, ...
+    'Verbose', options.Verbose);
 
-% 8. Set up MATLAB Paths
-addpath(genpath(codePath));
+% 8. Delete the bootstrap temp folder, if one was used. The full
+% nansen-pulakat clone added in step 4 supersedes the single-file
+% helper we addpath'd in step 3. Done before savepath below so the
+% next pathdef reload doesn't warn about the missing temp folder.
+if exist('tempSyncFolder', 'var') && isfolder(tempSyncFolder)
+    clear repoSync;
+    rmpath(tempSyncFolder);
+    rmdir(tempSyncFolder,'s');
+end
+
+% 9. Set up MATLAB Paths. Filter genpath's output so .git internals
+% don't end up on the path or in pathdef.m: git GCs the
+% .git/objects/<hash>/ subfolders between sessions, and addpath
+% warns "Name is nonexistent" on every later pathdef reload for
+% each one that has since been removed. .github/ and node_modules/
+% are excluded for the same reason — they only have non-MATLAB
+% content that doesn't belong on the path.
+addpath(install_genpathClean(codePath));
 % Save path to a user-writable location so future MATLAB sessions
 % pick up the saved path definition even when matlabroot is read-only.
 % Hard-fail here: if the path cannot persist, "Installation Successful"
@@ -155,15 +204,6 @@ install_ensureStartupLoadsPathdef(funcId);
 
 fprintf('[%s] Installation successful.\n', funcId);
 
-% 9. Delete the bootstrap temp folder, if one was used. The full
-% nansen-pulakat clone added in step 4 supersedes the single-file
-% helper we addpath'd in step 3.
-if exist('tempSyncFolder', 'var') && isfolder(tempSyncFolder)
-    clear repoSync;
-    rmpath(tempSyncFolder);
-    rmdir(tempSyncFolder,'s');
-end
-
 % 10. Initialize 'pulakat' project and launch. Repos were just cloned
 % above, so SkipRepoSync=true skips the redundant per-repo pull pass
 % inside startup.
@@ -172,7 +212,9 @@ if ~isempty(which('ndi.nansen.startup'))
     if ~isfolder(dataPath)
         mkdir(dataPath);
     end
-    ndi.nansen.startup('pulakat', dataPath, 'SkipRepoSync', true);
+    ndi.nansen.startup('pulakat', dataPath, ...
+        'SkipRepoSync', true, ...
+        'Verbose', options.Verbose);
 else
     warning([funcId, ':StartupMissing'], ...
         ['[%s:StartupMissing] ndi.nansen.startup not found. Ensure all ' ...
@@ -248,15 +290,29 @@ end
 
 function varargout = install_runTagged(tag, fcn, options)
 % Run fcn(), capture its command-window output via evalc, and re-emit
-% it as a single tagged block: the first non-empty line carries
-% "[<tag>] " and subsequent lines are indented to align with the
+% it under "[<tag>]" prefixes. Lines already starting with "[" pass
+% through unchanged (so structured status output from helpers like
+% ndi.nansen.sync.repo keeps its own identifier), and lines matching
+% any HidePatterns entry (with the stack-trace lines that follow)
+% are dropped.
+%
+% Verbose (default false) controls how non-bracket lines are
+% handled. When true, the first non-bracket line is tagged with
+% "[<tag>] " and subsequent ones are indented to align with the
 % post-tag column so banners (mksqlite license, openMINDS class
-% warnings, etc.) read as one grouped message instead of N tagged
-% copies of the same identifier. Lines that already start with "["
-% pass through unchanged and reset the tag state. Lines matching
-% any HidePatterns entry (and the stack lines that follow them) are
-% dropped — used to silence the openMINDS class-alias warning family
-% without altering global warning state.
+% warnings, etc.) read as one grouped message. When false, all
+% non-bracket lines are dropped and a single "[<tag>] complete."
+% line is emitted on success so the user still sees that the
+% wrapped step ran.
+%
+% SuppressWarnings (default true) disables warning display via
+% warning('off','all') for the duration of fcn(). MATLAB's warning()
+% writes the "Warning:" header and the first stack-trace line
+% directly to the terminal (bypassing evalc) but writes wrapped
+% continuations to stdout (which evalc captures), so leaving
+% warnings on produces fragments out of order. Disabling warning
+% display silences both halves; onCleanup restores the prior state
+% even on error.
 %
 % Mirror of ndi.nansen.fun.runTagged. Local copy kept here because
 % install.m may run before any of the cloned repos are on the path.
@@ -264,9 +320,16 @@ arguments
     tag {mustBeText}
     fcn (1,1) function_handle
     options.HidePatterns (1,:) string = string.empty
+    options.SuppressWarnings (1,1) logical = true
+    options.Verbose (1,1) logical = false
 end
 tag = char(tag);
 hidePatterns = options.HidePatterns;
+
+if options.SuppressWarnings
+    prevState = warning('off', 'all');
+    restoreWarn = onCleanup(@() warning(prevState)); %#ok<NASGU>
+end
 
 if nargout == 0
     captured = evalc('fcn();');
@@ -275,8 +338,6 @@ else
     [captured, outs{:}] = evalc('fcn()');
     varargout = outs;
 end
-
-if isempty(strtrim(captured)); return; end
 
 lines = splitlines(string(captured));
 indent = repmat(' ', 1, strlength(tag) + 3);
@@ -296,34 +357,65 @@ for i = 1:numel(lines)
         continue
     end
     if startsWith(line, '[')
+        % Pre-tagged status line — always pass through.
         fprintf('%s\n', line);
         isFirst = true;
-    elseif isFirst
-        fprintf('[%s] %s\n', tag, line);
-        isFirst = false;
-    else
-        fprintf('%s%s\n', indent, line);
+    elseif options.Verbose
+        if isFirst
+            fprintf('[%s] %s\n', tag, line);
+            isFirst = false;
+        else
+            fprintf('%s%s\n', indent, line);
+        end
     end
+    % else: non-verbose, drop the line silently
+end
+
+if ~options.Verbose
+    fprintf('[%s] complete.\n', tag);
 end
 end
 
 function install_cleanStalePathdef(funcId, codePath)
-% Strip pre-restructure pathdef entries before ndi_install's path
-% reset re-applies them. Pre-restructure clones lived under
-% nansen-pulakat/pulakat/* (code, code-NDI, configurations, metadata,
-% ...). After the src/ restructure those subfolders no longer exist,
-% so each `addpath` triggers a "Name is nonexistent" warning.
-% Filtering pathdef.m at this point silences the warning storm and
-% keeps the saved path coherent. Idempotent: a fresh install has no
-% pathdef.m yet, and a clean one passes through unchanged.
+% Strip stale pathdef entries before ndi_install's path reset
+% re-applies them. Three families of stale entry are filtered:
+%
+%   * Pre-restructure clones: pre-restructure layouts lived under
+%     nansen-pulakat/pulakat/* (code, code-NDI, configurations,
+%     metadata, ...). After the src/ restructure those subfolders no
+%     longer exist.
+%   * .git internals: a previous run of addpath(genpath(...)) rooted
+%     at a git checkout walked into .git/objects/<hash>/ subfolders
+%     before ignore-globs were tightened. Git GCs those folders on
+%     every fetch, so they go missing between sessions.
+%   * Temp bootstrap folder: install.m's step-3 bootstrap addpath'd a
+%     tempdir helper that we delete at the end of install. A previous
+%     interrupted run can leave that path entry pointing at a folder
+%     we no longer maintain.
+%
+% Each stale entry would otherwise trigger a "Name is nonexistent"
+% warning when MATLAB next loads pathdef. Filtering them here silences
+% the warning storm and keeps the saved path coherent. Idempotent: a
+% fresh install has no pathdef.m yet, and a clean one passes through
+% unchanged.
 userPathdef = fullfile(userpath, 'pathdef.m');
 if ~isfile(userPathdef); return; end
 contents = fileread(userPathdef);
-stalePrefix = fullfile(codePath, 'nansen-pulakat', 'pulakat');
 lines = splitlines(string(contents));
-stale = contains(lines, stalePrefix);
+
+stalePrefix = fullfile(codePath, 'nansen-pulakat', 'pulakat');
+% Match a literal path separator after .git so we don't sweep up a
+% legitimate folder that just happens to contain ".git" in its name
+% (e.g. .gitignore-handler/).
+gitInternals = [filesep, '.git', filesep];
+tempBootstrap = fullfile(tempdir, 'ndi_sync_bootstrap');
+
+stale = contains(lines, stalePrefix) ...
+      | contains(lines, gitInternals) ...
+      | contains(lines, tempBootstrap);
 if ~any(stale); return; end
-fprintf('[%s] Removing %d stale pre-restructure entries from %s.\n', ...
+
+fprintf('[%s] Removing %d stale entries from %s.\n', ...
     funcId, sum(stale), userPathdef);
 fid = fopen(userPathdef, 'w');
 if fid < 0
@@ -335,4 +427,30 @@ if fid < 0
 end
 fprintf(fid, '%s', char(strjoin(lines(~stale), newline)));
 fclose(fid);
+end
+
+function pathStr = install_genpathClean(root)
+% genpath(root) walks every subdirectory and returns them all
+% concatenated with pathsep. Adding the result to MATLAB's path
+% includes folders we don't want there: .git/objects/<hash>/
+% subdirectories that git rewrites between sessions, .github/
+% workflow definitions, and node_modules/ if a JS toolchain ever
+% appears. Filter by path component so the saved pathdef.m stays
+% stable across git GC and the in-memory path stays clean.
+parts = strsplit(genpath(root), pathsep);
+parts = parts(~cellfun('isempty', parts));
+excluded = {'.git', '.github', 'node_modules'};
+keep = true(1, numel(parts));
+for i = 1:numel(parts)
+    p = parts{i};
+    for j = 1:numel(excluded)
+        token = excluded{j};
+        if endsWith(p, [filesep, token]) || ...
+                contains(p, [filesep, token, filesep])
+            keep(i) = false;
+            break
+        end
+    end
+end
+pathStr = strjoin(parts(keep), pathsep);
 end
