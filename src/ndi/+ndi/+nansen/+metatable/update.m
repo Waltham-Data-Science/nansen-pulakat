@@ -119,6 +119,22 @@ if ~isequal(options.UpdateVariableNames,{''})
     for i = 1:numel(updateVariableNames)
         metaTable.updateTableVariable(updateVariableNames{i}, rowIndices);
     end
+
+    % Persist the computed values. metaTable.updateTableVariable
+    % mutates obj.entries in memory but does not save — without this,
+    % values for every HasUpdateFunction variable (Treatment,
+    % NumFiles, NumSubjects, DataTypeName, ...) live only in the
+    % local in-memory copy of the metatable that goes out of scope
+    % when this function returns. The next consumer (the GUI on
+    % launch, or another call to catalog.getMetaTable) reads from
+    % disk and sees the DEFAULT_VALUE that addMissingVarsToMetaTable
+    % wrote when it added the column. Force-save because
+    % editEntries is called with subscripted-cell-assignment paths
+    % that don't always trigger MetaTable's set.entries setter, so
+    % IsClean can stay true even after real mutations.
+    if ~isempty(updateVariableNames) && ~isempty(metaTable.filepath)
+        metaTable.save(true);
+    end
 end
 
 end
