@@ -124,7 +124,23 @@ install_runTagged('openMINDS Setup', ...
 % install has no pathdef.m, and a clean one passes through unchanged.
 install_cleanStalePathdef(funcId, codePath);
 
-% 7. Install NDI-Matlab
+% 7. Install NDI-Matlab. ndi_install resets the MATLAB path with
+% `path(pathdef)`, and during that window any timer whose TimerFcn
+% lives in the temporarily-removed packages errors out. NANSEN's
+% DiskConnectionMonitorTimer (a 5-second poll started by nansen.App)
+% is the common offender: if a user had the GUI open in this MATLAB
+% session before re-running install, its timer fires during the
+% reset and prints "Error while evaluating TimerFcn ... Method
+% 'checkDiskMac' is not defined for class
+% nansen.internal.system.DiskConnectionMonitor". This isn't a
+% warning so install_runTagged's SuppressWarnings doesn't catch it;
+% stop the timers up front instead. nansen.App spins up a fresh
+% monitor when the GUI is next opened.
+nansenTimers = timerfindall('Name', 'DiskConnectionMonitorTimer');
+if ~isempty(nansenTimers)
+    stop(nansenTimers);
+end
+
 ndiURL = 'https://github.com/VH-Lab/NDI-matlab';
 [status, ndiRepoPath] = repoSync(ndiURL,'ClonePath',codePath);
 if status ~= 0
