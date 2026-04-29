@@ -224,10 +224,15 @@ dispatches through `did.implementations.sqlitedb`.
 Local run (rough): `addpath(genpath('src')); addpath(genpath('tests')); runtests('tests/+ndi/+unittest/+nansen')`
 after the upstream repos are on the path.
 
-**Coverage gap to be aware of**: there are no tests under `tests/+pulakat/`
-that enumerate `+tablevariable` / `+objectmethod` / `+sessionmethod`
-classes and verify they instantiate. A broken column or method only
-surfaces when a user clicks into the GUI.
+**Plugin smoke test**: `ndi.unittest.nansen.ModulePlugins` discovers
+every NANSEN module under `src/*/code/+*/module.nansen.json`, walks
+each module's `+tablevariable` / `+objectmethod` / `+sessionmethod`
+subtrees, and emits one parameterised test case per file. It catches
+syntax errors, missing parent classes, broken abstract-property
+contracts, and methods that have lost the no-arg `fcnAttributes`
+branch — failure modes that would otherwise only surface when a user
+clicks into the GUI. Module-agnostic, so a fork that adds a second
+`+labname` package gets the same coverage for free.
 
 ---
 
