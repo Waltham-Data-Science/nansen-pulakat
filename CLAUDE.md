@@ -224,15 +224,26 @@ dispatches through `did.implementations.sqlitedb`.
 Local run (rough): `addpath(genpath('src')); addpath(genpath('tests')); runtests('tests/+ndi/+unittest/+nansen')`
 after the upstream repos are on the path.
 
-**Plugin smoke test**: `ndi.unittest.nansen.ModulePlugins` discovers
-every NANSEN module under `src/*/code/+*/module.nansen.json`, walks
-each module's `+tablevariable` / `+objectmethod` / `+sessionmethod`
-subtrees, and emits one parameterised test case per file. It catches
-syntax errors, missing parent classes, broken abstract-property
-contracts, and methods that have lost the no-arg `fcnAttributes`
-branch — failure modes that would otherwise only surface when a user
-clicks into the GUI. Module-agnostic, so a fork that adds a second
-`+labname` package gets the same coverage for free.
+**Module-agnostic safety nets** — three discovery-driven test classes
+that scale to any new lab without edits:
+
+- `ndi.unittest.nansen.ModulePlugins` — walks every `+<name>` package
+  with a `module.nansen.json` manifest and emits one case per
+  tablevariable / objectmethod / sessionmethod file. Catches syntax
+  errors, missing parent classes, broken abstract-property contracts,
+  and methods that have lost the no-arg `fcnAttributes` branch.
+- `ndi.unittest.nansen.ModuleManifest` — for every discovered module,
+  validates `module.nansen.json` schema (Properties.Name matches the
+  `+<name>` folder, Description present) and the paired
+  `+ndi/+setup/+conv/+<name>/project_info.json` (parses, has every
+  field the integration layer consumes, `name` matches the module,
+  `projectRelativePath` resolves to a real folder). The existing
+  `ReadProjectInfo` test only exercises a synthetic testlab fixture;
+  this class is what catches a regression in the real shipped config.
+- `ndi.unittest.nansen.JsonConfigs` — walks `src/` and asserts every
+  `*.json` parses with `jsondecode` and is non-empty. No module
+  knowledge — covers per-module configs, integration settings, and
+  shared JSON (e.g. `strains.json`) uniformly.
 
 ---
 
