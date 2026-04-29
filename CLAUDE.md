@@ -1,16 +1,16 @@
 # CLAUDE.md
 
-Guidance for future Claude Code sessions working on **nansen-pulakat**. Read
-this before exploring — it summarises three coupled repos so you don't have
-to rediscover the structure each session.
+Reference for Claude Code sessions working on **nansen-pulakat**. It
+summarises three coupled repos and the conventions in this codebase
+so a session can pick up cold.
 
 ---
 
 ## What this repo is
 
-`nansen-pulakat` is a MATLAB data-management application for the Pulakat lab.
-It is **not** a standalone tool: it stitches together two upstream
-frameworks and adds the lab-specific glue and GUI extensions.
+`nansen-pulakat` is a MATLAB data-management application for the Pulakat
+lab. It stitches together two upstream frameworks and adds the
+lab-specific glue and GUI extensions.
 
 ```
               +-----------------------------+
@@ -30,7 +30,7 @@ frameworks and adds the lab-specific glue and GUI extensions.
 | Repo                     | Role                                                      | Upstream                                          |
 |--------------------------|-----------------------------------------------------------|---------------------------------------------------|
 | `nansen-pulakat`         | Integration layer + Pulakat-lab GUI extensions + installer | `Waltham-Data-Science/nansen-pulakat` (this)      |
-| NANSEN (GUI framework)   | App shell, metadata tables, plugin loader                  | `VervaekeLab/NANSEN` — track **`dev`** branch     |
+| NANSEN (GUI framework)   | App shell, metadata tables, plugin loader                  | `VervaekeLab/NANSEN`, `dev` branch                |
 | NDI-matlab (DB/cloud)    | Dataset model, document store, NDI cloud sync              | `VH-Lab/NDI-matlab`                               |
 | openMINDS_MATLAB         | Ontology types used by NDI                                 | `openMetadataInitiative/openMINDS_MATLAB`         |
 
@@ -51,9 +51,8 @@ siblings and you can read them directly:
 /home/user/NDI-matlab       <-- VH-Lab/NDI-matlab
 ```
 
-If you need to understand a NANSEN abstract class, an NDI cloud call, or
-how a plugin is discovered, **read those repos directly** — don't re-clone
-or guess. They are the source of truth for behaviour you can't change.
+For NANSEN abstract classes, NDI cloud calls, and plugin-discovery
+behaviour, those checkouts are the source of truth.
 
 ---
 
@@ -87,20 +86,17 @@ nansen-pulakat/
 │       ├── configurations/            # JSON + .mat: menu visibility, file-var config,
 │       │                              #   pipeline + datalocation settings
 │       └── metadata/tables/           # metatable_catalog.mat + column settings JSON
-└── tests/+ndi/+unittest/+nansen/      # ~20 test classes (offline + cloud)
+└── tests/+ndi/+unittest/+nansen/      # Test classes (offline + cloud)
 ```
 
-Two things to internalise:
+Two structural facts:
 
-1. **`+pulakat/+tablevariable/...` and `+pulakat/+{object,session}method/...`
-   are discovered by NANSEN purely by folder/name convention.** No central
-   registry. A typo in a class name or a missing file silently disappears
-   from the GUI. Tests that exercise the column or method are the only
-   safety net.
-2. **The integration layer reuses `ndi.*`** (`src/ndi/+ndi/+nansen/...`).
-   This sits next to upstream NDI-matlab on the path; both populate
-   the `ndi` namespace. Don't add anything to `src/ndi/+ndi/` that
-   shadows an upstream NDI function.
+- **`+pulakat/+tablevariable/...` and `+pulakat/+{object,session}method/...`
+  are discovered by NANSEN by folder/name convention.** No central
+  registry — the directory layout *is* the manifest.
+- **The integration layer reuses the `ndi.*` namespace**
+  (`src/ndi/+ndi/+nansen/...`). It sits next to upstream NDI-matlab
+  on the path; both populate `ndi`.
 
 ---
 
@@ -126,16 +122,16 @@ Two things to internalise:
 
 ### Subsequent launches
 - A plain MATLAB restart auto-loads paths via the `userpath/startup.m`
-  snippet — code is available but **no cloud sync happens**.
-- `pulakat.startup` (or `ndi.nansen.startup('pulakat')`) is what actually
-  syncs with NDI cloud and opens the GUI.
+  snippet — code is available but no cloud sync happens.
+- `pulakat.startup` (or `ndi.nansen.startup('pulakat')`) syncs with NDI
+  cloud and opens the GUI.
 - Both support `Headless=true` for CI/scripting.
 
 ---
 
-## Cross-repo coupling — what we depend on
+## Cross-repo coupling
 
-These are the upstream surfaces that, if changed, will break us:
+Upstream surfaces this codebase consumes:
 
 | We use                                              | Upstream defines                                |
 |-----------------------------------------------------|-------------------------------------------------|
@@ -147,9 +143,7 @@ These are the upstream surfaces that, if changed, will break us:
 | `ndi.cloud.{testLogin,uilogin,downloadDataset,sync.downloadNew,authenticate}` | NDI-matlab |
 | `ndi_install`, `nansen_install`                     | both — invoked by `install.m`                   |
 
-Because NANSEN's `dev` branch is what we pin, **upstream NANSEN changes
-land in our installs immediately**. CI runs against `dev` to surface
-breakage early.
+NANSEN is pinned to its `dev` branch; CI checks out `dev` for every run.
 
 ---
 
@@ -164,17 +158,17 @@ grep straight to source.
 - **Info lines** use a short module tag:
   `fprintf('[%s] message\n', infoTag)` where `infoTag` is e.g.
   `'NDI Startup'`, `'Pulakat'`, `'Install'`.
-- **Warnings and errors** use a full MException-style ID and **embed
-  that exact ID as a bracket prefix in the message**:
+- **Warnings and errors** use a full MException-style ID and embed
+  that exact ID as a bracket prefix in the message:
 
   ```matlab
   warning([funcId, ':CloneFailed'], ...
       '[%s:CloneFailed] Clone failed: %s', funcId, cmdOut);
   ```
 
-  The printed prefix must match the throw identifier exactly. Don't
-  print `[NDI:Nansen:Sync:Repo]` while throwing `:CloneFailed` — print
-  `[NDI:Nansen:Sync:Repo:CloneFailed]`.
+  The printed prefix matches the throw identifier exactly:
+  `[NDI:Nansen:Sync:Repo:CloneFailed]`, not just
+  `[NDI:Nansen:Sync:Repo]`.
 
 - **Multi-line / banner output** from upstream calls
   (`nansen_install`, openMINDS setup, `ndi_install`) is captured via
@@ -192,14 +186,14 @@ or `install.m` for the canonical pattern.
 
 Every public function has a help block with `Inputs`, `Name-Value Pairs`,
 `Outputs`, `Examples`, and `See also:` (uppercase function names).
-Match the existing tone — see `ndi.nansen.startup` and `install.m`.
+See `ndi.nansen.startup` and `install.m` for the tone.
 
 ### MException ID namespace
 
 - Integration layer: `NDI:Nansen:<Subsystem>:<Reason>`
   (e.g. `NDI:Nansen:Sync:Repo:CloneFailed`, `NDI:Nansen:Startup:NotAuthenticated`).
 - Installer: `Install:<Reason>` (e.g. `Install:GitNotFound`).
-- Pulakat layer: prefer `Pulakat:<Subsystem>:<Reason>`.
+- Pulakat layer: `Pulakat:<Subsystem>:<Reason>`.
 
 ---
 
@@ -209,82 +203,52 @@ Layout: `tests/+ndi/+unittest/+nansen/<TestClassName>.m`
 
 Two CI tiers in `.github/workflows/matlab-tests.yml`:
 
-- **Offline tests** (every push/PR): 17 test classes — project setup,
-  metatable ops, file parsing, importers, sync. Run by listing class
-  names in the workflow file.
+- **Offline tests** (every push/PR): project setup, metatable ops,
+  file parsing, importers, sync, plus the discovery-driven plugin
+  classes below. Run by listing class names in the workflow file.
 - **Cloud tests** (gated on `NDI_CLOUD_USERNAME`/`NDI_CLOUD_PASSWORD`
-  secrets): 3 test classes — `CreateDataset`, `Startup`, `ImportSession`.
-  Skipped with a notice when secrets aren't configured (e.g. on PRs from
-  forks). Cloud env defaults to `prod`; override with `CLOUD_API_ENVIRONMENT`.
+  secrets): `CreateDataset`, `Startup`, `ImportSession`. Skipped with
+  a notice when secrets aren't configured (e.g. on PRs from forks).
+  Cloud env defaults to `prod`; override with `CLOUD_API_ENVIRONMENT`.
 
-CI also pre-clones DID-matlab, vhlab-toolbox-matlab, and mksqlite
-(building the MEX with `buildit.m`), because NDI's database backend
-dispatches through `did.implementations.sqlitedb`.
+CI pre-clones DID-matlab, vhlab-toolbox-matlab, and mksqlite (building
+the MEX with `buildit.m`), because NDI's database backend dispatches
+through `did.implementations.sqlitedb`.
 
 Local run (rough): `addpath(genpath('src')); addpath(genpath('tests')); runtests('tests/+ndi/+unittest/+nansen')`
 after the upstream repos are on the path.
 
-**Module-agnostic safety nets** — three discovery-driven test classes
-that scale to any new lab without edits:
+Three discovery-driven test classes scale across modules without
+per-lab edits:
 
 - `ndi.unittest.nansen.ModulePlugins` — walks every `+<name>` package
-  with a `module.nansen.json` manifest and emits one case per
-  tablevariable / objectmethod / sessionmethod file. Catches syntax
-  errors, missing parent classes, broken abstract-property contracts,
-  and methods that have lost the no-arg `fcnAttributes` branch.
+  with a `module.nansen.json` manifest and emits one parameterised
+  case per tablevariable / objectmethod / sessionmethod file: class
+  loads, no-arg constructor succeeds, inheritance includes
+  `nansen.metadata.abstract.TableVariable`, no-arg method call
+  returns a struct.
 - `ndi.unittest.nansen.ModuleManifest` — for every discovered module,
-  validates `module.nansen.json` schema (Properties.Name matches the
+  validates `module.nansen.json` (Properties.Name matches the
   `+<name>` folder, Description present) and the paired
   `+ndi/+setup/+conv/+<name>/project_info.json` (parses, has every
   field the integration layer consumes, `name` matches the module,
-  `projectRelativePath` resolves to a real folder). The existing
-  `ReadProjectInfo` test only exercises a synthetic testlab fixture;
-  this class is what catches a regression in the real shipped config.
+  `projectRelativePath` resolves to a real folder).
 - `ndi.unittest.nansen.JsonConfigs` — walks `src/` and asserts every
-  `*.json` parses with `jsondecode` and is non-empty. No module
-  knowledge — covers per-module configs, integration settings, and
-  shared JSON (e.g. `strains.json`) uniformly.
+  `*.json` parses with `jsondecode` and is non-empty.
+
+`ModulePlugins.discoverModules` and `ModulePlugins.repoRoot` are the
+shared static helpers the other two classes call.
 
 ---
 
 ## Branching and commits
 
-- Default working branch for Claude sessions:
-  `claude/<short-task-name>-<random-suffix>` — never push to `main`
-  without explicit user instruction.
-- Commit messages: short imperative subject (no trailing period).
-  Body is optional but expected for non-trivial changes — explain the
-  *why*, not the *what*. See `git log --oneline` for tone.
-- Existing tone uses single-quoted MATLAB function names in subjects
+- Working branches use `claude/<short-task-name>-<random-suffix>`.
+- Commit messages: short imperative subject, no trailing period.
+  Body explains the *why* for non-trivial changes. See
+  `git log --oneline` for tone.
+- Subjects use single-quoted MATLAB function names where helpful
   (e.g. "Apply pattern B to src/pulakat and align tests").
-- Don't bypass hooks (`--no-verify`) or amend pushed commits without
-  asking.
-
----
-
-## Deployment / smoke-test gotchas
-
-Things to verify before handing a build to a client:
-
-1. **`install.m`'s websave bootstrap fetches `repo.m` from `main`.**
-   If we rename or move `src/ndi/+ndi/+nansen/+sync/repo.m`, fresh
-   installs from a previously-downloaded `install.m` break. Update
-   the URL there and the README's MATLAB-paste snippet together.
-2. **NANSEN tracks `dev`**, not a tag. Upstream churn there is the
-   most likely source of regression. CI offline-tests catch most.
-3. **openMINDS class-alias warnings are benign** but loud. They are
-   suppressed via `HidePatterns` in three places (`install.m`,
-   openMINDS `setup.m`, NDI-matlab installer). If a fresh install
-   spams `cannot be used as an alias for more than one class`,
-   the suppression list lost coverage.
-4. **`+pulakat` plugin discovery** is name-convention based.
-   Adding/renaming a tablevariable or method requires no registry
-   edit, but also has no compile-time check. Run the GUI after any
-   such change.
-5. **`userpath/pathdef.m`** is the persisted path. If the client's
-   installer path differs from the one baked into `pathdef.m`, paths
-   won't load. `install_cleanStalePathdef` strips obviously stale
-   entries; new restructures may need additions.
 
 ---
 
