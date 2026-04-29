@@ -46,22 +46,20 @@ if isempty(subjectFiles)
 end
 
 subjectTables = cell(size(subjectFiles));
-allCsvCols = {projectInfo.subjectFileColumns.value};
-allTargets = {projectInfo.subjectFileColumns.name};
+sfc = projectInfo.subjectFileColumns;
+allCsvCols = {sfc.value};
+allTargets = {sfc.name};
 
 % Some entries in subjectFileColumns describe columns that later
 % import steps add by code rather than read from the CSV — the
 % project_info schema keeps them here so documents.m can include
 % them in ontologyTableRow document creation, but they are
-% intentionally absent from the source CSV. Treating them as
-% required CSV columns produces (a) a spurious "MissingVariables"
-% warning from validateTable and (b) an "Unknown variable name"
-% hard error from setvartype. Filter them out for the CSV-shape
-% checks; the columns themselves are still present in the
-% post-rename table because we add them below or in
+% intentionally absent from the source CSV. Such entries are
+% flagged "auto": true in project_info.json. Filter them out for
+% the CSV-shape checks; the columns themselves are still present
+% in the post-rename table because we add them below or in
 % ndi.nansen.import.subject.
-AUTO_ADDED = {'SubjectIdentifier', 'ElectronicFileName'};
-csvExpectedMask = ~ismember(allTargets, AUTO_ADDED);
+csvExpectedMask = ~ndi.nansen.fun.isAutoColumn(sfc);
 expectedCsvCols = allCsvCols(csvExpectedMask);
 
 for i = 1:numel(subjectFiles)
