@@ -63,9 +63,8 @@ catalog = options.Project.MetaTableCatalog;
 if isempty(catalog.Table) || ~ismember(dataName, catalog.Table.MetaTableName)
     return
 end
-entry = catalog.getEntry(dataName);
-fullFilePath = fullfile(entry.SavePath, entry.FileName);
-if ~exist(fullFilePath, 'file')
+fullFilePath = catalog.getMetaTableFilePath(dataName);
+if ~isfile(fullFilePath)
     return
 end
 

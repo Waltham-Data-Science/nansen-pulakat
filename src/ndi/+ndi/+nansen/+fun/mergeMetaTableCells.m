@@ -66,7 +66,8 @@ for i = 1:height(uniqueRows)
 
             % Propagate common var changes
             propagateVariableNames = intersect(TVA{TVA.HasUpdateFunction & ...
-                TVA.TableType == lower(class(otherMetaTables(j))), 'Name'},commonVars);
+                TVA.TableType == lower(otherMetaTables(j).MetaTableClass), 'Name'}, commonVars);
+
             for k = 1:numel(propagateVariableNames)
                 otherMetaTables(j).updateTableVariable(propagateVariableNames{k},indOtherEntry);
             end
