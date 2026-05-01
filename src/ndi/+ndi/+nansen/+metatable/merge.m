@@ -70,7 +70,7 @@ if isempty(dataTable)
             % below; updateAll's second pass refreshes every
             % HasUpdateFunction variable uniformly.
             oldVars = metaTable.entries.Properties.VariableNames;
-            metaTable.addMissingVarsToMetaTable(dataName, ...
+            project.synchronizeMetaTableVariables(metaTable, ...
                 'AutoUpdateValues', false);
             if ~isequal(metaTable.entries.Properties.VariableNames, oldVars)
                 changed = true;
@@ -92,14 +92,14 @@ if ~isempty(metaTableCatalog.Table) && ...
         % tablevariable added after the local metatable was first
         % saved (e.g. Treatment, NumFiles, DataTypeName) never gets
         % a column in the user's metatable and never appears in the
-        % GUI. addMissingVarsToMetaTable adds the column with its
-        % DEFAULT_VALUE; pass AutoUpdateValues=false so the per-
-        % column update() pass is skipped here. updateAll's second
-        % pass (UpdateTable=false) refreshes every HasUpdateFunction
-        % variable uniformly, so doing it here too would just be
-        % redundant work for newly-added columns.
+        % GUI. synchronizeMetaTableVariables adds the column with
+        % its DEFAULT_VALUE; pass AutoUpdateValues=false so the
+        % per-column update() pass is skipped here. updateAll's
+        % second pass (UpdateTable=false) refreshes every
+        % HasUpdateFunction variable uniformly, so doing it here
+        % too would just be redundant work for newly-added columns.
         oldVars = metaTable.entries.Properties.VariableNames;
-        metaTable.addMissingVarsToMetaTable(dataName, ...
+        project.synchronizeMetaTableVariables(metaTable, ...
             'AutoUpdateValues', false);
         if ~isequal(metaTable.entries.Properties.VariableNames, oldVars)
             changed = true;
@@ -121,7 +121,7 @@ if ~exist('metaTable','var')
     % AutoUpdateValues=false matches the existing-metatable branches
     % above; updateAll's tail pass refreshes every HasUpdateFunction
     % variable uniformly so we don't run update() per-column twice.
-    metaTable.addMissingVarsToMetaTable(dataName, ...
+    project.synchronizeMetaTableVariables(metaTable, ...
         'AutoUpdateValues', false);
     changed = true;  % brand-new metatable always counts as a change
     return
