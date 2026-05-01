@@ -31,9 +31,17 @@ function varargout = manual(sessionObject, varargin)
 
     % --- Implementation of the method ---
 
-    % Get dataset and session objects
+    % Get dataset and session objects. Pass the SessionIdentifier as
+    % the third arg so a dataset and session that share a directory
+    % don't collapse onto the dataset's default session.
     dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
-    session = ndi.session.dir(sessionObject.SessionName, sessionObject.SessionPath);
+    session = ndi.session.dir(sessionObject.SessionName, ...
+        sessionObject.SessionPath, sessionObject.SessionIdentifier);
+    assert(strcmp(session.id, sessionObject.SessionIdentifier), ...
+        'Pulakat:Import:Subjects:SessionMismatch', ...
+        ['[Pulakat:Import:Subjects:SessionMismatch] Resolved session ' ...
+         'id %s does not match GUI-selected %s.'], ...
+        session.id, sessionObject.SessionIdentifier);
 
     % Add subject to session
     subjectTable = ndi.nansen.import.subject.manual(session);
