@@ -35,7 +35,8 @@ function varargout = file(sessionObject, varargin)
     % Get dataset and session objects. Pass the SessionIdentifier as
     % the third arg so a dataset and session that share a directory
     % don't collapse onto the dataset's default session.
-    dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
+    dataset = ndi.nansen.fun.datasetID2Object( ...
+        ndi.nansen.fun.resolveDatasetID(sessionObject.DatasetIdentifier));
     session = ndi.session.dir(sessionObject.SessionName, ...
         sessionObject.SessionPath, sessionObject.SessionIdentifier);
     assert(strcmp(session.id, sessionObject.SessionIdentifier), ...

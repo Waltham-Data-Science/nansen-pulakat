@@ -37,9 +37,13 @@ end
 
 % Resolve dataset id from the row struct. metaTable rows store
 % identifier columns as 1-cell wrappers; unwrap so the cache key
-% is a plain char.
+% is a plain char. An orphan row with an empty DatasetIdentifier
+% can't be looked up in any sync status table, so return the
+% default value rather than fall back to the project's dataset
+% (which would query the wrong status table).
 datasetID = obj.DatasetIdentifier;
 if iscell(datasetID); datasetID = datasetID{1}; end
+if isempty(datasetID); return; end
 
 % Cache the dataset object and its sync status per dataset id.
 % nansen.metadata.MetaTable.updateTableVariable invokes Cloud.update

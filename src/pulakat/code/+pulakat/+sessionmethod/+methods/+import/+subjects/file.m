@@ -38,7 +38,8 @@ function varargout = file(sessionObject, varargin)
     % differs from the GUI-selected session), silently misrouting
     % every downstream SessionIdentifier write. The id is the GUI's
     % source of truth, so feed it in.
-    dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
+    dataset = ndi.nansen.fun.datasetID2Object( ...
+        ndi.nansen.fun.resolveDatasetID(sessionObject.DatasetIdentifier));
     session = ndi.session.dir(sessionObject.SessionName, ...
         sessionObject.SessionPath, sessionObject.SessionIdentifier);
     assert(strcmp(session.id, sessionObject.SessionIdentifier), ...

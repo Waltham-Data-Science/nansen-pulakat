@@ -22,8 +22,10 @@ function varargout = document(fileObject, varargin)
 
     params = utility.parsenvpairs(params, [], varargin); %#ok<NASGU>
 
-    % Get dataset object
-    dataset = ndi.nansen.fun.datasetID2Object(fileObject(1).DatasetIdentifier);
+    % Get dataset object. Fall back to the project's Dataset metatable
+    % if the selected row's DatasetIdentifier is empty (orphan rows).
+    dataset = ndi.nansen.fun.datasetID2Object( ...
+        ndi.nansen.fun.resolveDatasetID(fileObject(1).DatasetIdentifier));
 
     % Update file metatable
     % ndi.nansen.metatable.update(dataset,'File');

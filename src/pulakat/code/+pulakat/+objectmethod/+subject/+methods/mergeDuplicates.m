@@ -27,8 +27,10 @@ function varargout = mergeDuplicates(subjectObject, varargin)
     % Merge duplicates
     ndi.nansen.fun.mergeMetaTableCells(subjectTable,'Subject');
 
-    % Get dataset object
-    dataset = ndi.nansen.fun.datasetID2Object(subjectObject(1).DatasetIdentifier);
+    % Get dataset object. Fall back to the project's Dataset metatable
+    % if the selected row's DatasetIdentifier is empty (orphan rows).
+    dataset = ndi.nansen.fun.datasetID2Object( ...
+        ndi.nansen.fun.resolveDatasetID(subjectObject(1).DatasetIdentifier));
 
     % Update session table, restricted to the sessions whose subjects
     % were merged. The merged subjects share SessionIdentifier with

@@ -52,9 +52,12 @@ function varargout = export(fileObject, varargin)
         {fileObject.FileIdentifier});
     writetable(exportTable,fullfile(exportFolder,'metadata.csv'));
 
-    % Get dataset object
+    % Get dataset object. resolveDatasetID falls back to the project's
+    % Dataset metatable if every selected row carries an empty
+    % DatasetIdentifier (orphan rows).
     datasetID = unique({fileObject.DatasetIdentifier});
-    dataset = ndi.nansen.fun.datasetID2Object(datasetID{1});
+    dataset = ndi.nansen.fun.datasetID2Object( ...
+        ndi.nansen.fun.resolveDatasetID(datasetID{1}));
 
     % Download cloud (and local) generic_files
     ndi.nansen.export.genericFiles(dataset,exportTable,exportFolder,...

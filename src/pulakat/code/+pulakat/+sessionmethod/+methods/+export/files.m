@@ -51,8 +51,10 @@ function varargout = files(sessionObject, varargin)
         {sessionObject.SessionIdentifier});
     writetable(exportTable,fullfile(exportFolder,'metadata.csv'));
     
-    % Get dataset object
-    dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
+    % Get dataset object. Fall back to the project's Dataset metatable
+    % if the selected session row's DatasetIdentifier is empty.
+    dataset = ndi.nansen.fun.datasetID2Object( ...
+        ndi.nansen.fun.resolveDatasetID(sessionObject.DatasetIdentifier));
 
     % Download cloud (and local) generic_files
     ndi.nansen.export.genericFiles(dataset,exportTable,exportFolder,...
