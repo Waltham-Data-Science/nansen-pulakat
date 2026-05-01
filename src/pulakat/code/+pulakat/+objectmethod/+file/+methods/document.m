@@ -40,8 +40,45 @@ function varargout = document(fileObject, varargin)
     % Call validation function
     [isValid,reportTable] = ndi.nansen.import.file.validate(fileTable);
 
-    % Check for already documented rows
-    isDocument = isequal(fileTable.FileDocumentIdentifier,{'N/A'});
+    % Check for already documented rows. Per-row strcmp; the previous
+    % isequal(..., {'N/A'}) compared the entire cell column against a
+    % length-1 cell, which is only true for a single-row table -- for
+    % multi-row selections it returned scalar false, every row passed
+    % through, and already-documented rows reached documents() where
+    % the upstream framework's isnan-on-ndi.document path crashes.
+    isDocument = ~strcmp(fileTable.FileDocumentIdentifier, 'N/A');
+
+    % Warn up front if any rows have validation issues or are already
+    % documented, so the user can fix things before any documents are
+    % created. When everything is clean, skip the prompt.
+    nToCreate = sum(isValid & ~isDocument);
+    nInvalid  = sum(~isValid);
+    nExisting = sum(isDocument);
+    if nInvalid > 0 || nExisting > 0
+        if nToCreate == 0
+            msg = sprintf([ ...
+                'Nothing to do.\n\n' ...
+                '%d selected row(s) already have documents.\n' ...
+                '%d selected row(s) have validation issues.\n\n' ...
+                'See the validation report for details.'], ...
+                nExisting, nInvalid);
+            questdlg(msg, 'File documents', 'OK', 'OK');
+            ndi.nansen.fun.showValidationReport(isValid, reportTable);
+            return
+        end
+        msg = sprintf([ ...
+            'Documents will be created for %d file(s).\n\n' ...
+            '%d row(s) will be skipped: already documented.\n' ...
+            '%d row(s) will be skipped: missing required ' ...
+            'information (detailed report after run).\n\n' ...
+            'Continue?'], nToCreate, nExisting, nInvalid);
+        choice = questdlg(msg, 'File documents', ...
+            'Continue', 'Cancel', 'Cancel');
+        if ~strcmp(choice, 'Continue')
+            ndi.nansen.fun.showValidationReport(isValid, reportTable);
+            return
+        end
+    end
 
     % Create documents. Group selected rows by SessionIdentifier (not
     % SessionPath) because a dataset and a session can share a
