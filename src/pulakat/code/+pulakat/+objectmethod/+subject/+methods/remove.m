@@ -68,8 +68,14 @@ function varargout = remove(subjectObject, varargin)
     indRemove = ismember(fileTable.entries.SubjectIdentifier,subjectTable.SubjectIdentifier);
     ndi.nansen.metatable.remove(fileTable.entries(indRemove,:),'File');
 
-    % Get dataset object
-    dataset = ndi.nansen.fun.datasetID2Object(subjectTable.DatasetIdentifier{1});
+    % Get dataset object. Pull DatasetIdentifier from the project's
+    % Dataset metatable rather than a subject row -- orphan subject
+    % rows can carry an empty DatasetIdentifier (e.g. created when
+    % the matching Session entry didn't yet exist), and a click that
+    % targets such a row would otherwise dereference {} here.
+    datasetTable = project.MetaTableCatalog.getMetaTable('Dataset');
+    dataset = ndi.nansen.fun.datasetID2Object( ...
+        datasetTable.entries.DatasetIdentifier{1});
 
     % Update metatables
     ndi.nansen.metatable.update(dataset,'Subject');
