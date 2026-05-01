@@ -65,20 +65,30 @@ for i = 1:height(uniqueRows)
                 repmat(idKeep,numel(indOtherEntry),1));
 
             % Propagate common var changes
-            propagateVariableNames = intersect(TVA{TVA.HasUpdateFunction & ...
-                TVA.TableType == lower(otherMetaTables(j).MetaTableClass), 'Name'}, commonVars);
+            otherMask = TVA.HasUpdateFunction & ...
+                TVA.TableType == lower(otherMetaTables(j).MetaTableClass);
+            otherNames = TVA{otherMask, 'Name'};
+            otherFcns  = TVA{otherMask, 'UpdateFunctionName'};
+            [propagateVariableNames, keepIdx] = intersect( ...
+                otherNames, commonVars);
+            propagateFcnNames = otherFcns(keepIdx);
 
             for k = 1:numel(propagateVariableNames)
-                otherMetaTables(j).updateTableVariable(propagateVariableNames{k},indOtherEntry);
+                otherMetaTables(j).updateTableVariable( ...
+                    propagateVariableNames{k}, indOtherEntry, ...
+                    str2func(propagateFcnNames{k}));
             end
         end
 
         % Complete update of metatable
-        updateVariableNames = TVA{TVA.HasUpdateFunction & ...
-            TVA.TableType == lower(dataName), 'Name'};
+        updateMask = TVA.HasUpdateFunction & ...
+            TVA.TableType == lower(dataName);
+        updateVariableNames = TVA{updateMask, 'Name'};
+        updateFcnNames      = TVA{updateMask, 'UpdateFunctionName'};
         for k = 1:numel(updateVariableNames)
-            metaTable.updateTableVariable(updateVariableNames{k},indEntry);
-        end   
+            metaTable.updateTableVariable(updateVariableNames{k}, ...
+                indEntry, str2func(updateFcnNames{k}));
+        end
     end
 
 end
