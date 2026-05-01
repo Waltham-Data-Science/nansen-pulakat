@@ -61,8 +61,11 @@ function varargout = document(subjectObject, varargin)
     % happen before picking. The clean-everything case skips the
     % dialog and proceeds silently.
     if any(~isValid) || any(isDocument)
-        if nToCreate == 0
+        haveInvalid = any(~isValid);
+        if nToCreate == 0 && ~haveInvalid
             buttons = {'Close'};
+        elseif nToCreate == 0
+            buttons = {'Edit invalid', 'Cancel'};
         else
             buttons = {'Edit invalid first', ...
                        sprintf('Create %d document(s)', nToCreate), ...
@@ -71,9 +74,26 @@ function varargout = document(subjectObject, varargin)
         choice = ndi.nansen.fun.showValidationReport(isValid, reportTable, ...
             'IsDocumented', isDocument, ...
             'Buttons', buttons, ...
-            'Default', 'Edit invalid first', ...
+            'Default', buttons{1}, ...
             'Title', 'Subject documents');
-        if nToCreate == 0 || ~startsWith(choice, "Create ")
+
+        if startsWith(choice, "Edit ")
+            % Hand the invalid rows directly to the Edit object method
+            % so the user doesn't have to re-select them. Match by
+            % SubjectIdentifier rather than positional index because
+            % metaTable.getEntry doesn't promise to return rows in the
+            % order ids were requested. After edit completes, return;
+            % the user re-issues Document once their changes settle.
+            invalidIDs = subjectTable.SubjectIdentifier(~isValid);
+            allIDs = {subjectObject.SubjectIdentifier};
+            invalidObjects = subjectObject(ismember(allIDs, invalidIDs));
+            if ~isempty(invalidObjects)
+                pulakat.objectmethod.subject.methods.edit(invalidObjects);
+            end
+            return
+        end
+
+        if ~startsWith(choice, "Create ")
             return
         end
     end
