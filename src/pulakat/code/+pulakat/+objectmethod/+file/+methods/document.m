@@ -41,17 +41,25 @@ function varargout = document(fileObject, varargin)
     % Check for already documented rows
     isDocument = isequal(fileTable.FileDocumentIdentifier,{'N/A'});
 
-    % Create documents. Pass the session reference name as well as
-    % the path to ndi.session.dir because dataset and session can
-    % share a directory; without the reference, ndi.session.dir
-    % creates a fresh session with a new identifier instead of
-    % opening the existing one.
+    % Create documents. Group selected rows by SessionIdentifier (not
+    % SessionPath) because a dataset and a session can share a
+    % directory: collapsing on path would merge rows that belong to
+    % different sessions into one ndi.session.dir(name, path) call,
+    % which silently picks the dataset's default session. Pass the id
+    % as ndi.session.dir's third positional arg to pin resolution.
     fileTable_valid = fileTable(isValid & ~isDocument,:);
-    sessionPaths = unique(fileTable_valid.SessionPath);
-    for i = 1:numel(sessionPaths)
-        indSession = strcmp(fileTable_valid.SessionPath,sessionPaths{i});
-        sessionName = fileTable_valid.SessionName{find(indSession,1)};
-        session = ndi.session.dir(sessionName, sessionPaths{i});
+    sessionIds = unique(fileTable_valid.SessionIdentifier);
+    for i = 1:numel(sessionIds)
+        indSession = strcmp(fileTable_valid.SessionIdentifier,sessionIds{i});
+        firstRow = find(indSession,1);
+        sessionName = fileTable_valid.SessionName{firstRow};
+        sessionPath = fileTable_valid.SessionPath{firstRow};
+        session = ndi.session.dir(sessionName, sessionPath, sessionIds{i});
+        assert(strcmp(session.id, sessionIds{i}), ...
+            'Pulakat:File:Document:SessionMismatch', ...
+            ['[Pulakat:File:Document:SessionMismatch] Resolved ' ...
+             'session id %s does not match metatable %s.'], ...
+            session.id, sessionIds{i});
         ndi.nansen.import.file.documents(session,fileTable_valid(indSession,:));
     end
 

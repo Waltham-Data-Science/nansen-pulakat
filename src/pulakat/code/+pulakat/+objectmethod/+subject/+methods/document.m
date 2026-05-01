@@ -45,17 +45,25 @@ function varargout = document(subjectObject, varargin)
     % Check for already documented rows
     isDocument = isequal(subjectTable.SubjectDocumentIdentifier,{'N/A'});
 
-    % Create documents. Pass the session reference name as well as
-    % the path to ndi.session.dir because dataset and session can
-    % share a directory; without the reference, ndi.session.dir
-    % creates a fresh session with a new identifier instead of
-    % opening the existing one.
+    % Create documents. Group selected rows by SessionIdentifier (not
+    % SessionPath) because a dataset and a session can share a
+    % directory: collapsing on path would merge rows that belong to
+    % different sessions into one ndi.session.dir(name, path) call,
+    % which silently picks the dataset's default session. Pass the id
+    % as ndi.session.dir's third positional arg to pin resolution.
     subjectTable_valid = subjectTable(isValid & ~isDocument,:);
-    sessionPaths = unique(subjectTable_valid.SessionPath);
-    for i = 1:numel(sessionPaths)
-        indSession = strcmp(subjectTable_valid.SessionPath,sessionPaths{i});
-        sessionName = subjectTable_valid.SessionName{find(indSession,1)};
-        session = ndi.session.dir(sessionName, sessionPaths{i});
+    sessionIds = unique(subjectTable_valid.SessionIdentifier);
+    for i = 1:numel(sessionIds)
+        indSession = strcmp(subjectTable_valid.SessionIdentifier,sessionIds{i});
+        firstRow = find(indSession,1);
+        sessionName = subjectTable_valid.SessionName{firstRow};
+        sessionPath = subjectTable_valid.SessionPath{firstRow};
+        session = ndi.session.dir(sessionName, sessionPath, sessionIds{i});
+        assert(strcmp(session.id, sessionIds{i}), ...
+            'Pulakat:Subject:Document:SessionMismatch', ...
+            ['[Pulakat:Subject:Document:SessionMismatch] Resolved ' ...
+             'session id %s does not match metatable %s.'], ...
+            session.id, sessionIds{i});
         ndi.nansen.import.subject.documents(session,subjectTable_valid(indSession,:));
     end
 
