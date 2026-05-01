@@ -62,8 +62,7 @@ metaTableCatalog = project.MetaTableCatalog;
 if isempty(dataTable)
     if ~isempty(metaTableCatalog.Table) && ...
             ismember(dataName,metaTableCatalog.Table.MetaTableName)
-        metaTableEntry = metaTableCatalog.getEntry(dataName);
-        if exist(fullfile(metaTableEntry.SavePath,metaTableEntry.FileName),'file')
+        if isfile(metaTableCatalog.getMetaTableFilePath(dataName))
             metaTable = metaTableCatalog.getMetaTable(dataName);
             % Reconcile columns against the current project's
             % TableVariable definitions but skip the per-column
@@ -86,8 +85,7 @@ end
 % Check if meta table exists and retrieve it
 if ~isempty(metaTableCatalog.Table) && ...
         ismember(dataName,metaTableCatalog.Table.MetaTableName)
-    metaTableEntry = metaTableCatalog.getEntry(dataName);
-    if exist(fullfile(metaTableEntry.SavePath,metaTableEntry.FileName),'file')
+    if isfile(metaTableCatalog.getMetaTableFilePath(dataName))
         metaTable = metaTableCatalog.getMetaTable(dataName);
         % Reconcile columns against the current project's
         % TableVariable definitions. Without this, a custom
