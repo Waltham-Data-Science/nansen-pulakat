@@ -34,43 +34,46 @@ function varargout = document(subjectObject, varargin)
     ndi.nansen.metatable.update(dataset,'Subject', ...
         'UpdateRowIdentifiers', subjectIDs);
 
-    % Get updated subject object
     project = nansen.getCurrentProject;
     metaTable = project.MetaTableCatalog.getMetaTable('Subject');
 
-    % Get updated subject table
-    subjectTable = metaTable.getEntry({subjectObject.SubjectIdentifier});
+    % Validate -> review -> (optionally edit) -> revalidate. Re-fetch
+    % the subject rows from the metatable on each iteration because
+    % the inner Edit call mutates them. The loop exits when:
+    %   - everything is clean (no invalid, no already-documented), or
+    %   - user picks "Create N document(s)", or
+    %   - user picks Cancel / Close / closes the dialog.
+    while true
+        subjectTable = metaTable.getEntry({subjectObject.SubjectIdentifier});
+        [isValid, reportTable] = ndi.nansen.import.subject.validate(subjectTable);
 
-    % Call validation function
-    [isValid,reportTable] = ndi.nansen.import.subject.validate(subjectTable);
-
-    % Check for already documented rows. Per-row strcmp; the previous
-    % isequal(..., {'N/A'}) compared the entire cell column against a
-    % length-1 cell, which is only true for a single-row table -- for
-    % multi-row selections it returned scalar false, every row passed
-    % through, and already-documented rows reached documents() where
-    % the upstream framework's isnan-on-ndi.document path crashes.
-    isDocument = ~strcmp(subjectTable.SubjectDocumentIdentifier, 'N/A');
-
-    nToCreate = sum(isValid & ~isDocument);
-
-    % If anything looks problematic (invalid rows, already-documented
-    % rows, or both), let showValidationReport drive the decision: it
-    % renders one row per subject color-coded by outcome and exposes
-    % the action buttons inline so the user sees exactly what would
-    % happen before picking. The clean-everything case skips the
-    % dialog and proceeds silently.
-    if any(~isValid) || any(isDocument)
+        % Per-row strcmp; isequal(..., {'N/A'}) compares the whole cell
+        % column against a length-1 cell and is only true for a
+        % single-row table.
+        isDocument = ~strcmp(subjectTable.SubjectDocumentIdentifier, 'N/A');
+        nToCreate  = sum(isValid & ~isDocument);
         haveInvalid = any(~isValid);
+
+        % Clean: no dialog, proceed straight to creation.
+        if ~haveInvalid && ~any(isDocument)
+            break
+        end
+
+        % Build button set for this iteration. The Edit path is only
+        % offered when there's at least one invalid row.
         if nToCreate == 0 && ~haveInvalid
             buttons = {'Close'};
         elseif nToCreate == 0
             buttons = {'Edit invalid', 'Cancel'};
-        else
+        elseif haveInvalid
             buttons = {'Edit invalid first', ...
                        sprintf('Create %d document(s)', nToCreate), ...
                        'Cancel'};
+        else
+            buttons = {sprintf('Create %d document(s)', nToCreate), ...
+                       'Cancel'};
         end
+
         choice = ndi.nansen.fun.showValidationReport(isValid, reportTable, ...
             'IsDocumented', isDocument, ...
             'Buttons', buttons, ...
@@ -82,20 +85,23 @@ function varargout = document(subjectObject, varargin)
             % so the user doesn't have to re-select them. Match by
             % SubjectIdentifier rather than positional index because
             % metaTable.getEntry doesn't promise to return rows in the
-            % order ids were requested. After edit completes, return;
-            % the user re-issues Document once their changes settle.
+            % order ids were requested. After edit completes, the loop
+            % re-fetches and re-validates so the user can iterate
+            % until they're ready to Create or Cancel.
             invalidIDs = subjectTable.SubjectIdentifier(~isValid);
             allIDs = {subjectObject.SubjectIdentifier};
             invalidObjects = subjectObject(ismember(allIDs, invalidIDs));
-            if ~isempty(invalidObjects)
-                pulakat.objectmethod.subject.methods.edit(invalidObjects);
-            end
-            return
+            if isempty(invalidObjects); return; end
+            pulakat.objectmethod.subject.methods.edit(invalidObjects);
+            continue
         end
 
-        if ~startsWith(choice, "Create ")
-            return
+        if startsWith(choice, "Create ")
+            break
         end
+
+        % Cancel, Close, or X.
+        return
     end
 
     % Create documents. Group selected rows by SessionIdentifier (not
