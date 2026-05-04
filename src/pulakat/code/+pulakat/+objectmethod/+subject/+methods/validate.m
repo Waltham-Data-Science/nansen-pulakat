@@ -32,14 +32,43 @@ function varargout = validate(subjectObject, varargin)
 
     % --- Implementation of the method ---
 
-    % Convert subject object to table
-    subjectTable = struct2table(subjectObject,'AsArray',true);
+    project = nansen.getCurrentProject;
+    metaTable = project.MetaTableCatalog.getMetaTable('Subject');
 
-    % Call validation function
-    [isValid, reportTable] = ndi.nansen.import.subject.validate(subjectTable);
+    % Validate -> review -> (optionally edit) -> revalidate. Re-fetch
+    % from the metatable on each iteration because Edit mutates the
+    % rows. Loop exits on Close, Cancel, or the title-bar X.
+    while true
+        subjectTable = metaTable.getEntry({subjectObject.SubjectIdentifier});
+        [isValid, reportTable] = ndi.nansen.import.subject.validate(subjectTable);
+        isDocument = ~strcmp(subjectTable.SubjectDocumentIdentifier, 'N/A');
+        haveInvalid = any(~isValid);
 
-    % Show detailed report table
-    ndi.nansen.fun.showValidationReport(isValid,reportTable);
+        if haveInvalid
+            buttons = {'Edit invalid', 'Close'};
+            default = 'Edit invalid';
+        else
+            buttons = {'Close'};
+            default = 'Close';
+        end
+
+        choice = ndi.nansen.fun.showValidationReport(isValid, reportTable, ...
+            'IsDocumented', isDocument, ...
+            'Buttons', buttons, ...
+            'Default', default, ...
+            'Title', 'Subject validation');
+
+        if startsWith(choice, "Edit ")
+            invalidIDs = subjectTable.SubjectIdentifier(~isValid);
+            allIDs = {subjectObject.SubjectIdentifier};
+            invalidObjects = subjectObject(ismember(allIDs, invalidIDs));
+            if isempty(invalidObjects); return; end
+            pulakat.objectmethod.subject.methods.edit(invalidObjects);
+            continue
+        end
+
+        return
+    end
 end
 
 function params = getDefaultParameters()

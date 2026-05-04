@@ -167,11 +167,19 @@ for k = 1:nButtons
 end
 
 if isInteractive
+    drawnow
+    figure(reportFig)
     uiwait(reportFig);
     if isvalid(reportFig)
         choice = string(reportFig.UserData.Choice);
         delete(reportFig);
     end
+else
+    % Single-button (informational) mode: bring the figure forward so
+    % command-window output from the calling task doesn't push it
+    % behind the main MATLAB window.
+    drawnow
+    figure(reportFig)
 end
 
 end
