@@ -35,12 +35,29 @@ if isempty(obj) || ~isfield(obj,[tableName,'DocumentIdentifier'])
     return;
 end
 
-% Resolve dataset id from the row struct. metaTable rows store
-% identifier columns as 1-cell wrappers; unwrap so the cache key
-% is a plain char. An orphan row with an empty DatasetIdentifier
-% can't be looked up in any sync status table, so return the
-% default value rather than fall back to the project's dataset
-% (which would query the wrong status table).
+% Defensive: if anything in the lookup path throws (e.g. an unexpected
+% obj shape from NANSEN's variable-update plumbing, or a sync.status
+% transient), return the default rather than letting the error bubble
+% up as a cryptic "Failed to update variable Cloud" warning. The
+% printed diagnostic includes obj's class and field names so we can
+% see exactly what NANSEN handed us if this fires again.
+try
+    value = computeCloudStatus(className, obj, tableName);
+catch ME
+    fprintf(['[%s] Cloud lookup failed for class=%s; obj is %s', ...
+             ' with fields {%s}. ME: %s\n'], ...
+             'getCloudStatus', className, class(obj), ...
+             strjoin(safeFieldNames(obj), ', '), ME.message);
+    return
+end
+
+end
+
+function value = computeCloudStatus(className, obj, tableName)
+% Inner function holding the original lookup so the outer wrapper can
+% handle any throw site uniformly.
+value = eval([className,'.DEFAULT_VALUE']);
+
 datasetID = obj.DatasetIdentifier;
 if iscell(datasetID); datasetID = datasetID{1}; end
 if isempty(datasetID); return; end
@@ -80,11 +97,28 @@ if needRefresh
 end
 
 % Look up this row's document identifier in the status table.
-ind = strcmp(statusTable.DocumentIdentifier,obj.([tableName,'DocumentIdentifier']));
+docID = obj.([tableName,'DocumentIdentifier']);
+if iscell(docID); docID = docID{1}; end
+if ~ischar(docID) && ~isstring(docID); return; end
+ind = strcmp(statusTable.DocumentIdentifier, docID);
 if any(ind)
     value = statusTable.Cloud(ind);
-else
-    return
 end
 
+end
+
+function names = safeFieldNames(obj)
+% Return fieldnames-or-properties best-effort, never throw.
+try
+    if isstruct(obj)
+        names = fieldnames(obj);
+    elseif isobject(obj)
+        names = properties(obj);
+    else
+        names = {};
+    end
+catch
+    names = {};
+end
+if isempty(names); names = {'<none>'}; end
 end
