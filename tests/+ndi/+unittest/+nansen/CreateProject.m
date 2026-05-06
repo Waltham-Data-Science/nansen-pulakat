@@ -7,10 +7,11 @@ classdef CreateProject < matlab.unittest.TestCase
     methods(TestClassSetup)
         
         function createProject(testCase)
-            % Create a unique temporary directory for the Nansen project
+            % Pick a unique non-existent path. NANSEN's createProject
+            % refuses to write into a pre-existing folder; let it create
+            % the folder itself rather than mkdir-ing first.
             testCase.ProjectPath = [tempname, '_proj'];
-            mkdir(testCase.ProjectPath);
-            
+
             % Create project
             projectManager = nansen.ProjectManager;
             projectManager.createProject(testCase.ProjectName,'NDI unittest',testCase.ProjectPath,true);
