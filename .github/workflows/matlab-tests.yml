@@ -85,6 +85,17 @@ jobs:
           repository: openMetadataInitiative/openMINDS_MATLAB
           path: openMINDS_MATLAB
 
+      - name: Check out entity-table
+        # Required by NANSEN's MATLAB R2025a+ metadata table backend
+        # (VervaekeLab/NANSEN PR #77). The MetaTableViewer probes a fixed
+        # set of candidate paths via nansen.util.ensureEntityTableOnPath;
+        # we addpath entity-table/src below so that path resolves to the
+        # +entitytable package under both legacy and modern code paths.
+        uses: actions/checkout@v4
+        with:
+          repository: ehennestad/entity-table
+          path: entity-table
+
       - name: Start virtual display server
         run: |
           sudo apt-get install -y xvfb
@@ -131,6 +142,12 @@ jobs:
             addpath(genpath('vhlab-toolbox-matlab'));
             addpath(genpath('mksqlite'));
             addpath(genpath('openMINDS_MATLAB/code'));
+            % entity-table backs NANSEN's MATLAB R2025a+ MetaTableViewer
+            % (VervaekeLab/NANSEN PR #77). Adding src/ here is redundant
+            % with NANSEN's own ensureEntityTableOnPath probe (which
+            % finds the sibling clone), but explicit avoids a surprise
+            % if NANSEN's resolution logic moves.
+            addpath(genpath('entity-table/src'));
             addpath(genpath('nansen-pulakat/src'));
             addpath(genpath('nansen-pulakat/tests'));
             try; run(fullfile('openMINDS_MATLAB','code','setup.m')); catch ME; ...
@@ -244,6 +261,17 @@ jobs:
           repository: openMetadataInitiative/openMINDS_MATLAB
           path: openMINDS_MATLAB
 
+      - name: Check out entity-table
+        # Mirrors the offline-tests step. Required by NANSEN's R2025a+
+        # MetaTableViewer (VervaekeLab/NANSEN PR #77); the cloud Startup
+        # test launches the Nansen GUI and would hit the modern backend
+        # without it.
+        if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: ehennestad/entity-table
+          path: entity-table
+
       - name: Start virtual display server
         if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
         run: |
@@ -289,6 +317,12 @@ jobs:
             addpath(genpath('vhlab-toolbox-matlab'));
             addpath(genpath('mksqlite'));
             addpath(genpath('openMINDS_MATLAB/code'));
+            % entity-table backs NANSEN's MATLAB R2025a+ MetaTableViewer
+            % (VervaekeLab/NANSEN PR #77). Adding src/ here is redundant
+            % with NANSEN's own ensureEntityTableOnPath probe (which
+            % finds the sibling clone), but explicit avoids a surprise
+            % if NANSEN's resolution logic moves.
+            addpath(genpath('entity-table/src'));
             addpath(genpath('nansen-pulakat/src'));
             addpath(genpath('nansen-pulakat/tests'));
             try; run(fullfile('openMINDS_MATLAB','code','setup.m')); catch ME; ...

@@ -103,6 +103,23 @@ if status ~= 0
     error([funcId, ':RepoSyncFailed'], ...
         '[%s:RepoSyncFailed] Could not clone/update NANSEN.', funcId);
 end
+
+% 5b. Clone entity-table. Required by NANSEN's MATLAB R2025a+ table
+% backend (see VervaekeLab/NANSEN PR #77). NANSEN's nansen_install
+% would also fetch it via its AddonManager (it is listed in
+% NANSEN/requirements.txt), but cloning it here as a sibling of the
+% other repos gives us a predictable location that
+% nansen.util.ensureEntityTableOnPath probes (`<nansenRoot>/../entity-table`)
+% and lets ndi.nansen.sync.repo update it on subsequent startups using
+% the same git workflow as the other repos. Pre-R2025a installs do
+% not load the modern backend, so the clone is dormant but harmless.
+entityTableURL = 'https://github.com/ehennestad/entity-table';
+status = repoSync(entityTableURL,'ClonePath',codePath);
+if status ~= 0
+    error([funcId, ':RepoSyncFailed'], ...
+        '[%s:RepoSyncFailed] Could not clone/update entity-table.', funcId);
+end
+
 install_runTagged('Nansen Install', @() nansen_install(), ...
     'Verbose', options.Verbose);
 

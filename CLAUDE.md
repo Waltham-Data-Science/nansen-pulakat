@@ -33,6 +33,7 @@ lab-specific glue and GUI extensions.
 | NANSEN (GUI framework)   | App shell, metadata tables, plugin loader                  | `VervaekeLab/NANSEN`, `dev` branch                |
 | NDI-matlab (DB/cloud)    | Dataset model, document store, NDI cloud sync              | `VH-Lab/NDI-matlab`                               |
 | openMINDS_MATLAB         | Ontology types used by NDI                                 | `openMetadataInitiative/openMINDS_MATLAB`         |
+| entity-table             | R2025a+ MetaTableViewer backend (NANSEN PR #77)            | `ehennestad/entity-table`                         |
 
 The client deployment workflow: a researcher runs `install.m`, which clones
 all of the above into `~/ndi/tools/`, wires up MATLAB paths, and launches
@@ -107,8 +108,11 @@ Two structural facts:
 
 1. Checks for `git` on PATH.
 2. Bootstraps `ndi.nansen.sync.repo` via `websave` if not yet on path.
-3. Clones (in order) nansen-pulakat → NANSEN (`dev`) → openMINDS → NDI-matlab into
-   `~/ndi/tools/` (overridable via the `codePath` arg).
+3. Clones (in order) nansen-pulakat → NANSEN (`dev`) → entity-table → openMINDS → NDI-matlab into
+   `~/ndi/tools/` (overridable via the `codePath` arg). entity-table
+   is required by NANSEN's MATLAB R2025a+ MetaTableViewer (NANSEN PR
+   #77); the sibling clone is one of the candidate paths probed by
+   `nansen.util.ensureEntityTableOnPath`.
 4. Runs each upstream installer (`nansen_install`, openMINDS `setup.m`,
    `ndi_install`) inside `install_runTagged` so their output is grouped
    under `[Nansen Install]` / `[openMINDS Setup]` / `[NDI Install]`.
@@ -142,8 +146,23 @@ Upstream surfaces this codebase consumes:
 | `ndi.dataset.dir`                                   | NDI-matlab — top-level dataset object           |
 | `ndi.cloud.{testLogin,uilogin,downloadDataset,sync.downloadNew,authenticate}` | NDI-matlab |
 | `ndi_install`, `nansen_install`                     | both — invoked by `install.m`                   |
+| `nansen.util.ensureEntityTableOnPath`               | NANSEN — gates the modern table backend on R2025a+ |
 
 NANSEN is pinned to its `dev` branch; CI checks out `dev` for every run.
+
+### MATLAB version coupling
+
+NANSEN PR #77 split `MetaTableViewer` into a legacy Java backend
+(pre-R2025a) and a modern uifigure/EntityTable backend (R2025a+). The
+release decision lives in `nansen.util.useModernUiTable`. Pulakat's
+`+tablevariable/*` classes only override `getCellDisplayString` with
+plain text and inherit the abstract default for
+`getCellDisplayStringForContext`, so they render correctly under both
+backends without any per-context branches. If a future pulakat
+formatter ever needs HTML / icon rendering, override
+`getCellDisplayStringForContext(obj, displayContext)` instead of
+`getCellDisplayString` and emit emoji/plain text when
+`displayContext == "modern"`.
 
 ---
 
