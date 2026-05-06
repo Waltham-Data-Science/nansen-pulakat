@@ -63,6 +63,26 @@ classdef FunHelpers < ndi.unittest.nansen.ProjectTestCase
                 pulakat.tablevariable.session.NumFiles.DEFAULT_VALUE);
         end
 
+        function isAutoColumnReadsFlag(testCase)
+            % Mixed auto/non-auto entries — caller should get one
+            % logical per entry matching the flag.
+            entries = struct( ...
+                'value', {'A','B','C'}, ...
+                'name',  {'A','B','C'}, ...
+                'auto',  {false, true, false});
+            mask = ndi.nansen.fun.isAutoColumn(entries);
+            testCase.verifyEqual(mask, [false, true, false]);
+        end
+
+        function isAutoColumnDefaultsFalseWhenFieldMissing(testCase)
+            % project_info.json files predating the auto flag don't
+            % have it; helpers must default to "not auto" so existing
+            % configs continue to work.
+            entries = struct('value', {'A','B'}, 'name', {'A','B'});
+            mask = ndi.nansen.fun.isAutoColumn(entries);
+            testCase.verifyEqual(mask, [false, false]);
+        end
+
         % Note: datasetID2Object requires ndi.dataset.dir to open a
         % valid NDI dataset on disk, which in turn depends on ndi_install
         % having run to register internal dependencies. That's not

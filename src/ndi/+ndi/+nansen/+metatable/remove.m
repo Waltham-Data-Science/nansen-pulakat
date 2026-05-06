@@ -22,10 +22,9 @@ end
 % Get meta table catalog
 project = options.Project;
 metaTableCatalog = project.MetaTableCatalog;
-metaTableEntry = metaTableCatalog.getEntry(dataName);
 
-if ~isempty(metaTableCatalog.Table) && ~isempty(metaTableEntry) && ...
-        exist(fullfile(metaTableEntry.SavePath,metaTableEntry.FileName),'file')
+if ~isempty(metaTableCatalog.Table) && ...
+        isfile(metaTableCatalog.getMetaTableFilePath(dataName))
     
     % Get meta table
     metaTable = project.MetaTableCatalog.getMetaTable(dataName);

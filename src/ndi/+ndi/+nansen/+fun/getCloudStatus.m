@@ -35,16 +35,90 @@ if isempty(obj) || ~isfield(obj,[tableName,'DocumentIdentifier'])
     return;
 end
 
-% Get dataset
-dataset = ndi.nansen.fun.datasetID2Object(obj.DatasetIdentifier);
-
-% Add cloud status
-statusTable = ndi.nansen.sync.status(dataset);
-ind = strcmp(statusTable.DocumentIdentifier,obj.([tableName,'DocumentIdentifier']));
-if any(ind)
-    value = statusTable.Cloud(ind);
-else
+% Defensive: if anything in the lookup path throws (e.g. an unexpected
+% obj shape from NANSEN's variable-update plumbing, or a sync.status
+% transient), return the default rather than letting the error bubble
+% up as a cryptic "Failed to update variable Cloud" warning. The
+% printed diagnostic includes obj's class and field names so we can
+% see exactly what NANSEN handed us if this fires again.
+try
+    value = computeCloudStatus(className, obj, tableName);
+catch ME
+    fprintf(['[%s] Cloud lookup failed for class=%s; obj is %s', ...
+             ' with fields {%s}. ME: %s\n'], ...
+             'getCloudStatus', className, class(obj), ...
+             strjoin(safeFieldNames(obj), ', '), ME.message);
     return
 end
 
+end
+
+function value = computeCloudStatus(className, obj, tableName)
+% Inner function holding the original lookup so the outer wrapper can
+% handle any throw site uniformly.
+value = eval([className,'.DEFAULT_VALUE']);
+
+datasetID = obj.DatasetIdentifier;
+if iscell(datasetID); datasetID = datasetID{1}; end
+if isempty(datasetID); return; end
+
+% Cache the dataset object and its sync status per dataset id.
+% nansen.metadata.MetaTable.updateTableVariable invokes Cloud.update
+% (and therefore this helper) once per metatable row. Without the
+% cache each row re-runs ndi.nansen.fun.datasetID2Object — which
+% opens an ndi.dataset.dir from disk — and ndi.nansen.sync.status —
+% which reads the sync index plus the local document list. At
+% Pulakat scale (hundreds of subjects, thousands of files) that
+% turns a column-wide refresh into a multi-minute hang. Cache
+% invalidates by TTL: stale data after a Sync click is acceptable
+% (subsequent Cloud refreshes pick up the new state once the TTL
+% expires; an explicit `clear functions` resets immediately).
+persistent cache
+if isempty(cache); cache = struct(); end
+
+CACHE_TTL_SECONDS = 30;
+cacheKey = matlab.lang.makeValidName(['ds__', datasetID]);
+
+needRefresh = true;
+if isfield(cache, cacheKey)
+    elapsed = toc(cache.(cacheKey).timer);
+    if elapsed < CACHE_TTL_SECONDS
+        statusTable = cache.(cacheKey).statusTable;
+        needRefresh = false;
+    end
+end
+
+if needRefresh
+    dataset = ndi.nansen.fun.datasetID2Object(datasetID);
+    statusTable = ndi.nansen.sync.status(dataset);
+    cache.(cacheKey) = struct( ...
+        'timer', tic, ...
+        'statusTable', statusTable);
+end
+
+% Look up this row's document identifier in the status table.
+docID = obj.([tableName,'DocumentIdentifier']);
+if iscell(docID); docID = docID{1}; end
+if ~ischar(docID) && ~isstring(docID); return; end
+ind = strcmp(statusTable.DocumentIdentifier, docID);
+if any(ind)
+    value = statusTable.Cloud(ind);
+end
+
+end
+
+function names = safeFieldNames(obj)
+% Return fieldnames-or-properties best-effort, never throw.
+try
+    if isstruct(obj)
+        names = fieldnames(obj);
+    elseif isobject(obj)
+        names = properties(obj);
+    else
+        names = {};
+    end
+catch
+    names = {};
+end
+if isempty(names); names = {'<none>'}; end
 end

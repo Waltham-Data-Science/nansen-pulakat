@@ -26,6 +26,17 @@ function dataset = startup(labName, dataPath, options)
 %         "[Tag]" prefix. If false (default), drop the upstream chatter
 %         and emit a single "[Tag] complete." line per wrapped step.
 %         Pre-tagged "[ ... ]" status lines pass through in either mode.
+%      SkipCloudSync (logical): Optional. If true, skip the
+%         ndi.cloud.sync.downloadNew call against an already-downloaded
+%         local dataset. Use as an escape hatch when waitForAllBulkUploads
+%         is hanging (stuck cloud-side upload, network partition, etc.) —
+%         the local metatables stay current with what's on disk and the
+%         GUI launches. The Sync table-method action still does a full
+%         cloud round-trip when the user explicitly clicks it. Has no
+%         effect when the dataset hasn't been downloaded yet (the initial
+%         downloadDataset still has to happen). Login verification
+%         (ndi.cloud.testLogin) still runs at startup so the user is
+%         prompted to authenticate when expected. Default: false.
 %
 %   Outputs:
 %       dataset (ndi.dataset.dir): The NDI dataset object.
@@ -51,6 +62,7 @@ arguments
     options.Headless (1,1) logical = false
     options.SkipRepoSync (1,1) logical = false
     options.Verbose (1,1) logical = false
+    options.SkipCloudSync (1,1) logical = false
 end
 
 % Convert inputs to char arrays for internal processing
@@ -143,19 +155,27 @@ end
 
 % Load/download dataset
 if isfolder(datasetPath)
-    % Load if already downloaded and sync with cloud
+    % Load if already downloaded and (unless skipped) sync with cloud.
     fprintf('[%s] Loading local dataset from %s.\n', infoTag, datasetPath);
     dataset = ndi.dataset.dir(datasetPath);
-    [success,errorMessage] = ndi.nansen.fun.runTagged('NDI Cloud Sync', ...
-        @() ndi.cloud.sync.downloadNew(dataset), ...
-        'Verbose', options.Verbose);
-    if ~success
-        error([funcId, ':CloudSyncFailed'], ...
-            ['[%s:CloudSyncFailed] Cloud sync failed; local dataset may ' ...
-             'be stale: %s'], funcId, errorMessage);
+    if options.SkipCloudSync
+        fprintf(['[%s] Skipping cloud sync (SkipCloudSync=true). Local ' ...
+                 'metatables may not reflect remote changes; click ' ...
+                 'Sync on the Dataset table to reconcile.\n'], infoTag);
+    else
+        [success,errorMessage] = ndi.nansen.fun.runTagged('NDI Cloud Sync', ...
+            @() ndi.cloud.sync.downloadNew(dataset), ...
+            'Verbose', options.Verbose);
+        if ~success
+            error([funcId, ':CloudSyncFailed'], ...
+                ['[%s:CloudSyncFailed] Cloud sync failed; local dataset ' ...
+                 'may be stale: %s'], funcId, errorMessage);
+        end
     end
 else
-    % Download from cloud
+    % Download from cloud. SkipCloudSync only suppresses the incremental
+    % sync against an already-existing local dataset; the initial
+    % download has to happen for the rest of startup to do anything.
     fprintf('[%s] Downloading dataset %s from NDI cloud.\n', ...
         infoTag, cloudDatasetID);
     dataset = ndi.nansen.fun.runTagged('NDI Cloud', ...

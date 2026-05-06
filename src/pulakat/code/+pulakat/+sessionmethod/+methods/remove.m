@@ -52,8 +52,10 @@ function varargout = remove(sessionObject, varargin)
         return
     end
 
-    % Get dataset and session objects
-    dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
+    % Get dataset object. Fall back to the project's Dataset metatable
+    % if the selected session row's DatasetIdentifier is empty.
+    dataset = ndi.nansen.fun.datasetID2Object( ...
+        ndi.nansen.fun.resolveDatasetID(sessionObject.DatasetIdentifier));
 
     % Delete session from local disk
     [~,sessionIDs] = dataset.session_list;

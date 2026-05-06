@@ -88,9 +88,13 @@ if ~isequal(options.UpdateVariableNames,{''})
     metaTable = catalog.getMetaTable(dataName);
     TVA = options.Project.getTable('TableVariable');
     TVA = TVA(TVA.TableType == lower(dataName), :);
-    updateVariableNames = TVA{TVA.HasUpdateFunction, 'Name'};
+    updateMask = TVA.HasUpdateFunction;
+    updateVariableNames = TVA{updateMask, 'Name'};
+    updateFcnNames      = TVA{updateMask, 'UpdateFunctionName'};
     if ~strcmp(options.UpdateVariableNames,'all')
-        updateVariableNames = intersect(options.UpdateVariableNames,updateVariableNames);
+        [updateVariableNames, ~, keepIdx] = intersect( ...
+            options.UpdateVariableNames, updateVariableNames);
+        updateFcnNames = updateFcnNames(keepIdx);
     end
 
     % Resolve row indices once. updateTableVariable accepts a
@@ -117,7 +121,8 @@ if ~isequal(options.UpdateVariableNames,{''})
     end
 
     for i = 1:numel(updateVariableNames)
-        metaTable.updateTableVariable(updateVariableNames{i}, rowIndices);
+        metaTable.updateTableVariable(updateVariableNames{i}, ...
+            rowIndices, str2func(updateFcnNames{i}));
     end
 
     % Persist the computed values. metaTable.updateTableVariable

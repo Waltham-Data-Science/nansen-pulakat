@@ -47,8 +47,9 @@ if isempty(catalog.Table) || ~ismember(dataName, catalog.Table.MetaTableName)
     value = '';
     return
 end
-entry = catalog.getEntry(dataName);
-if ~exist(fullfile(entry.SavePath, entry.FileName), 'file')
+
+metaTableFilePath = catalog.getMetaTableFilePath(dataName);
+if ~isfile(metaTableFilePath)
     value = '';
     return
 end
@@ -63,4 +64,3 @@ entry = metaTable.getEntry(entryIdentifier);
 value = entry.(variableName);
 
 end
-

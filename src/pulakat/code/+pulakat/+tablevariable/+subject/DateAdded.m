@@ -50,8 +50,10 @@ classdef DateAdded < nansen.metadata.abstract.TableVariable & nansen.metadata.ab
                 return;
             end
 
-            % Get dataset
-            dataset = ndi.nansen.fun.datasetID2Object(obj.DatasetIdentifier);
+            % Get dataset. Fall back to the project's Dataset metatable
+            % if this row's DatasetIdentifier is empty (orphan row).
+            dataset = ndi.nansen.fun.datasetID2Object( ...
+                ndi.nansen.fun.resolveDatasetID(obj.DatasetIdentifier));
 
             % Get session document
             query = ndi.query('base.id','exact_string',obj.([tableName,'DocumentIdentifier']));

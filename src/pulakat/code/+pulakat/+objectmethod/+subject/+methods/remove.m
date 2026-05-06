@@ -68,8 +68,14 @@ function varargout = remove(subjectObject, varargin)
     indRemove = ismember(fileTable.entries.SubjectIdentifier,subjectTable.SubjectIdentifier);
     ndi.nansen.metatable.remove(fileTable.entries(indRemove,:),'File');
 
-    % Get dataset object
-    dataset = ndi.nansen.fun.datasetID2Object(subjectTable.DatasetIdentifier{1});
+    % Get dataset object. resolveDatasetID falls back to the project's
+    % Dataset metatable when the selected row's DatasetIdentifier is
+    % empty -- orphan subject rows can carry an empty value (e.g.
+    % created when the matching Session entry didn't yet exist), so a
+    % cleanup click targeting such a row needs the fallback.
+    dataset = ndi.nansen.fun.datasetID2Object( ...
+        ndi.nansen.fun.resolveDatasetID(subjectTable.DatasetIdentifier{1}, ...
+            'Project', project));
 
     % Update metatables
     ndi.nansen.metatable.update(dataset,'Subject');

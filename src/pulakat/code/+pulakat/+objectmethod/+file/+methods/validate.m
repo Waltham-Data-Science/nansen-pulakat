@@ -32,14 +32,18 @@ function varargout = validate(fileObject, varargin)
 
     % --- Implementation of the method ---
 
-    % Convert file object to table
-    fileTable = struct2table(fileObject,'AsArray',true);
+    project = nansen.getCurrentProject;
+    metaTable = project.MetaTableCatalog.getMetaTable('File');
+    fileTable = metaTable.getEntry({fileObject.FileIdentifier});
 
-    % Call validation function
     [isValid, reportTable] = ndi.nansen.import.file.validate(fileTable);
+    isDocument = ~strcmp(fileTable.FileDocumentIdentifier, 'N/A');
 
-    % Show detailed report table
-    ndi.nansen.fun.showValidationReport(isValid, reportTable);
+    % File rows can't be row-edited (their fields come from parsing
+    % the on-disk file), so the report is informational only.
+    ndi.nansen.fun.showValidationReport(isValid, reportTable, ...
+        'IsDocumented', isDocument, ...
+        'Title', 'File validation');
 end
 
 function params = getDefaultParameters()

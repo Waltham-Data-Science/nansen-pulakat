@@ -7,28 +7,36 @@
   "subjectFileColumns": [
     {"value": "Strain",
      "name": "StrainName",
-     "document": "openMINDs"},
+     "document": "openMINDs",
+     "auto": false},
     {"value": "BiologicalSex",
      "name": "BiologicalSexName",
-     "document": "openMINDs"},
+     "document": "openMINDs",
+     "auto": false},
     {"value": "Animal",
      "name": "SubjectEnumeratedIdentifier",
-     "document": "ontologyTableRow"},
+     "document": "ontologyTableRow",
+     "auto": false},
     {"value": "Cage",
      "name": "SubjectCageIdentifier",
-     "document": "ontologyTableRow"},
+     "document": "ontologyTableRow",
+     "auto": false},
     {"value": "Label",
      "name": "SubjectTextIdentifier",
-     "document": "ontologyTableRow"},
+     "document": "ontologyTableRow",
+     "auto": false},
     {"value": "Treatment",
      "name": "Treatment",
-     "document": "ontologyTableRow"},
+     "document": "ontologyTableRow",
+     "auto": false},
     {"value": "SubjectIdentifier",
      "name": "SubjectIdentifier",
-     "document": "ontologyTableRow"},
+     "document": "ontologyTableRow",
+     "auto": true},
     {"value": "ElectronicFileName",
      "name": "ElectronicFileName",
-     "document": "ontologyTableRow"}
+     "document": "ontologyTableRow",
+     "auto": true}
     ],
   "subjectSuffix": "@pulakat-lab.tufts.edu",
   "subjectIdentifierFields": [
@@ -60,6 +68,7 @@
   "dataFileColumns": [
     {"value": "FileIdentifier",
      "name": "FileIdentifier",
-     "document": "ontologyTableRow"}
+     "document": "ontologyTableRow",
+     "auto": true}
     ]
 }

@@ -152,7 +152,7 @@ subjectTable_new = unique(subjectTable_new);
 subjectTable_new{:,'SessionIdentifier'} = {session.id};
 subjectTable_new{:,'SessionName'} = {session.reference};
 subjectTable_new{:,'SessionPath'} = {session.path};
-subjectTable_new{:,'DatasetIdentifier'} = ndi.nansen.fun.getMetaTableValue('Session','DatasetIdentifier',session.id);
+subjectTable_new{:,'DatasetIdentifier'} = {ndi.nansen.fun.getMetaTableValue('Session','DatasetIdentifier',session.id)};
 subjectTable_new{:,'SubjectIdentifier'} = ndi.nansen.fun.getIdentifier(subjectTable_new, 'Subject');
 
 % Add subject table to nansen

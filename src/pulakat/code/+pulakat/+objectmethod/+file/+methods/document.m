@@ -22,8 +22,10 @@ function varargout = document(fileObject, varargin)
 
     params = utility.parsenvpairs(params, [], varargin); %#ok<NASGU>
 
-    % Get dataset object
-    dataset = ndi.nansen.fun.datasetID2Object(fileObject(1).DatasetIdentifier);
+    % Get dataset object. Fall back to the project's Dataset metatable
+    % if the selected row's DatasetIdentifier is empty (orphan rows).
+    dataset = ndi.nansen.fun.datasetID2Object( ...
+        ndi.nansen.fun.resolveDatasetID(fileObject(1).DatasetIdentifier));
 
     % Update file metatable
     % ndi.nansen.metatable.update(dataset,'File');
@@ -38,15 +40,61 @@ function varargout = document(fileObject, varargin)
     % Call validation function
     [isValid,reportTable] = ndi.nansen.import.file.validate(fileTable);
 
-    % Check for already documented rows
-    isDocument = isequal(fileTable.FileDocumentIdentifier,{'N/A'});
+    % Check for already documented rows. Per-row strcmp; the previous
+    % isequal(..., {'N/A'}) compared the entire cell column against a
+    % length-1 cell, which is only true for a single-row table -- for
+    % multi-row selections it returned scalar false, every row passed
+    % through, and already-documented rows reached documents() where
+    % the upstream framework's isnan-on-ndi.document path crashes.
+    isDocument = ~strcmp(fileTable.FileDocumentIdentifier, 'N/A');
 
-    % Create documents
+    nToCreate = sum(isValid & ~isDocument);
+
+    % If anything looks problematic, let showValidationReport drive
+    % the decision: it renders one row per file color-coded by outcome
+    % and exposes the action buttons inline so the user sees exactly
+    % what would happen before picking. The clean-everything case
+    % skips the dialog and proceeds silently.
+    %
+    % File rows can't be row-edited the way subject rows can (their
+    % fields come from parsing the on-disk file), so there's no
+    % "Edit invalid first" path -- only Create or Cancel.
+    if any(~isValid) || any(isDocument)
+        if nToCreate == 0
+            buttons = {'Close'};
+        else
+            buttons = {sprintf('Create %d document(s)', nToCreate), ...
+                       'Cancel'};
+        end
+        choice = ndi.nansen.fun.showValidationReport(isValid, reportTable, ...
+            'IsDocumented', isDocument, ...
+            'Buttons', buttons, ...
+            'Default', buttons{1}, ...
+            'Title', 'File documents');
+        if nToCreate == 0 || ~startsWith(choice, "Create ")
+            return
+        end
+    end
+
+    % Create documents. Group selected rows by SessionIdentifier (not
+    % SessionPath) because a dataset and a session can share a
+    % directory: collapsing on path would merge rows that belong to
+    % different sessions into one ndi.session.dir(name, path) call,
+    % which silently picks the dataset's default session. Pass the id
+    % as ndi.session.dir's third positional arg to pin resolution.
     fileTable_valid = fileTable(isValid & ~isDocument,:);
-    sessionPaths = unique(fileTable_valid.SessionPath);
-    for i = 1:numel(sessionPaths)
-        indSession = strcmp(fileTable_valid.SessionPath,sessionPaths{i});
-        session = ndi.session.dir(sessionPaths{i});
+    sessionIds = unique(fileTable_valid.SessionIdentifier);
+    for i = 1:numel(sessionIds)
+        indSession = strcmp(fileTable_valid.SessionIdentifier,sessionIds{i});
+        firstRow = find(indSession,1);
+        sessionName = fileTable_valid.SessionName{firstRow};
+        sessionPath = fileTable_valid.SessionPath{firstRow};
+        session = ndi.session.dir(sessionName, sessionPath, sessionIds{i});
+        assert(strcmp(session.id, sessionIds{i}), ...
+            'Pulakat:File:Document:SessionMismatch', ...
+            ['[Pulakat:File:Document:SessionMismatch] Resolved ' ...
+             'session id %s does not match metatable %s.'], ...
+            session.id, sessionIds{i});
         ndi.nansen.import.file.documents(session,fileTable_valid(indSession,:));
     end
 
@@ -59,9 +107,6 @@ function varargout = document(fileObject, varargin)
     ndi.nansen.metatable.update(dataset,'Dataset');
     ndi.nansen.fun.refreshAppTable();
 
-    % Show detailed report table
-    ndi.nansen.fun.showValidationReport(isValid, reportTable);
-    
     % Return session object (please do not remove):
     % if nargout; varargout = {fileObject}; end
 end

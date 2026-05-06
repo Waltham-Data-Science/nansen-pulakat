@@ -57,8 +57,10 @@ function varargout = edit(subjectObject, varargin)
     % Remove associated file(s) from metatable
     ndi.nansen.metatable.edit(subjectTable,'Subject');
 
-    % Get dataset object
-    dataset = ndi.nansen.fun.datasetID2Object(subjectObject(1).DatasetIdentifier);
+    % Get dataset object. Fall back to the project's Dataset metatable
+    % if the selected row's DatasetIdentifier is empty (orphan rows).
+    dataset = ndi.nansen.fun.datasetID2Object( ...
+        ndi.nansen.fun.resolveDatasetID(subjectObject(1).DatasetIdentifier));
 
     % Resolve which Subject / File / Session rows the edits affect
     % so the variable-update pass for each metatable touches only

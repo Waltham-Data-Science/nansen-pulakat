@@ -31,9 +31,23 @@ function varargout = file(sessionObject, varargin)
     
     % --- Implementation of the method ---
 
-    % Get dataset and session objects
-    dataset = ndi.nansen.fun.datasetID2Object(sessionObject.DatasetIdentifier);
-    session = ndi.session.dir(sessionObject.SessionPath);
+    % Get dataset and session objects. Pass the session reference
+    % name, path, AND identifier because dataset and session can
+    % share a directory; ndi.session.dir(reference, path) without
+    % an id falls back to the dataset's default session (whose id
+    % differs from the GUI-selected session), silently misrouting
+    % every downstream SessionIdentifier write. The id is the GUI's
+    % source of truth, so feed it in.
+    dataset = ndi.nansen.fun.datasetID2Object( ...
+        ndi.nansen.fun.resolveDatasetID(sessionObject.DatasetIdentifier));
+    session = ndi.session.dir(sessionObject.SessionName, ...
+        sessionObject.SessionPath, sessionObject.SessionIdentifier);
+    assert(strcmp(session.id, sessionObject.SessionIdentifier), ...
+        'Pulakat:Import:Subjects:SessionMismatch', ...
+        ['[Pulakat:Import:Subjects:SessionMismatch] Resolved session ' ...
+         'id %s does not match GUI-selected %s. Aborting to avoid ' ...
+         'misrouting subject metadata.'], ...
+        session.id, sessionObject.SessionIdentifier);
 
     % Add subjects to session
     subjectTable = ndi.nansen.import.subject.auto(session);

@@ -37,8 +37,12 @@ subjectTable = table();
 % Get project info
 projectInfo = ndi.nansen.fun.readProjectInfo(labName);
 
-% Get column names and labels for dialog
+% Get column names and labels for dialog. Skip auto columns —
+% those are populated by import steps later (SubjectIdentifier
+% by ndi.nansen.import.subject, ElectronicFileName by
+% tableFromFile) and don't make sense to ask the user for.
 subjectColumns = projectInfo.subjectFileColumns;
+subjectColumns = subjectColumns(~ndi.nansen.fun.isAutoColumn(subjectColumns));
 prompt = {subjectColumns.value};
 name = 'Manual Subject Entry';
 numlines = [1 50];
@@ -51,7 +55,10 @@ answer = inputdlg(prompt, name, numlines, defaultans);
 
 if isempty(answer); return; end
 
-% Create a table from the answer
+% Create a table from the answer. Auto columns are absent here;
+% ndi.nansen.import.subject fills SubjectIdentifier, and the
+% manual flow has no source-file path so ElectronicFileName stays
+% unpopulated until a separate file-import step runs.
 subjectTable_new = cell2table(answer', 'VariableNames', {subjectColumns.name});
 
 % Add new subject to metatable
