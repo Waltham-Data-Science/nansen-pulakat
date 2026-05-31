@@ -95,8 +95,13 @@ dataTable_new = ndi.nansen.fun.editImportTableGUI(dataTable_type(indNew,:), ...
 if isempty(dataTable_review) && isempty(dataTable_new)
     return
 end
-dataTable_new{strcmp(dataTable_new.DataTypeName,'other') | ...
-    strcmp(dataTable_new.DataTypeName,''),'DataTypeName'} = {'unknown electronic file type'};
+if ~isempty(dataTable_new)
+    indReplace = strcmp(dataTable_new.DataTypeName,'other') | ...
+        strcmp(dataTable_new.DataTypeName,'');
+    if any(indReplace)
+        dataTable_new{indReplace,'DataTypeName'} = {'unknown electronic file type'};
+    end
+end
 
 % Auto-detect subject info
 dataTable_files = [dataTable_review;dataTable_new];

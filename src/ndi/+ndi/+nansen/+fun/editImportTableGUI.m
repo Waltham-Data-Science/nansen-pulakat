@@ -154,12 +154,19 @@ function confirmAndClose(fig, uit)
     % Reconstruct table from cell array using the UI Table's column names
     finalData = cell2table(uit.Data, 'VariableNames', uit.ColumnName);
     
-    % Restore numeric types where possible
+    % Restore numeric types where possible. Skip empty-or-all-empty
+    % columns: with nothing to inspect, the vacuous-truth fallback
+    % (all([]) is true) would coerce an empty cell column to empty
+    % double, which breaks downstream code that assigns into the
+    % column with cell values (e.g. ndi.nansen.import.file.auto
+    % line 98).
     for i = 1:width(finalData)
         dataCol = finalData{:,i};
-        if iscell(dataCol) && all(cellfun(@(x) isnumeric(x) || isempty(x), dataCol))
-            try 
-                finalData.(finalData.Properties.VariableNames{i}) = cell2mat(dataCol); 
+        if iscell(dataCol) && ~isempty(dataCol) && ...
+                ~all(cellfun(@isempty, dataCol)) && ...
+                all(cellfun(@(x) isnumeric(x) || isempty(x), dataCol))
+            try
+                finalData.(finalData.Properties.VariableNames{i}) = cell2mat(dataCol);
             catch
                 % Keep as cell if heterogenous
             end
