@@ -15,8 +15,10 @@ classdef ProjectTestCase < matlab.unittest.TestCase
         function createFreshProject(testCase)
             testCase.ProjectName = sprintf('ndi_unittest_%s', ...
                 char(matlab.lang.makeValidName(string(tempname))));
+            % NANSEN's nansen.config.project.ProjectManager.createProject
+            % refuses to write into a pre-existing folder; pass a path
+            % that does not yet exist and let createProject create it.
             testCase.ProjectPath = [tempname, '_proj'];
-            mkdir(testCase.ProjectPath);
 
             projectManager = nansen.ProjectManager;
             projectManager.createProject(testCase.ProjectName, ...

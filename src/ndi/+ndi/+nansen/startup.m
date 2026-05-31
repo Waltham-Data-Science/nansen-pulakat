@@ -117,6 +117,12 @@ else
     fprintf('[%s] Synchronizing repositories.\n', infoTag);
     [~,repoPath] = ndi.nansen.sync.repo(projectInfo.URL);
     ndi.nansen.sync.repo('https://github.com/VervaekeLab/NANSEN','Branch','dev');
+    % entity-table backs NANSEN's MATLAB R2025a+ metadata table (see
+    % VervaekeLab/NANSEN PR #77). Synced here for parity with the other
+    % NANSEN dependencies; the sibling clone is a candidate path probed
+    % by nansen.util.ensureEntityTableOnPath so the modern backend
+    % loads even without re-running nansen_install.
+    ndi.nansen.sync.repo('https://github.com/ehennestad/entity-table');
     ndi.nansen.sync.repo('https://github.com/openMetadataInitiative/openMINDS_MATLAB');
     ndi.nansen.sync.repo('https://github.com/VH-Lab/NDI-matlab');
 end

@@ -83,20 +83,32 @@ if any(indExist)
         'AddRow',false);
 end
 
-% Verify data types for new files with user
-ddOpts = struct('VariableName', 'DataTypeName', ...
-    'Values', {{'other',projectInfo.dataFileTypes.DataTypeName}});
-dataTable_new = ndi.nansen.fun.editImportTableGUI(dataTable_type(indNew,:), ...
-    'DropDown', ddOpts, 'EditableColumns', 'DataTypeName', 'AddRow', false,...
-    'Prompt',['Confirm the data type for each new file to import. ' ...
-    'To skip importing a file, delete the row.']);
+% Verify data types for new files with user. Skip the dialog
+% entirely when no new files were detected (nothing to confirm) —
+% the user already saw the "files have been imported previously"
+% review above for the existing ones.
+if any(indNew)
+    ddOpts = struct('VariableName', 'DataTypeName', ...
+        'Values', {{'other',projectInfo.dataFileTypes.DataTypeName}});
+    dataTable_new = ndi.nansen.fun.editImportTableGUI(dataTable_type(indNew,:), ...
+        'DropDown', ddOpts, 'EditableColumns', 'DataTypeName', 'AddRow', false,...
+        'Prompt',['Confirm the data type for each new file to import. ' ...
+        'To skip importing a file, delete the row.']);
+else
+    dataTable_new = table();
+end
 
 % Quit if no files to import
 if isempty(dataTable_review) && isempty(dataTable_new)
     return
 end
-dataTable_new{strcmp(dataTable_new.DataTypeName,'other') | ...
-    strcmp(dataTable_new.DataTypeName,''),'DataTypeName'} = {'unknown electronic file type'};
+if ~isempty(dataTable_new)
+    indReplace = strcmp(dataTable_new.DataTypeName,'other') | ...
+        strcmp(dataTable_new.DataTypeName,'');
+    if any(indReplace)
+        dataTable_new{indReplace,'DataTypeName'} = {'unknown electronic file type'};
+    end
+end
 
 % Auto-detect subject info
 dataTable_files = [dataTable_review;dataTable_new];

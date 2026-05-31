@@ -77,7 +77,17 @@ if any(isDoc) && ismember('ErrorMessage', displayTable.Properties.VariableNames)
     displayTable.ErrorMessage = em;
 end
 
-% Base figure.
+% Legacy-compatible all-clean fast path: every row valid, nothing
+% already documented, and the caller didn't ask for a decision. Show
+% the success popup on its own — skip the uifigure entirely so the
+% user doesn't see an empty report window sitting behind the alert.
+allClean = all(isValid) && ~any(isDoc);
+if allClean && ~isInteractive
+    msgbox('All selected subjects are valid.', 'Validation Success');
+    return
+end
+
+% Base figure (only created when there is content to show).
 reportFig = uifigure('Name', options.Title, 'Position', [100 100 900 500]);
 movegui(reportFig, 'center');
 reportFig.UserData = struct('Choice', '');
@@ -92,16 +102,6 @@ for k = 1:nButtons
     end
 end
 reportFig.CloseRequestFcn = @(~,~) finishClick(reportFig, cancelLabel, isInteractive);
-
-% Legacy-compatible all-clean fast path: every row valid, nothing
-% already documented, and the caller didn't ask for a decision. Show
-% the success alert and return.
-allClean = all(isValid) && ~any(isDoc);
-if allClean && ~isInteractive
-    uialert(reportFig, 'All selected subjects are valid.', 'Validation Success', ...
-        'Icon', 'success', 'CloseFcn', @(~,~) delete(reportFig));
-    return
-end
 
 % Header.
 uilabel(reportFig, ...

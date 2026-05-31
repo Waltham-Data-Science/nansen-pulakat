@@ -35,6 +35,40 @@ if isempty(obj) || ~isfield(obj,[tableName,'DocumentIdentifier'])
     return;
 end
 
+% Skip the lookup for not-yet-documented rows. NANSEN's per-row
+% Cloud.update calls this once for every metatable row; rows whose
+% document identifier hasn't been generated yet (the typical state
+% for freshly imported records) have nothing to look up in the
+% cloud status table. Short-circuit here so the catch-all diagnostic
+% below stays meaningful for genuinely unexpected lookup failures
+% rather than firing once per undocumented row.
+%
+% "Undocumented" comes in three flavours:
+%   * field absent on the row struct (handled by the isfield guard above),
+%   * field present but empty / NaN (default for unpopulated table cells),
+%   * field present and equal to the identifier class's sentinel
+%     DEFAULT_VALUE (e.g. pulakat uses {'N/A'}).
+docIDPreview = obj.([tableName,'DocumentIdentifier']);
+if iscell(docIDPreview); docIDPreview = docIDPreview{1}; end
+if isempty(docIDPreview) || ...
+        (isnumeric(docIDPreview) && all(isnan(docIDPreview)))
+    return
+end
+try
+    docIDDefault = eval(strjoin([classParts(1:end-1), ...
+        {[tableName,'DocumentIdentifier']}, {'DEFAULT_VALUE'}], '.'));
+    if iscell(docIDDefault); docIDDefault = docIDDefault{1}; end
+    if (ischar(docIDPreview) || isstring(docIDPreview)) && ...
+            (ischar(docIDDefault) || isstring(docIDDefault)) && ...
+            strcmp(string(docIDPreview), string(docIDDefault))
+        return
+    end
+catch
+    % Identifier class isn't reachable from this className; fall
+    % through to the existing lookup. The catch-all below still
+    % handles any throw inside computeCloudStatus.
+end
+
 % Defensive: if anything in the lookup path throws (e.g. an unexpected
 % obj shape from NANSEN's variable-update plumbing, or a sync.status
 % transient), return the default rather than letting the error bubble
