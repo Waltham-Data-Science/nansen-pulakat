@@ -35,6 +35,21 @@ if isempty(obj) || ~isfield(obj,[tableName,'DocumentIdentifier'])
     return;
 end
 
+% Skip the lookup for not-yet-documented rows. NANSEN's per-row
+% Cloud.update calls this once for every metatable row; rows whose
+% document identifier hasn't been generated yet (the typical state
+% for freshly imported records) carry NaN or an empty placeholder
+% in [tableName]DocumentIdentifier and have nothing to look up in
+% the cloud status table. Short-circuit here so the catch-all
+% diagnostic below stays meaningful for genuinely unexpected lookup
+% failures rather than firing once per undocumented row.
+docIDPreview = obj.([tableName,'DocumentIdentifier']);
+if iscell(docIDPreview); docIDPreview = docIDPreview{1}; end
+if isempty(docIDPreview) || ...
+        (isnumeric(docIDPreview) && all(isnan(docIDPreview)))
+    return
+end
+
 % Defensive: if anything in the lookup path throws (e.g. an unexpected
 % obj shape from NANSEN's variable-update plumbing, or a sync.status
 % transient), return the default rather than letting the error bubble
