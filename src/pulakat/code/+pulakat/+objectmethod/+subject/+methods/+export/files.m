@@ -48,9 +48,18 @@ function varargout = files(subjectObject, varargin)
     dataset = ndi.nansen.fun.datasetID2Object( ...
         ndi.nansen.fun.resolveDatasetID(datasetID{1}));
 
-    % Download cloud (and local) generic_files
-    ndi.nansen.export.genericFiles(dataset,exportTable,exportFolder,...
-        'NamingStrategy','id');
+    % Download cloud (and local) generic_files. genericFiles returns
+    % success=false when any binary failed to download; surface that
+    % to the user rather than silently reporting Task completed. The
+    % export folder still opens so the user can see the partial result
+    % (metadata.csv plus whatever succeeded).
+    [success, errorMessage] = ndi.nansen.export.genericFiles(dataset, ...
+        exportTable, exportFolder, 'NamingStrategy','id');
+    if ~success
+        warning('Pulakat:ObjectMethod:Subject:Export:Files:PartialFailure', ...
+            ['[Pulakat:ObjectMethod:Subject:Export:Files:PartialFailure] ' ...
+             '%s'], errorMessage);
+    end
 
     % Open export folder on computer
     ndi.nansen.fun.openFolder(exportFolder);
