@@ -60,6 +60,21 @@ if strcmp(obj.([tableName,'DocumentIdentifier']),defaultDocID)
         rowInd = metaTable.getIndexById(obj.(metaTable.MetaTableIdVarname));
         metaTable.editEntries(rowInd,variableName,newValue);
 
+        % Persist to disk. nansen.metadata.MetaTable.editEntries only
+        % mutates obj.entries in memory and fires TableEntryChanged;
+        % without this save, the next consumer that opens the metatable
+        % through MetaTableCatalog.getMetaTable reads stale values from
+        % disk and the user's edit disappears (the cell displays the
+        % new value briefly via the change notification, but re-opening
+        % this dialog or running pulakat.objectmethod.subject.methods.edit
+        % both surface the pre-edit value). Force-save because some
+        % editEntries paths use subscripted-cell assignment that leaves
+        % IsClean=true even after real mutations — same workaround as
+        % ndi.nansen.metatable.update line 141.
+        if ~isempty(metaTable.filepath)
+            metaTable.save(true);
+        end
+
         % Update table
         ndi.nansen.fun.refreshAppTable();
 
