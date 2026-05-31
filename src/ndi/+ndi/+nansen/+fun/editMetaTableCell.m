@@ -64,16 +64,26 @@ if strcmp(obj.([tableName,'DocumentIdentifier']),defaultDocID)
         % mutates obj.entries in memory and fires TableEntryChanged;
         % without this save, the next consumer that opens the metatable
         % through MetaTableCatalog.getMetaTable reads stale values from
-        % disk and the user's edit disappears (the cell displays the
-        % new value briefly via the change notification, but re-opening
-        % this dialog or running pulakat.objectmethod.subject.methods.edit
-        % both surface the pre-edit value). Force-save because some
+        % disk and the user's edit disappears. Force-save because some
         % editEntries paths use subscripted-cell assignment that leaves
         % IsClean=true even after real mutations — same workaround as
         % ndi.nansen.metatable.update line 141.
         if ~isempty(metaTable.filepath)
             metaTable.save(true);
         end
+
+        % Invalidate the MetaTable's metaObject cache. NANSEN's
+        % nansen.App.getMetaObjects (called every time the user
+        % double-clicks a row or opens an object-method dialog) reads
+        % from MetaTable.MetaObjectCache with UseCache=true. The
+        % internal editEntriesFromTable path invalidates per-id
+        % (MetaTable.m:502), but the public editEntries we call here
+        % does not, so the cached metaObject keeps the pre-edit value
+        % and every subsequent read surfaces it. Pulakat-visible
+        % invalidation API is only the whole-cache reset — invalidate-
+        % per-id is private — so clear the lot. Repopulation is lazy
+        % (one metaObject per access), so this is cheap in practice.
+        metaTable.resetMetaObjectCache();
 
         % Update table
         ndi.nansen.fun.refreshAppTable();
