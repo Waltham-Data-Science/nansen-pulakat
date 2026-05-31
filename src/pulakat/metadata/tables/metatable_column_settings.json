@@ -2,9 +2,9 @@
   {
     "VariableName": "DatasetIdentifier",
     "ColumnLabel": "Dataset Identifier",
-    "ShowColumn": false,
+    "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 100,
+    "ColumnWidth": 207,
     "IsEditable": false,
     "ColumnOrder": 1
   },
@@ -112,7 +112,7 @@
     "ColumnLabel": "Subject Local Identifier",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 223,
+    "ColumnWidth": 384,
     "IsEditable": false,
     "ColumnOrder": 11
   },
@@ -193,7 +193,7 @@
     "ColumnLabel": "Cage",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 70,
+    "ColumnWidth": 100,
     "IsEditable": false,
     "ColumnOrder": 16
   },
@@ -202,7 +202,7 @@
     "ColumnLabel": "Label",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 59,
+    "ColumnWidth": 120,
     "IsEditable": false,
     "ColumnOrder": 17
   },
@@ -220,7 +220,7 @@
     "ColumnLabel": "Original File Name",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 524,
+    "ColumnWidth": 311,
     "IsEditable": false,
     "ColumnOrder": 32
   },
@@ -229,7 +229,7 @@
     "ColumnLabel": "Session Name",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 75,
+    "ColumnWidth": 138,
     "IsEditable": false,
     "ColumnOrder": 9
   },
@@ -256,7 +256,7 @@
     "ColumnLabel": "# Files",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 43,
+    "ColumnWidth": 76,
     "IsEditable": false,
     "ColumnOrder": 27
   },
@@ -274,7 +274,7 @@
     "ColumnLabel": "Data Type",
     "ShowColumn": true,
     "SkipColumn": false,
-    "ColumnWidth": 428,
+    "ColumnWidth": 311,
     "IsEditable": false,
     "ColumnOrder": 28
   },
