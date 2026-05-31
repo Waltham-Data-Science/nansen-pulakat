@@ -52,6 +52,15 @@ function varargout = edit(subjectObject, varargin)
     subjectTable_edit = ndi.nansen.fun.editImportTableGUI(subjectTable_edit(:,idShortNames),'Subject',...
         'Prompt',['Carefully confirm the subject info and ensure that each ' ...
         'subject has a fully unique set of identifiers.'],'AddRow',false,'Delete',false);
+
+    % editImportTableGUI returns an empty table when the user cancels
+    % or closes the window. Bail out before touching the metatable so
+    % we don't (a) crash on the column-rename below — an empty table
+    % has no 'Strain' / 'Sex' / ... vars — and (b) silently overwrite
+    % the row with whatever was last in the editor.
+    if isempty(subjectTable_edit)
+        return
+    end
     subjectTable(:,subjectIdentifiers) = subjectTable_edit(:,idShortNames);
 
     % Remove associated file(s) from metatable
