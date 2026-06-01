@@ -14,6 +14,12 @@ function [obj] = editMetaTableCell(className,obj,options)
 %   Name-Value Arguments:
 %      Project (nansen.config.project.Project): Optional. The Nansen
 %         project object. Default is current Nansen project.
+%      Propagate (char, string, or cell of either): Optional. Names of
+%         other Nansen metatables ('Dataset','Session','Subject','File')
+%         whose HasUpdateFunction variables should be re-computed after
+%         the edit lands. Used by table variables that reference a
+%         related table — e.g. editing Subject.Treatment propagates
+%         into Session and File. Default is '' (no propagation).
 %
 %   Outputs:
 %      obj (struct): The updated record struct.
@@ -22,7 +28,12 @@ function [obj] = editMetaTableCell(className,obj,options)
 %      % Edit a subject's animal ID:
 %      updatedObj = ndi.nansen.fun.editMetaTableCell(cls, subjectStruct)
 %
-%   See also: NDI.NANSEN.METATABLE.EDIT, NDI.NANSEN.FUN.EDITIMPORTTABLEGUI
+%      % Edit and propagate to the Session and File tables:
+%      ndi.nansen.fun.editMetaTableCell(cls, subjectStruct, ...
+%          'Propagate', {'Session','File'})
+%
+%   See also: NDI.NANSEN.METATABLE.EDIT, NDI.NANSEN.FUN.EDITIMPORTTABLEGUI,
+%   NDI.NANSEN.FUN.PROPAGATEMETATABLECHANGE
 
 % Input argument validation
 arguments

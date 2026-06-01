@@ -46,9 +46,15 @@ if any(ontologyErrorIdx)
         opts = weboptions('Timeout', 5);
         webread(ontologyURL, opts);
     catch
-        % Replace specific ontology errors with a general availability message
+        % Append (don't replace) the availability message. Previously
+        % this clobbered the real per-row ME.message, so a user whose
+        % ontology error had nothing to do with availability saw only
+        % the network-down message and couldn't tell what was actually
+        % wrong with the row.
         friendlyMsg = sprintf('Ontology lookup is temporarily unavailable for the URL %s', ontologyURL);
-        errorMessages(ontologyErrorIdx) = friendlyMsg;
+        for j = find(ontologyErrorIdx(:))'
+            errorMessages(j) = errorMessages(j) + " (" + friendlyMsg + ")";
+        end
     end
 end
 
