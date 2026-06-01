@@ -165,6 +165,15 @@ jobs:
             addpath(genpath('entity-table/src'));
             addpath(genpath('nansen-pulakat/src'));
             addpath(genpath('nansen-pulakat/tests'));
+            % Re-instantiate the AddonManager against the same folder
+            % the install step populated. The constructor calls
+            % ensureAddonDependenciesOnPath(), which puts the installed
+            % FEX add-ons (recursiveDir, widgets-toolbox, etc.) on the
+            % path in this fresh MATLAB process. Without it, the
+            % previous step's installs are on disk but not visible to
+            % the test step's MATLAB.
+            nansen.config.addons.AddonManager.instance( ...
+                "AddonFolder", fullfile(pwd, 'NANSEN-addons'));
             try; run(fullfile('openMINDS_MATLAB','code','setup.m')); catch ME; ...
                 warning('openMINDS setup failed: %s', ME.message); end
             offlineTests = { ...
@@ -350,6 +359,15 @@ jobs:
             addpath(genpath('entity-table/src'));
             addpath(genpath('nansen-pulakat/src'));
             addpath(genpath('nansen-pulakat/tests'));
+            % Re-instantiate the AddonManager against the same folder
+            % the install step populated. The constructor calls
+            % ensureAddonDependenciesOnPath(), which puts the installed
+            % FEX add-ons (recursiveDir, widgets-toolbox, etc.) on the
+            % path in this fresh MATLAB process. Without it, the
+            % previous step's installs are on disk but not visible to
+            % the test step's MATLAB.
+            nansen.config.addons.AddonManager.instance( ...
+                "AddonFolder", fullfile(pwd, 'NANSEN-addons'));
             try; run(fullfile('openMINDS_MATLAB','code','setup.m')); catch ME; ...
                 warning('openMINDS setup failed: %s', ME.message); end
             ndi.cloud.authenticate("InteractionEnabled", "off");
