@@ -51,6 +51,33 @@ if ~isempty(cloudDocumentIDs)
     [success, errorMessage, report] = ndi.cloud.download.downloadGenericFiles(dataset,...
         cloudDocumentIDs,exportFolder,'Verbose',options.Verbose,...
         'Zip',options.Zip,'NamingStrategy',options.NamingStrategy);
+
+    % downloadGenericFiles only sets success=false on catastrophic
+    % failure (an exception in its outer try). Per-file 404s are
+    % caught inside its loop and reported only as warnings, so the
+    % return value lies about partial failures. Compare expected vs
+    % actually-downloaded to surface that ourselves. See
+    % nansen-pulakat issue #43 for the underlying upstream sync bug
+    % that produces these 404s in the first place.
+    numCloud = numel(cloudDocumentIDs);
+    if isfield(report,'downloaded_filenames')
+        numDownloaded = numel(report.downloaded_filenames);
+    else
+        numDownloaded = 0;
+    end
+    if numDownloaded < numCloud
+        success = false;
+        report.failed_count = numCloud - numDownloaded;
+        report.attempted_count = numCloud;
+        if isempty(errorMessage)
+            errorMessage = sprintf( ...
+                ['%d of %d cloud documents had no downloadable binary ' ...
+                 '(the cloud reports the document exists but does not ' ...
+                 'have the file). See nansen-pulakat issue #43 for ' ...
+                 'context on the underlying upstream sync bug.'], ...
+                report.failed_count, numCloud);
+        end
+    end
 end
 
 % "Download" local files
