@@ -94,9 +94,16 @@ for i = 1:height(uniqueRows)
         % Remove duplicate entries in metatable
         metaTable.removeEntries(idDuplicate)
 
-        % Update common vars in metatable
+        % Update common vars in metatable. editEntries now requires a
+        % scalar variable name (the notifyEntryChanged → getColumnIndex
+        % chain does strcmp(VariableNames, columnName), which fails on
+        % size mismatch when columnName is a cell of multiple names).
+        % Loop per column instead.
         indEntry = metaTable.getIndexById(idKeep);
-        metaTable.editEntries(indEntry,commonVars,uniqueRows{i,commonVars});
+        for cv = 1:numel(commonVars)
+            metaTable.editEntries(indEntry, commonVars{cv}, ...
+                uniqueRows{i, commonVars{cv}});
+        end
 
         % Update ids in additional metatables to match first indRow
         for j = 1:numel(updateMetaTableNames)
