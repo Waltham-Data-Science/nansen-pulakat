@@ -51,16 +51,33 @@ if ~isempty(subjectTable)
     subjectTable = subjectTable(indSession, :);
 end
 
-% Query user for subjects matching these files
+% Query user for subjects matching these files. selectionPickerGUI
+% returns an empty table on X/Cancel; simplePickerGUI returns ''.
+% Either signal skips the file rather than crashing on the subsequent
+% subscripted-assignment into an empty table.
 fileTypes = {projectInfo.dataFileTypes.DataTypeName};
 subjectIdentifiers = projectInfo.subjectIdentifierFields;
 dataTable_files = cell(size(dataFiles));
 for i = 1:numel(dataFiles)
-    dataTable_files{i} = ndi.nansen.fun.selectionPickerGUI(subjectTable(:,subjectIdentifiers),...
+    subjectMatch = ndi.nansen.fun.selectionPickerGUI(subjectTable(:,subjectIdentifiers),...
         'Title',['Select subject(s) matching the file: ',dataFiles{i}]);
-    dataTable_files{i}{:,'ElectronicFileName'} = dataFiles(i);
-    dataTable_files{i}{:,'DataTypeName'} = ndi.nansen.fun.simplePickerGUI(fileTypes,...
+    if isempty(subjectMatch)
+        continue
+    end
+    dataTypeMatch = ndi.nansen.fun.simplePickerGUI(fileTypes,...
         'Prompt',['Select data type matching the file: ',dataFiles{i}]);
+    if isempty(dataTypeMatch) || ...
+            (ischar(dataTypeMatch) && isempty(strtrim(dataTypeMatch)))
+        continue
+    end
+    subjectMatch{:,'ElectronicFileName'} = dataFiles(i);
+    subjectMatch{:,'DataTypeName'} = dataTypeMatch;
+    dataTable_files{i} = subjectMatch;
+end
+dataTable_files = dataTable_files(~cellfun('isempty', dataTable_files));
+if isempty(dataTable_files)
+    dataTable = table();
+    return
 end
 dataTable_files = ndi.fun.table.vstack(dataTable_files);
 
