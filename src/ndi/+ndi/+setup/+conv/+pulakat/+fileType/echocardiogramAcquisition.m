@@ -15,7 +15,9 @@ arguments
     dataFolder{mustBeFolder}
 end
 
-pattern = '(?<=/)\d+[A-Z]?';
+% Match cage id after either '/' or '\' so the parser works on Windows
+% paths (\138B\) as well as POSIX (/138B/).
+pattern = '(?<=[\\/])\d+[A-Z]?';
 cageIdentifiers = regexp(dataFolder, pattern, 'match');
 dataTable = cell2table(cellstr(cageIdentifiers)',...
     'VariableNames',{'SubjectCageIdentifier'});

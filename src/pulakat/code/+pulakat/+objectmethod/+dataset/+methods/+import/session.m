@@ -28,8 +28,10 @@ function varargout = session(datasetObject, varargin)
     % Create new session entry in metatable
     sessionPath = uigetdir(userpath, ...
         'Select directory where session data is located.');
+    if isequal(sessionPath, 0); return; end
     sessionName = inputdlg('What is the name of the new session?', ...
         'Session title',[1 50],{'projectName_YYYY'});
+    if isempty(sessionName); return; end
     ndi.nansen.import.session(dataset,sessionPath,sessionName);
     ndi.nansen.metatable.update(dataset,'Session');
 

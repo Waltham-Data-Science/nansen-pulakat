@@ -92,9 +92,9 @@ elseif contains(repoReference, 'http') || endsWith(repoReference, '.git')
         parentDir = fileparts(repoPath);
         if ~exist(parentDir, 'dir'); mkdir(parentDir); end
 
-        % Add .git if not in url
+        % Add .git if not already in url
         repoURL = repoReference;
-        if endsWith(repoURL,'.git')
+        if ~endsWith(repoURL,'.git')
             repoURL = [repoURL,'.git'];
         end
         

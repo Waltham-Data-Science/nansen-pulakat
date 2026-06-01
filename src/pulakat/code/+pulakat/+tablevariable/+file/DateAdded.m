@@ -59,6 +59,14 @@ classdef DateAdded < nansen.metadata.abstract.TableVariable & nansen.metadata.ab
             query = ndi.query('base.id','exact_string',obj.([tableName,'DocumentIdentifier']));
             doc = dataset.database_search(query);
 
+            % Stale row: the DocumentIdentifier points to a doc that no
+            % longer exists in the local DB (deleted out from under the
+            % metatable). Return DEFAULT_VALUE rather than crashing
+            % with "Index exceeds the number of array elements" on doc{1}.
+            if isempty(doc)
+                return
+            end
+
             % Get date added
             datestamp = doc{1}.document_properties.base.datestamp;
             value = datetime(datestamp,'InputFormat', ...

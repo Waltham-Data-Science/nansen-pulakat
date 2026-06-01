@@ -59,6 +59,9 @@ if isempty(dataPath)
     % Select directory
     elseif strcmp(options.GetType,'dir')
         dataPath = uigetdir(userpath,'Select directory of files to import.');
+        if isequal(dataPath,0)
+            return
+        end
         [fileList,indDir] = vlt.file.manifest(dataPath,'ReturnFullPath',1);
     end
 else
@@ -89,8 +92,10 @@ else
     indDir = cat(1,indDir{validPath});
 end
 
-% Remove hidden files and directories
-indHiddenFiles = contains(fileList,'/.');
+% Remove hidden files and directories. Match either separator so the
+% filter actually catches '.foo' files on Windows ('\.foo') and Mac/Linux
+% ('/.foo').
+indHiddenFiles = contains(fileList,'/.') | contains(fileList,'\.');
 dataFiles = fileList(~indHiddenFiles & ~indDir);
 
 % Remove files not matching the extension filter
