@@ -167,8 +167,22 @@ function confirmAndClose(fig, uit)
                 all(cellfun(@(x) isnumeric(x) || isempty(x), dataCol))
             try
                 finalData.(finalData.Properties.VariableNames{i}) = cell2mat(dataCol);
-            catch
-                % Keep as cell if heterogenous
+            catch ME
+                % cell2mat throws MATLAB:cell2mat:MixedDataTypes or
+                % MATLAB:catenate:dimensionMismatch when the cells
+                % aren't combinable into a uniform matrix — the
+                % intended "keep as cell" path. Any other id is an
+                % actual bug, not a heterogeneous-column case, and
+                % should surface so we don't silently end up with a
+                % half-typed column.
+                expectedIds = { ...
+                    'MATLAB:cell2mat:MixedDataTypes', ...
+                    'MATLAB:cell2mat:NotANumericArray', ...
+                    'MATLAB:catenate:dimensionMismatch'};
+                if ~ismember(ME.identifier, expectedIds)
+                    rethrow(ME);
+                end
+                % Otherwise: keep as cell (heterogeneous column).
             end
         end
     end

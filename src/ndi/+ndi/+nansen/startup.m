@@ -84,6 +84,10 @@ infoTag = 'NDI Startup';
 userPathdef = fullfile(userpath, 'pathdef.m');
 if isfile(userPathdef)
     origDir = pwd;
+    % onCleanup runs even if Ctrl-C interrupts addpath() or the catch
+    % branch — without it a user who kills MATLAB during startup ends
+    % up with their working directory changed to userpath.
+    dirCleanup = onCleanup(@() cd(origDir)); %#ok<NASGU>
     try
         cd(fileparts(userPathdef));
         addpath(pathdef);
@@ -92,7 +96,7 @@ if isfile(userPathdef)
             '[%s:LoadPathFailed] Could not load saved MATLAB path from %s: %s', ...
             funcId, userPathdef, ME.message);
     end
-    cd(origDir);
+    clear dirCleanup
 end
 
 % Resolve deferred defaults now that paths are loaded

@@ -90,20 +90,31 @@ for i = 1:numel(sessions)
     % the table in one shot — assigning column-by-column inside the loop
     % triggers MATLAB's "assignment added rows ... extended with default
     % values" warning every time a new row is appended before the other
-    % columns catch up.
+    % columns catch up. Ontology lookups (potentially network calls) are
+    % deduplicated: many files share the same DataTypeName, so we resolve
+    % each unique ontologyID only once.
     nFiles = numel(generic_file_docs);
     fileDocIDs = cell(nFiles,1);
     filenames = cell(nFiles,1);
-    typeNames = cell(nFiles,1);
-    typeOntologies = cell(nFiles,1);
+    ontologyIDsPerFile = cell(nFiles,1);
     for j = 1:nFiles
         fileDocIDs{j} = generic_file_docs{j}.id;
         filenames{j} = generic_file_docs{j}.document_properties.generic_file.filename;
         indOntologyLabel = strcmp(ontologyLabel_dependency,generic_file_docs{j}.id);
-        ontologyID = ontologyLabel_docs{indOntologyLabel}.document_properties.ontologyLabel.ontologyNode;
-        [ontologyNode,ontologyName] = ndi.ontology.lookup(ontologyID);
-        typeNames{j} = ontologyName;
-        typeOntologies{j} = ontologyNode;
+        ontologyIDsPerFile{j} = ontologyLabel_docs{indOntologyLabel}.document_properties.ontologyLabel.ontologyNode;
+    end
+    uniqueOntologyIDs = unique(ontologyIDsPerFile);
+    ontologyLookupCache = containers.Map('KeyType','char','ValueType','any');
+    for k = 1:numel(uniqueOntologyIDs)
+        [node, name] = ndi.ontology.lookup(uniqueOntologyIDs{k});
+        ontologyLookupCache(uniqueOntologyIDs{k}) = struct('node', node, 'name', name);
+    end
+    typeNames = cell(nFiles,1);
+    typeOntologies = cell(nFiles,1);
+    for j = 1:nFiles
+        info = ontologyLookupCache(ontologyIDsPerFile{j});
+        typeNames{j} = info.name;
+        typeOntologies{j} = info.node;
     end
     dataTable = table(fileDocIDs, filenames, typeNames, typeOntologies, ...
         'VariableNames', {'FileDocumentIdentifier','ElectronicFileName', ...
@@ -118,14 +129,32 @@ for i = 1:numel(sessions)
     ontologyTable = renamevars(ontologyTable,'UniversallyUniqueIdentifier','FileIdentifier');
     ontologyTable.SessionIdentifier = [sessionID{indOntology}]';
     ontologyTableRow_dependency = dependencyDocID{indOntology};
+
+    % Resolve dependency doc class names in batch. The original loop ran
+    % a database_search per (file, dependency) pair — O(rows × deps) DB
+    % calls. Pre-fetch all subject and subject_group docs once and build
+    % a doc-id → class-name map alongside the already-loaded
+    % generic_file docs, then dispatch via hashmap lookup in the loop.
+    subject_docs = session.database_search(ndi.query('','isa','subject'));
+    subject_group_docs = session.database_search(ndi.query('','isa','subject_group'));
+    classMap = containers.Map('KeyType','char','ValueType','char');
+    for d = 1:numel(generic_file_docs); classMap(generic_file_docs{d}.id) = 'generic_file'; end
+    for d = 1:numel(subject_docs);      classMap(subject_docs{d}.id)      = 'subject';      end
+    for d = 1:numel(subject_group_docs); classMap(subject_group_docs{d}.id) = 'subject_group'; end
+
     for j = 1:numel(ontologyTableRow_dependency)
         for k = 1:numel(ontologyTableRow_dependency{j})
-            query = ndi.query('base.id','exact_string',ontologyTableRow_dependency{j}{k});
-            doc = session.database_search(query);
-            dependencyType = doc{1}.document_properties.document_class.class_name;
+            depID = ontologyTableRow_dependency{j}{k};
+            if ~isKey(classMap, depID)
+                error('NDI:Nansen:Metatable:Update:File:UnsupportedDependency', ...
+                    ['[NDI:Nansen:Metatable:Update:File:UnsupportedDependency] ' ...
+                     'Dependency %s is not a generic_file, subject, or ' ...
+                     'subject_group document.'], depID)
+            end
+            dependencyType = classMap(depID);
             if strcmp(dependencyType,'generic_file')
                 ontologyTable.FileDocumentIdentifier(j) = ontologyTableRow_dependency{j}(k);
-            elseif strcmp(dependencyType,'subject') | strcmp(dependencyType,'subject_group')
+            elseif strcmp(dependencyType,'subject') || strcmp(dependencyType,'subject_group')
                 ontologyTable.SubjectDocumentIdentifier(j) = ontologyTableRow_dependency{j}(k);
             else
                 error('NDI:Nansen:Metatable:Update:File:UnsupportedDependency', ...

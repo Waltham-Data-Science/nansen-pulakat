@@ -15,6 +15,12 @@ function [metaTable] = edit(dataTable, dataName, options)
 %   Name-Value Pairs:
 %      Project (nansen.config.project.Project): Optional. The Nansen
 %         project object. Default is current Nansen project.
+%      Save (logical): Optional. If true (default), force-save the
+%         metatable to disk after the edit. Pass false from a caller
+%         that will save the same metatable itself at the end of a
+%         compound operation — e.g. ndi.nansen.metatable.update batches
+%         a merge + variable-update pass and saves once at the bottom
+%         rather than letting each layer save independently.
 %
 %   Outputs:
 %      metaTable (nansen.metadata.MetaTable): The updated Nansen
@@ -31,6 +37,7 @@ arguments
     dataTable table
     dataName {mustBeMember(dataName,{'Dataset','Session','Subject','File'})}
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
+    options.Save (1,1) logical = true
 end
 
 % Get metatable
@@ -67,6 +74,16 @@ for j = 1:width(dataTable)
         newValues = dataTable{updateMask, varName};
         metaTable.editEntries(updateIdx, varName, newValues);
     end
+end
+
+% Force-save unless the caller said it'll save itself. MetaTable.open
+% routes through MetaTableCache and may reloadFromDisk when the cached
+% instance reports IsClean; per-column editEntries goes through
+% subscripted-cell-assignment that doesn't always mark the instance
+% dirty (see metatable.update.m:135-139). Save immediately so the
+% change survives the next getMetaTable.
+if options.Save && ~isempty(metaTable.filepath)
+    metaTable.save(true);
 end
 
 end

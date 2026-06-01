@@ -25,12 +25,37 @@ end
 % Standardize inputs
 datasetID = char(datasetID);
 
+% Cache the constructed ndi.dataset.dir per dataset id. Construction
+% runs several database_search calls inside ndi.dataset.dir() to
+% reconcile session ids; per-row callers in metatable variable
+% updaters (DateAdded across Subject/Session/File/Dataset,
+% TotalDocuments, etc.) used to pay that cost once per row, which at
+% Pulakat scale (thousands of rows) hangs the GUI for minutes during
+% any table refresh. TTL invalidates after 5 minutes to pick up rare
+% mid-session path changes; an explicit `clear functions` resets
+% immediately.
+persistent cache
+if isempty(cache); cache = struct(); end
+
+CACHE_TTL_SECONDS = 300;
+cacheKey = matlab.lang.makeValidName(['ds__', datasetID]);
+
+if isfield(cache, cacheKey) && ...
+        toc(cache.(cacheKey).timer) < CACHE_TTL_SECONDS && ...
+        isa(cache.(cacheKey).dataset, 'ndi.dataset.dir') && ...
+        isvalid(cache.(cacheKey).dataset)
+    dataset = cache.(cacheKey).dataset;
+    return
+end
+
 % Get dataset path
 datasetPath = ndi.nansen.fun.getMetaTableValue('Dataset','DatasetPath',datasetID,...
     'Project',options.Project);
 
 % Get dataset
 dataset = ndi.dataset.dir(datasetPath);
+
+cache.(cacheKey) = struct('timer', tic, 'dataset', dataset);
 
 end
 

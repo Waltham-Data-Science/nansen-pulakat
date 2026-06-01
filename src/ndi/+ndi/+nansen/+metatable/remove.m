@@ -1,16 +1,31 @@
 function [metaTable] = remove(dataTableRows, dataName, options)
-%REMOVE Removes entries from a Nansen metatable.
+%REMOVE Remove entries from a Nansen metatable and persist to disk.
 %
-%   This function identifies entries in a specified Nansen metatable that
-%   match the provided table rows and removes them.
+%   This function identifies entries in a specified Nansen metatable
+%   whose primary identifier appears in the provided table rows and
+%   removes them. The mutation is force-saved to the .mat file before
+%   the function returns (see comment near the save call for why).
 %
 %   Inputs:
-%       dataTableRows (table): A table containing the rows (or at least
-%           the ID column) of the entries to be removed.
-%       dataName (char or string): The name of the metatable class
-%           (e.g., 'Dataset', 'Session', 'Subject', 'File').
-%       options.Project (nansen.config.project.Project): Optional. The
-%           Nansen project object. Defaults to the current project.
+%      dataTableRows (table): A table containing the rows (or at least
+%         the primary-identifier column) of the entries to be removed.
+%      dataName (char or string): The name of the metatable class.
+%         Must be one of: 'Dataset', 'Session', 'Subject', 'File'.
+%
+%   Name-Value Arguments:
+%      Project (nansen.config.project.Project): Optional. The Nansen
+%         project object. Default is current Nansen project.
+%
+%   Outputs:
+%      metaTable (nansen.metadata.MetaTable): The updated Nansen
+%         metatable object. Empty when no metatable existed to begin
+%         with.
+%
+%   Examples:
+%      % Remove a subject row:
+%      ndi.nansen.metatable.remove(subjectRow, 'Subject')
+%
+%   See also: NDI.NANSEN.METATABLE.EDIT, NDI.NANSEN.METATABLE.MERGE
 
 % Input argument validation
 arguments
@@ -41,6 +56,16 @@ if ~isempty(metaTableCatalog.Table) && ...
 
     % Remove entries
     metaTable.removeEntries(entryIDs);
+
+    % Force-save. MetaTable.open routes through MetaTableCache and may
+    % reloadFromDisk when the cached instance reports IsClean. Some
+    % mutation paths leave IsClean=true even after real changes (see
+    % metatable.update.m:135-139 for the canonical explanation), so
+    % saving immediately guarantees the change survives the next
+    % getMetaTable.
+    if ~isempty(metaTable.filepath)
+        metaTable.save(true);
+    end
 end
 
 end

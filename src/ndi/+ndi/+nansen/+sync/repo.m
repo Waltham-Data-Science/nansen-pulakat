@@ -56,10 +56,25 @@ if isfolder(repoReference)
     cmd = sprintf('git -C "%s" rev-parse --show-toplevel', repoReference);
         
 elseif contains(repoReference, 'http') || endsWith(repoReference, '.git')
-    % Search local userpath for matching remote URL
+    % Search known clone locations for a matching remote URL. Previously
+    % this walked the entire userpath ('**'), which on a user with a
+    % large Documents/MATLAB or Dropbox tree could take minutes at
+    % every startup. Limit to ClonePath (where install.m and matbox
+    % put repos) and the user-tools/NANSEN sibling locations actually
+    % populated by upstream installers.
     fprintf('[%s] Scanning local paths for: %s\n', infoTag, repoReference);
-    gitDirs = dir(fullfile(userpath, '**', '.git'));
-    gitPaths = unique({gitDirs.folder});
+    searchRoots = {
+        options.ClonePath, ...
+        fullfile(userpath, 'tools'), ...
+        fullfile(userpath, 'NANSEN', 'Requirements')};
+    gitPaths = {};
+    for r = 1:numel(searchRoots)
+        if isfolder(searchRoots{r})
+            gitDirs = dir(fullfile(searchRoots{r}, '**', '.git'));
+            gitPaths = [gitPaths, unique({gitDirs.folder})]; %#ok<AGROW>
+        end
+    end
+    gitPaths = unique(gitPaths);
     
     for i = 1:numel(gitPaths)
         p = fileparts(gitPaths{i}); 
@@ -92,9 +107,9 @@ elseif contains(repoReference, 'http') || endsWith(repoReference, '.git')
         parentDir = fileparts(repoPath);
         if ~exist(parentDir, 'dir'); mkdir(parentDir); end
 
-        % Add .git if not in url
+        % Add .git if not already in url
         repoURL = repoReference;
-        if endsWith(repoURL,'.git')
+        if ~endsWith(repoURL,'.git')
             repoURL = [repoURL,'.git'];
         end
         
@@ -179,10 +194,13 @@ end
 % --- 5. Path Management & Reporting ---
 
 if status == 0
-    % Ensure the updated code is on the MATLAB path
+    % Ensure the updated code is on the MATLAB path. Use cleanGenpath
+    % so .git/objects/<hash>, .github, and node_modules don't pollute
+    % the in-memory path (and the savepath() below); install.m uses
+    % the same filter at install time.
     fprintf('[%s] Updating MATLAB path for %s\n', infoTag, repoName);
     pathBefore = path;
-    addpath(genpath(repoPath));
+    addpath(ndi.nansen.fun.cleanGenpath(repoPath));
 
     % Save to a user-writable location so savepath does not fail on
     % MATLAB installs where matlabroot is read-only. Skip the write if

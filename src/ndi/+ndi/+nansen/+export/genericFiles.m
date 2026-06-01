@@ -113,8 +113,23 @@ for i = 1:numel(localDocumentIDs)
             fileObj = dataset.database_openbinarydoc(doc,fileInfo.name);
             currentFilePath = fileObj.fullpathfilename;
             exportFilePath = fullfile(exportFolder,exportFileName);
-            status = copyfile(currentFilePath,exportFilePath);
+            [copyStatus, copyMsg] = copyfile(currentFilePath,exportFilePath);
             dataset.database_closebinarydoc(fileObj);
+            if ~copyStatus
+                success = false;
+                if ~isfield(report,'local_copy_failures')
+                    report.local_copy_failures = struct('source', {}, 'destination', {}, 'message', {});
+                end
+                report.local_copy_failures(end+1) = struct( ...
+                    'source', currentFilePath, ...
+                    'destination', exportFilePath, ...
+                    'message', copyMsg); %#ok<AGROW>
+                if isempty(errorMessage)
+                    errorMessage = sprintf( ...
+                        'Local file copy failed for %s: %s', ...
+                        currentFilePath, copyMsg);
+                end
+            end
         end
     end
 end
