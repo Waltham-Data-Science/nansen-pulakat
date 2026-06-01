@@ -47,6 +47,21 @@ funcId = 'Install';
 [downloadDir, ~, ~] = fileparts(mfilename('fullpath'));
 fprintf('[%s] Starting installation.\n', funcId);
 
+% Capture MATLAB's path at install entry — before any of our bootstrap
+% addpaths, before nansen_install / openMINDS setup / ndi_install all
+% have a chance to touch the path. We re-add this snapshot at step 9
+% so the saved pathdef.m contains the full MATLAB default path plus
+% whatever was on the user's path at entry, regardless of what
+% upstream installers dropped during the install. Without this,
+% R2026a's nansen_install (matbox AddonManager) has been observed to
+% drop appdesigner/runtime from the path; a subsequent savepath then
+% captures a pathdef that breaks every future MATLAB launch — the
+% saved pathdef.m shadows MATLAB's built-in pathdef at boot, so
+% matlab.apps.AppBase fails to resolve and any NDI / NANSEN dialog
+% that subclasses it errors out. addpath dedupes, so re-adding here
+% does not produce duplicate entries when the path is already healthy.
+installEntryPath = path;
+
 % 2. Check for Git installation
 [status, ~] = system('git --version');
 if status ~= 0
@@ -202,6 +217,16 @@ end
 % are excluded for the same reason — they only have non-MATLAB
 % content that doesn't belong on the path.
 addpath(install_genpathClean(codePath));
+
+% Restore MATLAB's path snapshot from install entry, so the saved
+% pathdef.m below picks up R2026a (or any) defaults that upstream
+% installers may have dropped. addpath dedupes; entries we already
+% have from codePath are not duplicated, and entries added by
+% nansen_install / ndi_install during the install (e.g. matbox
+% AddonManager downloading into userpath/NANSEN/Requirements, or
+% ndi_install populating userpath/tools) are also still on the path
+% from those installers' own addpath calls and survive savepath.
+addpath(installEntryPath);
 % Save path to a user-writable location so future MATLAB sessions
 % pick up the saved path definition even when matlabroot is read-only.
 % Hard-fail here: if the path cannot persist, "Installation Successful"
