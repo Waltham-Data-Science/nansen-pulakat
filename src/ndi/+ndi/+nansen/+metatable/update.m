@@ -62,51 +62,19 @@ end
 
 changed = false;
 
-% Try to get the metatable instance up front so we can suppress NANSEN's
-% autosave for the whole compound operation. NANSEN's App listens on
-% IsModified PostSet and autosaves on every flip; without batching,
-% updateTableVariable's per-variable editEntries triggers one autosave
-% per variable in addition to our explicit save at the bottom (the user
-% sees "MetaTable saved to ..." once for every column being refreshed).
-%
-% beginEntriesUpdate raises IsUpdatingEntries which makes
-% onEntriesChanged short-circuit before flipping IsModified — so the
-% autosave never fires during the batch. We save manually at the
-% bottom regardless of changed-state to write the actual mutations.
-catalog = options.Project.MetaTableCatalog;
-hasExistingMetaTable = ~isempty(catalog.Table) && ...
-    ismember(dataName, catalog.Table.MetaTableName);
-if hasExistingMetaTable
-    metaTable = catalog.getMetaTable(dataName);
-    batchCleanup = metaTable.beginEntriesUpdate(); %#ok<NASGU>
-else
-    metaTable = nansen.metadata.MetaTable.empty;
-    batchCleanup = []; %#ok<NASGU>
-end
-
 if options.UpdateTable
     % Get table from dataset
     dataTable = ndi.nansen.metatable.update.(lower(dataName))(dataset);
 
     % Merge dataset table into Nansen metatable. Opt out of merge's
-    % own save: this function saves once at the bottom after the
-    % variable-update pass.
+    % own save: this function is the top of the update stack and
+    % saves once at the bottom after the variable-update pass, so a
+    % save inside merge() (which itself can chain into edit()) would
+    % be a wasted .mat write.
     [~, changed] = ndi.nansen.metatable.merge(dataTable,dataName, ...
         'LabName',options.LabName, ...
         'Project',options.Project, ...
         'Save',false);
-
-    % If the metatable didn't exist before and merge just created it,
-    % grab the instance now and begin the batch retroactively. The
-    % brand-new branch won't have fired any mutations against an
-    % existing in-cache instance, so suppressing autosave from this
-    % point onward is still effective.
-    if ~hasExistingMetaTable && ~isempty(catalog.Table) && ...
-            ismember(dataName, catalog.Table.MetaTableName)
-        metaTable = catalog.getMetaTable(dataName);
-        batchCleanup = metaTable.beginEntriesUpdate(); %#ok<NASGU>
-        hasExistingMetaTable = true;
-    end
 end
 
 % Convert to cellstr for consistent processing
@@ -117,9 +85,12 @@ options.UpdateVariableNames = cellstr(options.UpdateVariableNames);
 % the metatable won't exist in the catalog yet — there's nothing to
 % update either, so skip cleanly.
 if ~isequal(options.UpdateVariableNames,{''})
-    if ~hasExistingMetaTable
+    catalog = options.Project.MetaTableCatalog;
+    if isempty(catalog.Table) || ...
+            ~ismember(dataName, catalog.Table.MetaTableName)
         return
     end
+    metaTable = catalog.getMetaTable(dataName);
     TVA = options.Project.getTable('TableVariable');
     TVA = TVA(TVA.TableType == lower(dataName), :);
     updateMask = TVA.HasUpdateFunction;
@@ -176,16 +147,23 @@ end
 % editEntries used by updateTableVariable internally) don't always
 % mark dirty, so force-save here. Single save at the bottom of the
 % stack instead of one per layer, matching the Save=false flag passed
-% to merge() above and the beginEntriesUpdate batch that suppresses
-% NANSEN's autosave listener for the whole compound operation.
-if changed && ~isempty(metaTable) && ~isempty(metaTable.filepath)
-    metaTable.save(true);
+% to merge() above.
+%
+% Resolve metaTable for the save: the variable-update branch above
+% already loaded it; the merge-only branch needs to load it now.
+if changed
+    if ~exist('metaTable','var')
+        catalog = options.Project.MetaTableCatalog;
+        if ~isempty(catalog.Table) && ...
+                ismember(dataName, catalog.Table.MetaTableName)
+            metaTable = catalog.getMetaTable(dataName);
+        else
+            metaTable = nansen.metadata.MetaTable.empty;
+        end
+    end
+    if ~isempty(metaTable) && ~isempty(metaTable.filepath)
+        metaTable.save(true);
+    end
 end
-
-% End the batch. onCleanup would do this automatically on function
-% exit, but doing it explicitly here keeps the IsUpdatingEntries flag
-% live for the minimum window — anything done after this point sees
-% normal IsModified flipping again.
-clear batchCleanup
 
 end
