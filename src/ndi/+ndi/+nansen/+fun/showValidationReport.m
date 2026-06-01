@@ -83,7 +83,18 @@ end
 % user doesn't see an empty report window sitting behind the alert.
 allClean = all(isValid) && ~any(isDoc);
 if allClean && ~isInteractive
-    msgbox('All selected subjects are valid.', 'Validation Success');
+    % First word of Title names the entity (e.g. "File validation",
+    % "Subject documents"). Fall back to "items" for callers that pass
+    % a non-entity-prefixed title.
+    titleWords = strsplit(strtrim(options.Title));
+    knownEntities = {'File','Subject','Session','Dataset'};
+    if ~isempty(titleWords) && ismember(titleWords{1}, knownEntities)
+        nounPlural = [lower(titleWords{1}) 's'];
+    else
+        nounPlural = 'items';
+    end
+    msgbox(sprintf('All selected %s are valid.', nounPlural), ...
+        'Validation Success');
     return
 end
 
