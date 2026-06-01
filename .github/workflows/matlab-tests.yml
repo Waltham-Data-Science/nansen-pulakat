@@ -111,6 +111,21 @@ jobs:
       - name: Install MatBox
         uses: ehennestad/matbox-actions/install-matbox@v1
 
+      - name: Install NANSEN dependencies
+        uses: matlab-actions/run-command@v2
+        with:
+          # NANSEN PR #103 dropped utility.dir.recursiveDir in favour
+          # of the FEX add-on (fex://160058), declared in NANSEN's
+          # requirements.txt. nansen_install would install it via
+          # matbox's AddonManager, but we skip nansen_install in CI
+          # for speed. Invoke installMissingAddons directly so the
+          # FEX-managed dependencies land on the path before tests.
+          command: |
+            addpath(genpath('NANSEN/code'));
+            am = nansen.config.addons.AddonManager.instance( ...
+                "AddonFolder", fullfile(pwd, 'NANSEN-addons'));
+            am.installMissingAddons();
+
       - name: Build mksqlite MEX
         uses: matlab-actions/run-command@v2
         with:
@@ -289,6 +304,16 @@ jobs:
       - name: Install MatBox
         if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
         uses: ehennestad/matbox-actions/install-matbox@v1
+
+      - name: Install NANSEN dependencies
+        if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            addpath(genpath('NANSEN/code'));
+            am = nansen.config.addons.AddonManager.instance( ...
+                "AddonFolder", fullfile(pwd, 'NANSEN-addons'));
+            am.installMissingAddons();
 
       - name: Build mksqlite MEX
         if: steps.check_secrets.outputs.cloud_credentials_set == 'true'
