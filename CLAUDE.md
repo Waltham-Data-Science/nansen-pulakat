@@ -118,11 +118,16 @@ Two structural facts:
    under `[Nansen Install]` / `[openMINDS Setup]` / `[NDI Install]`.
 5. Strips stale pre-restructure pathdef entries (old `pulakat/code`,
    `pulakat/code-NDI`, etc.) before NDI's path-reset re-applies them.
-6. `addpath(genpath(codePath))` and `savepath` to **`userpath/pathdef.m`**
-   (matlabroot is often read-only).
-7. Appends an idempotent pathdef-loader to `userpath/startup.m` so future
+6. `addpath(install_genpathClean(codePath))` (filter is duplicated in
+   the runtime `ndi.nansen.fun.cleanGenpath` helper).
+7. Re-applies the captured **install-entry path snapshot** (PR #45) so
+   any MATLAB-default directories that `nansen_install` / `ndi_install`
+   dropped during the install (R2026a `appdesigner/runtime`,
+   especially) are restored before `savepath`.
+8. `savepath` to **`userpath/pathdef.m`** (matlabroot is often read-only).
+9. Appends an idempotent pathdef-loader to `userpath/startup.m` so future
    MATLAB launches restore the saved path.
-8. Calls `ndi.nansen.startup('pulakat', dataPath, 'SkipRepoSync', true)`.
+10. Calls `ndi.nansen.startup('pulakat', dataPath, 'SkipRepoSync', true)`.
 
 ### Subsequent launches
 - A plain MATLAB restart auto-loads paths via the `userpath/startup.m`
@@ -230,9 +235,17 @@ Two CI tiers in `.github/workflows/matlab-tests.yml`:
   a notice when secrets aren't configured (e.g. on PRs from forks).
   Cloud env defaults to `prod`; override with `CLOUD_API_ENVIRONMENT`.
 
-CI pre-clones DID-matlab, vhlab-toolbox-matlab, and mksqlite (building
-the MEX with `buildit.m`), because NDI's database backend dispatches
-through `did.implementations.sqlitedb`.
+CI pre-clones DID-matlab, vhlab-toolbox-matlab, mksqlite (building the
+MEX with `buildit.m`), openMINDS_MATLAB (for ontology types NDI uses),
+and entity-table (for NANSEN's R2025a+ MetaTableViewer backend), because
+NDI's database backend dispatches through `did.implementations.sqlitedb`
+and NANSEN dev expects entity-table on the path.
+
+After matbox is installed via `ehennestad/matbox-actions/install-matbox`,
+CI runs `nansen.config.addons.AddonManager.instance(...).installMissingAddons()`
+against NANSEN's `requirements.txt` so the FEX-managed dependencies
+(recursiveDir, widgets-toolbox, etc.) are available; without this the
+metatable tests crash on `recursiveDir` (PR #47).
 
 Local run (rough): `addpath(genpath('src')); addpath(genpath('tests')); runtests('tests/+ndi/+unittest/+nansen')`
 after the upstream repos are on the path.
