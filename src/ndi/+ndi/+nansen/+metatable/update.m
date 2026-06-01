@@ -66,10 +66,15 @@ if options.UpdateTable
     % Get table from dataset
     dataTable = ndi.nansen.metatable.update.(lower(dataName))(dataset);
 
-    % Merge dataset table into Nansen metatable
+    % Merge dataset table into Nansen metatable. Opt out of merge's
+    % own save: this function is the top of the update stack and
+    % saves once at the bottom after the variable-update pass, so a
+    % save inside merge() (which itself can chain into edit()) would
+    % be a wasted .mat write.
     [~, changed] = ndi.nansen.metatable.merge(dataTable,dataName, ...
         'LabName',options.LabName, ...
-        'Project',options.Project);
+        'Project',options.Project, ...
+        'Save',false);
 end
 
 % Convert to cellstr for consistent processing
@@ -125,19 +130,38 @@ if ~isequal(options.UpdateVariableNames,{''})
             rowIndices, str2func(updateFcnNames{i}));
     end
 
-    % Persist the computed values. metaTable.updateTableVariable
-    % mutates obj.entries in memory but does not save — without this,
-    % values for every HasUpdateFunction variable (Treatment,
-    % NumFiles, NumSubjects, DataTypeName, ...) live only in the
-    % local in-memory copy of the metatable that goes out of scope
-    % when this function returns. The next consumer (the GUI on
-    % launch, or another call to catalog.getMetaTable) reads from
-    % disk and sees the DEFAULT_VALUE that addMissingVarsToMetaTable
-    % wrote when it added the column. Force-save because
-    % editEntries is called with subscripted-cell-assignment paths
-    % that don't always trigger MetaTable's set.entries setter, so
-    % IsClean can stay true even after real mutations.
-    if ~isempty(updateVariableNames) && ~isempty(metaTable.filepath)
+    % Mark changed if the variable-update pass had anything to do.
+    % updateTableVariable mutates obj.entries in memory but does not
+    % save (see comment on the save call at the bottom of this
+    % function), so we need to drive the save from here regardless of
+    % whether the merge phase also set changed.
+    if ~isempty(updateVariableNames)
+        changed = true;
+    end
+end
+
+% Persist any mutations from the merge above and/or the variable-update
+% pass. metaTable.open routes through MetaTableCache and may
+% reloadFromDisk on the next getMetaTable call when the cached instance
+% reports IsClean — some mutation paths (notably the subscripted-cell
+% editEntries used by updateTableVariable internally) don't always
+% mark dirty, so force-save here. Single save at the bottom of the
+% stack instead of one per layer, matching the Save=false flag passed
+% to merge() above.
+%
+% Resolve metaTable for the save: the variable-update branch above
+% already loaded it; the merge-only branch needs to load it now.
+if changed
+    if ~exist('metaTable','var')
+        catalog = options.Project.MetaTableCatalog;
+        if ~isempty(catalog.Table) && ...
+                ismember(dataName, catalog.Table.MetaTableName)
+            metaTable = catalog.getMetaTable(dataName);
+        else
+            metaTable = nansen.metadata.MetaTable.empty;
+        end
+    end
+    if ~isempty(metaTable) && ~isempty(metaTable.filepath)
         metaTable.save(true);
     end
 end

@@ -15,6 +15,11 @@ function [metaTable, changed] = merge(dataTable,dataName,options)
 %         is current Nansen project name.
 %      Project (nansen.config.project.Project): Optional. The Nansen
 %         project object. Default is current Nansen project.
+%      Save (logical): Optional. If true (default), force-save the
+%         metatable to disk after the merge. Pass false from a caller
+%         that will save itself at the end of a compound operation —
+%         ndi.nansen.metatable.update uses this so the merge + variable-
+%         update pass produce a single save instead of one per layer.
 %
 %   Outputs:
 %      metaTable (nansen.metadata.MetaTable): The updated Nansen
@@ -36,6 +41,7 @@ arguments
     dataName {mustBeMember(dataName,{'Dataset','Session','Subject','File'})}
     options.LabName {mustBeText} = nansen.getCurrentProject().Name;
     options.Project {mustBeA(options.Project,'nansen.config.project.Project')} = nansen.getCurrentProject;
+    options.Save (1,1) logical = true
 end
 
 % Default change flag — flipped to true wherever we add rows, edit
@@ -179,18 +185,20 @@ if any(indExist)
 
     % Edit existing rows in a single metatable.edit call (it now batches
     % writes per column internally, so passing every row at once is faster
-    % than looping one row at a time).
+    % than looping one row at a time). Propagate the Save flag so a
+    % caller that opted out of intermediate saves doesn't get one from
+    % the edit() call inside the merge.
     metaTable = ndi.nansen.metatable.edit(dataTable_change, dataName, ...
-        'Project', options.Project);
+        'Project', options.Project, 'Save', options.Save);
     changed = true;
 end
 
-% Force-save. The edit() branch above already saves internally, but
-% addTable and synchronizeMetaTableVariables both mutate without
-% saving; either would otherwise be lost on the next getMetaTable
-% (see metatable.update.m:135-139 for the IsClean / reloadFromDisk
-% mechanism). Save once when anything moved.
-if changed && ~isempty(metaTable.filepath)
+% Force-save unless the caller said it'll save itself. addTable and
+% synchronizeMetaTableVariables both mutate without saving (the edit
+% branch above propagates options.Save through), so a save here is
+% required for the merge to land on disk on its own. See
+% metatable.update.m:135-139 for the IsClean / reloadFromDisk mechanism.
+if changed && options.Save && ~isempty(metaTable.filepath)
     metaTable.save(true);
 end
 
