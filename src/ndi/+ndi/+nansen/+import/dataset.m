@@ -31,9 +31,18 @@ end
 % Define dataset directory path
 datasetDir = fullfile(dataPath,datasetName);
 
-% Create directory (if needed)
+% Create directory (if needed). Fail loudly if mkdir didn't actually
+% create the folder — silently continuing would let ndi.dataset.dir
+% open() succeed against a path that doesn't exist as far as the
+% filesystem is concerned, and the failure would surface much later as
+% a confusing "file not found" elsewhere.
 if ~exist(datasetDir,'dir')
-    mkdir(datasetDir);
+    [mkSuccess, mkMessage] = mkdir(datasetDir);
+    if ~mkSuccess
+        error('NDI:Nansen:Import:Dataset:MkdirFailed', ...
+            ['[NDI:Nansen:Import:Dataset:MkdirFailed] Could not create ' ...
+             'dataset directory %s: %s'], datasetDir, mkMessage);
+    end
 end
 
 % Create dataset
@@ -54,7 +63,16 @@ if cloud
     fprintf('[NDI Import] Dataset %s added to the cloud as %s.\n', ...
         datasetName, cloudDatasetID);
 
-    rmdir(datasetDir,'s');
+    % rmdir return value: 1 = success, 0 = failure. Silent failure here
+    % leaves orphan files on disk after the cloud copy went up; warn so
+    % the user can clean up manually.
+    [rmSuccess, rmMessage] = rmdir(datasetDir,'s');
+    if ~rmSuccess
+        warning('NDI:Nansen:Import:Dataset:RmdirFailed', ...
+            ['[NDI:Nansen:Import:Dataset:RmdirFailed] Cloud upload ' ...
+             'succeeded but could not remove local copy at %s: %s'], ...
+            datasetDir, rmMessage);
+    end
 else
     cloudDatasetID = '';
 end

@@ -58,15 +58,27 @@ if ~isempty(presentRequiredVars)
     try
         readtable(fileName,importOptions);
     catch ME
-        % readtable surfaces missing-data errors in the form
-        %   "column N ... row M" (both digits). If the error doesn't
-        %   match that shape guard the lookup so validateTable still
-        %   returns cleanly rather than rethrowing.
+        % readtable rejected the data — either missing values in a
+        % required column, or a column failed to parse. Mark the file
+        % invalid and surface a warning naming the offending column when
+        % we can parse the column index out of ME.message ("column N ...
+        % row M"). When the error doesn't match that shape, warn with
+        % the raw message rather than silently passing.
+        valid = false;
         missingCell = regexp(ME.message,'\d+','match');
         if numel(missingCell) >= 1 && ~isnan(str2double(missingCell{1})) && ...
                 str2double(missingCell{1}) >= 1 && ...
                 str2double(missingCell{1}) <= numel(presentRequiredVars)
-            missingVariableName = presentRequiredVars{str2double(missingCell{1})}; %#ok<NASGU>
+            missingVariableName = presentRequiredVars{str2double(missingCell{1})};
+            warning('NDI:Nansen:Import:File:ValidateTable:MissingData', ...
+                ['[NDI:Nansen:Import:File:ValidateTable:MissingData] ' ...
+                 '%s has missing or unparseable values in required ' ...
+                 'column ''%s'': %s'], ...
+                fileName, missingVariableName, ME.message);
+        else
+            warning('NDI:Nansen:Import:File:ValidateTable:ReadFailed', ...
+                ['[NDI:Nansen:Import:File:ValidateTable:ReadFailed] ' ...
+                 'readtable failed on %s: %s'], fileName, ME.message);
         end
     end
 end

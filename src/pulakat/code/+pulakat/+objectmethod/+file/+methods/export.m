@@ -54,8 +54,17 @@ function varargout = export(fileObject, varargin)
 
     % Get dataset object. resolveDatasetID falls back to the project's
     % Dataset metatable if every selected row carries an empty
-    % DatasetIdentifier (orphan rows).
+    % DatasetIdentifier (orphan rows). Reject mixed-dataset selections
+    % explicitly — picking datasetID{1} arbitrarily would download from
+    % the wrong dataset for half the selection.
     datasetID = unique({fileObject.DatasetIdentifier});
+    if numel(datasetID) > 1
+        error('Pulakat:ObjectMethod:File:Export:MultipleDatasets', ...
+            ['[Pulakat:ObjectMethod:File:Export:MultipleDatasets] ' ...
+             'Selected files span %d datasets; export one dataset at a ' ...
+             'time. Datasets in selection: %s'], ...
+            numel(datasetID), strjoin(datasetID, ', '));
+    end
     dataset = ndi.nansen.fun.datasetID2Object( ...
         ndi.nansen.fun.resolveDatasetID(datasetID{1}));
 
