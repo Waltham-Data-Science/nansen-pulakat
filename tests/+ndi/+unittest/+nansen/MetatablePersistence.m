@@ -52,6 +52,49 @@ classdef MetatablePersistence < ndi.unittest.nansen.ProjectTestCase
             testCase.verifyEqual(height(entries), 4, ...
                 'merge() did not persist addTable rows to disk.');
         end
+
+        function mergeUpdateExistingPersists(testCase)
+            % Second merge against the same identifiers but with changed
+            % column values exercises the merge → edit → save chain that
+            % the Save=false plumbing of PR #48 added. Without the
+            % plumbing edit() inside merge saved redundantly; with the
+            % plumbing the merge-level save still has to land the change
+            % on disk.
+            seed = testCase.buildSubjectTable(2);
+            ndi.nansen.metatable.merge(seed, 'Subject');
+
+            updated = seed;
+            updated.BiologicalSex = {'Female';'Female'};
+            ndi.nansen.metatable.merge(updated, 'Subject');
+
+            entries = testCase.loadFromDisk('Subject');
+            testCase.verifyTrue(all(strcmp(entries.BiologicalSex,'Female')), ...
+                'merge() of existing rows with changed values did not persist to disk.');
+            testCase.verifyEqual(height(entries), 2, ...
+                'merge() should not duplicate rows on update.');
+        end
+
+        function editSaveFalseDoesNotPersist(testCase)
+            % Inverse of editPersists: when a caller passes Save=false,
+            % the in-memory edit happens but is NOT written to disk
+            % (the caller commits to saving itself). Regression-locks
+            % the Save flag's contract — if a future refactor accidentally
+            % saves anyway, this fails.
+            seed = testCase.buildSubjectTable(2);
+            ndi.nansen.metatable.merge(seed, 'Subject');
+
+            edited = seed(1,:);
+            edited.BiologicalSex = {'Female'};
+            ndi.nansen.metatable.edit(edited, 'Subject', 'Save', false);
+
+            entries = testCase.loadFromDisk('Subject');
+            rowIdx = strcmp(entries.SubjectIdentifier, seed.SubjectIdentifier{1});
+            testCase.verifyEqual(entries.BiologicalSex(rowIdx), {'Male'}, ...
+                ['Save=false should leave disk state untouched. ' ...
+                 'If this fails, a caller that opts out of intermediate ' ...
+                 'saves (like ndi.nansen.metatable.update) is no longer ' ...
+                 'able to batch.']);
+        end
     end
 
     methods (Access = private)
