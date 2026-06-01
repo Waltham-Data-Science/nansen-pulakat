@@ -114,6 +114,13 @@ else
     end
 
     subjectTable_new = subjectTable(numMatch == 0,:);
+
+    % Force-save the conflict-resolution editEntries above. The next
+    % getMetaTable on line 122/135 can reloadFromDisk and clobber them
+    % otherwise (see metatable.update.m:135-139).
+    if ~isempty(subjectMetaTable.filepath)
+        subjectMetaTable.save(true);
+    end
 end
 
 % Check whether there are new subjects to add

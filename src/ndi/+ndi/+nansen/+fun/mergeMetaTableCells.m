@@ -93,4 +93,18 @@ for i = 1:height(uniqueRows)
 
 end
 
+% Force-save the main metatable and every cross-referenced metatable
+% mutated above. Without this, MetaTable.open's reloadFromDisk path can
+% blow away the merged duplicates the next time anything calls
+% getMetaTable (see metatable.update.m:135-139). One save per metatable
+% after the loop, not per-iteration.
+if ~isempty(metaTable.filepath)
+    metaTable.save(true);
+end
+for j = 1:numel(otherMetaTables)
+    if ~isempty(otherMetaTables(j).filepath)
+        otherMetaTables(j).save(true);
+    end
+end
+
 end

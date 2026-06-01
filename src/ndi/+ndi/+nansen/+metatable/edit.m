@@ -69,4 +69,13 @@ for j = 1:width(dataTable)
     end
 end
 
+% Force-save. MetaTable.open routes through MetaTableCache and may
+% reloadFromDisk when the cached instance reports IsClean; per-column
+% editEntries goes through subscripted-cell-assignment that doesn't
+% always mark the instance dirty (see metatable.update.m:135-139). Save
+% immediately so the change survives the next getMetaTable.
+if ~isempty(metaTable.filepath)
+    metaTable.save(true);
+end
+
 end

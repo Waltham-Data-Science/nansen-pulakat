@@ -29,4 +29,12 @@ else
     metaTable.updateTableVariable(variableName);
 end
 
+% Force-save. updateTableVariable mutates obj.entries without
+% guaranteeing IsClean=false, so the next getMetaTable can
+% reloadFromDisk and lose the propagated values (see
+% metatable.update.m:135-139).
+if ~isempty(metaTable.filepath)
+    metaTable.save(true);
+end
+
 end

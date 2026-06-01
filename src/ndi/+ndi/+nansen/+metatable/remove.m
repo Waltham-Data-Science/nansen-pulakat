@@ -41,6 +41,16 @@ if ~isempty(metaTableCatalog.Table) && ...
 
     % Remove entries
     metaTable.removeEntries(entryIDs);
+
+    % Force-save. MetaTable.open routes through MetaTableCache and may
+    % reloadFromDisk when the cached instance reports IsClean. Some
+    % mutation paths leave IsClean=true even after real changes (see
+    % metatable.update.m:135-139 for the canonical explanation), so
+    % saving immediately guarantees the change survives the next
+    % getMetaTable.
+    if ~isempty(metaTable.filepath)
+        metaTable.save(true);
+    end
 end
 
 end

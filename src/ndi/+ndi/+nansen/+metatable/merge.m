@@ -185,6 +185,15 @@ if any(indExist)
     changed = true;
 end
 
+% Force-save. The edit() branch above already saves internally, but
+% addTable and synchronizeMetaTableVariables both mutate without
+% saving; either would otherwise be lost on the next getMetaTable
+% (see metatable.update.m:135-139 for the IsClean / reloadFromDisk
+% mechanism). Save once when anything moved.
+if changed && ~isempty(metaTable.filepath)
+    metaTable.save(true);
+end
+
 % Reset cache
 metaTable.resetMetaObjectCache
 
