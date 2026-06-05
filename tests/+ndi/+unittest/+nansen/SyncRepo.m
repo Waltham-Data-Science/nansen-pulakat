@@ -75,11 +75,24 @@ classdef SyncRepo < matlab.unittest.TestCase
             % yet on the path, so repo.m must not call into it. Assert the
             % source does not reference any ndi.nansen.fun.* helper; it
             % carries its own repo_cleanGenpath local copy instead.
+            %
+            % Comments are stripped before the check: repo.m's own
+            % documentation deliberately names ndi.nansen.fun.cleanGenpath
+            % to explain why the local copy exists, and a raw substring
+            % scan would flag that prose. Only executable code should be
+            % searched for a real call.
             repoSource = which('ndi.nansen.sync.repo');
             testCase.assertNotEmpty(repoSource, ...
                 'Could not locate ndi.nansen.sync.repo on the path.');
-            src = fileread(repoSource);
-            testCase.verifyFalse(contains(src, 'ndi.nansen.fun.'), ...
+            lines = splitlines(string(fileread(repoSource)));
+            for i = 1:numel(lines)
+                pct = strfind(lines(i), '%');
+                if ~isempty(pct)
+                    lines(i) = extractBefore(lines(i), pct(1));
+                end
+            end
+            codeBody = strjoin(lines, newline);
+            testCase.verifyFalse(contains(codeBody, 'ndi.nansen.fun.'), ...
                 ['repo.m must be self-contained for the websave bootstrap; ' ...
                  'it must not call ndi.nansen.fun.* (use the local ' ...
                  'repo_cleanGenpath instead).']);
