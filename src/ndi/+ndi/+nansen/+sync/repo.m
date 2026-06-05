@@ -194,13 +194,22 @@ end
 % --- 5. Path Management & Reporting ---
 
 if status == 0
-    % Ensure the updated code is on the MATLAB path. Use cleanGenpath
-    % so .git/objects/<hash>, .github, and node_modules don't pollute
-    % the in-memory path (and the savepath() below); install.m uses
-    % the same filter at install time.
+    % Ensure the updated code is on the MATLAB path. Use the local
+    % repo_cleanGenpath so .git/objects/<hash>, .github, and
+    % node_modules don't pollute the in-memory path (and the savepath()
+    % below); install.m uses the same filter at install time.
+    %
+    % This MUST be a self-contained local copy rather than a call to
+    % ndi.nansen.fun.cleanGenpath: install.m bootstraps this file
+    % alone via websave and runs it to clone nansen-pulakat itself, so
+    % on that first call the +ndi/+nansen/+fun package is not yet on
+    % the path — this addpath line is what would put it there. Calling
+    % the package function would fail with "Unable to resolve the name
+    % 'ndi.nansen.fun.cleanGenpath'". Keep this in lock-step with
+    % ndi.nansen.fun.cleanGenpath and install.m's install_genpathClean.
     fprintf('[%s] Updating MATLAB path for %s\n', infoTag, repoName);
     pathBefore = path;
-    addpath(ndi.nansen.fun.cleanGenpath(repoPath));
+    addpath(repo_cleanGenpath(repoPath));
 
     % Save to a user-writable location so savepath does not fail on
     % MATLAB installs where matlabroot is read-only. Skip the write if
@@ -226,4 +235,30 @@ else
         '[%s:PullFailed] Update failed for %s:\n%s', funcId, repoName, pullOut);
 end
 
+end
+
+function pathStr = repo_cleanGenpath(root)
+% genpath(root) with .git, .github, and node_modules filtered out.
+%
+% Self-contained local copy of ndi.nansen.fun.cleanGenpath (and the
+% equivalent install_genpathClean in install.m). repo.m is bootstrapped
+% on its own via websave during a fresh install and runs before the rest
+% of the codebase is on the path, so it cannot depend on the +fun
+% package being resolvable. Keep all three implementations in lock-step.
+parts = strsplit(genpath(char(root)), pathsep);
+parts = parts(~cellfun('isempty', parts));
+excluded = {'.git', '.github', 'node_modules'};
+keep = true(1, numel(parts));
+for i = 1:numel(parts)
+    p = parts{i};
+    for j = 1:numel(excluded)
+        token = excluded{j};
+        if endsWith(p, [filesep, token]) || ...
+                contains(p, [filesep, token, filesep])
+            keep(i) = false;
+            break
+        end
+    end
+end
+pathStr = strjoin(parts(keep), pathsep);
 end
