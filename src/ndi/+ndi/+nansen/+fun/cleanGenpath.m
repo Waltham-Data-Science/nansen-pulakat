@@ -9,10 +9,13 @@ function pathStr = cleanGenpath(root)
 %   appears. Filter by path component so the saved pathdef.m stays
 %   stable across git GC and the in-memory path stays clean.
 %
-%   Note: install.m maintains its own copy of this logic as
-%   `install_genpathClean` because install.m must be self-contained
-%   (it is downloaded via websave and run before the rest of the
-%   codebase is on path). Keep the two implementations in lock-step.
+%   Note: two other copies of this logic exist because their callers
+%   must be self-contained — each is downloaded via websave and runs
+%   before the rest of the codebase is on path:
+%     * `install_genpathClean` in install.m
+%     * `repo_cleanGenpath` in ndi.nansen.sync.repo (bootstrapped on
+%       its own to clone nansen-pulakat itself)
+%   Keep all three implementations in lock-step.
 %
 %   Inputs:
 %      root (char or string): The folder to recursively expand.

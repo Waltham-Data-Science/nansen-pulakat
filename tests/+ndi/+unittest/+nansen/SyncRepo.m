@@ -65,6 +65,26 @@ classdef SyncRepo < matlab.unittest.TestCase
             end
         end
 
+        function testRepoIsSelfContained(testCase)
+            % Regression test for the bootstrap install failure
+            % "Unable to resolve the name 'ndi.nansen.fun.cleanGenpath'".
+            %
+            % install.m downloads repo.m alone via websave and runs it to
+            % clone nansen-pulakat itself. On that first call the rest of
+            % the codebase (including the +ndi/+nansen/+fun package) is not
+            % yet on the path, so repo.m must not call into it. Assert the
+            % source does not reference any ndi.nansen.fun.* helper; it
+            % carries its own repo_cleanGenpath local copy instead.
+            repoSource = which('ndi.nansen.sync.repo');
+            testCase.assertNotEmpty(repoSource, ...
+                'Could not locate ndi.nansen.sync.repo on the path.');
+            src = fileread(repoSource);
+            testCase.verifyFalse(contains(src, 'ndi.nansen.fun.'), ...
+                ['repo.m must be self-contained for the websave bootstrap; ' ...
+                 'it must not call ndi.nansen.fun.* (use the local ' ...
+                 'repo_cleanGenpath instead).']);
+        end
+
         function testPathdefWrittenToUserpath(testCase)
             % Verify that a successful sync writes pathdef.m to userpath
             % so paths persist across MATLAB sessions. Preserve any
