@@ -23,10 +23,11 @@ already installed and just need to launch the app, see the
 
 ## First Time Setup
 
-> **New to MATLAB?** A couple of terms used below. The **Command Window** is
-> the large panel in MATLAB where you type commands — when these steps say
-> "paste this into the Command Window," click into that panel, paste, and
-> press **Enter** to run it. That's all "running a command" means here.
+> [!NOTE]
+> **New to MATLAB?** The **Command Window** is the large panel in MATLAB where
+> you type commands. When these steps say "paste this into the Command Window,"
+> click into that panel, paste, and press **Enter** to run it. That's all
+> "running a command" means here.
 
 1.  **Install Git** if you don't already have it.
     - **Windows:** Download from [git-scm.com](https://git-scm.com/download/win).

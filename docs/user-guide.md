@@ -15,7 +15,8 @@ list of what every menu action does, see the [Reference](reference.md).
 - [Syncing with the Cloud](#syncing-with-the-cloud)
 - [Getting Help](#getting-help)
 
-> **Unsure what a word means?** See the
+> [!TIP]
+> Unsure what a word means? See the
 > [Glossary](reference.md#glossary) for plain-language definitions of terms
 > like *session*, *validate*, and *sync*.
 
@@ -56,7 +57,8 @@ This pulls the latest data down from the cloud and opens the app window. Just
 restarting MATLAB makes the app *available* but doesn't fetch cloud updates —
 running `pulakat.startup` is what does that.
 
-**You'll know it worked when** the app window opens showing the Dataset table.
+> ✅ **You'll know it worked when** the app window opens showing the Dataset
+> table.
 
 ### If startup is hanging
 
@@ -111,12 +113,13 @@ session.
 4.  **Click a row** to see its full details, and follow the links between
     tables to trace an entry through the dataset.
 
-**You'll know it worked when** the table shows only the rows matching what you
-filtered for.
+> ✅ **You'll know it worked when** the table shows only the rows matching what
+> you filtered for.
 
-> **Tip:** To see the latest entries added by collaborators before searching,
-> run a **Sync** (or relaunch with `pulakat.startup`) so your tables reflect
-> what's in the cloud.
+> [!TIP]
+> To see the latest entries added by collaborators before searching, run a
+> **Sync** (or relaunch with `pulakat.startup`) so your tables reflect what's
+> in the cloud.
 
 ---
 
@@ -146,18 +149,23 @@ filtered for.
 5.  **Sync to the cloud.** On the **Dataset** table, run **Sync** to back
     everything up — see [Syncing with the Cloud](#syncing-with-the-cloud).
 
-**You'll know it worked when** the new session, subjects, and files appear as
-rows in their tables.
+> ✅ **You'll know it worked when** the new session, subjects, and files appear
+> as rows in their tables.
 
-> **Heads up:** the **Import** actions take one session at a time. Most other
-> actions let you select several entries at once for batch processing.
+> [!NOTE]
+> The **Import** actions take one session at a time. Most other actions let you
+> select several entries at once to process them together.
 
 ---
 
 ## Editing Metadata
 
-**Goal:** fix and finalise entries *before* they sync. Once an entry is backed
-up to the cloud, its details are locked.
+**Goal:** fix and finalise entries *before* they sync.
+
+> [!WARNING]
+> Once an entry is backed up to the cloud, its details are **locked**. Get them
+> right before you sync — afterwards, the only way to change an entry is to
+> remove it and import it again.
 
 **Steps:**
 
@@ -170,11 +178,12 @@ up to the cloud, its details are locked.
     correct whatever Validate flagged.
 
 3.  **Finalise.** **Document** files the entry permanently into the database,
-    and **Sync** backs it up to the cloud. Once an entry is finalised it's
-    locked — to change it after that, you'd remove it and import it again.
+    and **Sync** backs it up to the cloud.
 
-**You'll know it worked when** Validate comes back with no problems reported.
+> ✅ **You'll know it worked when** Validate comes back with no problems
+> reported.
 
+> [!NOTE]
 > Subjects also have **Merge Duplicates**, which combines entries for the same
 > animal — handy when one got imported twice.
 
@@ -197,8 +206,8 @@ sharing.
 You can select several entries first, so you can export a whole session's worth
 at once.
 
-**You'll know it worked when** the CSV file or copied data files appear in the
-folder you chose.
+> ✅ **You'll know it worked when** the CSV file or copied data files appear in
+> the folder you chose.
 
 ---
 
@@ -215,8 +224,9 @@ synced yet:
 - Removing a **session** also unlinks it from the dataset.
 - A **file** can only be removed while it's **not yet synced** to the cloud.
 
-**You'll know it worked when** the entry disappears from the table.
+> ✅ **You'll know it worked when** the entry disappears from the table.
 
+> [!IMPORTANT]
 > Removing only affects your computer. To remove it from the cloud copy too,
 > run a **Sync** afterwards.
 
@@ -238,8 +248,8 @@ Run a Sync when you:
   in; or
 - **want your collaborators' latest work** — to pull down what they've added.
 
-**You'll know it worked when** Sync finishes without an error and your new
-entries are reflected on both sides.
+> ✅ **You'll know it worked when** Sync finishes without an error and your new
+> entries are reflected on both sides.
 
 If syncing seems stuck when launching, see
 [If startup is hanging](#if-startup-is-hanging).

@@ -11,7 +11,7 @@ This repository provides a database system that enables the organization and clo
 | :--- | :--- |
 | **[Getting&nbsp;Started](docs/getting-started.md)** | Requirements, first-time setup, signing in to NDI cloud, fixing a partial install, and updating to the latest version. Start here. |
 | **[User Guide](docs/user-guide.md)** | Launching the app, finding and adding entries, editing metadata, exporting data, and syncing with the cloud. |
-| **[Reference](docs/reference.md)** | A full list of every method available on the Dataset, Session, Subject, and File tables. |
+| **[Reference](docs/reference.md)** | A full list of every action on the Dataset, Session, Subject, and File tables, plus a plain-language [glossary](docs/reference.md#glossary) of common terms. |
 
 Hit a problem or have a request? See **[Getting Help](docs/user-guide.md#getting-help)** — the fastest route is to [file an issue](https://github.com/Waltham-Data-Science/nansen-pulakat/issues).
 
