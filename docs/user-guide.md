@@ -4,6 +4,7 @@ How to launch the app and work with your data day to day. If you haven't
 installed yet, start with [Getting Started](getting-started.md). For a full
 list of what every menu action does, see the [Reference](reference.md).
 
+- [The Big Picture](#the-big-picture)
 - [Launching the App](#launching-the-app)
 - [Understanding the Tables](#understanding-the-tables)
 - [Searching for Entries](#searching-for-entries)
@@ -12,37 +13,61 @@ list of what every menu action does, see the [Reference](reference.md).
 - [Exporting Data](#exporting-data)
 - [Removing Entries](#removing-entries)
 - [Syncing with the Cloud](#syncing-with-the-cloud)
+- [Glossary](#glossary)
 - [Getting Help](#getting-help)
+
+---
+
+## The Big Picture
+
+This app keeps your experimental data organised and safely backed up. The
+everyday flow is four steps:
+
+```
+   Collect    →    Import    →     Check     →     Sync
+  data in the     it into the    it over for      it to the
+     lab             app          mistakes          cloud
+
+   (recordings,   (sessions,     (Validate &      (backed up &
+    animals,       subjects,        Edit)          shareable
+    files)         files)                          with the lab)
+```
+
+You collect data during an experiment, **import** it into the app so it's
+catalogued, **check** it for mistakes, and **sync** it to the cloud so it's
+backed up and your collaborators can see it. Most of your time is spent in the
+middle two steps. The rest of this guide walks through each one.
 
 ---
 
 ## Launching the App
 
-The installer adds a pathdef loader to `<userpath>/startup.m`, so the NDI,
-NANSEN, and pulakat packages are on the MATLAB path automatically every
-time MATLAB starts. To **sync with the NDI cloud and open the Nansen GUI**,
-run:
+Every time you want to use the app, open MATLAB and type this into the
+Command Window (the large panel where you type commands), then press Enter:
 
 ```matlab
 pulakat.startup
 ```
 
-A plain MATLAB restart makes the code available but won't pull any cloud
-updates — `pulakat.startup` is what performs the sync.
+This pulls the latest data down from the cloud and opens the app window. Just
+restarting MATLAB makes the app *available* but doesn't fetch cloud updates —
+running `pulakat.startup` is what does that.
+
+**You'll know it worked when** the app window opens showing the Dataset table.
 
 ![The Nansen GUI on first launch, showing the Dataset table](images/gui-overview.png)
 
 ### If startup is hanging
 
-If the cloud sync step at startup is hanging (a stuck upload, network
-partition), skip it and open the GUI against the local cache:
+If launching seems stuck on "syncing" (a slow upload or network hiccup), you
+can skip the sync and open the app against the copy already on your computer:
 
 ```matlab
 pulakat.startup('SkipCloudSync', true)
 ```
 
-The **Sync** method on the Dataset table still runs a full cloud round-trip
-when you click it explicitly.
+You can still sync later, by hand, with the **Sync** action on the Dataset
+table.
 
 ---
 
@@ -69,15 +94,16 @@ lists its files — to trace any entry up or down the hierarchy.
 
 ## Searching for Entries
 
-Use this when you want to **find** existing sessions, subjects, or files —
-for example, to check whether an animal has already been imported, or to
-locate every file linked to one session.
+**Goal:** find existing sessions, subjects, or files — for example, to check
+whether an animal has already been imported, or to see every file linked to one
+session.
+
+**Steps:**
 
 1.  **Pick the right table** with the table selector. Each row is one entry.
 
-2.  **Sort by a column.** Click a column header to sort ascending; click
-    again for descending. Useful for grouping entries by subject, date, or
-    data type.
+2.  **Sort by a column.** Click a column header to sort A–Z; click again for
+    Z–A. Useful for grouping entries by subject, date, or data type.
 
 3.  **Filter to narrow the list.** Open the column filter to show only rows
     matching a value (e.g. a subject ID or a file type). Combine filters
@@ -85,125 +111,168 @@ locate every file linked to one session.
 
     ![Filtering the Subject table by an identifier](images/filter-entries.png)
 
-4.  **Read the metadata.** Select a row to inspect its full metadata, and
-    follow the links between tables to trace an entry through the dataset.
+4.  **Click a row** to see its full details, and follow the links between
+    tables to trace an entry through the dataset.
 
-> **Tip:** To pull down the latest entries added by collaborators before
-> searching, run a **Sync** (or relaunch with `pulakat.startup`) so your
-> local tables reflect the current cloud state.
+**You'll know it worked when** the table shows only the rows matching what you
+filtered for.
+
+> **Tip:** To see the latest entries added by collaborators before searching,
+> run a **Sync** (or relaunch with `pulakat.startup`) so your tables reflect
+> what's in the cloud.
 
 ---
 
 ## Adding New Entries
 
-The normal path for getting new experimental data into the dataset and up to
-the cloud. Work through the steps in order — each one builds on the last.
+**Goal:** get new experimental data into the app and backed up to the cloud.
+
+**Steps** — work through them in order; each one builds on the last:
 
 1.  **Import a session.** On the **Dataset** table, choose
-    **Import > Session**, select the session directory, and give it a
-    unique session name. This adds a new experimental session (a day /
-    recording) to the dataset.
+    **Import > Session**, pick the session's folder, and give it a unique
+    name. This adds one experimental session (a day / recording).
 
     ![Importing a new session from the Dataset table](images/import-session.png)
 
 2.  **Import subjects.** On the **Session** table, use
     **Import > Subjects > Files** to detect animals automatically from
-    `animal_mapping.csv`, or **Import > Subjects > Manual** to enter
-    subject identifiers by hand.
+    `animal_mapping.csv`, or **Import > Subjects > Manual** to type
+    subject names in by hand.
 
     ![Importing subjects into a session](images/import-subjects.png)
 
 3.  **Import data files.** Still on the **Session** table, use
-    **Import > Data > Folder** to scan the session directory for supported
-    data types, or **Import > Data > Files** to pick specific files and
-    assign their data types and subjects.
+    **Import > Data > Folder** to scan the session folder for supported
+    file types, or **Import > Data > Files** to pick specific files and
+    say which data type and subject each belongs to.
 
-4.  **Validate and edit** the new entries (see
-    [Editing Metadata](#editing-metadata)) to catch problems before they're
-    committed.
+4.  **Check your work.** Validate and fix the new entries before they're
+    finalised — see [Editing Metadata](#editing-metadata).
 
-5.  **Commit and sync.** On the **Dataset** table, run **Sync** (see
-    [Syncing with the Cloud](#syncing-with-the-cloud)). This creates the
-    official NDI documents, establishes immutable UIDs, and uploads everything.
+5.  **Sync to the cloud.** On the **Dataset** table, run **Sync** to back
+    everything up — see [Syncing with the Cloud](#syncing-with-the-cloud).
 
-> **Heads up:** **Import** actions on the Session table accept a single
-> session at a time. Most other table methods support selecting multiple
-> entries for batch processing.
+**You'll know it worked when** the new session, subjects, and files appear as
+rows in their tables.
+
+> **Heads up:** the **Import** actions take one session at a time. Most other
+> actions let you select several entries at once for batch processing.
 
 ---
 
 ## Editing Metadata
 
-Fix and finalise entries *before* they sync — once an entry is uploaded to the
-cloud its metadata is locked.
+**Goal:** fix and finalise entries *before* they sync. Once an entry is backed
+up to the cloud, its details are locked.
+
+**Steps:**
 
 1.  **Validate first.** Run **Validate** on the Subject or File table for a
-    "dry run" that checks metadata against project requirements and ontology
-    rules — missing files, bad data types, broken subject links. Nothing is
-    written, so it's safe to run as often as you like.
+    safe "practice run" that checks each entry for problems — missing files,
+    wrong data types, an animal that isn't linked to anything. It only reports;
+    it changes nothing, so run it as often as you like.
 
     ![Validating subject metadata before syncing](images/validate-entries.png)
 
-2.  **Edit to correct.** Use **Edit** (Subject table) to open the metadata
-    editor and fix whatever Validate flagged.
+2.  **Edit to fix.** Use **Edit** (Subject table) to open the editor and
+    correct whatever Validate flagged.
 
-3.  **Document to finalise.** **Document** creates the official NDI subject or
-    file documents and assigns immutable UIDs. After this, **Sync** uploads
-    them. Documented/synced entries are locked — to change one, you'd remove
-    and re-import it.
+3.  **Finalise.** **Document** files the entry permanently into the database,
+    and **Sync** backs it up to the cloud. Once an entry is finalised it's
+    locked — to change it after that, you'd remove it and import it again.
 
-> Subjects also have **Merge Duplicates**, which combines entries that share
-> identification metadata — handy when the same animal was imported twice.
+**You'll know it worked when** Validate comes back with no problems reported.
+
+> Subjects also have **Merge Duplicates**, which combines entries for the same
+> animal — handy when one got imported twice.
 
 ---
 
 ## Exporting Data
 
-Get metadata or data files back out of the dataset, for analysis or sharing.
+**Goal:** get metadata or data files back out of the app, for analysis or
+sharing.
 
-- **Export metadata to CSV.** On the **Session** or **Subject** table, use
-  **Export > Metadata** to write the selected entries' metadata to a CSV file.
-- **Export the data files.** Use **Export > Files** (Session/Subject) or
-  **Export** (File table) to copy the underlying data files, along with their
-  metadata, to a location you choose.
+**Steps** — pick whichever you need:
 
-Most export actions accept multiple selected entries, so you can export a
-whole session's worth at once.
+- **Export metadata to a spreadsheet.** On the **Session** or **Subject**
+  table, use **Export > Metadata** to save the selected entries' details to a
+  CSV file (opens in Excel or any spreadsheet program).
+- **Export the data files themselves.** Use **Export > Files**
+  (Session/Subject) or **Export** (File table) to copy the actual data files,
+  with their details, to a folder you choose.
+
+You can select several entries first, so you can export a whole session's worth
+at once.
+
+**You'll know it worked when** the CSV file or copied data files appear in the
+folder you chose.
 
 ---
 
 ## Removing Entries
 
-Remove an entry from the local tables with **Remove** (available on the
-Dataset, Session, Subject, and File tables).
+**Goal:** delete an entry you no longer want.
 
-- For **not-yet-synced** entries, Remove deletes the local entry (and, for
-  subjects/files, the associated local data files).
-- A removed **session** is also unlinked from the NDI dataset.
-- File entries can only be removed while they're **not yet synced** to the
-  cloud.
+**Steps:** select the entry and choose **Remove** (available on the Dataset,
+Session, Subject, and File tables). What happens depends on whether it's been
+synced yet:
 
-> Removing is local. To reflect a removal in the cloud copy, follow it with a
-> **Sync**.
+- For entries **not yet synced**, Remove deletes the entry (and, for subjects
+  and files, the local copies of their data files).
+- Removing a **session** also unlinks it from the dataset.
+- A **file** can only be removed while it's **not yet synced** to the cloud.
+
+**You'll know it worked when** the entry disappears from the table.
+
+> Removing only affects your computer. To remove it from the cloud copy too,
+> run a **Sync** afterwards.
 
 ---
 
 ## Syncing with the Cloud
 
-**Sync** (on the **Dataset** table) is how your local work and the cloud copy
-stay in step. It's a **two-way** operation: it downloads remote updates
-(entries added by collaborators) *and* uploads your new documents.
+**Goal:** keep the copy on your computer and the cloud copy matched up.
+
+**Sync** (on the **Dataset** table) works **both ways** at once: it downloads
+anything new from the cloud (entries your collaborators added) *and* uploads
+your new work.
 
 Run a Sync when you:
 
-- **start a session** — `pulakat.startup` syncs automatically on launch, so
-  you begin with the latest cloud state;
-- **finish adding or editing entries** — to publish your changes and lock them
+- **start work** — `pulakat.startup` syncs automatically when you launch, so
+  you begin with the latest;
+- **finish adding or editing entries** — to back up your changes and lock them
   in; or
-- **want collaborators' latest work** — to pull down entries added elsewhere.
+- **want your collaborators' latest work** — to pull down what they've added.
 
-If a sync hangs on startup, see
+**You'll know it worked when** Sync finishes without an error and your new
+entries are reflected on both sides.
+
+If syncing seems stuck when launching, see
 [If startup is hanging](#if-startup-is-hanging).
+
+---
+
+## Glossary
+
+Plain-language meanings for terms you'll see in the app and these docs:
+
+| Term | What it means |
+| :--- | :--- |
+| **Dataset** | Your whole collection of data — the thing that backs up to the cloud. |
+| **Session** | One experimental session, e.g. a single day or recording. |
+| **Subject** | One animal, belonging to a session. |
+| **File** | A data file (such as `.svs` or `.bimg`) belonging to a subject. |
+| **Entry** | Any single row in a table — a session, subject, or file. |
+| **Metadata** | The descriptive details about an entry (names, dates, types) — not the data file itself. |
+| **Import** | Bring data into the app so it's catalogued. |
+| **Validate** | A safe check that looks for problems and reports them without changing anything. |
+| **Document / Finalise** | File an entry permanently into the database so it's official. |
+| **Sync** | Match your computer's copy with the cloud copy — uploading and downloading at once. |
+| **The cloud** | The online storage (NDI cloud) where your data is backed up and shared with the lab. |
+| **Command Window** | The panel in MATLAB where you type commands like `pulakat.startup`. |
 
 ---
 
@@ -219,12 +288,12 @@ request a feature, and it keeps the conversation tracked publicly.
 
 What helps us help you faster:
 
-- **Screenshots** of the GUI showing the problem.
+- **Screenshots** of the app showing the problem.
 - **Any `[NDI:...]` warnings or errors** copied from the MATLAB Command
   Window — a single line is often enough to point us straight to the cause.
 - **What you were doing** when it happened (which table, which menu action).
 
 ---
 
-For a full list of every method on each table, see the
+For a full list of every action on each table, see the
 **[Reference](reference.md)**.
