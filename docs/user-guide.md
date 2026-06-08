@@ -198,6 +198,12 @@ whichever table is active.
 3.  **Finalise.** **Document** files the entry permanently into the database,
     and **Sync** backs it up to the cloud.
 
+> [!IMPORTANT]
+> **Document subjects before files.** A file can only be documented once *all*
+> of its related subjects are documented. If you try to document a file first,
+> validation stops you with "This subject must first be documented." So finalise
+> your subjects, then your files.
+
 > ✅ **You'll know it worked when** Validate comes back with no problems
 > reported.
 
@@ -232,6 +238,12 @@ sharing.
 
 You can select several entries first, so you can export a whole session's worth
 at once.
+
+> [!IMPORTANT]
+> **Only documented files have data to export.** The metadata CSV always
+> includes every selected file, but the actual data file is only copied for
+> files you've **documented**. An in-progress file shows up as a row in the CSV,
+> but its file is skipped.
 
 > ✅ **You'll know it worked when** the CSV file or copied data files appear in
 > the folder you chose.
@@ -268,6 +280,13 @@ slightly different per table:
 **Methods > Sync** (on the **Dataset** table) works **both ways** at once: it
 downloads anything new from the cloud (entries your collaborators added) *and*
 uploads your new work.
+
+> [!IMPORTANT]
+> **Only documented entries are synced.** Sync uploads your **documents** — the
+> entries you've finalised with **Document**. Anything still in progress
+> (imported but not yet documented) stays on your computer and is ignored by
+> Sync until you document it. So nothing reaches the cloud until you've
+> documented it.
 
 Run a Sync when you:
 

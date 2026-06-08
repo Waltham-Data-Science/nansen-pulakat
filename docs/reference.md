@@ -29,7 +29,7 @@ session at a time.
     - **Files** — Lets you pick specific files and say which data type and subject each belongs to.
 - **Export**
   - **Metadata** — Saves the selected session's details to a CSV (spreadsheet) file.
-  - **Files** — Copies all data files belonging to the selected session.
+  - **Files** — Saves a metadata CSV and copies the session's data files. Only **documented** files have data to copy.
 - **Remove** — Removes the selected session from your computer and unlinks it from the dataset (only before the session is synced to the cloud).
 
 ## Subject Table
@@ -40,14 +40,14 @@ session at a time.
 - **Merge Duplicates** — Combines duplicate entries for the same animal, matched on shared identifying details.
 - **Export**
   - **Metadata** — Saves the selected subjects' details to a CSV (spreadsheet) file.
-  - **Files** — Copies all data files belonging to the selected subjects.
+  - **Files** — Saves a metadata CSV and copies the subjects' data files. Only **documented** files have data to copy.
 - **Remove** — Deletes the subject entry and its local data files from your computer (only before the subject is documented).
 
 ## File Table
 
 - **Validate** — Checks that each file actually exists, has a valid data type, and is linked to a subject.
-- **Document** — Files the data file permanently into the database, giving it a permanent ID.
-- **Export** — Copies the selected data files along with their details.
+- **Document** — Files the data file permanently into the database, giving it a permanent ID. A file can only be documented once all of its subjects are documented.
+- **Export** — Saves a metadata CSV for the selected files and copies their data files. Only **documented** files have data to copy; undocumented files appear in the CSV but their file is skipped.
 - **Remove** — Removes the file entry from your computer (only before the file is documented).
 
 ## Glossary
