@@ -86,10 +86,14 @@ last:
 | **Subject** | An animal within a session. |
 | **File** | A data file (`.svs`, `.bimg`, …) linked to a subject. |
 
-The tables are nested: a dataset holds sessions, a session holds subjects, and
-a subject holds files. You switch between them with the table selector, and you
-can follow the links between them — a session lists its subjects, a subject
-lists its files — to trace any entry up or down the hierarchy.
+The tables are nested in meaning: a dataset is made up of sessions, a session
+has subjects, and a subject has files. Switch between them using the row of
+buttons — **Dataset**, **Session**, **Subject**, **File** — down the left side
+of the window.
+
+There's no clickable link from one table to another. To find the entries
+related to a row — say, all the subjects in a session — switch to that table
+and filter by the shared identifier (see [Searching for Entries](#searching-for-entries)).
 
 ---
 
@@ -101,17 +105,22 @@ session.
 
 **Steps:**
 
-1.  **Pick the right table** with the table selector. Each row is one entry.
+1.  **Pick the right table** using the buttons on the left
+    (Dataset / Session / Subject / File). Each row is one entry, and its
+    columns hold that entry's details.
 
-2.  **Sort by a column.** Click a column header to sort A–Z; click again for
-    Z–A. Useful for grouping entries by subject, date, or data type.
+2.  **Sort by a column.** Click a column header to sort by it; click again to
+    reverse the order. Useful for grouping entries by subject, date, or data
+    type.
 
-3.  **Filter to narrow the list.** Open the column filter to show only rows
-    matching a value (e.g. a subject ID or a file type). Combine filters
-    across columns to drill down.
+3.  **Filter to narrow the list.** Each column can be filtered to show only the
+    rows matching a value (e.g. a subject ID or a file type). Open a column's
+    filter from its header — on older versions of MATLAB, press and hold the
+    header. Filter on more than one column to drill down.
 
-4.  **Click a row** to see its full details, and follow the links between
-    tables to trace an entry through the dataset.
+4.  **Read the details** in the row's columns. To jump to related entries —
+    a session's subjects, a subject's files — switch to that table (left-hand
+    buttons) and filter by the shared identifier.
 
 > ✅ **You'll know it worked when** the table shows only the rows matching what
 > you filtered for.
