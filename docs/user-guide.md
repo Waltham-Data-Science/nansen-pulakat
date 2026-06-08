@@ -87,9 +87,9 @@ last:
 | **File** | A data file (`.svs`, `.bimg`, …) linked to a subject. |
 
 The tables are nested in meaning: a dataset is made up of sessions, a session
-has subjects, and a subject has files. Switch between them using the row of
-buttons — **Dataset**, **Session**, **Subject**, **File** — down the left side
-of the window.
+has subjects, and a subject has files. Switch between them using the buttons —
+**Dataset**, **File**, **Session**, **Subject** — down the left side of the
+window.
 
 There's no clickable link from one table to another. To find the entries
 related to a row — say, all the subjects in a session — switch to that table
@@ -136,27 +136,30 @@ session.
 
 **Goal:** get new experimental data into the app and backed up to the cloud.
 
-**Steps** — work through them in order; each one builds on the last:
+**Steps** — work through them in order; each one builds on the last. Every
+action below is in the **Methods** menu, and the actions on offer change with
+whichever table is active.
 
-1.  **Import a session.** On the **Dataset** table, choose
-    **Import > Session**, pick the session's folder, and give it a unique
-    name. This adds one experimental session (a day / recording).
+1.  **Import a session.** With the **Dataset** table active, choose
+    **Methods > Import > Session**, pick the session's folder, and give it a
+    unique name. This adds one experimental session (a day / recording).
 
-2.  **Import subjects.** On the **Session** table, use
-    **Import > Subjects > Files** to detect animals automatically from a
-    lab-standard `animal_mapping` file (`.csv`, `.xls`, or `.xlsx`), or
-    **Import > Subjects > Manual** to type subject names in by hand.
+2.  **Import subjects.** Switch to the **Session** table and use
+    **Methods > Import > Subjects > Files** to detect animals automatically
+    from a lab-standard `animal_mapping` file (`.csv`, `.xls`, or `.xlsx`), or
+    **Methods > Import > Subjects > Manual** to type subject names in by hand.
 
 3.  **Import data files.** Still on the **Session** table, use
-    **Import > Data > Folder** to scan the session folder for supported
-    file types, or **Import > Data > Files** to pick specific files and
-    say which data type and subject each belongs to.
+    **Methods > Import > Data > Folder** to scan the session folder for
+    supported file types, or **Methods > Import > Data > Files** to pick
+    specific files and say which data type and subject each belongs to.
 
 4.  **Check your work.** Validate and fix the new entries before they're
     finalised — see [Editing Metadata](#editing-metadata).
 
-5.  **Sync to the cloud.** On the **Dataset** table, run **Sync** to back
-    everything up — see [Syncing with the Cloud](#syncing-with-the-cloud).
+5.  **Sync to the cloud.** With the **Dataset** table active, run
+    **Methods > Sync** to back everything up — see
+    [Syncing with the Cloud](#syncing-with-the-cloud).
 
 > ✅ **You'll know it worked when** the new session, subjects, and files appear
 > as rows in their tables.
@@ -178,19 +181,28 @@ session.
 
 **Steps:**
 
-1.  **Validate first.** Run **Validate** on the Subject or File table for a
-    safe "practice run" that checks each entry for problems — missing files,
-    wrong data types, an animal that isn't linked to anything. It only reports;
-    it changes nothing, so run it as often as you like.
+1.  **Validate first.** Run **Methods > Validate** on the Subject or File table
+    for a safe "practice run" that checks each entry for problems — missing
+    files, wrong data types, an animal that isn't linked to anything. It only
+    reports; it changes nothing, so run it as often as you like.
 
-2.  **Edit to fix.** Use **Edit** (Subject table) to open the editor and
-    correct whatever Validate flagged.
+2.  **Edit to fix.** Use **Methods > Edit** (Subject table) to open the editor
+    and correct whatever Validate flagged.
 
 3.  **Finalise.** **Document** files the entry permanently into the database,
     and **Sync** backs it up to the cloud.
 
 > ✅ **You'll know it worked when** Validate comes back with no problems
 > reported.
+
+> [!TIP]
+> **Quick edits by double-click.** On the **Subject** table you can edit some
+> fields directly: double-click the cell and a small dialog opens for the new
+> value. This works for a subject's identifier, cage, and enumerated ID, and
+> for its treatment, strain, and biological sex. The change propagates
+> automatically to the related Session or File entries. As with **Edit**, this
+> only works *before* the subject is documented — once it is, you'll get a
+> "cannot be edited" message.
 
 > [!NOTE]
 > Subjects also have **Merge Duplicates**, which combines entries for the same
@@ -206,11 +218,11 @@ sharing.
 **Steps** — pick whichever you need:
 
 - **Export metadata to a spreadsheet.** On the **Session** or **Subject**
-  table, use **Export > Metadata** to save the selected entries' details to a
-  CSV file (opens in Excel or any spreadsheet program).
-- **Export the data files themselves.** Use **Export > Files**
-  (Session/Subject) or **Export** (File table) to copy the actual data files,
-  with their details, to a folder you choose.
+  table, use **Methods > Export > Metadata** to save the selected entries'
+  details to a CSV file (opens in Excel or any spreadsheet program).
+- **Export the data files themselves.** Use **Methods > Export > Files**
+  (Session/Subject) or **Methods > Export** (File table) to copy the actual
+  data files, with their details, to a folder you choose.
 
 You can select several entries first, so you can export a whole session's worth
 at once.
@@ -224,9 +236,9 @@ at once.
 
 **Goal:** delete an entry you no longer want.
 
-**Steps:** select the entry and choose **Remove** (available on the Dataset,
-Session, Subject, and File tables). What happens depends on whether it's been
-synced yet:
+**Steps:** select the entry and choose **Methods > Remove** (available on the
+Dataset, Session, Subject, and File tables). What happens depends on whether
+it's been synced yet:
 
 - For entries **not yet synced**, Remove deletes the entry (and, for subjects
   and files, the local copies of their data files).
@@ -245,9 +257,9 @@ synced yet:
 
 **Goal:** keep the copy on your computer and the cloud copy matched up.
 
-**Sync** (on the **Dataset** table) works **both ways** at once: it downloads
-anything new from the cloud (entries your collaborators added) *and* uploads
-your new work.
+**Methods > Sync** (on the **Dataset** table) works **both ways** at once: it
+downloads anything new from the cloud (entries your collaborators added) *and*
+uploads your new work.
 
 Run a Sync when you:
 

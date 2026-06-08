@@ -1,11 +1,12 @@
 # Reference
 
-Each table's actions live in the **menu bar** at the top of the window when
-that table is active. Select one or more entries, then choose the action from
-the menu bar; the indentation below matches the submenu nesting (for example,
-**Import > Subjects > Files**). For task walkthroughs that use these actions,
-see the [User Guide](user-guide.md); for plain-language definitions of terms,
-see the [Glossary](#glossary) at the end.
+Each table's actions live in the **Methods** menu in the menu bar at the top of
+the window. The actions shown change with whichever table is active. Select one
+or more entries, then open **Methods** and choose the action; the indentation
+below matches the submenu nesting (for example, **Methods > Import > Subjects >
+Files**). For task walkthroughs that use these actions, see the
+[User Guide](user-guide.md); for plain-language definitions of terms, see the
+[Glossary](#glossary) at the end.
 
 **Note on selection:** Most actions let you select several entries at once to
 process them together. The **Import** actions are the exception — they take one
