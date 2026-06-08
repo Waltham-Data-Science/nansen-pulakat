@@ -70,7 +70,7 @@ and what to do:
   `restoredefaultpath; rehash` then re-run `install`.
 
 If none of those apply, delete `~/ndi/tools/` and `<userpath>/pathdef.m`
-and start over.
+and start over. Still stuck? See [Getting Help](user-guide.md#getting-help).
 
 ## Updating to the latest version
 
@@ -81,4 +81,4 @@ or re-authenticate.
 ---
 
 Once you're installed, head to the **[User Guide](user-guide.md)** to launch
-the app and start working with records.
+the app and start working with your data.

@@ -1,10 +1,10 @@
 # Reference
 
 The lists below mirror the **Methods** menu for each table — the indentation
-matches the dropdown you click through when a record is selected. For task
+matches the dropdown you click through when an entry is selected. For task
 walkthroughs that use these methods, see the [User Guide](user-guide.md).
 
-**Note on Selection:** Most table methods allow selecting multiple records for
+**Note on Selection:** Most table methods allow selecting multiple entries for
 batch processing. However, methods under **Import** (specifically Session
 Methods) typically accept only a single session input at a time.
 
@@ -31,17 +31,17 @@ Methods) typically accept only a single session input at a time.
 ## Subject Table
 
 - **Validate** — Performs a "dry run" validation of subject metadata against project requirements and ontology rules.
-- **Edit** — Opens a GUI to edit subject metadata (locked once the record is synced to the cloud).
+- **Edit** — Opens a GUI to edit subject metadata (locked once the entry is synced to the cloud).
 - **Document** — Creates the official NDI subject documents and establishes immutable UIDs in the database.
-- **Merge Duplicates** — Identifies and merges duplicate subject records based on shared identification metadata.
+- **Merge Duplicates** — Identifies and merges duplicate subject entries based on shared identification metadata.
 - **Export**
   - **Metadata** — Exports metadata for the selected subjects to a CSV file.
   - **Files** — Exports all data files associated with the selected subjects.
-- **Remove** — Deletes the subject record and its associated data files from the local metatable.
+- **Remove** — Deletes the subject entry and its associated data files from the local metatable.
 
 ## File Table
 
 - **Validate** — Checks for physical file existence, valid data type assignments, and proper subject links.
 - **Document** — Creates the official NDI file documents and establishes immutable UIDs in the database.
 - **Export** — Exports selected data files and their associated metadata.
-- **Remove** — Removes the file record from the metatable (only if not yet synced to the cloud).
+- **Remove** — Removes the file entry from the metatable (only if not yet synced to the cloud).
