@@ -150,11 +150,15 @@ whichever table is active.
     **Methods > Import > Subjects > Files** to detect animals automatically
     from a lab-standard `animal_mapping` file (`.csv`, `.xls`, or `.xlsx`), or
     **Methods > Import > Subjects > Manual** to type subject names in by hand.
+    See [the `animal_mapping` file format](reference.md#the-animal_mapping-subject-file)
+    for the columns it needs.
 
 3.  **Import data files.** Still on the **Session** table, use
     **Methods > Import > Data > Folder** to scan the session folder for
     supported file types, or **Methods > Import > Data > Files** to pick
     specific files and say which data type and subject each belongs to.
+    See [recognised data file types](reference.md#recognised-data-file-types)
+    for what the folder scan picks up.
 
 4.  **Check, then document.** Validate and fix the new entries, then
     **Document** them to make them permanent — see

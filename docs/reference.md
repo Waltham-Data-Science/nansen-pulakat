@@ -50,6 +50,40 @@ session at a time.
 - **Export** — Saves a metadata CSV for the selected files and copies their data files. Only **documented** files have data to copy; undocumented files appear in the CSV but their file is skipped.
 - **Remove** — Removes the file entry from your computer (only before the file is documented).
 
+## Import File Formats
+
+### The `animal_mapping` subject file
+
+**Import > Subjects > Files** reads a file named `animal_mapping` (`.csv`,
+`.xls`, or `.xlsx`) with one row per animal. Give it these columns:
+
+| Column | What it holds |
+| :--- | :--- |
+| **Strain** | The animal's strain. |
+| **BiologicalSex** | The animal's biological sex. |
+| **Animal** | The enumerated animal identifier. |
+| **Cage** | The cage identifier. |
+| **Label** | The text label / identifier. |
+| **Treatment** | The treatment given. |
+
+(The subject's overall identifier and electronic file name are generated for
+you, so you don't add columns for them.)
+
+### Recognised data file types
+
+**Import > Data > Folder** assigns a type to each file by what its **name
+contains** (case-insensitive); the first match wins:
+
+| If the filename contains | Imported as |
+| :--- | :--- |
+| `schedule` | experiment metadata file |
+| `DIA` | data-independent acquisition (DIA) |
+| `.svs` | slide scanner image acquisition |
+| `.bimg`, `.pimg`, `.mxml`, `.vxml` | echocardiogram acquisition |
+
+A file that matches none of these is imported as "unknown electronic file
+type." You can always set a file's type by hand with **Import > Data > Files**.
+
 ## Glossary
 
 Plain-language meanings for terms you'll see in the app and these docs:
