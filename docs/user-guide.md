@@ -134,9 +134,9 @@ session.
     name. This adds one experimental session (a day / recording).
 
 2.  **Import subjects.** On the **Session** table, use
-    **Import > Subjects > Files** to detect animals automatically from
-    `animal_mapping.csv`, or **Import > Subjects > Manual** to type
-    subject names in by hand.
+    **Import > Subjects > Files** to detect animals automatically from a
+    lab-standard `animal_mapping` file (`.csv`, `.xls`, or `.xlsx`), or
+    **Import > Subjects > Manual** to type subject names in by hand.
 
 3.  **Import data files.** Still on the **Session** table, use
     **Import > Data > Folder** to scan the session folder for supported

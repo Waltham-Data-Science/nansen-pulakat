@@ -10,8 +10,9 @@ already installed and just need to launch the app, see the
   metatable backend (web-based uitable, drag-to-resize columns) via
   the `entity-table` dependency that `install.m` clones for you;
   pre-R2025a uses the legacy Java backend automatically.
-- **An NDI cloud account.** The installer's last step prompts you to
-  sign in via `ndi.cloud.uilogin`. If you don't have one yet, request
+- **An NDI cloud account.** Near the end, the installer opens a
+  sign-in dialog (`ndi.cloud.uilogin`) unless you're already signed in.
+  If you don't have an account yet, request
   one from the [NDI cloud admin](https://ndi-cloud.com) before running
   `install.m` — the installer can still finish without an account, but
   the dataset sync step will be skipped.
@@ -54,8 +55,9 @@ already installed and just need to launch the app, see the
     install
     ```
 
-3.  **Sign in to NDI cloud** when prompted. The installer ends with
-    an `ndi.cloud.uilogin` dialog; enter the email and password for
+3.  **Sign in to NDI cloud** when prompted. As the installer finishes it
+    launches the app, which opens a sign-in dialog (`ndi.cloud.uilogin`)
+    if you're not already signed in; enter the email and password for
     your NDI cloud account. The credentials persist for subsequent
     MATLAB sessions until you log out.
 

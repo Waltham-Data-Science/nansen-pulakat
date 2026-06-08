@@ -19,7 +19,7 @@ session at a time.
 
 - **Import**
   - **Subjects**
-    - **Files** — Detects and imports subjects automatically from lab-standard files (e.g. `animal_mapping.csv`).
+    - **Files** — Detects and imports subjects automatically from a lab-standard `animal_mapping` file (`.csv`, `.xls`, or `.xlsx`).
     - **Manual** — Opens a dialog to type subject names in by hand.
   - **Data**
     - **Folder** — Scans the session folder for supported file types and imports them.
