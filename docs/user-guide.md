@@ -172,12 +172,14 @@ whichever table is active.
 
 ## Editing Metadata
 
-**Goal:** fix and finalise entries *before* they sync.
+**Goal:** get entries right *before* you document them.
 
 > [!WARNING]
-> Once an entry is backed up to the cloud, its details are **locked**. Get them
-> right before you sync — afterwards, the only way to change an entry is to
-> remove it and import it again.
+> **Documenting locks an entry.** Once you run **Document** on a subject or
+> file (step 3) it becomes a permanent record — you can no longer edit it, and
+> you can't remove it either. There's no unlock. So validate and fix everything
+> *before* you document. (Documenting happens locally, before **Sync** uploads
+> it — the lock is at Document, not Sync.)
 
 **Steps:**
 
@@ -236,20 +238,22 @@ at once.
 
 **Goal:** delete an entry you no longer want.
 
-**Steps:** select the entry and choose **Methods > Remove** (available on the
-Dataset, Session, Subject, and File tables). What happens depends on whether
-it's been synced yet:
+**Steps:** select the entry and choose **Methods > Remove**. You can only
+remove an entry that hasn't been finalised yet, and "finalised" means something
+slightly different per table:
 
-- For entries **not yet synced**, Remove deletes the entry (and, for subjects
-  and files, the local copies of their data files).
-- Removing a **session** also unlinks it from the dataset.
-- A **file** can only be removed while it's **not yet synced** to the cloud.
+- A **subject** or **file** can be removed only **before it's documented**.
+  Once documented, it's locked. Removing deletes the entry and its local data
+  files.
+- A **session** can be removed only **before it's synced to the cloud**.
+  Removing it also unlinks it from the dataset and deletes its local data.
 
 > ✅ **You'll know it worked when** the entry disappears from the table.
 
-> [!IMPORTANT]
-> Removing only affects your computer. To remove it from the cloud copy too,
-> run a **Sync** afterwards.
+> [!NOTE]
+> Because you can only remove entries that haven't been finalised, removal is
+> always local — there's never a cloud copy to clean up. Documented or synced
+> entries can't be removed at all.
 
 ---
 

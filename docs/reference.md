@@ -30,25 +30,25 @@ session at a time.
 - **Export**
   - **Metadata** — Saves the selected session's details to a CSV (spreadsheet) file.
   - **Files** — Copies all data files belonging to the selected session.
-- **Remove** — Removes the selected session from your computer and unlinks it from the dataset.
+- **Remove** — Removes the selected session from your computer and unlinks it from the dataset (only before the session is synced to the cloud).
 
 ## Subject Table
 
 - **Validate** — A safe "practice run" that checks subject details against the project's requirements and reports any problems, without changing anything.
-- **Edit** — Opens an editor for the subject's details (locked once the entry is synced to the cloud).
+- **Edit** — Opens an editor for the subject's details (locked once the subject is documented).
 - **Document** — Files the subject permanently into the database, giving it a permanent ID.
 - **Merge Duplicates** — Combines duplicate entries for the same animal, matched on shared identifying details.
 - **Export**
   - **Metadata** — Saves the selected subjects' details to a CSV (spreadsheet) file.
   - **Files** — Copies all data files belonging to the selected subjects.
-- **Remove** — Deletes the subject entry and its local data files from your computer.
+- **Remove** — Deletes the subject entry and its local data files from your computer (only before the subject is documented).
 
 ## File Table
 
 - **Validate** — Checks that each file actually exists, has a valid data type, and is linked to a subject.
 - **Document** — Files the data file permanently into the database, giving it a permanent ID.
 - **Export** — Copies the selected data files along with their details.
-- **Remove** — Removes the file entry from your computer (only while it's not yet synced to the cloud).
+- **Remove** — Removes the file entry from your computer (only before the file is documented).
 
 ## Glossary
 
