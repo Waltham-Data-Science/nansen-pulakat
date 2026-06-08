@@ -24,3 +24,11 @@ help ndi.nansen.sync.status
 help ndi.nansen.sync.repo
 help ndi.nansen.startup
 ```
+
+For scripted / CI contexts where the GUI must not open, launch headless
+(requires that you're already authenticated with NDI cloud, e.g. via a prior
+interactive `ndi.cloud.uilogin`):
+
+```matlab
+pulakat.startup('Headless', true)
+```

@@ -26,16 +26,7 @@ updates — `pulakat.startup` is what performs the sync.
 
 ![The Nansen GUI on first launch, showing the Dataset table](images/gui-overview.png)
 
-### Launch options
-
-For scripted / CI contexts where the GUI must not open, pass `Headless`:
-
-```matlab
-pulakat.startup('Headless', true)
-```
-
-Headless mode requires you to already be authenticated with NDI cloud
-(e.g. via a prior interactive `ndi.cloud.uilogin` run).
+### If startup is hanging
 
 If the cloud sync step at startup is hanging (a stuck upload, network
 partition), skip it and open the GUI against the local cache:
