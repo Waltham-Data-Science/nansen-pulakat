@@ -25,22 +25,24 @@ list of what every menu action does, see the [Reference](reference.md).
 ## The Big Picture
 
 This app keeps your experimental data organised and safely backed up. The
-everyday flow is four steps:
+everyday flow is five steps:
 
 ```
-   Collect    →    Import    →     Check     →     Sync
-  data in the     it into the    it over for      it to the
-     lab             app          mistakes          cloud
+ Collect   →   Import   →   Check    →  Finalise  →    Sync
+ data in      into the     Validate    Document      upload to
+ the lab        app         & Edit     (locks it)    the cloud
 
-   (recordings,   (sessions,     (Validate &      (backed up &
-    animals,       subjects,        Edit)          shareable
-    files)         files)                          with the lab)
+ recordings,  sessions,    fix any     make it       backed up &
+ animals,     subjects,    mistakes    permanent     shareable
+ files        files                                  with the lab
 ```
 
 You collect data during an experiment, **import** it into the app so it's
-catalogued, **check** it for mistakes, and **sync** it to the cloud so it's
-backed up and your collaborators can see it. Most of your time is spent in the
-middle two steps. The rest of this guide walks through each one.
+catalogued, **check** it for mistakes (Validate & Edit), **document** it to
+make it a permanent record, and **sync** it to the cloud so it's backed up and
+your collaborators can see it. Checking and fixing is where you'll spend most
+of your time — and it has to happen *before* you document, because documenting
+locks an entry. The rest of this guide walks through each step.
 
 ---
 
@@ -106,7 +108,7 @@ session.
 **Steps:**
 
 1.  **Pick the right table** using the buttons on the left
-    (Dataset / Session / Subject / File). Each row is one entry, and its
+    (Dataset / File / Session / Subject). Each row is one entry, and its
     columns hold that entry's details.
 
 2.  **Sort by a column.** Click a column header to sort by it; click again to
@@ -154,11 +156,13 @@ whichever table is active.
     supported file types, or **Methods > Import > Data > Files** to pick
     specific files and say which data type and subject each belongs to.
 
-4.  **Check your work.** Validate and fix the new entries before they're
-    finalised — see [Editing Metadata](#editing-metadata).
+4.  **Check, then document.** Validate and fix the new entries, then
+    **Document** them to make them permanent — see
+    [Editing Metadata](#editing-metadata). Do this *before* the next step,
+    because documenting is what locks an entry in.
 
 5.  **Sync to the cloud.** With the **Dataset** table active, run
-    **Methods > Sync** to back everything up — see
+    **Methods > Sync** to upload everything — see
     [Syncing with the Cloud](#syncing-with-the-cloud).
 
 > ✅ **You'll know it worked when** the new session, subjects, and files appear
@@ -269,8 +273,7 @@ Run a Sync when you:
 
 - **start work** — `pulakat.startup` syncs automatically when you launch, so
   you begin with the latest;
-- **finish adding or editing entries** — to back up your changes and lock them
-  in; or
+- **finish adding or editing entries** — to back up your work to the cloud; or
 - **want your collaborators' latest work** — to pull down what they've added.
 
 > ✅ **You'll know it worked when** Sync finishes without an error and your new
