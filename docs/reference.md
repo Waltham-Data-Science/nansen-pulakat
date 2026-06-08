@@ -1,4 +1,4 @@
-# Reference: Table Methods
+# Reference
 
 The following methods are accessible through the "Methods" menu when a record
 is selected in the corresponding table. For task walkthroughs that use these
