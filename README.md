@@ -8,7 +8,7 @@ This repository provides a database system that enables the organization and clo
 ## Documentation
 
 | Guide | What's in it |
-| :------ | :--- |
+| :--------- | :--- |
 | **[Getting Started](docs/getting-started.md)** | Requirements, first-time setup, signing in to NDI cloud, fixing a partial install, and updating to the latest version. Start here. |
 | **[User Guide](docs/user-guide.md)** | Launching the app day to day, the two everyday tasks (**searching for records** and **adding new records**) with screenshots, and a full reference for every table method. |
 
