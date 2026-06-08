@@ -13,8 +13,11 @@ list of what every menu action does, see the [Reference](reference.md).
 - [Exporting Data](#exporting-data)
 - [Removing Entries](#removing-entries)
 - [Syncing with the Cloud](#syncing-with-the-cloud)
-- [Glossary](#glossary)
 - [Getting Help](#getting-help)
+
+> **Unsure what a word means?** See the
+> [Glossary](reference.md#glossary) for plain-language definitions of terms
+> like *session*, *validate*, and *sync*.
 
 ---
 
@@ -252,27 +255,6 @@ entries are reflected on both sides.
 
 If syncing seems stuck when launching, see
 [If startup is hanging](#if-startup-is-hanging).
-
----
-
-## Glossary
-
-Plain-language meanings for terms you'll see in the app and these docs:
-
-| Term | What it means |
-| :--- | :--- |
-| **Dataset** | Your whole collection of data — the thing that backs up to the cloud. |
-| **Session** | One experimental session, e.g. a single day or recording. |
-| **Subject** | One animal, belonging to a session. |
-| **File** | A data file (such as `.svs` or `.bimg`) belonging to a subject. |
-| **Entry** | Any single row in a table — a session, subject, or file. |
-| **Metadata** | The descriptive details about an entry (names, dates, types) — not the data file itself. |
-| **Import** | Bring data into the app so it's catalogued. |
-| **Validate** | A safe check that looks for problems and reports them without changing anything. |
-| **Document / Finalise** | File an entry permanently into the database so it's official. |
-| **Sync** | Match your computer's copy with the cloud copy — uploading and downloading at once. |
-| **The cloud** | The online storage (NDI cloud) where your data is backed up and shared with the lab. |
-| **Command Window** | The panel in MATLAB where you type commands like `pulakat.startup`. |
 
 ---
 

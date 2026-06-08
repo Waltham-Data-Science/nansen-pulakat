@@ -2,7 +2,8 @@
 
 The lists below mirror the **Methods** menu for each table — the indentation
 matches the dropdown you click through when an entry is selected. For task
-walkthroughs that use these methods, see the [User Guide](user-guide.md).
+walkthroughs that use these methods, see the [User Guide](user-guide.md); for
+plain-language definitions of terms, see the [Glossary](#glossary) at the end.
 
 **Note on selection:** Most actions let you select several entries at once to
 process them together. The **Import** actions are the exception — they take one
@@ -45,3 +46,22 @@ session at a time.
 - **Document** — Files the data file permanently into the database, giving it a permanent ID.
 - **Export** — Copies the selected data files along with their details.
 - **Remove** — Removes the file entry from your computer (only while it's not yet synced to the cloud).
+
+## Glossary
+
+Plain-language meanings for terms you'll see in the app and these docs:
+
+| Term | What it means |
+| :--- | :--- |
+| **Dataset** | Your whole collection of data — the thing that backs up to the cloud. |
+| **Session** | One experimental session, e.g. a single day or recording. |
+| **Subject** | One animal, belonging to a session. |
+| **File** | A data file (such as `.svs` or `.bimg`) belonging to a subject. |
+| **Entry** | Any single row in a table — a session, subject, or file. |
+| **Metadata** | The descriptive details about an entry (names, dates, types) — not the data file itself. |
+| **Import** | Bring data into the app so it's catalogued. |
+| **Validate** | A safe check that looks for problems and reports them without changing anything. |
+| **Document / Finalise** | File an entry permanently into the database so it's official. |
+| **Sync** | Match your computer's copy with the cloud copy — uploading and downloading at once. |
+| **The cloud** | The online storage (NDI cloud) where your data is backed up and shared with the lab. |
+| **Command Window** | The panel in MATLAB where you type commands like `pulakat.startup`. |
