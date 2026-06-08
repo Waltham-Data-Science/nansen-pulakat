@@ -58,8 +58,6 @@ running `pulakat.startup` is what does that.
 
 **You'll know it worked when** the app window opens showing the Dataset table.
 
-![The Nansen GUI on first launch, showing the Dataset table](images/gui-overview.png)
-
 ### If startup is hanging
 
 If launching seems stuck on "syncing" (a slow upload or network hiccup), you
@@ -91,8 +89,6 @@ a subject holds files. You switch between them with the table selector, and you
 can follow the links between them — a session lists its subjects, a subject
 lists its files — to trace any entry up or down the hierarchy.
 
-![The table selector for switching between Dataset, Session, Subject, and File](images/table-selector.png)
-
 ---
 
 ## Searching for Entries
@@ -111,8 +107,6 @@ session.
 3.  **Filter to narrow the list.** Open the column filter to show only rows
     matching a value (e.g. a subject ID or a file type). Combine filters
     across columns to drill down.
-
-    ![Filtering the Subject table by an identifier](images/filter-entries.png)
 
 4.  **Click a row** to see its full details, and follow the links between
     tables to trace an entry through the dataset.
@@ -136,14 +130,10 @@ filtered for.
     **Import > Session**, pick the session's folder, and give it a unique
     name. This adds one experimental session (a day / recording).
 
-    ![Importing a new session from the Dataset table](images/import-session.png)
-
 2.  **Import subjects.** On the **Session** table, use
     **Import > Subjects > Files** to detect animals automatically from
     `animal_mapping.csv`, or **Import > Subjects > Manual** to type
     subject names in by hand.
-
-    ![Importing subjects into a session](images/import-subjects.png)
 
 3.  **Import data files.** Still on the **Session** table, use
     **Import > Data > Folder** to scan the session folder for supported
@@ -175,8 +165,6 @@ up to the cloud, its details are locked.
     safe "practice run" that checks each entry for problems — missing files,
     wrong data types, an animal that isn't linked to anything. It only reports;
     it changes nothing, so run it as often as you like.
-
-    ![Validating subject metadata before syncing](images/validate-entries.png)
 
 2.  **Edit to fix.** Use **Edit** (Subject table) to open the editor and
     correct whatever Validate flagged.
