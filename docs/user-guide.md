@@ -54,7 +54,7 @@ last:
 | Table | What one entry is |
 | :--- | :--- |
 | **Dataset** | The whole collection — the thing that syncs to the cloud. |
-| **Session** | A single experimental session (a day / recording). |
+| **Session** | A single experimental session. |
 | **Subject** | An animal within a session. |
 | **File** | A data file (`.svs`, `.bimg`, …) linked to a subject. |
 
