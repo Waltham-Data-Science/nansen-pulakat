@@ -58,8 +58,10 @@ already installed and just need to launch the app, see the
 3.  **Sign in to NDI cloud** when prompted. As the installer finishes it
     launches the app, which opens a sign-in dialog (`ndi.cloud.uilogin`)
     if you're not already signed in; enter the email and password for
-    your NDI cloud account. The credentials persist for subsequent
-    MATLAB sessions until you log out.
+    your NDI cloud account. Your sign-in lasts for a while and carries
+    over to later MATLAB sessions, but it expires after a period — when it
+    does, the sign-in dialog simply appears again and you re-enter your
+    details.
 
 ## If the install fails partway
 
