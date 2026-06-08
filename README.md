@@ -10,7 +10,8 @@ This repository provides a database system that enables the organization and clo
 | Guide | What's in it |
 | :--- | :--- |
 | **[Getting&nbsp;Started](docs/getting-started.md)** | Requirements, first-time setup, signing in to NDI cloud, fixing a partial install, and updating to the latest version. Start here. |
-| **[User Guide](docs/user-guide.md)** | Launching the app day to day, the two everyday tasks (**searching for records** and **adding new records**) with screenshots, and a full reference for every table method. |
+| **[User Guide](docs/user-guide.md)** | Launching the app day to day, plus the two everyday tasks — **searching for records** and **adding new records** — with screenshots. |
+| **[Reference](docs/reference.md)** | A full list of every method available on the Dataset, Session, Subject, and File tables. |
 
 ## For Developers
 
