@@ -37,8 +37,30 @@ sessionName = cellstr(sessionName); sessionName = sessionName{1};
 % Create session
 session = ndi.session.dir(sessionName, sessionPath);
 
-% Add session to dataset
-dataset.add_ingested_session(session);
+% Add session to dataset. add_ingested_session copies every document in
+% the session into the dataset's database, where each is re-validated
+% against its NDI/DID schema. An incompatible or incomplete session is
+% correctly rejected there — but the raw failure is a deep DID:Database
+% assertion that gives the user no idea what went wrong or what to do.
+% Catch that family and re-throw a plain-language error naming the
+% likely cause; let anything else propagate unchanged.
+funcId = 'NDI:Nansen:Import:Session';
+try
+    dataset.add_ingested_session(session);
+catch ME
+    if startsWith(ME.identifier, 'DID:')
+        error([funcId, ':IncompatibleSession'], ...
+            ['[%s:IncompatibleSession] The session at "%s" could not be ' ...
+             'imported: one of its documents failed database validation. ' ...
+             'This usually means the folder is not a complete or ' ...
+             'compatible NDI session — check that you selected the right ' ...
+             'session folder and that it was created with a compatible ' ...
+             'version.\nUnderlying error (%s): %s'], ...
+            funcId, sessionPath, ME.identifier, ME.message);
+    else
+        rethrow(ME);
+    end
+end
 
 end
 
