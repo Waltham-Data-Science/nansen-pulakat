@@ -32,9 +32,17 @@ function varargout = validate(fileObject, varargin)
 
     % --- Implementation of the method ---
 
-    project = nansen.getCurrentProject;
-    metaTable = project.MetaTableCatalog.getMetaTable('File');
-    fileTable = metaTable.getEntry({fileObject.FileIdentifier});
+    % Build the table straight from the selected row struct. The struct
+    % already carries every column the validator and the IsDocumented
+    % check need (SessionName, ElectronicFileName, DataTypeName,
+    % SubjectDocumentIdentifier, SessionIdentifier, SubjectIdentifier and
+    % FileDocumentIdentifier). Re-fetching with
+    % metaTable.getEntry({fileObject.FileIdentifier}) is both unnecessary
+    % and fragile: the File row struct handed to the object method does
+    % not reliably carry a FileIdentifier field, so keying off it threw
+    % "Unrecognized field name FileIdentifier" before validation could
+    % run.
+    fileTable = struct2table(fileObject, 'AsArray', true);
 
     [isValid, reportTable] = ndi.nansen.import.file.validate(fileTable);
     isDocument = ~strcmp(fileTable.FileDocumentIdentifier, 'N/A');
